@@ -4,7 +4,8 @@ const path = require('path');
 const multer = require('multer');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
-const session = require('express-session');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,19 +30,7 @@ function saveDB() {
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Simple session-based admin auth
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'change_this_secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false } // In production on https set true
-}));
-
-function checkAdmin(req, res, next) {
-  if (req.session && req.session.admin) return next();
-  return res.status(401).json({ error: 'unauthorized' });
-}
+app.use(cookieParser());
 
 // Multer setup for uploads
 const storage = multer.diskStorage({
@@ -70,7 +59,6 @@ app.get('/media/:filename', (req, res) => {
   const fileSize = stat.size;
   const range = req.headers.range;
   if (range) {
-    // Parse range
     const parts = range.replace(/bytes=/, "").split("-");
     const start = parseInt(parts[0], 10);
     const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
@@ -119,12 +107,29 @@ app.post('/api/tracks/:id/like', (req, res) => {
   res.json({ likes: t.likes });
 });
 
-// Admin login
+// Helper: check admin via JWT cookie
+function checkAdmin(req, res, next) {
+  const token = req.cookies && req.cookies.admin_token;
+  if (!token) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    const secret = process.env.SESSION_SECRET || 'change_this_secret';
+    const payload = jwt.verify(token, secret);
+    if (payload && payload.admin) return next();
+    return res.status(401).json({ error: 'unauthorized' });
+  } catch (err) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+}
+
+// Admin login (creates signed cookie)
 app.post('/api/admin/login', (req, res) => {
   const pass = req.body.password || '';
   const ADMIN_PASS = process.env.ADMIN_PASS || 'changeme';
   if (pass === ADMIN_PASS) {
-    req.session.admin = true;
+    const secret = process.env.SESSION_SECRET || 'change_this_secret';
+    const token = jwt.sign({ admin: true }, secret, { expiresIn: '7d' });
+    const isProd = process.env.NODE_ENV === 'production';
+    res.cookie('admin_token', token, { httpOnly: true, sameSite: 'lax', secure: isProd });
     res.json({ ok: true });
   } else {
     res.status(401).json({ error: 'invalid' });
@@ -133,7 +138,8 @@ app.post('/api/admin/login', (req, res) => {
 
 // Admin logout
 app.post('/api/admin/logout', (req, res) => {
-  req.session.destroy(() => res.json({ ok: true }));
+  res.clearCookie('admin_token');
+  res.json({ ok: true });
 });
 
 // Create track (admin)
@@ -145,7 +151,6 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
 
   let albumId = null;
   if (album) {
-    // find or create album
     let a = db.albums.find(x => x.name === album);
     if (!a) {
       a = { id: uuidv4(), name: album };
@@ -196,7 +201,6 @@ app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name:
   const audioFile = req.files['audio'] && req.files['audio'][0];
   const coverFile = req.files['cover'] && req.files['cover'][0];
   if (audioFile) {
-    // Optionally delete old audio file (not enforced)
     t.filename = audioFile.filename;
     t.originalName = audioFile.originalname;
   }
@@ -213,7 +217,6 @@ app.delete('/api/tracks/:id', checkAdmin, (req, res) => {
   const idx = db.tracks.findIndex(x => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not found' });
   const [removed] = db.tracks.splice(idx, 1);
-  // Note: files remain on disk; you can delete them manually if you want
   saveDB();
   res.json({ ok: true, removed });
 });
