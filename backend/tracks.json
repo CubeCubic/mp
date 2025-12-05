@@ -1,0 +1,17 @@
+{
+  "tracks": [
+    {
+      "id": "sample-track-1",
+      "title": "Sample Track 1",
+      "artist": "Artist",
+      "filename": "track1.mp3",
+      "originalName": "track1.mp3",
+      "cover": "track1.jpg",
+      "lyrics": "ეს არის ნიმუშის ტექსტი (sample lyrics).",
+      "albumId": null,
+      "likes": 0,
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "albums": []
+}
