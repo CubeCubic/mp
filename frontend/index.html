@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ka">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ჩემი მუსიკა — Cube Cubic</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Cube Cubic</h1>
+    <nav>
+      <a href="/admin.html">ადმინისტრატორი</a>
+    </nav>
+  </header>
+
+  <main id="app">
+    <section id="albums-section">
+      <h2>ალბომები</h2>
+      <div id="albums"></div>
+    </section>
+
+    <section id="tracks-section">
+      <h2>ტრეკები</h2>
+      <div id="tracks"></div>
+    </section>
+  </main>
+
+  <!-- Плеер (скрыт, появляется при воспроизведении) -->
+  <div id="player" class="hidden">
+    <div id="player-cover"><img id="player-cover-img" src="" alt=""></div>
+    <div id="player-info">
+      <div id="player-title"></div>
+      <div id="player-artist"></div>
+      <div id="player-controls">
+        <button id="prev">⏮</button>
+        <button id="rew">⏪10s</button>
+        <button id="play">▶</button>
+        <button id="fwd">10s⏩</button>
+        <button id="next">⏭</button>
+        <label>Ღმო: <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label>
+        <a id="download" href="#" download>ჩამოტვირთვა</a>
+      </div>
+      <div id="lyrics"></div>
+    </div>
+    <audio id="audio" preload="auto"></audio>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
