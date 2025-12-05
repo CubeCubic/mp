@@ -47,8 +47,8 @@
           <h4>${escapeHtml(t.title)}</h4>
           <div>${escapeHtml(t.artist || '')}</div>
           <div>
-            <button data-play="${t.id}">Დასაფრენი</button>
-            <a href="/uploads/${t.filename}" download>ჩამოტვირთვა</a>
+            <button data-play="${t.id}">დაკვრა</button>
+            <a href="/uploads/${t.filename}" download>ჩამოტვირთე</a>
             <button data-like="${t.id}">❤ <span>${t.likes||0}</span></button>
           </div>
         `;
