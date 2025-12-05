@@ -1,36 +1,44 @@
+```html
 <!doctype html>
 <html lang="ka">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ადმინისტრატორი — Cube Cubic</title>
+  <title>ადმინისტრატორი — CubeCubic</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header>
     <h1>ადმინისტრატორი</h1>
-    <a href="/">მთავარი გვერდი</a>
+    <a href="/">საპუბლიკო გვერდი</a>
   </header>
 
   <main id="admin-app">
     <div id="login-form">
-      <h2>შესვლა - changeme</h2>
+      <h2>შესვლა</h2>
       <input id="admin-password" type="password" placeholder="პაროლი">
       <button id="login-btn">შესვლა</button>
       <div id="login-msg"></div>
     </div>
 
     <div id="admin-panel" class="hidden">
-      <h2>ტრეკების მართვა</h2>
+      <h2>ტრექების მართვა</h2>
 
       <form id="add-track-form">
-        <h3>დაამატე ახალი ტრეკი</h3>
+        <h3>ახალი ტრეკი</h3>
         <input name="title" placeholder="სათაური" required>
         <input name="artist" placeholder="ვოკალი/მეპერფორმერი">
         <input name="album" placeholder="ალბომის სახელი (სურვილისამებრ)">
         <textarea name="lyrics" placeholder="ლირიკა"></textarea>
-        <label>აუდიო (.mp3/.wav/.flac): <input name="audio" type="file" accept=".mp3,.wav,.flac" required></label>
-        <label>ფოტო: <input name="cover" type="file" accept=".jpg,.jpeg,.png"></label>
+
+        <h4>მეთოდი: (გირჩევთ archive.org)</h4>
+        <label>Audio URL (archive.org): <input name="audioUrl" type="text" placeholder="https://archive.org/download/IDENTIFIER/FILE.mp3"></label>
+        <label>Cover URL (archive.org): <input name="coverUrl" type="text" placeholder="https://archive.org/download/IDENTIFIER/cover.jpg"></label>
+
+        <div style="margin-top:8px">თუ გინდათ, შეგიძლიათ პირდაპირ ატვირთოთ აქ (Server uploads):</div>
+        <label>აუდიო (.mp3/.wav/.flac): <input name="audio" type="file" accept=".mp3,.wav,.flac"></label>
+        <label>ობლო: <input name="cover" type="file" accept=".jpg,.jpeg,.png"></label>
+
         <button type="submit">დამატება</button>
       </form>
 
@@ -45,3 +53,4 @@
   <script src="/admin.js"></script>
 </body>
 </html>
+```
