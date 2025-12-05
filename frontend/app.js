@@ -12,6 +12,7 @@
     const nextBtn = document.getElementById('next');
     const volume = document.getElementById('volume');
     const downloadLink = document.getElementById('download');
+    const showLyricsBtn = document.getElementById('show-lyrics');
     const coverImg = document.getElementById('player-cover-img');
     const titleEl = document.getElementById('player-title');
     const artistEl = document.getElementById('player-artist');
@@ -25,8 +26,7 @@
     const mini = document.getElementById('player-mini');
     const miniResumeBtn = document.getElementById('mini-resume');
 
-    // Lyrics modal and button
-    const showLyricsBtn = document.getElementById('show-lyrics');
+    // Lyrics modal elements (modal HTML is in index.html)
     const lyricsModal = document.getElementById('lyrics-modal');
     const modalClose = document.getElementById('modal-close');
     const modalTitle = document.getElementById('modal-title');
@@ -41,7 +41,7 @@
     // Initially ensure everything hidden
     playerEl.classList.add('hidden');
     mini.classList.add('hidden');
-    lyricsModal.classList.add('hidden');
+    lyricsModal && lyricsModal.classList.add('hidden');
 
     async function load() {
       tracks = await (await fetch('/api/tracks')).json();
@@ -63,11 +63,11 @@
         const el = document.createElement('div');
         el.className = 'card';
         el.innerHTML = `
-          ${t.cover ? `<img class="track-cover" src="/uploads/${t.cover}" data-id="${t.id}">` : ''}
+          ${t.coverUrl ? `<img class="track-cover" src="${t.coverUrl}" data-id="${t.id}">` : (t.cover ? `<img class="track-cover" src="/uploads/${t.cover}" data-id="${t.id}">` : '')}
           <h4 class="track-title" data-id="${t.id}">${escapeHtml(t.title)}</h4>
           <div>${escapeHtml(t.artist || '')}</div>
           <div>
-            <a href="/uploads/${t.filename}" download>ჩამოტვირთვა</a>
+            <a href="${t.audioUrl ? t.audioUrl : (t.filename ? '/uploads/' + t.filename : '#')}" download>ჩამოტვირთვა</a>
             <button data-like="${t.id}">❤ <span>${t.likes||0}</span></button>
           </div>
         `;
@@ -86,6 +86,13 @@
       });
     }
 
+    function getTrackStreamUrl(t) {
+      // prefer external URL (archive.org) if present; else fallback to local streaming route
+      if (t.audioUrl) return t.audioUrl;
+      if (t.filename) return `/media/${t.filename}`;
+      return null;
+    }
+
     function togglePlayById(id) {
       const idx = tracks.findIndex(x => x.id === id);
       if (idx === -1) return;
@@ -100,18 +107,22 @@
         // different track: load and play
         currentIndex = idx;
         const t = tracks[currentIndex];
-        audio.src = `/media/${t.filename}`;
+        const url = getTrackStreamUrl(t);
+        if (!url) {
+          alert('Audio not available for this track');
+          return;
+        }
+        audio.src = url;
         titleEl.textContent = t.title;
         artistEl.textContent = t.artist || '';
-        if (t.cover) coverImg.src = `/uploads/${t.cover}`; else coverImg.src = '';
-        downloadLink.href = `/uploads/${t.filename}`;
+        if (t.coverUrl) coverImg.src = t.coverUrl; else if (t.cover) coverImg.src = `/uploads/${t.cover}`; else coverImg.src = '';
+        downloadLink.href = url;
         // do NOT force-show player here; show on 'play' event
         audio.play().then(() => {
           // success -> 'play' event will fire and show player
         }).catch(err => {
-          // even if play() failed (rare when click initiated), we don't show blocking overlay
+          // if user-initiated click, play() should not be blocked; log but continue
           console.warn('play failed', err);
-          // still mark that user interacted
           hasPlayedOnce = true;
         });
       }
@@ -129,22 +140,26 @@
       if (tracks.length === 0) return;
       currentIndex = (currentIndex - 1 + tracks.length) % tracks.length;
       const t = tracks[currentIndex];
-      audio.src = `/media/${t.filename}`;
+      const url = getTrackStreamUrl(t);
+      if (!url) return;
+      audio.src = url;
       titleEl.textContent = t.title;
       artistEl.textContent = t.artist || '';
-      if (t.cover) coverImg.src = `/uploads/${t.cover}`; else coverImg.src = '';
-      downloadLink.href = `/uploads/${t.filename}`;
+      if (t.coverUrl) coverImg.src = t.coverUrl; else if (t.cover) coverImg.src = `/uploads/${t.cover}`; else coverImg.src = '';
+      downloadLink.href = url;
       audio.play().catch(() => {});
     });
     nextBtn && nextBtn.addEventListener('click', () => {
       if (tracks.length === 0) return;
       currentIndex = (currentIndex + 1) % tracks.length;
       const t = tracks[currentIndex];
-      audio.src = `/media/${t.filename}`;
+      const url = getTrackStreamUrl(t);
+      if (!url) return;
+      audio.src = url;
       titleEl.textContent = t.title;
       artistEl.textContent = t.artist || '';
-      if (t.cover) coverImg.src = `/uploads/${t.cover}`; else coverImg.src = '';
-      downloadLink.href = `/uploads/${t.filename}`;
+      if (t.coverUrl) coverImg.src = t.coverUrl; else if (t.cover) coverImg.src = `/uploads/${t.cover}`; else coverImg.src = '';
+      downloadLink.href = url;
       audio.play().catch(() => {});
     });
     volume && volume.addEventListener('input', () => { audio.volume = volume.value; });
@@ -154,17 +169,16 @@
       audio.play().catch(() => {});
     });
 
-    // Show lyrics modal
+    // Show lyrics modal (button in player)
     showLyricsBtn && showLyricsBtn.addEventListener('click', () => {
       if (currentIndex === -1) return;
       const t = tracks[currentIndex];
       modalTitle.textContent = t.title || 'ლირიკა';
       modalLyrics.textContent = t.lyrics || 'ლირიკა არ არის';
-      lyricsModal.classList.remove('hidden');
+      lyricsModal && lyricsModal.classList.remove('hidden');
     });
-    modalClose && modalClose.addEventListener('click', () => lyricsModal.classList.add('hidden'));
-    lyricsModal.addEventListener('click', (e) => {
-      // close when click outside modal-box
+    modalClose && modalClose.addEventListener('click', () => lyricsModal && lyricsModal.classList.add('hidden'));
+    lyricsModal && lyricsModal.addEventListener('click', (e) => {
       if (e.target === lyricsModal) lyricsModal.classList.add('hidden');
     });
 
@@ -191,7 +205,7 @@
       // When track ends, hide all and reset
       playerEl.classList.add('hidden');
       mini.classList.add('hidden');
-      lyricsModal.classList.add('hidden');
+      lyricsModal && lyricsModal.classList.add('hidden');
       audio.src = '';
       currentIndex = -1;
       hasPlayedOnce = false;
