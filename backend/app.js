@@ -1,3 +1,4 @@
+// Замените существующий backend/app.js этим файлом
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -6,6 +7,8 @@ const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const AWS = require('aws-sdk');
+const mime = require('mime-types');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,25 +35,39 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Multer setup for local uploads
+// Multer setup for local uploads (temp storage)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, UPLOADS_DIR);
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    cb(null, uuidv4() + ext);
+    // keep original name on disk to preserve for archive upload
+    cb(null, Date.now() + '-' + file.originalname);
   }
 });
 const upload = multer({ storage });
 
-// Serve uploaded files (local uploads, still supported)
+// Configure S3 client for Internet Archive if keys are present
+let s3client = null;
+if (process.env.IA_ACCESS_KEY && process.env.IA_SECRET_KEY) {
+  AWS.config.update({
+    accessKeyId: process.env.IA_ACCESS_KEY,
+    secretAccessKey: process.env.IA_SECRET_KEY,
+    signatureVersion: 'v4'
+  });
+  s3client = new AWS.S3({
+    endpoint: 'https://s3.us.archive.org',
+    s3ForcePathStyle: true
+  });
+}
+
+// Serve uploaded files (local uploads)
 app.use('/uploads', express.static(UPLOADS_DIR));
 
 // Serve frontend static
 app.use('/', express.static(path.join(__dirname, '..', 'frontend')));
 
-// Streaming route for local uploads (backward compatibility)
+// Legacy local streaming route (unchanged)
 app.get('/media/:filename', (req, res) => {
   const filePath = path.join(UPLOADS_DIR, req.params.filename);
   if (!fs.existsSync(filePath)) return res.status(404).end();
@@ -142,10 +159,7 @@ app.post('/api/admin/logout', (req, res) => {
   res.json({ ok: true });
 });
 
-/*
-  Create track (local upload)
-  - multipart/form-data with fields: title, artist, lyrics, album, files audio and cover
-*/
+/* Existing local upload route (unchanged) */
 app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'cover' }]), (req, res) => {
   const { title = 'Untitled', artist = '', lyrics = '', album = '' } = req.body;
   const audioFile = req.files['audio'] && req.files['audio'][0];
@@ -166,9 +180,9 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
     id: uuidv4(),
     title,
     artist,
-    filename: audioFile.filename, // local file
+    filename: audioFile.filename,
     originalName: audioFile.originalname,
-    audioUrl: null, // not external
+    audioUrl: null,
     cover: coverFile ? coverFile.filename : null,
     coverUrl: null,
     lyrics,
@@ -182,20 +196,98 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
 });
 
 /*
-  Create track (external URLs / JSON)
-  Expected JSON body:
-  { title, artist, lyrics, album, audioUrl, coverUrl }
-  audioUrl is required for this route.
+  New route: upload files to archive.org (S3) and create track with external URLs.
+  Expects multipart/form-data with possible files 'audio' and 'cover', and fields:
+    title, artist, lyrics, album, archiveIdentifier (required), optional audioFilename/coverFilename to override names.
 */
+app.post('/api/upload-archive', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'cover' }]), async (req, res) => {
+  if (!s3client) return res.status(500).json({ error: 'Archive.org keys not configured on server' });
+
+  const { title = 'Untitled', artist = '', lyrics = '', album = '', archiveIdentifier = '' } = req.body;
+  if (!archiveIdentifier) return res.status(400).json({ error: 'archiveIdentifier required' });
+
+  const audioFile = req.files['audio'] && req.files['audio'][0];
+  const coverFile = req.files['cover'] && req.files['cover'][0];
+  if (!audioFile) return res.status(400).json({ error: 'audio required' });
+
+  // Decide keys (use original file names or optional override)
+  const audioKey = (req.body.audioFilename && req.body.audioFilename.trim()) ? req.body.audioFilename.trim() : audioFile.originalname;
+  const coverKey = coverFile ? ((req.body.coverFilename && req.body.coverFilename.trim()) ? req.body.coverFilename.trim() : coverFile.originalname) : null;
+
+  try {
+    // Upload audio
+    const audioStream = fs.createReadStream(audioFile.path);
+    const audioContentType = mime.lookup(audioFile.originalname) || 'application/octet-stream';
+    await s3client.upload({
+      Bucket: archiveIdentifier,
+      Key: audioKey,
+      Body: audioStream,
+      ContentType: audioContentType,
+      ACL: 'public-read'
+    }).promise();
+
+    // Upload cover if present
+    if (coverFile) {
+      const coverStream = fs.createReadStream(coverFile.path);
+      const coverContentType = mime.lookup(coverFile.originalname) || 'application/octet-stream';
+      await s3client.upload({
+        Bucket: archiveIdentifier,
+        Key: coverKey,
+        Body: coverStream,
+        ContentType: coverContentType,
+        ACL: 'public-read'
+      }).promise();
+    }
+
+    // Build archive URLs
+    const audioUrl = `https://archive.org/download/${archiveIdentifier}/${encodeURIComponent(audioKey)}`;
+    const coverUrl = coverKey ? `https://archive.org/download/${archiveIdentifier}/${encodeURIComponent(coverKey)}` : null;
+
+    // Create album if needed
+    let albumId = null;
+    if (album) {
+      let a = db.albums.find(x => x.name === album);
+      if (!a) {
+        a = { id: uuidv4(), name: album };
+        db.albums.push(a);
+      }
+      albumId = a.id;
+    }
+
+    // Create track entry with external URLs
+    const track = {
+      id: uuidv4(),
+      title,
+      artist,
+      filename: null,
+      originalName: null,
+      audioUrl,
+      cover: null,
+      coverUrl,
+      lyrics,
+      albumId,
+      likes: 0,
+      createdAt: new Date().toISOString()
+    };
+    db.tracks.push(track);
+    saveDB();
+
+    // Clean up local temp files
+    try { fs.unlinkSync(audioFile.path); } catch(e) { /* ignore */ }
+    if (coverFile) try { fs.unlinkSync(coverFile.path); } catch(e) { /* ignore */ }
+
+    res.json({ ok: true, track });
+  } catch (err) {
+    console.error('upload-archive error', err);
+    res.status(500).json({ error: 'upload failed', details: err.message || String(err) });
+  }
+});
+
+// Existing JSON and update routes (unchanged) ...
+// Create track via JSON (external URL)
 app.post('/api/tracks/json', checkAdmin, (req, res) => {
   const { title = 'Untitled', artist = '', lyrics = '', album = '', audioUrl = '', coverUrl = '' } = req.body;
   if (!audioUrl) return res.status(400).json({ error: 'audioUrl required' });
-
-  // Optional: validate that audioUrl contains archive.org (recommended)
-  // if (!audioUrl.includes('archive.org')) {
-  //   return res.status(400).json({ error: 'audioUrl must be on archive.org for recommended workflow' });
-  // }
-
   let albumId = null;
   if (album) {
     let a = db.albums.find(x => x.name === album);
@@ -205,12 +297,11 @@ app.post('/api/tracks/json', checkAdmin, (req, res) => {
     }
     albumId = a.id;
   }
-
   const track = {
     id: uuidv4(),
     title,
     artist,
-    filename: null, // no local file
+    filename: null,
     originalName: null,
     audioUrl,
     cover: null,
@@ -225,7 +316,7 @@ app.post('/api/tracks/json', checkAdmin, (req, res) => {
   res.json(track);
 });
 
-// Update track (local upload)
+// Update routes (existing) ...
 app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'cover' }]), (req, res) => {
   const t = db.tracks.find(x => x.id === req.params.id);
   if (!t) return res.status(404).json({ error: 'not found' });
@@ -252,7 +343,7 @@ app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name:
   if (audioFile) {
     t.filename = audioFile.filename;
     t.originalName = audioFile.originalname;
-    t.audioUrl = null; // clear external url
+    t.audioUrl = null;
   }
   if (coverFile) {
     t.cover = coverFile.filename;
@@ -263,7 +354,6 @@ app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name:
   res.json(t);
 });
 
-// Update track (JSON / external URLs)
 app.put('/api/tracks/:id/json', checkAdmin, (req, res) => {
   const t = db.tracks.find(x => x.id === req.params.id);
   if (!t) return res.status(404).json({ error: 'not found' });
@@ -304,17 +394,14 @@ app.delete('/api/tracks/:id', checkAdmin, (req, res) => {
   const idx = db.tracks.findIndex(x => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not found' });
   const [removed] = db.tracks.splice(idx, 1);
-  // Note: files remain on disk if local; you can delete them manually if you want
   saveDB();
   res.json({ ok: true, removed });
 });
 
-// Albums list
+// Albums and album routes (unchanged)
 app.get('/api/albums', (req, res) => {
   res.json(db.albums);
 });
-
-// Update album name (admin)
 app.put('/api/albums/:id', checkAdmin, (req, res) => {
   const a = db.albums.find(x => x.id === req.params.id);
   if (!a) return res.status(404).json({ error: 'not found' });
@@ -324,8 +411,6 @@ app.put('/api/albums/:id', checkAdmin, (req, res) => {
   saveDB();
   res.json(a);
 });
-
-// Delete album (admin) — does not delete tracks, only clears albumId from tracks
 app.delete('/api/albums/:id', checkAdmin, (req, res) => {
   const idx = db.albums.findIndex(x => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not found' });
