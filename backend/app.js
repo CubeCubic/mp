@@ -1,4 +1,3 @@
-// Замените существующий backend/app.js этим файлом
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -7,7 +6,8 @@ const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const AWS = require('aws-sdk');
+const { S3Client } = require('@aws-sdk/client-s3');
+const { Upload } = require('@aws-sdk/lib-storage');
 const mime = require('mime-types');
 
 const app = express();
@@ -47,17 +47,17 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Configure S3 client for Internet Archive if keys are present
+// Configure S3 client for Internet Archive if keys are present (v3)
 let s3client = null;
 if (process.env.IA_ACCESS_KEY && process.env.IA_SECRET_KEY) {
-  AWS.config.update({
-    accessKeyId: process.env.IA_ACCESS_KEY,
-    secretAccessKey: process.env.IA_SECRET_KEY,
-    signatureVersion: 'v4'
-  });
-  s3client = new AWS.S3({
+  s3client = new S3Client({
     endpoint: 'https://s3.us.archive.org',
-    s3ForcePathStyle: true
+    region: 'us-east-1',
+    forcePathStyle: true,
+    credentials: {
+      accessKeyId: process.env.IA_ACCESS_KEY,
+      secretAccessKey: process.env.IA_SECRET_KEY
+    }
   });
 }
 
@@ -196,7 +196,7 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
 });
 
 /*
-  New route: upload files to archive.org (S3) and create track with external URLs.
+  New route: upload files to archive.org (S3 v3) and create track with external URLs.
   Expects multipart/form-data with possible files 'audio' and 'cover', and fields:
     title, artist, lyrics, album, archiveIdentifier (required), optional audioFilename/coverFilename to override names.
 */
@@ -215,28 +215,36 @@ app.post('/api/upload-archive', checkAdmin, upload.fields([{ name: 'audio' }, { 
   const coverKey = coverFile ? ((req.body.coverFilename && req.body.coverFilename.trim()) ? req.body.coverFilename.trim() : coverFile.originalname) : null;
 
   try {
-    // Upload audio
+    // Upload audio using @aws-sdk/lib-storage Upload (supports multipart)
     const audioStream = fs.createReadStream(audioFile.path);
     const audioContentType = mime.lookup(audioFile.originalname) || 'application/octet-stream';
-    await s3client.upload({
-      Bucket: archiveIdentifier,
-      Key: audioKey,
-      Body: audioStream,
-      ContentType: audioContentType,
-      ACL: 'public-read'
-    }).promise();
+    const audioUpload = new Upload({
+      client: s3client,
+      params: {
+        Bucket: archiveIdentifier,
+        Key: audioKey,
+        Body: audioStream,
+        ContentType: audioContentType,
+        ACL: 'public-read'
+      }
+    });
+    await audioUpload.done();
 
     // Upload cover if present
     if (coverFile) {
       const coverStream = fs.createReadStream(coverFile.path);
       const coverContentType = mime.lookup(coverFile.originalname) || 'application/octet-stream';
-      await s3client.upload({
-        Bucket: archiveIdentifier,
-        Key: coverKey,
-        Body: coverStream,
-        ContentType: coverContentType,
-        ACL: 'public-read'
-      }).promise();
+      const coverUpload = new Upload({
+        client: s3client,
+        params: {
+          Bucket: archiveIdentifier,
+          Key: coverKey,
+          Body: coverStream,
+          ContentType: coverContentType,
+          ACL: 'public-read'
+        }
+      });
+      await coverUpload.done();
     }
 
     // Build archive URLs
