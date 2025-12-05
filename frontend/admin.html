@@ -30,12 +30,9 @@
         <input name="album" placeholder="ალბომის სახელი (სურვილისამებრ)">
         <textarea name="lyrics" placeholder="ლირიკა"></textarea>
 
-        <h4>Archive.org (автозагрузка)</h4>
-        <label><input type="checkbox" name="uploadToArchive" id="uploadToArchive"> Автоматически загрузить на archive.org</label>
-        <div id="archive-fields" style="display:none; margin-top:8px;">
-          <label>Identifier (item id): <input name="archiveIdentifier" placeholder="пример: cube-mp-2025-album1"></label>
-          <small>Файлы будут загружены в https://archive.org/download/IDENTIFIER/</small>
-        </div>
+        <h4>Если у вас уже есть файл в интернете (например archive.org), вставьте URL'ы:</h4>
+        <label>Audio URL: <input name="audioUrl" type="text" placeholder="https://.../track.mp3"></label>
+        <label>Cover URL: <input name="coverUrl" type="text" placeholder="https://.../cover.jpg"></label>
 
         <div style="margin-top:8px">Или загрузите файлы локально (Server uploads):</div>
         <label>აუდიო (.mp3/.wav/.flac): <input name="audio" type="file" accept=".mp3,.wav,.flac"></label>
