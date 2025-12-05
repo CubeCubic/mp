@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ka">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ადმინისტრატორი — Cube Cubic</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <h1>ადმინისტრატორი</h1>
+    <a href="/">მთავარი გვერდი</a>
+  </header>
+
+  <main id="admin-app">
+    <div id="login-form">
+      <h2>შესვლა</h2>
+      <input id="admin-password" type="password" placeholder="პაროლი">
+      <button id="login-btn">შესვლა</button>
+      <div id="login-msg"></div>
+    </div>
+
+    <div id="admin-panel" class="hidden">
+      <h2>ტრეკების მართვა</h2>
+
+      <form id="add-track-form">
+        <h3>ახალი ტრეკი</h3>
+        <input name="title" placeholder="სათაური" required>
+        <input name="artist" placeholder="ვოკალი/მეპერფორმერი">
+        <input name="album" placeholder="ალბომის სახელი (სურვილისამებრ)">
+        <textarea name="lyrics" placeholder="ლირიკა"></textarea>
+        <label>აუდიო (.mp3/.wav/.flac): <input name="audio" type="file" accept=".mp3,.wav,.flac" required></label>
+        <label>ფოტო: <input name="cover" type="file" accept=".jpg,.jpeg,.png"></label>
+        <button type="submit">დამატება</button>
+      </form>
+
+      <h3>არსებული ტრეკები</h3>
+      <div id="admin-tracks"></div>
+
+      <button id="logout-btn">გამოსვლა</button>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+  <script src="/admin.js"></script>
+</body>
+</html>
