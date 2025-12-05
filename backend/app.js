@@ -32,7 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Multer setup for uploads
+// Multer setup for local uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, UPLOADS_DIR);
@@ -44,13 +44,13 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Serve uploaded files (public)
+// Serve uploaded files (local uploads, still supported)
 app.use('/uploads', express.static(UPLOADS_DIR));
 
 // Serve frontend static
 app.use('/', express.static(path.join(__dirname, '..', 'frontend')));
 
-// Streaming route with Range support
+// Streaming route for local uploads (backward compatibility)
 app.get('/media/:filename', (req, res) => {
   const filePath = path.join(UPLOADS_DIR, req.params.filename);
   if (!fs.existsSync(filePath)) return res.status(404).end();
@@ -142,7 +142,10 @@ app.post('/api/admin/logout', (req, res) => {
   res.json({ ok: true });
 });
 
-// Create track (admin)
+/*
+  Create track (local upload)
+  - multipart/form-data with fields: title, artist, lyrics, album, files audio and cover
+*/
 app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'cover' }]), (req, res) => {
   const { title = 'Untitled', artist = '', lyrics = '', album = '' } = req.body;
   const audioFile = req.files['audio'] && req.files['audio'][0];
@@ -163,9 +166,11 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
     id: uuidv4(),
     title,
     artist,
-    filename: audioFile.filename,
+    filename: audioFile.filename, // local file
     originalName: audioFile.originalname,
+    audioUrl: null, // not external
     cover: coverFile ? coverFile.filename : null,
+    coverUrl: null,
     lyrics,
     albumId,
     likes: 0,
@@ -176,7 +181,51 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
   res.json(track);
 });
 
-// Update track (admin)
+/*
+  Create track (external URLs / JSON)
+  Expected JSON body:
+  { title, artist, lyrics, album, audioUrl, coverUrl }
+  audioUrl is required for this route.
+*/
+app.post('/api/tracks/json', checkAdmin, (req, res) => {
+  const { title = 'Untitled', artist = '', lyrics = '', album = '', audioUrl = '', coverUrl = '' } = req.body;
+  if (!audioUrl) return res.status(400).json({ error: 'audioUrl required' });
+
+  // Optional: validate that audioUrl contains archive.org (recommended)
+  // if (!audioUrl.includes('archive.org')) {
+  //   return res.status(400).json({ error: 'audioUrl must be on archive.org for recommended workflow' });
+  // }
+
+  let albumId = null;
+  if (album) {
+    let a = db.albums.find(x => x.name === album);
+    if (!a) {
+      a = { id: uuidv4(), name: album };
+      db.albums.push(a);
+    }
+    albumId = a.id;
+  }
+
+  const track = {
+    id: uuidv4(),
+    title,
+    artist,
+    filename: null, // no local file
+    originalName: null,
+    audioUrl,
+    cover: null,
+    coverUrl: coverUrl || null,
+    lyrics,
+    albumId,
+    likes: 0,
+    createdAt: new Date().toISOString()
+  };
+  db.tracks.push(track);
+  saveDB();
+  res.json(track);
+});
+
+// Update track (local upload)
 app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'cover' }]), (req, res) => {
   const t = db.tracks.find(x => x.id === req.params.id);
   if (!t) return res.status(404).json({ error: 'not found' });
@@ -203,9 +252,47 @@ app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name:
   if (audioFile) {
     t.filename = audioFile.filename;
     t.originalName = audioFile.originalname;
+    t.audioUrl = null; // clear external url
   }
   if (coverFile) {
     t.cover = coverFile.filename;
+    t.coverUrl = null;
+  }
+
+  saveDB();
+  res.json(t);
+});
+
+// Update track (JSON / external URLs)
+app.put('/api/tracks/:id/json', checkAdmin, (req, res) => {
+  const t = db.tracks.find(x => x.id === req.params.id);
+  if (!t) return res.status(404).json({ error: 'not found' });
+
+  const { title, artist, lyrics, album, audioUrl, coverUrl } = req.body;
+  if (title) t.title = title;
+  if (artist) t.artist = artist;
+  if (lyrics) t.lyrics = lyrics;
+
+  if (album !== undefined) {
+    if (album === '') t.albumId = null;
+    else {
+      let a = db.albums.find(x => x.name === album);
+      if (!a) {
+        a = { id: uuidv4(), name: album };
+        db.albums.push(a);
+      }
+      t.albumId = a.id;
+    }
+  }
+
+  if (audioUrl) {
+    t.audioUrl = audioUrl;
+    t.filename = null;
+    t.originalName = null;
+  }
+  if (coverUrl) {
+    t.coverUrl = coverUrl;
+    t.cover = null;
   }
 
   saveDB();
@@ -217,6 +304,7 @@ app.delete('/api/tracks/:id', checkAdmin, (req, res) => {
   const idx = db.tracks.findIndex(x => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not found' });
   const [removed] = db.tracks.splice(idx, 1);
+  // Note: files remain on disk if local; you can delete them manually if you want
   saveDB();
   res.json({ ok: true, removed });
 });
