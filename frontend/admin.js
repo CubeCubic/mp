@@ -1,4 +1,4 @@
-// Admin UI logic
+// Admin UI logic (supports archive.org URLs and local uploads)
 (async function() {
   if (!document.getElementById('admin-app')) return;
   const loginForm = document.getElementById('login-form');
@@ -10,11 +10,6 @@
   const addForm = document.getElementById('add-track-form');
   const adminTracks = document.getElementById('admin-tracks');
   const logoutBtn = document.getElementById('logout-btn');
-
-  async function checkAuth() {
-    // We don't have endpoint to check session; attempt to fetch tracks for admin operations will return 401 if not authed.
-    // Try to list albums (public) and show login anyway.
-  }
 
   loginBtn.addEventListener('click', async () => {
     const password = passwordInput.value;
@@ -40,15 +35,46 @@
 
   addForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const fd = new FormData(addForm);
-    const res = await fetch('/api/tracks', { method: 'POST', body: fd });
-    if (res.ok) {
-      alert('ტრეკი დამატებულია');
-      addForm.reset();
-      loadAdminData();
-    } else {
-      const j = await res.json();
-      alert('საფუძველი: ' + (j.error || 'unknown'));
+
+    // read fields
+    const form = e.currentTarget;
+    const title = form.elements['title'].value;
+    const artist = form.elements['artist'].value;
+    const album = form.elements['album'].value;
+    const lyrics = form.elements['lyrics'].value;
+    const audioUrl = form.elements['audioUrl'].value.trim();
+    const coverUrl = form.elements['coverUrl'].value.trim();
+    const audioFile = form.elements['audio'].files[0];
+    const coverFile = form.elements['cover'].files[0];
+
+    try {
+      let res;
+      if ((audioFile) || (coverFile) || (!audioUrl)) {
+        // If user uploaded a file (or no audioUrl provided), use FormData and local upload route
+        const fd = new FormData();
+        fd.append('title', title);
+        fd.append('artist', artist);
+        fd.append('album', album);
+        fd.append('lyrics', lyrics);
+        if (audioFile) fd.append('audio', audioFile);
+        if (coverFile) fd.append('cover', coverFile);
+        res = await fetch('/api/tracks', { method: 'POST', body: fd });
+      } else {
+        // Use external URLs (JSON route)
+        const payload = { title, artist, album, lyrics, audioUrl, coverUrl };
+        res = await fetch('/api/tracks/json', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      }
+
+      if (res.ok) {
+        alert('ტრეკი დამატებულია');
+        addForm.reset();
+        loadAdminData();
+      } else {
+        const j = await res.json();
+        alert('შეცდომა: ' + (j.error || 'unknown'));
+      }
+    } catch (err) {
+      alert('შეიძლა პრობლემა: ' + err.message);
     }
   });
 
@@ -59,7 +85,7 @@
       const el = document.createElement('div');
       el.className = 'card';
       el.innerHTML = `
-        ${t.cover ? `<img src="/uploads/${t.cover}">` : ''}
+        ${t.coverUrl ? `<img src="${t.coverUrl}">` : (t.cover ? `<img src="/uploads/${t.cover}">` : '')}
         <h4>${escapeHtml(t.title)}</h4>
         <div>${escapeHtml(t.artist || '')}</div>
         <div>
@@ -89,31 +115,59 @@
       <input id="e-artist" value="${escapeHtml(track.artist || '')}">
       <input id="e-album" placeholder="ალბომი">
       <textarea id="e-lyrics">${escapeHtml(track.lyrics || '')}</textarea>
-      <label>აუდიო (გაჩუქება): <input id="e-audio" type="file" accept=".mp3,.wav,.flac"></label>
-      <label>ობლო (გაჩუქება): <input id="e-cover" type="file" accept=".jpg,.jpeg,.png"></label>
+      <h4>External URLs (archive.org)</h4>
+      <input id="e-audioUrl" placeholder="https://archive.org/download/IDENTIFIER/FILE.mp3" value="${escapeHtml(track.audioUrl || '')}">
+      <input id="e-coverUrl" placeholder="https://archive.org/download/IDENTIFIER/cover.jpg" value="${escapeHtml(track.coverUrl || '')}">
+      <div style="margin-top:8px">Or upload files:</div>
+      <label>აუდიო (upload): <input id="e-audio" type="file" accept=".mp3,.wav,.flac"></label>
+      <label>ობლო (upload): <input id="e-cover" type="file" accept=".jpg,.jpeg,.png"></label>
       <button id="e-save">შენახვა</button>
       <button id="e-cancel">გაუქმება</button>
     `;
     adminTracks.prepend(dlg);
     dlg.querySelector('#e-cancel').addEventListener('click', () => dlg.remove());
     dlg.querySelector('#e-save').addEventListener('click', async () => {
-      const fd = new FormData();
-      fd.append('title', dlg.querySelector('#e-title').value);
-      fd.append('artist', dlg.querySelector('#e-artist').value);
-      fd.append('lyrics', dlg.querySelector('#e-lyrics').value);
-      const albumVal = dlg.querySelector('#e-album').value;
-      if (albumVal) fd.append('album', albumVal);
+      const title = dlg.querySelector('#e-title').value;
+      const artist = dlg.querySelector('#e-artist').value;
+      const lyrics = dlg.querySelector('#e-lyrics').value;
+      const album = dlg.querySelector('#e-album').value;
+      const audioUrl = dlg.querySelector('#e-audioUrl').value.trim();
+      const coverUrl = dlg.querySelector('#e-coverUrl').value.trim();
       const audioFile = dlg.querySelector('#e-audio').files[0];
       const coverFile = dlg.querySelector('#e-cover').files[0];
-      if (audioFile) fd.append('audio', audioFile);
-      if (coverFile) fd.append('cover', coverFile);
-      const res = await fetch(`/api/tracks/${track.id}`, { method: 'PUT', body: fd });
-      if (res.ok) {
-        alert('შენახულია');
-        dlg.remove();
-        loadAdminData();
-      } else {
-        alert('შეცდომა შენახვის დროს');
+
+      try {
+        let res;
+        if (audioFile || coverFile) {
+          const fd = new FormData();
+          if (title) fd.append('title', title);
+          if (artist) fd.append('artist', artist);
+          if (lyrics) fd.append('lyrics', lyrics);
+          if (album) fd.append('album', album);
+          if (audioFile) fd.append('audio', audioFile);
+          if (coverFile) fd.append('cover', coverFile);
+          res = await fetch(`/api/tracks/${track.id}`, { method: 'PUT', body: fd });
+        } else {
+          // update via JSON (external URLs)
+          const payload = {};
+          if (title) payload.title = title;
+          if (artist) payload.artist = artist;
+          if (lyrics) payload.lyrics = lyrics;
+          if (album) payload.album = album;
+          if (audioUrl) payload.audioUrl = audioUrl;
+          if (coverUrl) payload.coverUrl = coverUrl;
+          res = await fetch(`/api/tracks/${track.id}/json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        }
+
+        if (res.ok) {
+          alert('შენახულია');
+          dlg.remove();
+          loadAdminData();
+        } else {
+          alert('შეცდომა შენახვის დროს');
+        }
+      } catch (err) {
+        alert('შეიძლა პრობლემა: ' + err.message);
       }
     });
   }
