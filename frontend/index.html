@@ -25,7 +25,6 @@
     </section>
   </main>
   <!-- Full player (hidden until playback starts) -->
-  <div id="player" class="hidden" role="region" aria-label="Player">
     <div id="player-cover"><img id="player-cover-img" src="" alt=""></div>
     <div id="player-info">
       <div id="player-title"></div>
@@ -48,11 +47,7 @@
     </div>
     <audio id="audio" preload="auto"></audio>
   </div>
-  <!-- Mini player shown when paused (not shown before first play) -->
-  <div id="player-mini" class="hidden" aria-hidden="true" title="აღდგენა">
-    <button id="mini-resume">▶</button>
-  </div>
-  <!-- Lyrics modal -->
+    <!-- Lyrics modal -->
   <div id="lyrics-modal" class="hidden" role="dialog" aria-modal="true">
     <div class="modal-box">
       <button id="modal-close" aria-label="close">✖</button>
