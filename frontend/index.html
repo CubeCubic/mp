@@ -4,60 +4,54 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Cube Cubic</title>
+  <link rel="icon" type="image/png" href="/images/favicon.png">  <!-- Add this line for the favicon -->
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header>
-    <h1>მობრძანდით</h1>
+    <h1>Cube Cubic - კეთილი იყოს თქვენი მობრძანება</h1>
     <nav>
       <a href="/admin.html">ადმინისტრატორი</a>
     </nav>
   </header>
-
   <main id="app">
     <section id="albums-section">
       <h2>ალბომები</h2>
       <div id="albums"></div>
     </section>
-
     <section id="tracks-section">
       <h2>ტრეკები</h2>
       <div id="tracks"></div>
     </section>
   </main>
-
   <!-- Full player (hidden until playback starts) -->
   <div id="player" class="hidden" role="region" aria-label="Player">
     <div id="player-cover"><img id="player-cover-img" src="" alt=""></div>
     <div id="player-info">
       <div id="player-title"></div>
       <div id="player-artist"></div>
-
       <!-- Progress bar -->
       <div id="player-progress">
         <span id="time-current">0:00</span>
         <input id="progress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Progress">
         <span id="time-duration">0:00</span>
       </div>
-
       <div id="player-controls">
         <button id="prev" title="წინა">⏮</button>
         <button id="play" title="პაუზა/დაწყება">⏸</button>
         <button id="next" title="შემდეგი">⏭</button>
         <label>Ღმო: <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label>
         <!-- NEW: lyrics button above download -->
-        <button id="show-lyrics" title="ლირიკა">ლირიკა</button>
+        <button id="show-lyrics" title="ლირიკა">ტექსტი</button>
         <a id="download" href="#" download>ჩამოტვირთვა</a>
       </div>
     </div>
     <audio id="audio" preload="auto"></audio>
   </div>
-
   <!-- Mini player shown when paused (not shown before first play) -->
   <div id="player-mini" class="hidden" aria-hidden="true" title="აღდგენა">
     <button id="mini-resume">▶</button>
   </div>
-
   <!-- Lyrics modal -->
   <div id="lyrics-modal" class="hidden" role="dialog" aria-modal="true">
     <div class="modal-box">
@@ -66,7 +60,6 @@
       <pre id="modal-lyrics"></pre>
     </div>
   </div>
-
   <script src="/app.js"></script>
 </body>
 </html>
