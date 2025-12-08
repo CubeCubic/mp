@@ -1,3 +1,19 @@
+{
+  "tracks": [
+    {
+      "id": "sample-track-1",
+      "title": "Sample Track 1",
+      "artist": "Artist",
+      "filename": null,
+      "originalName": null,
+      "audioUrl": "https://archive.org/download/sample-audio/sample-track1.mp3",
+      "cover": null,
+      "coverUrl": "https://archive.org/download/sample-audio/cover1.jpg",
+      "lyrics": "ეს არის ნიმუშის ტექსტი (sample lyrics).",
+      "albumId": null,
+      "likes": 0,
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
   {
       "id": "058ab704-9f5f-4354-9cc1-e4851bae46c2",
       "title": "ორშაბათს",
