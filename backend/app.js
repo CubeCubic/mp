@@ -124,7 +124,7 @@ function checkAdmin(req, res, next) {
 // Admin login (creates signed cookie)
 app.post('/api/admin/login', (req, res) => {
   const pass = req.body.password || '';
-  const ADMIN_PASS = process.env.ADMIN_PASS || 'changeme';
+  const ADMIN_PASS = process.env.ADMIN_PASS || '230470';
   if (pass === ADMIN_PASS) {
     const secret = process.env.SESSION_SECRET || 'change_this_secret';
     const token = jwt.sign({ admin: true }, secret, { expiresIn: '7d' });
