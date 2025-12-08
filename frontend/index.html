@@ -3,90 +3,70 @@
 <head>
   <meta charset="utf-8"> <!-- Кодировка, чтобы грузинский текст отображался правильно -->
   <meta name="viewport" content="width=device-width,initial-scale=1"> <!-- Адаптивность для телефонов -->
-  <title>Cube Cubic</title> <!-- Заголовок вкладки браузера. Можно изменить текст -->
+  <title>Cube Cubic</title> <!-- Заголовок вкладки браузера -->
 
-  <!-- Фавикон (маленькая иконка во вкладке браузера) -->
-  <!-- Файл должен лежать в папке: frontend/images/smallcube.png -->
+  <!-- Фавикон -->
   <link rel="icon" type="image/png" sizes="32x32" href="/images/smallcube.png">
   <link rel="icon" type="image/png" sizes="64x64" href="/images/smallcube.png">
   <link rel="apple-touch-icon" href="/images/smallcube.png">
 
-  <!-- Подключение стилей -->
-  <!-- Файл должен лежать в папке: frontend/styles.css -->
+  <!-- Стили сайта -->
   <link rel="stylesheet" href="/styles.css">
+
+  <!-- Amplitude.js -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/amplitudejs@5.3.2/dist/amplitude.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/amplitudejs@5.3.2/dist/amplitude.min.js"></script>
 </head>
 <body>
   <header>
-    <!-- Главный заголовок сайта. Можно изменить текст внутри <h1> -->
     <h1>Cube Cubic - კეთილი იყოს თქვენი მობრძანება</h1>
     <nav>
-      <!-- Ссылка на админку. Файл admin.html лежит в папке frontend -->
       <a href="/admin.html" class="hidden-text">ადმინი</a>
     </nav>
   </header>
 
   <main id="app">
     <!-- Секция альбомов -->
-    <!-- Заголовок можно изменить внутри <h2> -->
     <section id="albums-section">
       <h2>ალბომები</h2>
-      <div id="albums"></div> <!-- Здесь JavaScript вставляет список альбомов -->
+      <div id="albums"></div>
     </section>
 
     <!-- Секция треков -->
     <section id="tracks-section">
       <h2>ტრეკები</h2>
-      <div id="tracks"></div> <!-- Здесь JavaScript вставляет список треков -->
+      <div id="tracks"></div>
     </section>
   </main>
 
-  <!-- Плеер (появляется только при воспроизведении трека) -->
-  <div id="player" class="hidden" role="region" aria-label="Player">
-    <div id="player-cover">
-      <!-- Обложка трека -->
-      <img id="player-cover-img" src="" alt="">
-    </div>
-    <div id="player-info">
-      <!-- Название и исполнитель -->
-      <div id="player-title"></div>
-      <div id="player-artist"></div>
-
-      <!-- Прогресс-бар -->
-      <div id="player-progress">
-        <span id="time-current">0:00</span>
-        <input id="progress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Progress">
-        <span id="time-duration">0:00</span>
-      </div>
-
-      <!-- Кнопки управления -->
-      <div id="player-controls">
-        <button id="prev" title="წინა">⏮</button> <!-- Кнопка "Предыдущий трек" -->
-        <button id="play" title="პაუზა/დაწყება">⏸</button> <!-- Кнопка "Пауза/Старт" -->
-        <button id="next" title="შემდეგი">⏭</button> <!-- Кнопка "Следующий трек" -->
-        <label>ხმა: <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label> <!-- Громкость -->
-        <button id="show-lyrics" title="ლირიკა">ტექსტი</button> <!-- Кнопка "Показать текст песни" -->
-        <a id="download" href="#" download>გადმოწერე</a> <!-- Кнопка "Скачать трек" -->
+  <!-- Amplitude.js плеер -->
+  <div id="amplitude-player">
+    <div class="amplitude-song-container amplitude-play-pause" data-amplitude-song-index="0">
+      <img data-amplitude-song-info="cover_art_url" class="cover" alt="cover"/>
+      <div>
+        <span data-amplitude-song-info="name"></span>
+        <span data-amplitude-song-info="artist"></span>
       </div>
     </div>
-    <audio id="audio" preload="auto"></audio> <!-- Сам аудио-плеер -->
-  </div>
 
-  <!-- Мини-плеер (появляется при паузе) -->
-  <div id="player-mini" class="hidden" aria-hidden="true" title="აღდგენა">
-    <button id="mini-resume">▶</button> <!-- Кнопка "Продолжить воспроизведение" -->
+    <div class="controls">
+      <button class="amplitude-prev">⏮</button>
+      <button class="amplitude-play-pause">▶/⏸</button>
+      <button class="amplitude-next">⏭</button>
+      <button id="download">ჩამოტვირთვა</button>
+    </div>
   </div>
 
   <!-- Модальное окно для текста песни -->
   <div id="lyrics-modal" class="hidden" role="dialog" aria-modal="true">
     <div class="modal-box">
-      <button id="modal-close" aria-label="close">✖</button> <!-- Кнопка "Закрыть" -->
-      <h3 id="modal-title"></h3> <!-- Заголовок модального окна (название трека) -->
-      <pre id="modal-lyrics"></pre> <!-- Здесь отображается текст песни -->
+      <button id="modal-close" aria-label="close">✖</button>
+      <h3 id="modal-title"></h3>
+      <pre id="modal-lyrics"></pre>
     </div>
   </div>
 
   <!-- Подключение скрипта -->
-  <!-- Файл app.js лежит в папке frontend -->
   <script src="/app.js"></script>
 </body>
 </html>
