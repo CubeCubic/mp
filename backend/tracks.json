@@ -1,38 +1,56 @@
 {
   "tracks": [
     {
-      "id": "sample-track-1",
-      "title": "Sample Track 1",
-      "artist": "Artist",
-      "filename": null,
-      "originalName": null,
-      "audioUrl": "https://archive.org/download/sample-audio/sample-track1.mp3",
-      "cover": null,
-      "coverUrl": "https://archive.org/download/sample-audio/cover1.jpg",
-      "lyrics": "ეს არის ნიმუშის ტექსტი (sample lyrics).",
-      "albumId": null,
+      "id": "a1b2c3d4-1111-2222-3333-aaaaaaaaaaaa",
+      "title": "First Track",
+      "artist": "Artist Name",
+      "filename": "f1e2d3c4-aaaa.mp3",
+      "originalName": "first.mp3",
+      "audioUrl": null,
+      "cover": "cover1.jpg",
+      "coverUrl": null,
+      "lyrics": "Some lyrics...",
+      "albumId": "11111111-2222-3333-4444-555555555555",
       "likes": 0,
-      "createdAt": "2025-01-01T00:00:00.000Z"
+      "createdAt": "2025-12-08T12:00:00.000Z"
     },
-  {
-      "id": "058ab704-9f5f-4354-9cc1-e4851bae46c2",
-      "title": "ორშაბათს",
-      "artist": "Cube Cubic",
+    {
+      "id": "b2c3d4e5-2222-3333-4444-bbbbbbbbbbbb",
+      "title": "Second Track",
+      "artist": "Another Artist",
       "filename": null,
       "originalName": null,
-      "audioUrl": "https://archive.org/download/20251205_20251205_0849/%E1%83%9D%E1%83%A0%E1%83%A8%E1%83%90%E1%83%91%E1%83%90%E1%83%97%E1%83%A1%20%E1%83%92%E1%83%9D%E1%83%92%E1%83%9D%E1%83%9C%E1%83%90%20%E1%83%92%E1%83%90%E1%83%95%E1%83%98%E1%83%AA%E1%83%90%E1%83%9C%E1%83%98.wav",
+      "audioUrl": "https://example.com/stream/second.mp3",
       "cover": null,
-      "coverUrl": "https://archive.org/download/20251205_20251205_0849/1-1.jpeg",
-      "lyrics": "ორშაბათს გოგონა გავიცანი,\nგოგონა ნახატი ყალმისანი,\nმისი ღიმილი და დალალები\nსამშაბათს გამიხდა საფიცარი.\nოთხშაბათს წერილი გავუგზავნე\nდა თავს მოსაკლავად ვიმეტებდი,\nჩემი გასაჭირი ავუხსენი,\nჩემი ეჭვები და იმედები.\nპარასკევს პასუხი მომივიდა,\nვაიმე ბედო უკეთურო!\nდაბერებულხარო გნოლივითა,\nცოლ–შვილს მიხედეო, უბედურო.\nთეთრად გავათენე პარასკევი,\nფიქრში გავათენე შაბათ–კვირე,\nთავმოჭრილი ვარ–თქო–დავასკვენი,\nჰოდა, თავისმოკლვლაც დავაპირე.\nმოვიდა მეორე ორშაბათი,\nისევ შემეფეთა ის უღმერთო,\nელვამ დამიარა კოჭებამდი,\nდილამშვიდობისას გისურვებთო.\nმე ახლა თავის მომკვლელი ვარ?\nუნდა სხვანაირად ვსძლიო სვე–ბედს,\nმე ვიცი, რაცხა ოხერი ვარ,\nლექსებს დავწერ და ვიოცნებებ.\nღმერთია ჩემი მწყალობელი\nმე კი–იმ უღმერთოს მგალობელი.\n\nშოთა ნიშნიანიძე",
-      "albumId": "1faa0052-1355-4b24-94c6-babe90b76426",
+      "coverUrl": "https://example.com/images/cover2.jpg",
+      "lyrics": "",
+      "albumId": "22222222-3333-4444-5555-666666666666",
+      "likes": 3,
+      "createdAt": "2025-11-01T09:30:00.000Z"
+    },
+    {
+      "id": "c3d4e5f6-3333-4444-5555-cccccccccccc",
+      "title": "Orphan Track",
+      "artist": "Unknown",
+      "filename": "orphan.mp3",
+      "originalName": "orphan.mp3",
+      "audioUrl": null,
+      "cover": null,
+      "coverUrl": null,
+      "lyrics": "",
+      "albumId": "11111111-2222-3333-4444-555555555555",
       "likes": 0,
-      "createdAt": "2025-12-05T09:11:59.702Z"
+      "createdAt": "2025-10-10T10:10:10.000Z"
     }
   ],
   "albums": [
     {
-      "id": "1faa0052-1355-4b24-94c6-babe90b76426",
-      "name": "test-archive.org"
+      "id": "11111111-2222-3333-4444-555555555555",
+      "name": "სინგლი"
+    },
+    {
+      "id": "22222222-3333-4444-5555-666666666666",
+      "name": "Some Album"
     }
   ]
 }
