@@ -58,14 +58,21 @@ app.get('/media/:filename', (req, res) => {
   const stat = fs.statSync(filePath);
   const fileSize = stat.size;
   const range = req.headers.range;
-  const contentType = 'audio/' + path.extname(filePath).slice(1) || 'audio/mpeg';
+
+  // Simple content-type by extension with basic fallback
+  const ext = path.extname(filePath).slice(1).toLowerCase();
+  const contentType =
+    ext === 'mp3' ? 'audio/mpeg' :
+    ext === 'wav' ? 'audio/wav' :
+    ext === 'ogg' ? 'audio/ogg' :
+    'audio/mpeg';
 
   if (range) {
-    const parts = range.replace(/bytes=/, "").split("-");
+    const parts = range.replace(/bytes=/, '').split('-');
     const start = parseInt(parts[0], 10);
     const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-    if (start >= fileSize) {
-      res.status(416).send('Requested range not satisfiable\n' + start + ' >= ' + fileSize);
+    if (start >= fileSize || isNaN(start) || isNaN(end)) {
+      res.status(416).send(`Requested range not satisfiable\n${start} >= ${fileSize}`);
       return;
     }
     const chunksize = (end - start) + 1;
@@ -86,12 +93,13 @@ app.get('/media/:filename', (req, res) => {
   }
 });
 
-// Helper to add downloadUrl
+// Helper: add downloadUrl to track
 function enhanceTrack(t) {
   let downloadUrl = null;
   if (t.audioUrl) {
     downloadUrl = t.audioUrl;
   } else if (t.filename) {
+    // For downloads we expose the static file (no range)
     downloadUrl = '/uploads/' + t.filename;
   }
   return { ...t, downloadUrl };
@@ -155,6 +163,7 @@ app.post('/api/admin/logout', (req, res) => {
 
 /*
   Create track (local upload)
+  - multipart/form-data with fields: title, artist, lyrics, album, files audio and cover
 */
 app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'cover' }]), (req, res) => {
   const { title = 'Untitled', artist = '', lyrics = '', album = '' } = req.body;
@@ -176,7 +185,7 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
     id: uuidv4(),
     title,
     artist,
-    filename: audioFile.filename,
+    filename: audioFile.filename, // local file
     originalName: audioFile.originalname,
     audioUrl: null,
     cover: coverFile ? coverFile.filename : null,
@@ -193,6 +202,9 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
 
 /*
   Create track (external URLs / JSON)
+  Expected JSON body:
+  { title, artist, lyrics, album, audioUrl, coverUrl }
+  audioUrl is required for this route.
 */
 app.post('/api/tracks/json', checkAdmin, (req, res) => {
   const { title = 'Untitled', artist = '', lyrics = '', album = '', audioUrl = '', coverUrl = '' } = req.body;
@@ -227,7 +239,7 @@ app.post('/api/tracks/json', checkAdmin, (req, res) => {
   res.json(enhanceTrack(track));
 });
 
-/ Update track (local upload)
+// Update track (local upload)
 app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'cover' }]), (req, res) => {
   const t = db.tracks.find(x => x.id === req.params.id);
   if (!t) return res.status(404).json({ error: 'not found' });
@@ -262,5 +274,81 @@ app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name:
   }
 
   saveDB();
-  res.json(t);
-});   // ← вот этой закрывающей скобки у тебя не было
+  res.json(enhanceTrack(t));
+});
+
+// Update track (JSON / external URLs)
+app.put('/api/tracks/:id/json', checkAdmin, (req, res) => {
+  const t = db.tracks.find(x => x.id === req.params.id);
+  if (!t) return res.status(404).json({ error: 'not found' });
+
+  const { title, artist, lyrics, album, audioUrl, coverUrl } = req.body;
+  if (title) t.title = title;
+  if (artist) t.artist = artist;
+  if (lyrics) t.lyrics = lyrics;
+
+  if (album !== undefined) {
+    if (album === '') t.albumId = null;
+    else {
+      let a = db.albums.find(x => x.name === album);
+      if (!a) {
+        a = { id: uuidv4(), name: album };
+        db.albums.push(a);
+      }
+      t.albumId = a.id;
+    }
+  }
+
+  if (audioUrl) {
+    t.audioUrl = audioUrl;
+    t.filename = null;
+    t.originalName = null;
+  }
+  if (coverUrl) {
+    t.coverUrl = coverUrl;
+    t.cover = null;
+  }
+
+  saveDB();
+  res.json(enhanceTrack(t));
+});
+
+// Delete track (admin)
+app.delete('/api/tracks/:id', checkAdmin, (req, res) => {
+  const idx = db.tracks.findIndex(x => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'not found' });
+  const [removed] = db.tracks.splice(idx, 1);
+  // Note: files remain on disk if local; you can delete them manually if you want
+  saveDB();
+  res.json({ ok: true, removed: enhanceTrack(removed) });
+});
+
+// Albums list
+app.get('/api/albums', (req, res) => {
+  res.json(db.albums);
+});
+
+// Update album name (admin)
+app.put('/api/albums/:id', checkAdmin, (req, res) => {
+  const a = db.albums.find(x => x.id === req.params.id);
+  if (!a) return res.status(404).json({ error: 'not found' });
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: 'name required' });
+  a.name = name;
+  saveDB();
+  res.json(a);
+});
+
+// Delete album (admin) — does not delete tracks, only clears albumId from tracks
+app.delete('/api/albums/:id', checkAdmin, (req, res) => {
+  const idx = db.albums.findIndex(x => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'not found' });
+  const [removed] = db.albums.splice(idx, 1);
+  db.tracks.forEach(t => { if (t.albumId === removed.id) t.albumId = null; });
+  saveDB();
+  res.json({ ok: true });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+});
