@@ -31,9 +31,9 @@ function saveDB() {
 const DEFAULT_ALBUM_NAME = 'სინგლი';
 
 // Найдём или создадим альбом "სინგლი"
-let defaultAlbum = db.albums.find(a => a && a.name === DEFAULT_ALBUM_NAME);
+let defaultAlbum = db.albums.find(a => a && a.name === DEFAULT_ALBUM_NAME && !a.parentId);
 if (!defaultAlbum) {
-  defaultAlbum = { id: uuidv4(), name: DEFAULT_ALBUM_NAME };
+  defaultAlbum = { id: uuidv4(), name: DEFAULT_ALBUM_NAME, parentId: null };
   db.albums.push(defaultAlbum);
   saveDB();
 }
@@ -188,7 +188,7 @@ app.post('/api/admin/logout', (req, res) => {
 
 /*
   Create track (local upload)
-  - multipart/form-data with fields: title, artist, lyrics, album, files audio and cover
+  - multipart/form-data with fields: title, artist, lyrics, album (can be album id), files audio and cover
 */
 app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'cover' }]), (req, res) => {
   const { title = 'Untitled', artist = '', lyrics = '', album = '' } = req.body;
@@ -198,9 +198,15 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
 
   let albumId = null;
   if (album) {
-    let a = db.albums.find(x => x.name === album);
+    // album may be an id or a name; try to find by id first
+    let a = db.albums.find(x => x.id === album);
     if (!a) {
-      a = { id: uuidv4(), name: album };
+      // try by name within any parent
+      a = db.albums.find(x => x.name === album);
+    }
+    if (!a) {
+      // create a new main album (parentId null)
+      a = { id: uuidv4(), name: album, parentId: null };
       db.albums.push(a);
     }
     albumId = a.id;
@@ -239,9 +245,10 @@ app.post('/api/tracks/json', checkAdmin, (req, res) => {
 
   let albumId = null;
   if (album) {
-    let a = db.albums.find(x => x.name === album);
+    let a = db.albums.find(x => x.id === album);
+    if (!a) a = db.albums.find(x => x.name === album);
     if (!a) {
-      a = { id: uuidv4(), name: album };
+      a = { id: uuidv4(), name: album, parentId: null };
       db.albums.push(a);
     }
     albumId = a.id;
@@ -281,9 +288,10 @@ app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name:
   if (album !== undefined) {
     if (album === '') t.albumId = null;
     else {
-      let a = db.albums.find(x => x.name === album);
+      // album may be id or name
+      let a = db.albums.find(x => x.id === album) || db.albums.find(x => x.name === album);
       if (!a) {
-        a = { id: uuidv4(), name: album };
+        a = { id: uuidv4(), name: album, parentId: null };
         db.albums.push(a);
       }
       t.albumId = a.id;
@@ -319,9 +327,9 @@ app.put('/api/tracks/:id/json', checkAdmin, (req, res) => {
   if (album !== undefined) {
     if (album === '') t.albumId = null;
     else {
-      let a = db.albums.find(x => x.name === album);
+      let a = db.albums.find(x => x.id === album) || db.albums.find(x => x.name === album);
       if (!a) {
-        a = { id: uuidv4(), name: album };
+        a = { id: uuidv4(), name: album, parentId: null };
         db.albums.push(a);
       }
       t.albumId = a.id;
@@ -352,28 +360,70 @@ app.delete('/api/tracks/:id', checkAdmin, (req, res) => {
   res.json({ ok: true, removed: enhanceTrack(removed) });
 });
 
-// Albums list
+// Albums list (returns parentId for subalbums)
 app.get('/api/albums', (req, res) => {
   res.json(db.albums);
 });
 
-// Update album name (admin)
+// Create album (admin) — supports parentId for subalbums
+// body: { name: string, parentId?: string }
+app.post('/api/albums', checkAdmin, (req, res) => {
+  const { name, parentId } = req.body;
+  if (!name) return res.status(400).json({ error: 'name required' });
+
+  // prevent duplicate album name under same parent
+  const exists = db.albums.find(a => a.name === name && String(a.parentId || '') === String(parentId || ''));
+  if (exists) return res.status(409).json({ error: 'album exists', album: exists });
+
+  // if parentId provided, ensure parent exists
+  let parent = null;
+  if (parentId) {
+    parent = db.albums.find(a => a.id === parentId);
+    if (!parent) return res.status(400).json({ error: 'parent album not found' });
+  }
+
+  const album = { id: uuidv4(), name, parentId: parentId || null };
+  db.albums.push(album);
+  saveDB();
+  res.json(album);
+});
+
+// Update album (admin) — supports changing parentId
 app.put('/api/albums/:id', checkAdmin, (req, res) => {
   const a = db.albums.find(x => x.id === req.params.id);
   if (!a) return res.status(404).json({ error: 'not found' });
-  const { name } = req.body;
-  if (!name) return res.status(400).json({ error: 'name required' });
-  a.name = name;
+  const { name, parentId } = req.body;
+  if (name !== undefined) a.name = name;
+  if (parentId !== undefined) {
+    // prevent setting parentId to itself
+    if (parentId === a.id) return res.status(400).json({ error: 'invalid parentId' });
+    // if parentId not null, ensure parent exists
+    if (parentId) {
+      const p = db.albums.find(x => x.id === parentId);
+      if (!p) return res.status(400).json({ error: 'parent album not found' });
+    }
+    a.parentId = parentId || null;
+  }
   saveDB();
   res.json(a);
 });
 
-// Delete album (admin) — does not delete tracks, only clears albumId from tracks
+// Delete album (admin) — clears albumId from tracks and reassigns child albums' parentId to null
 app.delete('/api/albums/:id', checkAdmin, (req, res) => {
   const idx = db.albums.findIndex(x => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not found' });
   const [removed] = db.albums.splice(idx, 1);
-  db.tracks.forEach(t => { if (t.albumId === removed.id) t.albumId = null; });
+
+  // Clear albumId from tracks that belonged to this album
+  db.tracks.forEach(t => {
+    if (t.albumId === removed.id) t.albumId = null;
+  });
+
+  // Reparent child albums to null (make them main albums) to avoid orphaning
+  db.albums.forEach(a => {
+    if (a.parentId === removed.id) a.parentId = null;
+  });
+
   saveDB();
   res.json({ ok: true });
 });
