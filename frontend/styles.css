@@ -7,7 +7,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif; /* Шрифт текста */
-  color: #fff; /* Цвет текста (белый, чтобы было видно на фоне) */
+  color: #fff; /* Белый текст для читаемости */
 
   /* Фон-картинка */
   background-image: url("/images/bigcube.jpg"); /* путь к картинке */
@@ -52,21 +52,57 @@ h2 {
   color: #ffcc00;
 }
 
-/* Карточки альбомов и треков */
+/* ===========================
+   Карточки альбомов и треков
+   =========================== */
 .card {
+  display: flex;              /* элементы в строку */
+  align-items: center;        /* выравнивание по вертикали */
+  justify-content: space-between; /* текст и кнопки распределены */
   background: rgba(255,255,255,0.1); /* прозрачный белый фон */
   border: 1px solid #ddd;
   border-radius: 6px;
-  padding: 10px;
-  margin: 10px 0;
+  padding: 8px;
+  margin: 8px 0;
   color: #fff;
 }
 
-/* Обложка трека */
-.track-cover {
-  max-width: 100px;
+.card img.track-cover {
+  max-width: 60px;            /* уменьшенная обложка */
+  margin-right: 10px;
   border-radius: 4px;
-  margin-bottom: 10px;
+}
+
+.track-info {
+  flex: 1;                    /* занимает всё свободное место */
+}
+
+.track-info h4 {
+  margin: 0;
+  font-size: 14px;            /* компактный размер текста */
+}
+
+.track-info div {
+  font-size: 12px;            /* уменьшенный текст */
+}
+
+.track-actions {
+  display: flex;
+  align-items: center;
+}
+
+.track-actions button {
+  font-size: 12px;
+  padding: 4px 8px;           /* компактные кнопки */
+  margin-left: 5px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.track-actions button:hover {
+  background: #666;
 }
 
 /* ===========================
@@ -86,7 +122,7 @@ h2 {
 }
 
 #player.hidden {
-  display: none; /* скрываем плеер, если он не активен */
+  display: none;
 }
 
 #player-cover img {
