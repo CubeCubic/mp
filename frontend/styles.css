@@ -6,33 +6,31 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif; /* Шрифт текста */
-  color: #fff; /* Цвет текста (белый, чтобы было видно на фоне) */
-
-  /* Фон-картинка */
-  background-image: url("/images/bigcube.jpg"); /* путь к картинке */
-  background-size: cover; /* растягивает картинку на весь экран */
-  background-position: center; /* центрирует картинку */
-  background-attachment: fixed; /* фон остаётся на месте при прокрутке */
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background-image: url("/images/bigcube.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 /* ===========================
    Шапка сайта
    =========================== */
 header {
-  background-color: rgba(0,0,0,0.6); /* полупрозрачный фон */
-  color: #ffcc00; /* цвет текста */
+  background-color: rgba(0,0,0,0.6);
+  color: #ffcc00;
   padding: 20px;
   text-align: center;
 }
 
 header nav a {
-  color: #fff; /* цвет ссылок */
+  color: #fff;
   text-decoration: none;
   margin: 0 10px;
 }
 header nav a:hover {
-  text-decoration: underline; /* подчёркивание при наведении */
+  text-decoration: underline;
 }
 
 /* ===========================
@@ -40,14 +38,14 @@ header nav a:hover {
    =========================== */
 main {
   padding: 20px;
-  background-color: rgba(0,0,0,0.5); /* затемнённый фон для читаемости текста */
+  background-color: rgba(0,0,0,0.5);
   border-radius: 8px;
   margin: 20px;
 }
 
 h2 {
   margin-top: 30px;
-  border-bottom: 2px solid #ffcc00; /* линия под заголовком */
+  border-bottom: 2px solid #ffcc00;
   padding-bottom: 5px;
   color: #ffcc00;
 }
@@ -56,53 +54,66 @@ h2 {
 .card {
   display: flex;
   align-items: center;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid #ddd;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 6px;
   padding: 8px;
   margin: 8px 0;
   color: #fff;
+  gap: 12px;
 }
 
 .card img.track-cover {
-  max-width: 60px;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
   margin-right: 10px;
-  border-radius: 4px;
+  border-radius: 6px;
+  flex-shrink: 0;
 }
 
 .track-info {
   flex: 1;
+  min-width: 0;
 }
 
 .track-info h4 {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .track-info div {
   font-size: 12px;
   color: #ccc;
+  margin-top: 4px;
 }
 
 .track-actions {
   display: flex;
   gap: 6px;
+  align-items: center;
 }
 
-.track-actions button {
+.track-actions button,
+.track-actions a {
   font-size: 12px;
-  padding: 4px 8px;
+  padding: 6px 10px;
   background: #444;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  text-decoration: none;
 }
-.track-actions button:hover {
+.track-actions button:hover,
+.track-actions a:hover {
   background: #666;
 }
 
-/* Обложка трека */
+/* Обложка трека (альтернативный селектор) */
 .track-cover {
   max-width: 100px;
   border-radius: 4px;
@@ -112,26 +123,43 @@ h2 {
 /* ===========================
    Плеер
    =========================== */
+/* Плеер: плавное появление/скрытие (slide up + fade) */
 #player {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0,0,0,0.8); /* тёмный полупрозрачный фон */
+  background: rgba(0,0,0,0.85);
   color: white;
   padding: 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  z-index: 1000;
 }
 
+#player.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Сохраняем класс hidden как семантический маркер (не используем display:none) */
 #player.hidden {
-  display: none; /* скрываем плеер, если он не активен */
+  /* семантический маркер, не влияет на отображение */
 }
 
 #player-cover img {
   max-height: 80px;
   border-radius: 6px;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
 }
 
 #player-info {
@@ -142,11 +170,15 @@ h2 {
 #player-title {
   font-size: 18px;
   font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #player-artist {
   font-size: 14px;
   color: #ccc;
+  margin-top: 4px;
 }
 
 /* Кнопки управления */
@@ -159,6 +191,7 @@ h2 {
   margin: 5px;
   border-radius: 4px;
   cursor: pointer;
+  text-decoration: none;
 }
 #player-controls button:hover,
 #player-controls a:hover {
@@ -169,13 +202,14 @@ h2 {
 #player-progress {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 #progress {
   flex: 1;
   margin: 0 10px;
 }
 
-/* Мини-плеер */
+/* Мини-плеер (если используется) */
 #player-mini {
   position: fixed;
   bottom: 0;
@@ -183,9 +217,15 @@ h2 {
   background: #444;
   padding: 10px;
   border-radius: 6px 0 0 0;
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
 }
-#player-mini.hidden {
-  display: none;
+#player-mini.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* ===========================
@@ -197,7 +237,7 @@ h2 {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.7); /* затемнённый фон */
+  background: rgba(0,0,0,0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -212,13 +252,13 @@ h2 {
   border-radius: 6px;
   max-width: 600px;
   width: 90%;
-  color: #000; /* текст внутри модального окна чёрный */
+  color: #000;
 }
 .modal-box h3 {
   margin-top: 0;
 }
 .modal-box pre {
-  white-space: pre-wrap; /* перенос строк */
+  white-space: pre-wrap;
 }
 #modal-close {
   background: red;
@@ -227,4 +267,17 @@ h2 {
   float: right;
   cursor: pointer;
   padding: 5px 10px;
+}
+
+/* ===========================
+   Адаптивность
+   =========================== */
+@media (max-width: 600px) {
+  .card img.track-cover {
+    width: 60px;
+    height: 60px;
+  }
+  .track-info h4 { font-size: 13px; }
+  #player-cover img { width: 60px; height: 60px; max-height: 60px; }
+  #player-title { font-size: 16px; }
 }
