@@ -178,7 +178,217 @@
       const stream = getStreamUrl(t) || '';
       const el = document.createElement('div');
       el.className = 'card';
+      el.dataset.trackId = t.id;
       el.innerHTML = `
-        ${cover ? `<img class="track-cover" src="${escapeHtml(cover)}" alt="${escapeHtml(t.title)}" loading="lazy">` : ''}
+        ${cover ? `<img class="track-cover" src="${escapeHtml(cover)}" alt="${escapeHtml(t.title)}" loading="lazy" data-track-id="${t.id}">` : ''}
         <div class="track-info">
-          <h4>${escapeHtml
+          <h4 class="track-title" data-track-id="${t.id}">${escapeHtml(t.title)}</h4>
+          <div class="track-artist">${escapeHtml(t.artist || '')}</div>
+        </div>
+        <div class="track-actions">
+          <button class="btn-play" data-id="${t.id}" data-src="${escapeHtml(stream)}">▶</button>
+          <button class="btn-download" data-src="${escapeHtml(stream)}">ჩამოტვირთვა</button>
+          <button class="btn-like" data-id="${t.id}">❤ <span>${t.likes || 0}</span></button>
+          <button class="btn-lyrics" data-id="${t.id}">ტექსტი</button>
+        </div>
+      `;
+      tracksContainer.appendChild(el);
+    });
+
+    // Attach listeners: play buttons, download, like, lyrics
+    tracksContainer.querySelectorAll('.btn-play').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        const src = e.currentTarget.getAttribute('data-src');
+        togglePlayByTrackId(id, src);
+      });
+    });
+
+    tracksContainer.querySelectorAll('.btn-download').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const src = e.currentTarget.getAttribute('data-src');
+        if (!src) return;
+        const a = document.createElement('a');
+        a.href = src;
+        a.download = '';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+    });
+
+    tracksContainer.querySelectorAll('.btn-like').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        try {
+          const res = await fetch(`/api/tracks/${id}/like`, { method: 'POST' });
+          const json = await res.json();
+          const span = e.currentTarget.querySelector('span');
+          if (span && json.likes !== undefined) span.textContent = String(json.likes);
+        } catch (err) {
+          console.error('Like error', err);
+        }
+      });
+    });
+
+    tracksContainer.querySelectorAll('.btn-lyrics').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        const t = tracks.find(x => x.id === id);
+        if (!t) return;
+        modalTitle.textContent = t.title || 'ლირიკა';
+        modalLyrics.textContent = t.lyrics || 'ლირიკა არ არის';
+        lyricsModal.classList.remove('hidden');
+      });
+    });
+
+    // Title and cover click: toggle play/pause or start new track
+    tracksContainer.querySelectorAll('.track-title').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-track-id');
+        const t = tracks.find(x => x.id === id);
+        if (!t) return;
+        togglePlayByTrackId(id, getStreamUrl(t));
+      });
+    });
+    tracksContainer.querySelectorAll('.track-cover').forEach(img => {
+      img.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-track-id');
+        const t = tracks.find(x => x.id === id);
+        if (!t) return;
+        togglePlayByTrackId(id, getStreamUrl(t));
+      });
+    });
+  }
+
+  // Toggle play/pause by track id (click on title/cover or play button)
+  function togglePlayByTrackId(id, src) {
+    if (!id) return;
+    // if same track is playing
+    if (currentTrackId === id) {
+      if (audio.paused) {
+        audio.play().catch(() => {});
+      } else {
+        audio.pause(); // pause will hide player via event listener
+      }
+      return;
+    }
+    // different track: load and play
+    playByTrackId(id, src);
+  }
+
+  // Play a track by id (load src, update UI, show player)
+  function playByTrackId(id, src) {
+    const t = tracks.find(x => x.id === id);
+    if (!t) return;
+    const url = src || getStreamUrl(t);
+    if (!url) return;
+
+    currentTrackId = id;
+    audio.pause();
+    audio.src = url;
+    audio.load();
+    audio.play().catch(() => {});
+    titleEl.textContent = t.title || '';
+    artistEl.textContent = t.artist || '';
+    if (t.coverUrl) coverImg.src = t.coverUrl;
+    else if (t.cover) coverImg.src = '/uploads/' + t.cover;
+    else coverImg.src = '';
+    downloadBtn.setAttribute('href', url);
+    // player will be shown on audio.play event
+  }
+
+  // Player controls
+  playBtn?.addEventListener('click', () => {
+    if (audio.paused) audio.play().catch(() => {});
+    else audio.pause();
+  });
+
+  prevBtn?.addEventListener('click', () => {
+    const mainId = albumSelect.value;
+    if (!mainId) return;
+    const list = getCurrentFilteredList();
+    if (!list.length) return;
+    const idx = list.findIndex(x => x.id === currentTrackId);
+    const prev = list[(idx - 1 + list.length) % list.length];
+    playByTrackId(prev.id, getStreamUrl(prev));
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    const mainId = albumSelect.value;
+    if (!mainId) return;
+    const list = getCurrentFilteredList();
+    if (!list.length) return;
+    const idx = list.findIndex(x => x.id === currentTrackId);
+    const next = list[(idx + 1) % list.length];
+    playByTrackId(next.id, getStreamUrl(next));
+  });
+
+  volume?.addEventListener('input', () => { audio.volume = Number(volume.value); });
+
+  // Progress/time
+  audio.addEventListener('loadedmetadata', () => {
+    if (audio.duration && !isNaN(audio.duration)) timeDuration.textContent = formatTime(audio.duration);
+  });
+
+  audio.addEventListener('timeupdate', () => {
+    if (audio.duration && !isNaN(audio.duration)) {
+      progress.value = (audio.currentTime / audio.duration) * 100;
+      timeCurrent.textContent = formatTime(audio.currentTime);
+    }
+  });
+
+  progress.addEventListener('input', () => {
+    if (audio.duration && !isNaN(audio.duration)) {
+      audio.currentTime = (Number(progress.value) / 100) * audio.duration;
+    }
+  });
+
+  // Show player on play; hide on pause or ended
+  audio.addEventListener('play', () => {
+    playerEl.classList.remove('hidden');
+    playBtn.textContent = '⏸';
+  });
+
+  audio.addEventListener('pause', () => {
+    playBtn.textContent = '▶';
+    // hide player when paused (as requested)
+    // but keep currentTrackId so clicking title resumes same track
+    playerEl.classList.add('hidden');
+  });
+
+  audio.addEventListener('ended', () => {
+    playBtn.textContent = '▶';
+    playerEl.classList.add('hidden');
+    // reset currentTrackId if you want to clear selection
+    currentTrackId = null;
+    audio.src = '';
+    progress.value = 0;
+    timeCurrent.textContent = formatTime(0);
+    timeDuration.textContent = formatTime(0);
+  });
+
+  // Lyrics modal
+  modalClose?.addEventListener('click', () => lyricsModal.classList.add('hidden'));
+  lyricsModal?.addEventListener('click', (e) => { if (e.target === lyricsModal) lyricsModal.classList.add('hidden'); });
+
+  // Utility: get currently filtered list (main + sub selection)
+  function getCurrentFilteredList() {
+    const mainId = albumSelect.value;
+    if (!mainId) return [];
+    const subId = subalbumSelect.value;
+    if (subId) return tracks.filter(t => String(t.albumId) === String(subId));
+    // main + children
+    const direct = tracks.filter(t => String(t.albumId) === String(mainId));
+    const childIds = albums.filter(a => String(a.parentId) === String(mainId)).map(a => a.id);
+    const fromChildren = tracks.filter(t => childIds.includes(String(t.albumId)));
+    return [...direct, ...fromChildren];
+  }
+
+  // Album/subalbum handlers
+  albumSelect.addEventListener('change', onAlbumChange);
+  subalbumSelect.addEventListener('change', onSubalbumChange);
+
+  // Init
+  document.addEventListener('DOMContentLoaded', loadData);
+})();
