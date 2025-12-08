@@ -52,14 +52,54 @@ h2 {
   color: #ffcc00;
 }
 
-/* Карточки альбомов и треков */
+/* Карточки треков компактные */
 .card {
-  background: rgba(255,255,255,0.1); /* прозрачный белый фон */
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
   border: 1px solid #ddd;
   border-radius: 6px;
-  padding: 10px;
-  margin: 10px 0;
+  padding: 8px;
+  margin: 8px 0;
   color: #fff;
+}
+
+.card img.track-cover {
+  max-width: 60px;
+  margin-right: 10px;
+  border-radius: 4px;
+}
+
+.track-info {
+  flex: 1;
+}
+
+.track-info h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.track-info div {
+  font-size: 12px;
+  color: #ccc;
+}
+
+.track-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.track-actions button {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.track-actions button:hover {
+  background: #666;
 }
 
 /* Обложка трека */
