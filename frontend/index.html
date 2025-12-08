@@ -11,7 +11,7 @@
 
   <link rel="stylesheet" href="/styles.css">
 
-  <!-- OpenPlayerJS CDN -->
+  <!-- OpenPlayerJS CDN (опционально) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.css">
   <script src="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.js"></script>
 </head>
@@ -26,7 +26,10 @@
   <main id="app">
     <section id="albums-section">
       <h2>ალბომები</h2>
-      <div id="albums"></div>
+      <!-- Выпадающий список альбомов -->
+      <select id="album-select" aria-label="Albums">
+        <option value="">Загрузка...</option>
+      </select>
     </section>
 
     <section id="tracks-section">
@@ -35,22 +38,19 @@
     </section>
   </main>
 
-  <!-- Плеер (соответствует стилям в styles.css) -->
+  <!-- Плеер (нижний) -->
   <div id="player" class="hidden" role="region" aria-label="Player">
     <div id="player-cover">
       <img id="player-cover-img" src="" alt="">
     </div>
-
     <div id="player-info">
       <div id="player-title"></div>
       <div id="player-artist"></div>
-
       <div id="player-progress">
         <span id="time-current">0:00</span>
         <input id="progress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Progress">
         <span id="time-duration">0:00</span>
       </div>
-
       <div id="player-controls">
         <button id="prev" title="წინა">⏮</button>
         <button id="play" title="პაუზა/დაწყება">▶</button>
@@ -60,12 +60,9 @@
         <a id="download" href="#" download>ჩამოტვირთვა</a>
       </div>
     </div>
-
-    <!-- Сам аудио-элемент, который будет управляться OpenPlayerJS -->
     <audio id="audio" preload="auto"></audio>
   </div>
 
-  <!-- Модальное окно для текста песни -->
   <div id="lyrics-modal" class="hidden" role="dialog" aria-modal="true">
     <div class="modal-box">
       <button id="modal-close" aria-label="close">✖</button>
