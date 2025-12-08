@@ -1,75 +1,54 @@
 <!doctype html>
-<html lang="ka"> <!-- Язык страницы: грузинский -->
+<html lang="ka">
 <head>
-  <meta charset="utf-8"> <!-- Кодировка -->
-  <meta name="viewport" content="width=device-width,initial-scale=1"> <!-- Адаптивность -->
-  <title>Cube Cubic</title> <!-- Заголовок вкладки браузера -->
-
-  <!-- Подключение стилей -->
-  <!-- Файл должен лежать в папке: frontend/styles.css -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cube Cubic</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header>
-    <!-- Заголовок админской панели -->
     <h1>ადმინისტრატორი</h1>
-    <!-- Ссылка для возврата на главную страницу -->
     <a href="/">მთავარი გვერდი</a>
   </header>
 
   <main id="admin-app">
-    <!-- Форма входа для администратора -->
     <div id="login-form">
       <h2>შესვლა</h2>
-      <!-- Поле для ввода пароля -->
       <input id="admin-password" type="password" placeholder="პაროლი">
-      <!-- Кнопка входа -->
       <button id="login-btn">შესვლა</button>
-      <!-- Сообщение об ошибке (например, если пароль неверный) -->
       <div id="login-msg"></div>
     </div>
 
-    <!-- Панель администратора (появляется после входа) -->
     <div id="admin-panel" class="hidden">
       <h2>ტრეკების მართვა</h2>
 
-      <!-- Форма добавления нового трека -->
       <form id="add-track-form" enctype="multipart/form-data">
         <h3>ახალი ტრეკი</h3>
+        <input name="title" placeholder="სათაური" required>
+        <input name="artist" placeholder="შემსრულებელი">
+        <input name="album" placeholder="ალბომის სახელი (სურვილისამებრ)">
+        <textarea name="lyrics" placeholder="ტექსტი"></textarea>
 
-        <!-- Поля для ввода информации о треке -->
-        <input name="title" placeholder="სათაური" required> <!-- Название трека -->
-        <input name="artist" placeholder="შემსრულებელი"> <!-- Исполнитель -->
-        <input name="album" placeholder="ალბომის სახელი (სურვილისამებრ)"> <!-- Альбом -->
-        <textarea name="lyrics" placeholder="ტექსტი"></textarea> <!-- Текст песни -->
-
-        <!-- Вариант A: добавить трек через внешний URL (например, archive.org) -->
-        <h4> ჩაწერე archive.org-ის URL:</h4>
+        <h4> ჩაწერე  archive.org-ის URL:</h4>
         <label>Audio URL: <input name="audioUrl" type="text" placeholder="https://.../track.mp3"></label>
         <label>Cover URL: <input name="coverUrl" type="text" placeholder="https://.../cover.jpg"></label>
 
-        <!-- Вариант B: загрузить трек и обложку локально -->
         <div style="margin-top:8px">ან დაამატე ლოკალურად (Server uploads):</div>
         <label>აუდიო (.mp3/.wav/.flac): <input name="audio" type="file" accept=".mp3,.wav,.flac"></label>
         <label>ფოტო: <input name="cover" type="file" accept=".jpg,.jpeg,.png"></label>
 
-        <!-- Кнопка отправки формы -->
         <button type="submit">დამატება</button>
       </form>
 
-      <!-- Список существующих треков -->
       <h3>არსებული ტრეკები</h3>
-      <div id="admin-tracks"></div> <!-- Здесь JavaScript вставляет список треков -->
+      <div id="admin-tracks"></div>
 
-      <!-- Кнопка выхода -->
       <button id="logout-btn">გასვლა</button>
     </div>
   </main>
 
-  <!-- Подключение скриптов -->
-  <!-- app.js — общий frontend-скрипт -->
   <script src="/app.js"></script>
-  <!-- admin.js — логика админки -->
   <script src="/admin.js"></script>
 </body>
 </html>
