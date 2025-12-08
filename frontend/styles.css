@@ -6,33 +6,31 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif; /* Шрифт текста */
-  color: #fff; /* Белый текст для читаемости */
-
-  /* Фон-картинка */
-  background-image: url("/images/bigcube.jpg"); /* путь к картинке */
-  background-size: cover; /* растягивает картинку на весь экран */
-  background-position: center; /* центрирует картинку */
-  background-attachment: fixed; /* фон остаётся на месте при прокрутке */
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background-image: url("/images/bigcube.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 /* ===========================
    Шапка сайта
    =========================== */
 header {
-  background-color: rgba(0,0,0,0.6); /* полупрозрачный фон */
-  color: #ffcc00; /* цвет текста */
+  background-color: rgba(0,0,0,0.6);
+  color: #ffcc00;
   padding: 20px;
   text-align: center;
 }
 
 header nav a {
-  color: #fff; /* цвет ссылок */
+  color: #fff;
   text-decoration: none;
   margin: 0 10px;
 }
 header nav a:hover {
-  text-decoration: underline; /* подчёркивание при наведении */
+  text-decoration: underline;
 }
 
 /* ===========================
@@ -40,68 +38,59 @@ header nav a:hover {
    =========================== */
 main {
   padding: 20px;
-  background-color: rgba(0,0,0,0.5); /* затемнённый фон для читаемости текста */
+  background-color: rgba(0,0,0,0.5);
   border-radius: 8px;
   margin: 20px;
 }
 
 h2 {
   margin-top: 30px;
-  border-bottom: 2px solid #ffcc00; /* линия под заголовком */
+  border-bottom: 2px solid #ffcc00;
   padding-bottom: 5px;
   color: #ffcc00;
 }
 
 /* ===========================
-   Карточки альбомов и треков
+   Карточки альбомов и треков (вертикальные)
    =========================== */
 .card {
-  display: flex;              /* элементы в строку */
-  align-items: center;        /* выравнивание по вертикали */
-  justify-content: space-between; /* текст и кнопки распределены */
-  background: rgba(255,255,255,0.1); /* прозрачный белый фон */
+  background: rgba(255,255,255,0.1);
   border: 1px solid #ddd;
   border-radius: 6px;
-  padding: 8px;
-  margin: 8px 0;
+  padding: 10px;
+  margin: 10px 0;
   color: #fff;
+  text-align: center;
 }
 
 .card img.track-cover {
-  max-width: 60px;            /* уменьшенная обложка */
-  margin-right: 10px;
+  max-width: 100%;
+  height: auto;
   border-radius: 4px;
+  margin-bottom: 10px;
 }
 
-.track-info {
-  flex: 1;                    /* занимает всё свободное место */
+.card h4 {
+  margin: 5px 0;
+  font-size: 16px;
 }
 
-.track-info h4 {
-  margin: 0;
-  font-size: 14px;            /* компактный размер текста */
+.card div {
+  font-size: 14px;
+  margin-bottom: 8px;
 }
 
-.track-info div {
-  font-size: 12px;            /* уменьшенный текст */
-}
-
-.track-actions {
-  display: flex;
-  align-items: center;
-}
-
-.track-actions button {
-  font-size: 12px;
-  padding: 4px 8px;           /* компактные кнопки */
-  margin-left: 5px;
+.card button {
+  font-size: 14px;
+  padding: 6px 12px;
+  margin: 4px;
   background: #444;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
-.track-actions button:hover {
+.card button:hover {
   background: #666;
 }
 
@@ -113,7 +102,7 @@ h2 {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0,0,0,0.8); /* тёмный полупрозрачный фон */
+  background: rgba(0,0,0,0.8);
   color: white;
   padding: 15px;
   display: flex;
@@ -145,7 +134,6 @@ h2 {
   color: #ccc;
 }
 
-/* Кнопки управления */
 #player-controls button,
 #player-controls a {
   background: #444;
@@ -161,7 +149,6 @@ h2 {
   background: #666;
 }
 
-/* Прогресс-бар */
 #player-progress {
   display: flex;
   align-items: center;
@@ -193,7 +180,7 @@ h2 {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.7); /* затемнённый фон */
+  background: rgba(0,0,0,0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -208,13 +195,13 @@ h2 {
   border-radius: 6px;
   max-width: 600px;
   width: 90%;
-  color: #000; /* текст внутри модального окна чёрный */
+  color: #000;
 }
 .modal-box h3 {
   margin-top: 0;
 }
 .modal-box pre {
-  white-space: pre-wrap; /* перенос строк */
+  white-space: pre-wrap;
 }
 #modal-close {
   background: red;
