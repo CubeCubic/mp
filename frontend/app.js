@@ -84,7 +84,7 @@
         ${t.coverUrl ? `<img class="track-cover" src="${t.coverUrl}" data-id="${t.id}">` : (t.cover ? `<img class="track-cover" src="/uploads/${t.cover}" data-id="${t.id}">` : '')}
         <h4 class="track-title" data-id="${t.id}">${escapeHtml(t.title)} ${escapeHtml(t.artist || '')}</h4>
         <div class="track-actions">
-          <button data-download="${t.audioUrl ? t.audioUrl : (t.filename ? '/uploads/' + t.filename : '')}">ჩამოტვირთვა</button>
+          <button data-download="${t.downloadUrl || t.audioUrl || (t.filename ? '/uploads/' + t.filename : '')}">ჩამოტვირთვა</button>
           <button data-like="${t.id}">❤ <span>${t.likes||0}</span></button>
         </div>
       `;
@@ -117,22 +117,19 @@
     });
   }
 
-  // ✅ исправленный togglePlayById
   function togglePlayById(id) {
     const idx = tracks.findIndex(x => x.id === id);
     if (idx === -1) return;
 
-    // если кликнули по текущему треку
     if (currentIndex === idx) {
       if (audio.paused) {
         audio.play().catch(() => {});
       } else {
         audio.pause();
       }
-      return; // не перезапускаем трек заново
+      return;
     }
 
-    // если выбран новый трек
     currentIndex = idx;
     const t = tracks[currentIndex];
     const url = getTrackStreamUrl(t);
@@ -147,7 +144,6 @@
     audio.play().catch(() => {});
   }
 
-  // управление плеером
   playBtn?.addEventListener('click', () => {
     if (audio.paused) audio.play().catch(() => {});
     else audio.pause();
@@ -180,7 +176,6 @@
   modalClose?.addEventListener('click', () => lyricsModal?.classList.add('hidden'));
   lyricsModal?.addEventListener('click', (e) => { if (e.target === lyricsModal) lyricsModal.classList.add('hidden'); });
 
-  // события плеера
   audio.addEventListener('play', () => {
     playerEl.classList.remove('hidden');
     mini.classList.add('hidden');
@@ -221,7 +216,8 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const tracks = await (await fetch('/api/tracks')).json();
 
-  Amplitude
-
-                          // Запускаем загрузку треков для отображения списка
-load();
+  Amplitude.init({
+    songs: tracks.map(t => ({
+      name: t.title,
+      artist: t.artist,
+      url: t.downloadUrl || t.audioUrl || (t.filename ? '/
