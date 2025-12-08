@@ -27,6 +27,31 @@ function saveDB() {
   fs.writeFileSync(DATA_FILE, JSON.stringify(db, null, 2));
 }
 
+// --- Патч: гарантируем существование альбома "სინგლი" и проставляем albumId у треков без альбома ---
+const DEFAULT_ALBUM_NAME = 'სინგლი';
+
+// Найдём или создадим альбом "სინგლი"
+let defaultAlbum = db.albums.find(a => a && a.name === DEFAULT_ALBUM_NAME);
+if (!defaultAlbum) {
+  defaultAlbum = { id: uuidv4(), name: DEFAULT_ALBUM_NAME };
+  db.albums.push(defaultAlbum);
+  saveDB();
+}
+
+// Проставляем albumId для треков без albumId (null/undefined/пустая строка)
+let changed = false;
+db.tracks.forEach(t => {
+  if (!t.albumId) {
+    t.albumId = defaultAlbum.id;
+    changed = true;
+  }
+});
+
+if (changed) {
+  saveDB();
+}
+// --- Конец патча ---
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -93,7 +118,7 @@ app.get('/media/:filename', (req, res) => {
   }
 });
 
-// Helper: add downloadUrl to track
+// Helper: add downloadUrl and coverUrl to track
 function enhanceTrack(t) {
   let downloadUrl = null;
   if (t.audioUrl) {
@@ -179,13 +204,15 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
       db.albums.push(a);
     }
     albumId = a.id;
+  } else {
+    albumId = defaultAlbum.id;
   }
 
   const track = {
     id: uuidv4(),
     title,
     artist,
-    filename: audioFile.filename,
+    filename: audioFile.filename, // local file
     originalName: audioFile.originalname,
     audioUrl: null,
     cover: coverFile ? coverFile.filename : null,
@@ -202,6 +229,9 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
 
 /*
   Create track (external URLs / JSON)
+  Expected JSON body:
+  { title, artist, lyrics, album, audioUrl, coverUrl }
+  audioUrl is required for this route.
 */
 app.post('/api/tracks/json', checkAdmin, (req, res) => {
   const { title = 'Untitled', artist = '', lyrics = '', album = '', audioUrl = '', coverUrl = '' } = req.body;
@@ -215,6 +245,8 @@ app.post('/api/tracks/json', checkAdmin, (req, res) => {
       db.albums.push(a);
     }
     albumId = a.id;
+  } else {
+    albumId = defaultAlbum.id;
   }
 
   const track = {
@@ -263,7 +295,7 @@ app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name:
   if (audioFile) {
     t.filename = audioFile.filename;
     t.originalName = audioFile.originalname;
-    t.audioUrl = null;
+    t.audioUrl = null; // clear external url
   }
   if (coverFile) {
     t.cover = coverFile.filename;
@@ -315,6 +347,7 @@ app.delete('/api/tracks/:id', checkAdmin, (req, res) => {
   const idx = db.tracks.findIndex(x => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not found' });
   const [removed] = db.tracks.splice(idx, 1);
+  // Note: files remain on disk if local; you can delete them manually if you want
   saveDB();
   res.json({ ok: true, removed: enhanceTrack(removed) });
 });
@@ -335,7 +368,7 @@ app.put('/api/albums/:id', checkAdmin, (req, res) => {
   res.json(a);
 });
 
-// Delete album (admin)
+// Delete album (admin) — does not delete tracks, only clears albumId from tracks
 app.delete('/api/albums/:id', checkAdmin, (req, res) => {
   const idx = db.albums.findIndex(x => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not found' });
