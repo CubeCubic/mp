@@ -1,5 +1,5 @@
 // frontend/app.js — логика главной страницы Cube Cubic
-(async function() {
+(function() {
   const tracksContainer = document.getElementById('tracks');
   const albumsContainer = document.getElementById('albums');
 
@@ -32,6 +32,7 @@
   let currentIndex = -1;
   let hasPlayedOnce = false;
 
+  // 🔧 добавляем escapeHtml
   function escapeHtml(str) {
     if (typeof str !== 'string') return '';
     return str.replace(/&/g, '&amp;')
@@ -55,12 +56,19 @@
   }
 
   async function load() {
-    tracks = await (await fetch('/api/tracks')).json();
-    albums = await (await fetch('/api/albums')).json();
-    render();
+    try {
+      tracks = await (await fetch('/api/tracks')).json();
+      albums = await (await fetch('/api/albums')).json();
+      render();
+    } catch (err) {
+      console.error('Ошибка загрузки треков:', err);
+      if (tracksContainer) tracksContainer.innerHTML = '<div>Не удалось загрузить треки</div>';
+    }
   }
 
   function render() {
+    if (!tracksContainer || !albumsContainer) return;
+
     albumsContainer.innerHTML = '';
     albums.forEach(a => {
       const el = document.createElement('div');
@@ -75,19 +83,16 @@
       el.className = 'card';
       el.innerHTML = `
         ${t.coverUrl ? `<img class="track-cover" src="${t.coverUrl}" data-id="${t.id}">` : (t.cover ? `<img class="track-cover" src="/uploads/${t.cover}" data-id="${t.id}">` : '')}
-        <h4 class="track-title" data-id="${t.id}">${escapeHtml(t.title)}</h4>
-        <div>${escapeHtml(t.artist || '')}</div>
+        <h4 class="track-title" data-id="${t.id}">${escapeHtml(t.title)} ${escapeHtml(t.artist || '')}</h4>
         <div class="track-actions">
           <button data-download="${t.audioUrl ? t.audioUrl : (t.filename ? '/uploads/' + t.filename : '')}">ჩამოტვირთვა</button>
           <button data-like="${t.id}">❤ <span>${t.likes||0}</span></button>
         </div>
       `;
 
-      // запуск трека по клику
-      const img = el.querySelector('.track-cover');
-      if (img) img.addEventListener('click', () => togglePlayById(t.id));
-      const title = el.querySelector('.track-title');
-      if (title) title.addEventListener('click', () => togglePlayById(t.id));
+      // запуск трека
+      el.querySelector('.track-title')?.addEventListener('click', () => togglePlayById(t.id));
+      el.querySelector('.track-cover')?.addEventListener('click', () => togglePlayById(t.id));
 
       // лайки
       el.querySelector('[data-like]')?.addEventListener('click', async (e) => {
@@ -96,14 +101,14 @@
         e.currentTarget.querySelector('span').textContent = json.likes;
       });
 
-      // ✅ исправленный обработчик для кнопки скачивания в карточке трека
+      // скачивание без перехода
       el.querySelector('[data-download]')?.addEventListener('click', (e) => {
         e.preventDefault();
         const url = e.currentTarget.getAttribute('data-download');
         if (!url) return;
         const a = document.createElement('a');
         a.href = url;
-        a.download = ''; // заставляет браузер скачать файл
+        a.download = '';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -130,7 +135,7 @@
     audio.play().catch(() => {});
   }
 
-  // управление плеером
+  // управление плеером (оставлено как было)
   playBtn?.addEventListener('click', () => {
     if (audio.paused) audio.play().catch(() => {});
     else audio.pause();
@@ -180,30 +185,3 @@
   audio.addEventListener('ended', () => {
     playerEl.classList.add('hidden');
     mini.classList.add('hidden');
-    lyricsModal?.classList.add('hidden');
-    audio.src = '';
-    currentIndex = -1;
-    hasPlayedOnce = false;
-    progress.value = 0;
-    timeCurrent.textContent = formatTime(0);
-    timeDuration.textContent = formatTime(0);
-  });
-
-  audio.addEventListener('loadedmetadata', () => {
-    if (audio.duration && !isNaN(audio.duration)) timeDuration.textContent = formatTime(audio.duration);
-  });
-  audio.addEventListener('timeupdate', () => {
-    if (!isNaN(audio.duration)) {
-      progress.value = (audio.currentTime / audio.duration) * 100;
-      timeCurrent.textContent = formatTime(audio.currentTime);
-    }
-  });
-
-  progress.addEventListener('input', () => {
-    if (!isNaN(audio.duration)) {
-      audio.currentTime = (progress.value / 100) * audio.duration;
-    }
-  });
-
-  // ✅ исправленный обработчик для кнопки скачивания в плеере
-  downloadBtn.add
