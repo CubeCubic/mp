@@ -2,31 +2,37 @@
    Общие стили для всего сайта
    =========================== */
 
-/* Устанавливаем базовые шрифты и фон */
+/* Фон сайта */
 body {
-  font-family: Arial, sans-serif; /* Можно заменить на любой другой шрифт */
   margin: 0;
   padding: 0;
-  background-color: #f5f5f5; /* Цвет фона страницы */
-  color: #333; /* Основной цвет текста */
+  font-family: Arial, sans-serif; /* Шрифт текста */
+  color: #fff; /* Цвет текста (белый, чтобы было видно на фоне) */
+
+  /* Фон-картинка */
+  background-image: url("/images/bigcube.jpg"); /* путь к картинке */
+  background-size: cover; /* растягивает картинку на весь экран */
+  background-position: center; /* центрирует картинку */
+  background-attachment: fixed; /* фон остаётся на месте при прокрутке */
 }
 
-/* Заголовок сайта */
+/* ===========================
+   Шапка сайта
+   =========================== */
 header {
-  background-color: #222; /* Цвет фона шапки */
-  color: white; /* Цвет текста */
+  background-color: rgba(0,0,0,0.6); /* полупрозрачный фон */
+  color: #ffcc00; /* цвет текста */
   padding: 20px;
   text-align: center;
 }
 
-/* Ссылки в навигации */
 header nav a {
-  color: #ffcc00; /* Цвет ссылок */
+  color: #fff; /* цвет ссылок */
   text-decoration: none;
   margin: 0 10px;
 }
 header nav a:hover {
-  text-decoration: underline; /* Подчёркивание при наведении */
+  text-decoration: underline; /* подчёркивание при наведении */
 }
 
 /* ===========================
@@ -34,22 +40,26 @@ header nav a:hover {
    =========================== */
 main {
   padding: 20px;
+  background-color: rgba(0,0,0,0.5); /* затемнённый фон для читаемости текста */
+  border-radius: 8px;
+  margin: 20px;
 }
 
 h2 {
   margin-top: 30px;
-  border-bottom: 2px solid #ccc; /* Линия под заголовком */
+  border-bottom: 2px solid #ffcc00; /* линия под заголовком */
   padding-bottom: 5px;
+  color: #ffcc00;
 }
 
 /* Карточки альбомов и треков */
 .card {
-  background: white;
+  background: rgba(255,255,255,0.1); /* прозрачный белый фон */
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 10px;
   margin: 10px 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Лёгкая тень */
+  color: #fff;
 }
 
 /* Обложка трека */
@@ -67,7 +77,7 @@ h2 {
   bottom: 0;
   left: 0;
   right: 0;
-  background: #222; /* Цвет фона плеера */
+  background: rgba(0,0,0,0.8); /* тёмный полупрозрачный фон */
   color: white;
   padding: 15px;
   display: flex;
@@ -76,7 +86,7 @@ h2 {
 }
 
 #player.hidden {
-  display: none; /* Скрываем плеер, если он не активен */
+  display: none; /* скрываем плеер, если он не активен */
 }
 
 #player-cover img {
@@ -147,7 +157,7 @@ h2 {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.7); /* Полупрозрачный фон */
+  background: rgba(0,0,0,0.7); /* затемнённый фон */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,12 +172,13 @@ h2 {
   border-radius: 6px;
   max-width: 600px;
   width: 90%;
+  color: #000; /* текст внутри модального окна чёрный */
 }
 .modal-box h3 {
   margin-top: 0;
 }
 .modal-box pre {
-  white-space: pre-wrap; /* Чтобы текст переносился */
+  white-space: pre-wrap; /* перенос строк */
 }
 #modal-close {
   background: red;
