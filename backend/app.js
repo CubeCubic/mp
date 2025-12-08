@@ -1,255 +1,356 @@
-// frontend/app.js — логика главной страницы Cube Cubic
-(async function() {
-  const tracksContainer = document.getElementById('tracks');
-  const albumsContainer = document.getElementById('albums');
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
+const cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
-  const playerEl = document.getElementById('player');
-  const audio = document.getElementById('audio');
-  const playBtn = document.getElementById('play');
-  const prevBtn = document.getElementById('prev');
-  const nextBtn = document.getElementById('next');
-  const volume = document.getElementById('volume');
-  const downloadBtn = document.getElementById('download');
-  const showLyricsBtn = document.getElementById('show-lyrics');
-  const coverImg = document.getElementById('player-cover-img');
-  const titleEl = document.getElementById('player-title');
-  const artistEl = document.getElementById('player-artist');
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-  const progress = document.getElementById('progress');
-  const timeCurrent = document.getElementById('time-current');
-  const timeDuration = document.getElementById('time-duration');
+const DATA_FILE = path.join(__dirname, 'tracks.json');
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
 
-  const mini = document.getElementById('player-mini');
-  const miniResumeBtn = document.getElementById('mini-resume');
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
-  const lyricsModal = document.getElementById('lyrics-modal');
-  const modalClose = document.getElementById('modal-close');
-  const modalTitle = document.getElementById('modal-title');
-  const modalLyrics = document.getElementById('modal-lyrics');
+// Load or init data
+let db = { tracks: [], albums: [] };
+try {
+  db = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+} catch (err) {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(db, null, 2));
+}
 
-  let tracks = [];
-  let albums = [];
-  let currentIndex = -1;
-  let hasPlayedOnce = false;
+function saveDB() {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(db, null, 2));
+}
 
-  function escapeHtml(str) {
-    if (typeof str !== 'string') return '';
-    return str.replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;')
-              .replace(/'/g, '&#039;');
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Multer setup for local uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, UPLOADS_DIR);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, uuidv4() + ext);
   }
+});
+const upload = multer({ storage });
 
-  function formatTime(sec) {
-    if (!isFinite(sec)) return '0:00';
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  }
+// Serve uploaded files (public)
+app.use('/uploads', express.static(UPLOADS_DIR));
 
-  function getTrackStreamUrl(t) {
-    if (t.audioUrl) return t.audioUrl;
-    if (t.filename) return `/media/${t.filename}`;
-    return null;
-  }
+// Serve frontend static
+app.use('/', express.static(path.join(__dirname, '..', 'frontend')));
 
-  async function load() {
-    try {
-      tracks = await (await fetch('/api/tracks')).json();
-      albums = await (await fetch('/api/albums')).json();
-      render();
-    } catch (err) {
-      console.error('Ошибка загрузки треков:', err);
-      if (tracksContainer) tracksContainer.innerHTML = '<div>Не удалось загрузить треки</div>';
+// Streaming route with Range support for local uploads
+app.get('/media/:filename', (req, res) => {
+  const filePath = path.join(UPLOADS_DIR, req.params.filename);
+  if (!fs.existsSync(filePath)) return res.status(404).end();
+
+  const stat = fs.statSync(filePath);
+  const fileSize = stat.size;
+  const range = req.headers.range;
+
+  // Determine basic content-type by extension
+  const ext = path.extname(filePath).slice(1).toLowerCase();
+  const contentType =
+    ext === 'mp3' ? 'audio/mpeg' :
+    ext === 'wav' ? 'audio/wav' :
+    ext === 'ogg' ? 'audio/ogg' :
+    'application/octet-stream';
+
+  if (range) {
+    const parts = range.replace(/bytes=/, '').split('-');
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    if (isNaN(start) || start >= fileSize) {
+      res.status(416).send(`Requested range not satisfiable\n${start} >= ${fileSize}`);
+      return;
     }
+    const chunksize = (end - start) + 1;
+    const file = fs.createReadStream(filePath, { start, end });
+    res.writeHead(206, {
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': chunksize,
+      'Content-Type': contentType,
+    });
+    file.pipe(res);
+  } else {
+    res.writeHead(200, {
+      'Content-Length': fileSize,
+      'Content-Type': contentType,
+    });
+    fs.createReadStream(filePath).pipe(res);
+  }
+});
+
+// Helper: add downloadUrl to track
+function enhanceTrack(t) {
+  let downloadUrl = null;
+  if (t.audioUrl) {
+    downloadUrl = t.audioUrl;
+  } else if (t.filename) {
+    // Expose static uploads path for direct download
+    downloadUrl = '/uploads/' + t.filename;
+  }
+  // Provide coverUrl fallback if local cover exists
+  const coverUrl = t.coverUrl || (t.cover ? '/uploads/' + t.cover : null);
+  return { ...t, downloadUrl, coverUrl };
+}
+
+// API: List tracks
+app.get('/api/tracks', (req, res) => {
+  res.json(db.tracks.map(enhanceTrack));
+});
+
+// API: Get single track
+app.get('/api/tracks/:id', (req, res) => {
+  const t = db.tracks.find(x => x.id === req.params.id);
+  if (!t) return res.status(404).json({ error: 'not found' });
+  res.json(enhanceTrack(t));
+});
+
+// API: Like track
+app.post('/api/tracks/:id/like', (req, res) => {
+  const t = db.tracks.find(x => x.id === req.params.id);
+  if (!t) return res.status(404).json({ error: 'not found' });
+  t.likes = (t.likes || 0) + 1;
+  saveDB();
+  res.json({ likes: t.likes });
+});
+
+// Helper: check admin via JWT cookie
+function checkAdmin(req, res, next) {
+  const token = req.cookies && req.cookies.admin_token;
+  if (!token) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    const secret = process.env.SESSION_SECRET || 'change_this_secret';
+    const payload = jwt.verify(token, secret);
+    if (payload && payload.admin) return next();
+    return res.status(401).json({ error: 'unauthorized' });
+  } catch (err) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+}
+
+// Admin login (creates signed cookie)
+app.post('/api/admin/login', (req, res) => {
+  const pass = req.body.password || '';
+  const ADMIN_PASS = process.env.ADMIN_PASS || '230470';
+  if (pass === ADMIN_PASS) {
+    const secret = process.env.SESSION_SECRET || 'change_this_secret';
+    const token = jwt.sign({ admin: true }, secret, { expiresIn: '7d' });
+    const isProd = process.env.NODE_ENV === 'production';
+    res.cookie('admin_token', token, { httpOnly: true, sameSite: 'lax', secure: isProd });
+    res.json({ ok: true });
+  } else {
+    res.status(401).json({ error: 'invalid' });
+  }
+});
+
+// Admin logout
+app.post('/api/admin/logout', (req, res) => {
+  res.clearCookie('admin_token');
+  res.json({ ok: true });
+});
+
+/*
+  Create track (local upload)
+  - multipart/form-data with fields: title, artist, lyrics, album, files audio and cover
+*/
+app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'cover' }]), (req, res) => {
+  const { title = 'Untitled', artist = '', lyrics = '', album = '' } = req.body;
+  const audioFile = req.files['audio'] && req.files['audio'][0];
+  if (!audioFile) return res.status(400).json({ error: 'audio required' });
+  const coverFile = req.files['cover'] && req.files['cover'][0];
+
+  let albumId = null;
+  if (album) {
+    let a = db.albums.find(x => x.name === album);
+    if (!a) {
+      a = { id: uuidv4(), name: album };
+      db.albums.push(a);
+    }
+    albumId = a.id;
   }
 
-  function render() {
-    if (!tracksContainer || !albumsContainer) return;
+  const track = {
+    id: uuidv4(),
+    title,
+    artist,
+    filename: audioFile.filename, // local file
+    originalName: audioFile.originalname,
+    audioUrl: null,
+    cover: coverFile ? coverFile.filename : null,
+    coverUrl: null,
+    lyrics,
+    albumId,
+    likes: 0,
+    createdAt: new Date().toISOString()
+  };
+  db.tracks.push(track);
+  saveDB();
+  res.json(enhanceTrack(track));
+});
 
-    albumsContainer.innerHTML = '';
-    albums.forEach(a => {
-      const el = document.createElement('div');
-      el.className = 'card';
-      el.innerHTML = `<strong>${escapeHtml(a.name || '')}</strong>`;
-      albumsContainer.appendChild(el);
-    });
+/*
+  Create track (external URLs / JSON)
+  Expected JSON body:
+  { title, artist, lyrics, album, audioUrl, coverUrl }
+  audioUrl is required for this route.
+*/
+app.post('/api/tracks/json', checkAdmin, (req, res) => {
+  const { title = 'Untitled', artist = '', lyrics = '', album = '', audioUrl = '', coverUrl = '' } = req.body;
+  if (!audioUrl) return res.status(400).json({ error: 'audioUrl required' });
 
-    tracksContainer.innerHTML = '';
-    tracks.forEach(t => {
-      const el = document.createElement('div');
-      el.className = 'card';
-      el.innerHTML = `
-        ${t.coverUrl ? `<img class="track-cover" src="${t.coverUrl}" data-id="${t.id}">` : (t.cover ? `<img class="track-cover" src="/uploads/${t.cover}" data-id="${t.id}">` : '')}
-        <h4 class="track-title" data-id="${t.id}">${escapeHtml(t.title)} ${escapeHtml(t.artist || '')}</h4>
-        <div class="track-actions">
-          <button data-download="${t.downloadUrl || t.audioUrl || (t.filename ? '/uploads/' + t.filename : '')}">ჩამოტვირთვა</button>
-          <button data-like="${t.id}">❤ <span>${t.likes || 0}</span></button>
-        </div>
-      `;
-
-      // запуск трека по клику
-      el.querySelector('.track-title')?.addEventListener('click', () => togglePlayById(t.id));
-      el.querySelector('.track-cover')?.addEventListener('click', () => togglePlayById(t.id));
-
-      // лайки
-      el.querySelector('[data-like]')?.addEventListener('click', async (e) => {
-        const res = await fetch(`/api/tracks/${t.id}/like`, { method: 'POST' });
-        const json = await res.json();
-        e.currentTarget.querySelector('span').textContent = json.likes;
-      });
-
-      // скачивание без перехода
-      el.querySelector('[data-download]')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        const url = e.currentTarget.getAttribute('data-download');
-        if (!url) return;
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      });
-
-      tracksContainer.appendChild(el);
-    });
+  let albumId = null;
+  if (album) {
+    let a = db.albums.find(x => x.name === album);
+    if (!a) {
+      a = { id: uuidv4(), name: album };
+      db.albums.push(a);
+    }
+    albumId = a.id;
   }
 
-  // ✅ исправленный togglePlayById
-  function togglePlayById(id) {
-    const idx = tracks.findIndex(x => x.id === id);
-    if (idx === -1) return;
+  const track = {
+    id: uuidv4(),
+    title,
+    artist,
+    filename: null,
+    originalName: null,
+    audioUrl,
+    cover: null,
+    coverUrl: coverUrl || null,
+    lyrics,
+    albumId,
+    likes: 0,
+    createdAt: new Date().toISOString()
+  };
+  db.tracks.push(track);
+  saveDB();
+  res.json(enhanceTrack(track));
+});
 
-    // если кликнули по текущему треку
-    if (currentIndex === idx) {
-      if (audio.paused) {
-        audio.play().catch(() => {});
-      } else {
-        audio.pause();
+// Update track (local upload)
+app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'cover' }]), (req, res) => {
+  const t = db.tracks.find(x => x.id === req.params.id);
+  if (!t) return res.status(404).json({ error: 'not found' });
+
+  const { title, artist, lyrics, album } = req.body;
+  if (title) t.title = title;
+  if (artist) t.artist = artist;
+  if (lyrics) t.lyrics = lyrics;
+
+  if (album !== undefined) {
+    if (album === '') t.albumId = null;
+    else {
+      let a = db.albums.find(x => x.name === album);
+      if (!a) {
+        a = { id: uuidv4(), name: album };
+        db.albums.push(a);
       }
-      return; // не перезапускаем трек заново
+      t.albumId = a.id;
     }
-
-    // если выбран новый трек
-    currentIndex = idx;
-    const t = tracks[currentIndex];
-    const url = getTrackStreamUrl(t);
-    if (!url) return;
-    audio.src = url;
-    titleEl.textContent = t.title;
-    artistEl.textContent = t.artist || '';
-    if (t.coverUrl) coverImg.src = t.coverUrl;
-    else if (t.cover) coverImg.src = `/uploads/${t.cover}`;
-    else coverImg.src = '';
-    downloadBtn.setAttribute('data-download', url);
-    audio.play().catch(() => {});
   }
 
-  // управление плеером
-  playBtn?.addEventListener('click', () => {
-    if (audio.paused) audio.play().catch(() => {});
-    else audio.pause();
-  });
+  const audioFile = req.files['audio'] && req.files['audio'][0];
+  const coverFile = req.files['cover'] && req.files['cover'][0];
+  if (audioFile) {
+    t.filename = audioFile.filename;
+    t.originalName = audioFile.originalname;
+    t.audioUrl = null; // clear external url
+  }
+  if (coverFile) {
+    t.cover = coverFile.filename;
+    t.coverUrl = null;
+  }
 
-  prevBtn?.addEventListener('click', () => {
-    if (!tracks.length) return;
-    currentIndex = (currentIndex - 1 + tracks.length) % tracks.length;
-    togglePlayById(tracks[currentIndex].id);
-  });
+  saveDB();
+  res.json(enhanceTrack(t));
+});
 
-  nextBtn?.addEventListener('click', () => {
-    if (!tracks.length) return;
-    currentIndex = (currentIndex + 1) % tracks.length;
-    togglePlayById(tracks[currentIndex].id);
-  });
+// Update track (JSON / external URLs)
+app.put('/api/tracks/:id/json', checkAdmin, (req, res) => {
+  const t = db.tracks.find(x => x.id === req.params.id);
+  if (!t) return res.status(404).json({ error: 'not found' });
 
-  volume?.addEventListener('input', () => { audio.volume = volume.value; });
+  const { title, artist, lyrics, album, audioUrl, coverUrl } = req.body;
+  if (title) t.title = title;
+  if (artist) t.artist = artist;
+  if (lyrics) t.lyrics = lyrics;
 
-  miniResumeBtn?.addEventListener('click', () => { audio.play().catch(() => {}); });
-
-  showLyricsBtn?.addEventListener('click', () => {
-    if (currentIndex === -1) return;
-    const t = tracks[currentIndex];
-    modalTitle.textContent = t.title || 'ლირიკა';
-    modalLyrics.textContent = t.lyrics || 'ლირიკა არ არის';
-    lyricsModal?.classList.remove('hidden');
-  });
-
-  modalClose?.addEventListener('click', () => lyricsModal?.classList.add('hidden'));
-  lyricsModal?.addEventListener('click', (e) => {
-    if (e.target === lyricsModal) lyricsModal.classList.add('hidden');
-  });
-
-  // события плеера
-  audio.addEventListener('play', () => {
-    playerEl.classList.remove('hidden');
-    mini.classList.add('hidden');
-    playBtn.textContent = '⏸';
-    hasPlayedOnce = true;
-  });
-
-  audio.addEventListener('pause', () => {
-    playBtn.textContent = '▶';
-    if (hasPlayedOnce) {
-      playerEl.classList.add('hidden');
-      mini.classList.remove('hidden');
+  if (album !== undefined) {
+    if (album === '') t.albumId = null;
+    else {
+      let a = db.albums.find(x => x.name === album);
+      if (!a) {
+        a = { id: uuidv4(), name: album };
+        db.albums.push(a);
+      }
+      t.albumId = a.id;
     }
-  });
+  }
 
-  audio.addEventListener('ended', () => {
-    playerEl.classList.add('hidden');
-    mini.classList.add('hidden');
-    lyricsModal?.classList.add('hidden');
-    audio.src = '';
-    currentIndex = -1;
-    hasPlayedOnce = false;
-    progress.value = 0;
-    timeCurrent.textContent = formatTime(0);
-    timeDuration.textContent = formatTime(0);
-  });
+  if (audioUrl) {
+    t.audioUrl = audioUrl;
+    t.filename = null;
+    t.originalName = null;
+  }
+  if (coverUrl) {
+    t.coverUrl = coverUrl;
+    t.cover = null;
+  }
 
-  audio.addEventListener('loadedmetadata', () => {
-    if (audio.duration && !isNaN(audio.duration)) {
-      timeDuration.textContent = formatTime(audio.duration);
-    }
-  });
+  saveDB();
+  res.json(enhanceTrack(t));
+});
 
-  audio.addEventListener('timeupdate', () => {
-    if (audio.duration && !isNaN(audio.duration)) {
-      progress.value = (audio.currentTime / audio.duration) * 100;
-      timeCurrent.textContent = formatTime(audio.currentTime);
-    }
-  });
+// Delete track (admin)
+app.delete('/api/tracks/:id', checkAdmin, (req, res) => {
+  const idx = db.tracks.findIndex(x => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'not found' });
+  const [removed] = db.tracks.splice(idx, 1);
+  // Note: files remain on disk if local; you can delete them manually if you want
+  saveDB();
+  res.json({ ok: true, removed: enhanceTrack(removed) });
+});
 
-  // запускаем загрузку списка треков
-  load();
-})();
+// Albums list
+app.get('/api/albums', (req, res) => {
+  res.json(db.albums);
+});
 
-// 🔧 Новый блок Amplitude.js — встроен без изменений
-document.addEventListener('DOMContentLoaded', async () => {
-  const tracks = await (await fetch('/api/tracks')).json();
+// Update album name (admin)
+app.put('/api/albums/:id', checkAdmin, (req, res) => {
+  const a = db.albums.find(x => x.id === req.params.id);
+  if (!a) return res.status(404).json({ error: 'not found' });
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: 'name required' });
+  a.name = name;
+  saveDB();
+  res.json(a);
+});
 
-  Amplitude.init({
-    songs: tracks.map(t => ({
-      name: t.title,
-      artist: t.artist,
-      url: t.audioUrl || (t.filename ? '/uploads/' + t.filename : ''),
-      cover_art_url: t.coverUrl || (t.cover ? '/uploads/' + t.cover : '')
-    }))
-  });
+// Delete album (admin) — does not delete tracks, only clears albumId from tracks
+app.delete('/api/albums/:id', checkAdmin, (req, res) => {
+  const idx = db.albums.findIndex(x => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'not found' });
+  const [removed] = db.albums.splice(idx, 1);
+  db.tracks.forEach(t => { if (t.albumId === removed.id) t.albumId = null; });
+  saveDB();
+  res.json({ ok: true });
+});
 
-  // обработчик для кнопки скачивания
-  const downloadBtn = document.getElementById('download');
-  downloadBtn.addEventListener('click', () => {
-    const activeSong = Amplitude.getActiveSongMetadata();
-    if (!activeSong || !activeSong.url) return;
-    const a = document.createElement('a');
-    a.href = activeSong.url;
-    a.download = '';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
 });
