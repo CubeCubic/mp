@@ -1,66 +1,46 @@
-// frontend/app.js — логика главной страницы Cube Cubic
-(async function() {
+// frontend/app.js — интеграция OpenPlayerJS и логика страницы
+(async function () {
   const tracksContainer = document.getElementById('tracks');
   const albumsContainer = document.getElementById('albums');
-
-  const playerEl = document.getElementById('player');
-  const audio = document.getElementById('audio');
-  const playBtn = document.getElementById('play');
-  const prevBtn = document.getElementById('prev');
-  const nextBtn = document.getElementById('next');
-  const volume = document.getElementById('volume');
-  const downloadBtn = document.getElementById('download');
-  const showLyricsBtn = document.getElementById('show-lyrics');
-  const coverImg = document.getElementById('player-cover-img');
-  const titleEl = document.getElementById('player-title');
-  const artistEl = document.getElementById('player-artist');
-
-  const progress = document.getElementById('progress');
-  const timeCurrent = document.getElementById('time-current');
-  const timeDuration = document.getElementById('time-duration');
-
-  const mini = document.getElementById('player-mini');
-  const miniResumeBtn = document.getElementById('mini-resume');
 
   const lyricsModal = document.getElementById('lyrics-modal');
   const modalClose = document.getElementById('modal-close');
   const modalTitle = document.getElementById('modal-title');
   const modalLyrics = document.getElementById('modal-lyrics');
 
+  const audioEl = document.getElementById('openplayer-audio');
+  let openPlayer = null;
+
   let tracks = [];
   let albums = [];
-  let currentIndex = -1;
-  let hasPlayedOnce = false;
 
   function escapeHtml(str) {
     if (typeof str !== 'string') return '';
     return str.replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/"/g, '&quot;')
-              .replace(/'/g, '&#039;');
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
-  function formatTime(sec) {
-    if (!isFinite(sec)) return '0:00';
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  }
-
-  function getTrackStreamUrl(t) {
+  function getStreamUrl(t) {
     if (t.audioUrl) return t.audioUrl;
-    if (t.filename) return `/media/${t.filename}`;
+    if (t.downloadUrl) return t.downloadUrl;
+    if (t.filename) return '/media/' + t.filename;
     return null;
   }
 
-  async function load() {
+  async function loadData() {
     try {
-      tracks = await (await fetch('/api/tracks')).json();
-      albums = await (await fetch('/api/albums')).json();
+      const [tracksRes, albumsRes] = await Promise.all([
+        fetch('/api/tracks'),
+        fetch('/api/albums')
+      ]);
+      tracks = await tracksRes.json();
+      albums = await albumsRes.json();
       render();
     } catch (err) {
-      console.error('Ошибка загрузки треков:', err);
+      console.error('Ошибка загрузки данных:', err);
       if (tracksContainer) tracksContainer.innerHTML = '<div>Не удалось загрузить треки</div>';
     }
   }
@@ -77,147 +57,120 @@
     });
 
     tracksContainer.innerHTML = '';
-    tracks.forEach(t => {
+    tracks.forEach((t, idx) => {
+      const cover = t.coverUrl || (t.cover ? '/uploads/' + t.cover : '');
+      const stream = getStreamUrl(t) || '';
       const el = document.createElement('div');
-      el.className = 'card';
+      el.className = 'card track-card';
+      el.dataset.index = String(idx);
       el.innerHTML = `
-        ${t.coverUrl ? `<img class="track-cover" src="${t.coverUrl}" data-id="${t.id}">` : (t.cover ? `<img class="track-cover" src="/uploads/${t.cover}" data-id="${t.id}">` : '')}
-        <h4 class="track-title" data-id="${t.id}">${escapeHtml(t.title)} ${escapeHtml(t.artist || '')}</h4>
-        <div class="track-actions">
-          <button data-download="${t.downloadUrl || t.audioUrl || (t.filename ? '/uploads/' + t.filename : '')}">ჩამოტვირთვა</button>
-          <button data-like="${t.id}">❤ <span>${t.likes||0}</span></button>
+        <div class="track-left">
+          ${cover ? `<img class="track-cover" src="${cover}" alt="${escapeHtml(t.title)}">` : ''}
+        </div>
+        <div class="track-main">
+          <h4 class="track-title">${escapeHtml(t.title)}</h4>
+          <div class="track-artist">${escapeHtml(t.artist || '')}</div>
+          <div class="track-actions">
+            <button class="btn-play" data-src="${stream}">▶</button>
+            <button class="btn-download" data-src="${stream}">ჩამოტვირთვა</button>
+            <button class="btn-like" data-id="${t.id}">❤ <span>${t.likes || 0}</span></button>
+            <button class="btn-lyrics" data-index="${idx}">ტექსტი</button>
+          </div>
         </div>
       `;
 
-      // запуск трека по клику
-      el.querySelector('.track-title')?.addEventListener('click', () => togglePlayById(t.id));
-      el.querySelector('.track-cover')?.addEventListener('click', () => togglePlayById(t.id));
+      // делегируем события ниже (для безопасности — добавим слушатели после вставки)
+      tracksContainer.appendChild(el);
+    });
 
-      // лайки
-      el.querySelector('[data-like]')?.addEventListener('click', async (e) => {
-        const res = await fetch(`/api/tracks/${t.id}/like`, { method: 'POST' });
-        const json = await res.json();
-        e.currentTarget.querySelector('span').textContent = json.likes;
+    // attach event listeners (delegation)
+    tracksContainer.querySelectorAll('.btn-play').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const src = e.currentTarget.getAttribute('data-src');
+        if (!src) return;
+        playSource(src);
       });
+    });
 
-      // скачивание без перехода
-      el.querySelector('[data-download]')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        const url = e.currentTarget.getAttribute('data-download');
-        if (!url) return;
+    tracksContainer.querySelectorAll('.btn-download').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const src = e.currentTarget.getAttribute('data-src');
+        if (!src) return;
         const a = document.createElement('a');
-        a.href = url;
+        a.href = src;
         a.download = '';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
       });
+    });
 
-      tracksContainer.appendChild(el);
+    tracksContainer.querySelectorAll('.btn-like').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        if (!id) return;
+        try {
+          const res = await fetch(`/api/tracks/${id}/like`, { method: 'POST' });
+          const json = await res.json();
+          const span = e.currentTarget.querySelector('span');
+          if (span && json.likes !== undefined) span.textContent = String(json.likes);
+        } catch (err) {
+          console.error('Like error', err);
+        }
+      });
+    });
+
+    tracksContainer.querySelectorAll('.btn-lyrics').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = Number(e.currentTarget.getAttribute('data-index'));
+        const t = tracks[idx];
+        if (!t) return;
+        modalTitle.textContent = t.title || 'ლირიკა';
+        modalLyrics.textContent = t.lyrics || 'ლირიკა არ არის';
+        lyricsModal.classList.remove('hidden');
+      });
     });
   }
 
-  function togglePlayById(id) {
-    const idx = tracks.findIndex(x => x.id === id);
-    if (idx === -1) return;
-
-    if (currentIndex === idx) {
-      if (audio.paused) {
-        audio.play().catch(() => {});
+  function initOpenPlayer() {
+    try {
+      // Инициализируем OpenPlayerJS на audio элементе
+      if (typeof OpenPlayerJS === 'function') {
+        openPlayer = new OpenPlayerJS('#openplayer-audio');
+      } else if (window.OpenPlayerJS) {
+        openPlayer = new window.OpenPlayerJS('#openplayer-audio');
       } else {
-        audio.pause();
+        console.warn('OpenPlayerJS не найден в глобальной области');
       }
-      return;
+    } catch (err) {
+      console.error('Ошибка инициализации OpenPlayerJS:', err);
     }
-
-    currentIndex = idx;
-    const t = tracks[currentIndex];
-    const url = getTrackStreamUrl(t);
-    if (!url) return;
-    audio.src = url;
-    titleEl.textContent = t.title;
-    artistEl.textContent = t.artist || '';
-    if (t.coverUrl) coverImg.src = t.coverUrl;
-    else if (t.cover) coverImg.src = `/uploads/${t.cover}`;
-    else coverImg.src = '';
-    downloadBtn.setAttribute('data-download', url);
-    audio.play().catch(() => {});
   }
 
-  playBtn?.addEventListener('click', () => {
-    if (audio.paused) audio.play().catch(() => {});
-    else audio.pause();
+  function playSource(src) {
+    if (!src) return;
+    // Если OpenPlayerJS инициализирован, меняем src у audio и запускаем
+    audioEl.pause();
+    audioEl.src = src;
+    // если OpenPlayerJS предоставляет API для обновления, он будет работать с элементом
+    audioEl.load();
+    audioEl.play().catch(() => {});
+    // показать плеер, если он скрыт
+    const wrapper = document.getElementById('player-wrapper');
+    if (wrapper) wrapper.classList.remove('hidden');
+  }
+
+  // modal handlers
+  modalClose?.addEventListener('click', () => {
+    lyricsModal.classList.add('hidden');
+  });
+  lyricsModal?.addEventListener('click', (e) => {
+    if (e.target === lyricsModal) lyricsModal.classList.add('hidden');
   });
 
-  prevBtn?.addEventListener('click', () => {
-    if (!tracks.length) return;
-    currentIndex = (currentIndex - 1 + tracks.length) % tracks.length;
-    togglePlayById(tracks[currentIndex].id);
-  });
-
-  nextBtn?.addEventListener('click', () => {
-    if (!tracks.length) return;
-    currentIndex = (currentIndex + 1) % tracks.length;
-    togglePlayById(tracks[currentIndex].id);
-  });
-
-  volume?.addEventListener('input', () => { audio.volume = volume.value; });
-
-  miniResumeBtn?.addEventListener('click', () => { audio.play().catch(() => {}); });
-
-  showLyricsBtn?.addEventListener('click', () => {
-    if (currentIndex === -1) return;
-    const t = tracks[currentIndex];
-    modalTitle.textContent = t.title || 'ლირიკა';
-    modalLyrics.textContent = t.lyrics || 'ლირიკა არ არის';
-    lyricsModal?.classList.remove('hidden');
-  });
-
-  modalClose?.addEventListener('click', () => lyricsModal?.classList.add('hidden'));
-  lyricsModal?.addEventListener('click', (e) => { if (e.target === lyricsModal) lyricsModal.classList.add('hidden'); });
-
-  audio.addEventListener('play', () => {
-    playerEl.classList.remove('hidden');
-    mini.classList.add('hidden');
-    playBtn.textContent = '⏸';
-    hasPlayedOnce = true;
-  });
-  audio.addEventListener('pause', () => {
-    playBtn.textContent = '▶';
-    if (hasPlayedOnce) {
-      playerEl.classList.add('hidden');
-      mini.classList.remove('hidden');
-    }
-  });
-  audio.addEventListener('ended', () => {
-    playerEl.classList.add('hidden');
-    mini.classList.add('hidden');
-    lyricsModal?.classList.add('hidden');
-    audio.src = '';
-    currentIndex = -1;
-    hasPlayedOnce = false;
-    progress.value = 0;
-    timeCurrent.textContent = formatTime(0);
-    timeDuration.textContent = formatTime(0);
-  });
-
-  audio.addEventListener('loadedmetadata', () => {
-    if (audio.duration && !isNaN(audio.duration)) timeDuration.textContent = formatTime(audio.duration);
-  });
-  audio.addEventListener('timeupdate', () => {
-    if (!isNaN(audio.duration)) {
-      progress.value = (audio.currentTime / audio.duration) * 100;
-      timeCurrent.textContent = formatTime(audio.currentTime);
-    }
+  // init on DOM ready
+  document.addEventListener('DOMContentLoaded', async () => {
+    initOpenPlayer();
+    await loadData();
   });
 })();
-
-// 🔧 Новый блок Amplitude.js
-document.addEventListener('DOMContentLoaded', async () => {
-  const tracks = await (await fetch('/api/tracks')).json();
-
-  Amplitude.init({
-    songs: tracks.map(t => ({
-      name: t.title,
-      artist: t.artist,
-      url: t.downloadUrl || t.audioUrl || (t.filename ? '/
