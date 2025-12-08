@@ -205,3 +205,5 @@
 
     audio.addEventListener('loadedmetadata', () => {
       if (audio.duration && !isNaN(audio.duration)) timeDuration.textContent = formatTime(audio.duration);
+      load();
+
