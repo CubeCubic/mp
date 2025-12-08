@@ -1,4 +1,4 @@
-// frontend/app.js — полный файл: альбомы, подальбомы, фильтрация, плеер
+// frontend/app.js — полный файл: альбомы, подальбомы, фильтрация, плеер с анимацией появления/скрытия
 (function () {
   // DOM элементы
   const albumSelect = document.getElementById('album-select');
@@ -305,8 +305,6 @@
   });
 
   prevBtn?.addEventListener('click', () => {
-    const mainId = albumSelect.value;
-    if (!mainId) return;
     const list = getCurrentFilteredList();
     if (!list.length) return;
     const idx = list.findIndex(x => x.id === currentTrackId);
@@ -315,8 +313,6 @@
   });
 
   nextBtn?.addEventListener('click', () => {
-    const mainId = albumSelect.value;
-    if (!mainId) return;
     const list = getCurrentFilteredList();
     if (!list.length) return;
     const idx = list.findIndex(x => x.id === currentTrackId);
@@ -344,23 +340,21 @@
     }
   });
 
-  // Show player on play; hide on pause or ended
+  // Show player on play; hide on pause or ended (with smooth animation via CSS)
   audio.addEventListener('play', () => {
-    playerEl.classList.remove('hidden');
+    playerEl.classList.add('visible');
     playBtn.textContent = '⏸';
   });
 
   audio.addEventListener('pause', () => {
     playBtn.textContent = '▶';
-    // hide player when paused (as requested)
-    // but keep currentTrackId so clicking title resumes same track
-    playerEl.classList.add('hidden');
+    // hide player with animation
+    playerEl.classList.remove('visible');
   });
 
   audio.addEventListener('ended', () => {
     playBtn.textContent = '▶';
-    playerEl.classList.add('hidden');
-    // reset currentTrackId if you want to clear selection
+    playerEl.classList.remove('visible');
     currentTrackId = null;
     audio.src = '';
     progress.value = 0;
