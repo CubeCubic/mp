@@ -99,10 +99,8 @@ function enhanceTrack(t) {
   if (t.audioUrl) {
     downloadUrl = t.audioUrl;
   } else if (t.filename) {
-    // Expose static uploads path for direct download
     downloadUrl = '/uploads/' + t.filename;
   }
-  // Provide coverUrl fallback if local cover exists
   const coverUrl = t.coverUrl || (t.cover ? '/uploads/' + t.cover : null);
   return { ...t, downloadUrl, coverUrl };
 }
@@ -187,7 +185,7 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
     id: uuidv4(),
     title,
     artist,
-    filename: audioFile.filename, // local file
+    filename: audioFile.filename,
     originalName: audioFile.originalname,
     audioUrl: null,
     cover: coverFile ? coverFile.filename : null,
@@ -204,9 +202,6 @@ app.post('/api/tracks', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'c
 
 /*
   Create track (external URLs / JSON)
-  Expected JSON body:
-  { title, artist, lyrics, album, audioUrl, coverUrl }
-  audioUrl is required for this route.
 */
 app.post('/api/tracks/json', checkAdmin, (req, res) => {
   const { title = 'Untitled', artist = '', lyrics = '', album = '', audioUrl = '', coverUrl = '' } = req.body;
@@ -268,7 +263,7 @@ app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name:
   if (audioFile) {
     t.filename = audioFile.filename;
     t.originalName = audioFile.originalname;
-    t.audioUrl = null; // clear external url
+    t.audioUrl = null;
   }
   if (coverFile) {
     t.cover = coverFile.filename;
@@ -320,7 +315,6 @@ app.delete('/api/tracks/:id', checkAdmin, (req, res) => {
   const idx = db.tracks.findIndex(x => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not found' });
   const [removed] = db.tracks.splice(idx, 1);
-  // Note: files remain on disk if local; you can delete them manually if you want
   saveDB();
   res.json({ ok: true, removed: enhanceTrack(removed) });
 });
@@ -341,7 +335,7 @@ app.put('/api/albums/:id', checkAdmin, (req, res) => {
   res.json(a);
 });
 
-// Delete album (admin) — does not delete tracks, only clears albumId from tracks
+// Delete album (admin)
 app.delete('/api/albums/:id', checkAdmin, (req, res) => {
   const idx = db.albums.findIndex(x => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'not found' });
