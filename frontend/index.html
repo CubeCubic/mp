@@ -1,60 +1,43 @@
 <!doctype html>
-<html lang="ka"> <!-- Язык страницы: грузинский -->
+<html lang="ka">
 <head>
-  <meta charset="utf-8"> <!-- Кодировка, чтобы грузинский текст отображался правильно -->
-  <meta name="viewport" content="width=device-width,initial-scale=1"> <!-- Адаптивность для телефонов -->
-  <title>Cube Cubic</title> <!-- Заголовок вкладки браузера -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cube Cubic</title>
 
-  <!-- Фавикон -->
   <link rel="icon" type="image/png" sizes="32x32" href="/images/smallcube.png">
   <link rel="icon" type="image/png" sizes="64x64" href="/images/smallcube.png">
   <link rel="apple-touch-icon" href="/images/smallcube.png">
 
-  <!-- Стили сайта -->
   <link rel="stylesheet" href="/styles.css">
 
-  <!-- Amplitude.js -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/amplitudejs@5.3.2/dist/amplitude.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/amplitudejs@5.3.2/dist/amplitude.min.js"></script>
+  <!-- OpenPlayerJS CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.js"></script>
 </head>
 <body>
   <header>
     <h1>Cube Cubic - კეთილი იყოს თქვენი მობრძანება</h1>
     <nav>
-    <a href="/admin.html" class="hidden-text">ადმინი</a>  
+      <a href="/admin.html" class="hidden-text">ადმინი</a>
     </nav>
   </header>
 
   <main id="app">
-    <!-- Секция альбомов -->
     <section id="albums-section">
       <h2>ალბომები</h2>
       <div id="albums"></div>
     </section>
 
-    <!-- Секция треков -->
     <section id="tracks-section">
       <h2>ტრეკები</h2>
       <div id="tracks"></div>
     </section>
   </main>
 
-  <!-- Amplitude.js плеер -->
-  <div id="amplitude-player">
-    <div class="amplitude-song-container amplitude-play-pause" data-amplitude-song-index="0">
-      <img data-amplitude-song-info="cover_art_url" class="cover" alt="cover"/>
-      <div>
-        <span data-amplitude-song-info="name"></span>
-        <span data-amplitude-song-info="artist"></span>
-      </div>
-    </div>
-
-    <div class="controls">
-      <button class="amplitude-prev">⏮</button>
-      <button class="amplitude-play-pause">▶/⏸</button>
-      <button class="amplitude-next">⏭</button>
-      <button id="download">ჩამოტვირთვა</button>
-    </div>
+  <!-- OpenPlayerJS audio element (hidden controls replaced by OpenPlayer) -->
+  <div id="player-wrapper" class="hidden">
+    <audio id="openplayer-audio" preload="auto" controls></audio>
   </div>
 
   <!-- Модальное окно для текста песни -->
@@ -66,7 +49,6 @@
     </div>
   </div>
 
-  <!-- Подключение скрипта -->
   <script src="/app.js"></script>
 </body>
 </html>
