@@ -1,197 +1,190 @@
 /* ===========================
-   Общие стили для админки
+   Общие стили для всего сайта
    =========================== */
 
-/* Фон страницы */
+/* Фон сайта */
 body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif; /* Шрифт текста */
-  background-color: #f0f0f0; /* Светло-серый фон */
-  color: #333; /* Цвет текста */
+  color: #fff; /* Цвет текста (белый, чтобы было видно на фоне) */
+
+  /* Фон-картинка */
+  background-image: url("/images/bigcube.jpg"); /* путь к картинке */
+  background-size: cover; /* растягивает картинку на весь экран */
+  background-position: center; /* центрирует картинку */
+  background-attachment: fixed; /* фон остаётся на месте при прокрутке */
 }
 
-/* Шапка */
+/* ===========================
+   Шапка сайта
+   =========================== */
 header {
-  background-color: #222; /* Тёмный фон */
-  color: #fff; /* Белый текст */
+  background-color: rgba(0,0,0,0.6); /* полупрозрачный фон */
+  color: #ffcc00; /* цвет текста */
   padding: 20px;
   text-align: center;
 }
 
-header a {
-  color: #ffcc00; /* Ссылка на главную страницу жёлтая */
+header nav a {
+  color: #fff; /* цвет ссылок */
   text-decoration: none;
-  margin-left: 20px;
+  margin: 0 10px;
 }
-header a:hover {
-  text-decoration: underline;
+header nav a:hover {
+  text-decoration: underline; /* подчёркивание при наведении */
 }
 
 /* ===========================
-   Форма входа
+   Секции альбомов и треков
    =========================== */
-#login-form {
-  max-width: 400px;
-  margin: 50px auto;
-  background: white;
+main {
   padding: 20px;
+  background-color: rgba(0,0,0,0.5); /* затемнённый фон для читаемости текста */
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  margin: 20px;
 }
 
-#login-form h2 {
-  margin-top: 0;
-  text-align: center;
+h2 {
+  margin-top: 30px;
+  border-bottom: 2px solid #ffcc00; /* линия под заголовком */
+  padding-bottom: 5px;
+  color: #ffcc00;
 }
 
-#login-form input {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-#login-form button {
-  width: 100%;
-  padding: 10px;
-  background: #222;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-#login-form button:hover {
-  background: #444;
-}
-
-#login-msg {
-  color: red;
-  text-align: center;
-  margin-top: 10px;
-}
-
-/* ===========================
-   Панель администратора
-   =========================== */
-#admin-panel {
-  max-width: 800px;
-  margin: 30px auto;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-#admin-panel h2 {
-  margin-top: 0;
-  text-align: center;
-}
-
-/* ===========================
-   Форма добавления трека
-   =========================== */
-#add-track-form {
-  background: #fafafa;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  margin-bottom: 20px;
-}
-
-#add-track-form h3 {
-  margin-top: 0;
-}
-
-#add-track-form input,
-#add-track-form textarea {
-  width: 100%;
-  padding: 8px;
-  margin: 8px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-#add-track-form button {
-  background: #28a745; /* Зелёная кнопка */
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-#add-track-form button:hover {
-  background: #218838;
-}
-
-/* ===========================
-   Список треков
-   =========================== */
-#admin-tracks {
-  margin-top: 20px;
-}
-
+/* Карточки альбомов и треков */
 .card {
-  background: #fff;
+  background: rgba(255,255,255,0.1); /* прозрачный белый фон */
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 10px;
   margin: 10px 0;
+  color: #fff;
+}
+
+/* Обложка трека */
+.track-cover {
+  max-width: 100px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+/* ===========================
+   Плеер
+   =========================== */
+#player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.8); /* тёмный полупрозрачный фон */
+  color: white;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#player.hidden {
+  display: none; /* скрываем плеер, если он не активен */
+}
+
+#player-cover img {
+  max-height: 80px;
+  border-radius: 6px;
+}
+
+#player-info {
+  flex: 1;
+  margin-left: 15px;
+}
+
+#player-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#player-artist {
+  font-size: 14px;
+  color: #ccc;
+}
+
+/* Кнопки управления */
+#player-controls button,
+#player-controls a {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#player-controls button:hover,
+#player-controls a:hover {
+  background: #666;
+}
+
+/* Прогресс-бар */
+#player-progress {
   display: flex;
   align-items: center;
 }
-
-.card img {
-  max-width: 80px;
-  border-radius: 4px;
-  margin-right: 15px;
-}
-
-.card h4 {
-  margin: 0;
+#progress {
   flex: 1;
+  margin: 0 10px;
 }
 
-.card div {
-  margin-top: 5px;
+/* Мини-плеер */
+#player-mini {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  background: #444;
+  padding: 10px;
+  border-radius: 6px 0 0 0;
 }
-
-/* Кнопки редактирования и удаления */
-.card button {
-  background: #007bff; /* Синие кнопки */
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  margin-right: 5px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.card button:hover {
-  background: #0056b3;
-}
-
-/* Кнопка удаления красная */
-.card button[data-delete] {
-  background: #dc3545;
-}
-.card button[data-delete]:hover {
-  background: #c82333;
+#player-mini.hidden {
+  display: none;
 }
 
 /* ===========================
-   Кнопка выхода
+   Модальное окно для текста песни
    =========================== */
-#logout-btn {
-  display: block;
-  margin: 20px auto;
-  background: #ffcc00;
-  color: #222;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
-  cursor: pointer;
+#lyrics-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7); /* затемнённый фон */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-#logout-btn:hover {
-  background: #e6b800;
+#lyrics-modal.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: white;
+  padding: 20px;
+  border-radius: 6px;
+  max-width: 600px;
+  width: 90%;
+  color: #000; /* текст внутри модального окна чёрный */
+}
+.modal-box h3 {
+  margin-top: 0;
+}
+.modal-box pre {
+  white-space: pre-wrap; /* перенос строк */
+}
+#modal-close {
+  background: red;
+  color: white;
+  border: none;
+  float: right;
+  cursor: pointer;
+  padding: 5px 10px;
 }
