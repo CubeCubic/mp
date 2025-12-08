@@ -227,5 +227,40 @@ app.post('/api/tracks/json', checkAdmin, (req, res) => {
   res.json(enhanceTrack(track));
 });
 
-// Update track (local upload)
-app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name:
+/ Update track (local upload)
+app.put('/api/tracks/:id', checkAdmin, upload.fields([{ name: 'audio' }, { name: 'cover' }]), (req, res) => {
+  const t = db.tracks.find(x => x.id === req.params.id);
+  if (!t) return res.status(404).json({ error: 'not found' });
+
+  const { title, artist, lyrics, album } = req.body;
+  if (title) t.title = title;
+  if (artist) t.artist = artist;
+  if (lyrics) t.lyrics = lyrics;
+
+  if (album !== undefined) {
+    if (album === '') t.albumId = null;
+    else {
+      let a = db.albums.find(x => x.name === album);
+      if (!a) {
+        a = { id: uuidv4(), name: album };
+        db.albums.push(a);
+      }
+      t.albumId = a.id;
+    }
+  }
+
+  const audioFile = req.files['audio'] && req.files['audio'][0];
+  const coverFile = req.files['cover'] && req.files['cover'][0];
+  if (audioFile) {
+    t.filename = audioFile.filename;
+    t.originalName = audioFile.originalname;
+    t.audioUrl = null; // clear external url
+  }
+  if (coverFile) {
+    t.cover = coverFile.filename;
+    t.coverUrl = null;
+  }
+
+  saveDB();
+  res.json(t);
+});   // ← вот этой закрывающей скобки у тебя не было
