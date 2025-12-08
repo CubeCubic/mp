@@ -1,6 +1,5 @@
-// frontend/app.js — Cube Cubic frontend logic
-(function() {
-  // DOM refs
+// frontend/app.js — логика главной страницы Cube Cubic
+(async function() {
   const tracksContainer = document.getElementById('tracks');
   const albumsContainer = document.getElementById('albums');
 
@@ -28,21 +27,18 @@
   const modalTitle = document.getElementById('modal-title');
   const modalLyrics = document.getElementById('modal-lyrics');
 
-  // State
   let tracks = [];
   let albums = [];
   let currentIndex = -1;
   let hasPlayedOnce = false;
 
-  // Helpers
   function escapeHtml(str) {
     if (typeof str !== 'string') return '';
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+    return str.replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#039;');
   }
 
   function formatTime(sec) {
@@ -53,39 +49,25 @@
   }
 
   function getTrackStreamUrl(t) {
-    // Prefer direct audioUrl; else use server media route; else uploads
     if (t.audioUrl) return t.audioUrl;
-    if (t.filename) return `/media/${t.filename}`; // ensure backend serves this
-    if (t.file) return `/uploads/${t.file}`;
+    if (t.filename) return `/media/${t.filename}`;
     return null;
   }
 
   async function load() {
-    // Ensure containers exist; if not, do nothing.
-    if (!tracksContainer || !albumsContainer) return;
-
     try {
-      const [tracksRes, albumsRes] = await Promise.all([
-        fetch('/api/tracks'),
-        fetch('/api/albums')
-      ]);
-
-      if (!tracksRes.ok) throw new Error(`Tracks fetch failed: ${tracksRes.status}`);
-      if (!albumsRes.ok) throw new Error(`Albums fetch failed: ${albumsRes.status}`);
-
-      tracks = await tracksRes.json();
-      albums = await albumsRes.json();
+      tracks = await (await fetch('/api/tracks')).json();
+      albums = await (await fetch('/api/albums')).json();
       render();
     } catch (err) {
-      console.error('Load error:', err);
-      // Minimal fallback UI
-      albumsContainer.innerHTML = '';
-      tracksContainer.innerHTML = `<div class="card"><div>ტრეკების ჩატვირთვა ვერ მოხერხდა</div></div>`;
+      console.error('Ошибка загрузки треков:', err);
+      if (tracksContainer) tracksContainer.innerHTML = '<div>Не удалось загрузить треки</div>';
     }
   }
 
   function render() {
-    // Albums
+    if (!tracksContainer || !albumsContainer) return;
+
     albumsContainer.innerHTML = '';
     albums.forEach(a => {
       const el = document.createElement('div');
@@ -94,47 +76,33 @@
       albumsContainer.appendChild(el);
     });
 
-    // Tracks — vertical cards (cover top, title/artist, buttons)
     tracksContainer.innerHTML = '';
     tracks.forEach(t => {
-      const coverSrc =
-        t.coverUrl ? t.coverUrl :
-        t.cover ? `/uploads/${t.cover}` : '';
-
-      const downloadUrl =
-        t.audioUrl ? t.audioUrl :
-        t.filename ? `/uploads/${t.filename}` : '';
-
       const el = document.createElement('div');
       el.className = 'card';
       el.innerHTML = `
-        ${coverSrc ? `<img class="track-cover" src="${coverSrc}" alt="">` : ''}
-        <h4 class="track-title">${escapeHtml(t.title || '')}</h4>
-        <div>${escapeHtml(t.artist || '')}</div>
+        ${t.coverUrl ? `<img class="track-cover" src="${t.coverUrl}" data-id="${t.id}">` : (t.cover ? `<img class="track-cover" src="/uploads/${t.cover}" data-id="${t.id}">` : '')}
+        <h4 class="track-title" data-id="${t.id}">${escapeHtml(t.title)} ${escapeHtml(t.artist || '')}</h4>
         <div class="track-actions">
-          <button data-download="${downloadUrl}">ჩამოტვირთვა</button>
-          <button data-like="${t.id}">❤ <span>${t.likes || 0}</span></button>
+          <button data-download="${t.audioUrl ? t.audioUrl : (t.filename ? '/uploads/' + t.filename : '')}">ჩამოტვირთვა</button>
+          <button data-like="${t.id}">❤ <span>${t.likes||0}</span></button>
         </div>
       `;
 
-      // Play on cover/title click
-      const img = el.querySelector('.track-cover');
-      if (img) img.addEventListener('click', () => playTrack(t));
-      const title = el.querySelector('.track-title');
-      if (title) title.addEventListener('click', () => playTrack(t));
+      // запуск трека по клику
+      el.querySelector('.track-title')?.addEventListener('click', () => togglePlayById(t.id));
+      el.querySelector('.track-cover')?.addEventListener('click', () => togglePlayById(t.id));
 
-      // Like
+      // лайки
       el.querySelector('[data-like]')?.addEventListener('click', async (e) => {
-        try {
-          const res = await fetch(`/api/tracks/${t.id}/like`, { method: 'POST' });
-          if (!res.ok) return;
-          const json = await res.json();
-          e.currentTarget.querySelector('span').textContent = json.likes;
-        } catch {}
+        const res = await fetch(`/api/tracks/${t.id}/like`, { method: 'POST' });
+        const json = await res.json();
+        e.currentTarget.querySelector('span').textContent = json.likes;
       });
 
-      // Download without navigation
+      // скачивание без перехода
       el.querySelector('[data-download]')?.addEventListener('click', (e) => {
+        e.preventDefault();
         const url = e.currentTarget.getAttribute('data-download');
         if (!url) return;
         const a = document.createElement('a');
@@ -149,28 +117,37 @@
     });
   }
 
-  function playTrack(t) {
-    const url = getTrackStreamUrl(t);
-    if (!url) return;
+  // ✅ исправленный togglePlayById
+  function togglePlayById(id) {
+    const idx = tracks.findIndex(x => x.id === id);
+    if (idx === -1) return;
 
-    currentIndex = tracks.findIndex(x => x.id === t.id);
-    audio.src = url;
-
-    titleEl && (titleEl.textContent = t.title || '');
-    artistEl && (artistEl.textContent = t.artist || '');
-
-    if (coverImg) {
-      if (t.coverUrl) coverImg.src = t.coverUrl;
-      else if (t.cover) coverImg.src = `/uploads/${t.cover}`;
-      else coverImg.removeAttribute('src');
+    // если кликнули по текущему треку
+    if (currentIndex === idx) {
+      if (audio.paused) {
+        audio.play().catch(() => {});
+      } else {
+        audio.pause();
+      }
+      return; // не перезапускаем трек заново
     }
 
-    if (downloadBtn) downloadBtn.setAttribute('data-download', url);
-
+    // если выбран новый трек
+    currentIndex = idx;
+    const t = tracks[currentIndex];
+    const url = getTrackStreamUrl(t);
+    if (!url) return;
+    audio.src = url;
+    titleEl.textContent = t.title;
+    artistEl.textContent = t.artist || '';
+    if (t.coverUrl) coverImg.src = t.coverUrl;
+    else if (t.cover) coverImg.src = `/uploads/${t.cover}`;
+    else coverImg.src = '';
+    downloadBtn.setAttribute('data-download', url);
     audio.play().catch(() => {});
   }
 
-  // Player controls
+  // управление плеером
   playBtn?.addEventListener('click', () => {
     if (audio.paused) audio.play().catch(() => {});
     else audio.pause();
@@ -178,95 +155,59 @@
 
   prevBtn?.addEventListener('click', () => {
     if (!tracks.length) return;
-    currentIndex = currentIndex <= 0 ? tracks.length - 1 : currentIndex - 1;
-    playTrack(tracks[currentIndex]);
+    currentIndex = (currentIndex - 1 + tracks.length) % tracks.length;
+    togglePlayById(tracks[currentIndex].id);
   });
 
   nextBtn?.addEventListener('click', () => {
     if (!tracks.length) return;
     currentIndex = (currentIndex + 1) % tracks.length;
-    playTrack(tracks[currentIndex]);
+    togglePlayById(tracks[currentIndex].id);
   });
 
-  volume?.addEventListener('input', () => {
-    audio.volume = Number(volume.value);
-  });
+  volume?.addEventListener('input', () => { audio.volume = volume.value; });
 
-  miniResumeBtn?.addEventListener('click', () => {
-    audio.play().catch(() => {});
-  });
+  miniResumeBtn?.addEventListener('click', () => { audio.play().catch(() => {}); });
 
   showLyricsBtn?.addEventListener('click', () => {
-    if (currentIndex === -1 || !lyricsModal) return;
+    if (currentIndex === -1) return;
     const t = tracks[currentIndex];
-    modalTitle && (modalTitle.textContent = t.title || 'ლირიკა');
-    modalLyrics && (modalLyrics.textContent = t.lyrics || 'ლირიკა არ არის');
-    lyricsModal.classList.remove('hidden');
+    modalTitle.textContent = t.title || 'ლირიკა';
+    modalLyrics.textContent = t.lyrics || 'ლირიკა არ არის';
+    lyricsModal?.classList.remove('hidden');
   });
 
   modalClose?.addEventListener('click', () => lyricsModal?.classList.add('hidden'));
-  lyricsModal?.addEventListener('click', (e) => {
-    if (e.target === lyricsModal) lyricsModal.classList.add('hidden');
-  });
+  lyricsModal?.addEventListener('click', (e) => { if (e.target === lyricsModal) lyricsModal.classList.add('hidden'); });
 
-  // Audio events
+  // события плеера
   audio.addEventListener('play', () => {
-    playerEl?.classList.remove('hidden');
-    mini?.classList.add('hidden');
-    if (playBtn) playBtn.textContent = '⏸';
+    playerEl.classList.remove('hidden');
+    mini.classList.add('hidden');
+    playBtn.textContent = '⏸';
     hasPlayedOnce = true;
   });
-
   audio.addEventListener('pause', () => {
-    if (playBtn) playBtn.textContent = '▶';
+    playBtn.textContent = '▶';
     if (hasPlayedOnce) {
-      playerEl?.classList.add('hidden');
-      mini?.classList.remove('hidden');
+      playerEl.classList.add('hidden');
+      mini.classList.remove('hidden');
     }
   });
-
   audio.addEventListener('ended', () => {
-    playerEl?.classList.add('hidden');
-    mini?.classList.add('hidden');
+    playerEl.classList.add('hidden');
+    mini.classList.add('hidden');
     lyricsModal?.classList.add('hidden');
     audio.src = '';
     currentIndex = -1;
     hasPlayedOnce = false;
-    if (progress) progress.value = 0;
-    if (timeCurrent) timeCurrent.textContent = formatTime(0);
-    if (timeDuration) timeDuration.textContent = formatTime(0);
+    progress.value = 0;
+    timeCurrent.textContent = formatTime(0);
+    timeDuration.textContent = formatTime(0);
   });
 
   audio.addEventListener('loadedmetadata', () => {
-    if (timeDuration && isFinite(audio.duration)) {
-      timeDuration.textContent = formatTime(audio.duration);
-    }
+    if (audio.duration && !isNaN(audio.duration)) timeDuration.textContent = formatTime(audio.duration);
   });
-
   audio.addEventListener('timeupdate', () => {
-    if (!isFinite(audio.duration)) return;
-    if (progress) progress.value = (audio.currentTime / audio.duration) * 100;
-    if (timeCurrent) timeCurrent.textContent = formatTime(audio.currentTime);
-  });
-
-  progress?.addEventListener('input', () => {
-    if (!isFinite(audio.duration)) return;
-    audio.currentTime = (progress.value / 100) * audio.duration;
-  });
-
-  // Download from player without navigation
-  downloadBtn?.addEventListener('click', (e) => {
-    e.preventDefault();
-    const url = downloadBtn.getAttribute('data-download');
-    if (!url) return;
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = '';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
-
-  // Start after DOM is ready
-  document.addEventListener('DOMContentLoaded', load);
-})();
+    if (!isNa
