@@ -1,65 +1,93 @@
 <!doctype html>
-<html lang="ka">
+<html lang="ka"> <!-- Язык страницы: грузинский -->
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Cube Cubic</title>
-  <link rel="icon" type="image/png" href="/mp/images/smallcube.png">  <!-- Добавьте эту строку для фавикона -->
+  <meta charset="utf-8"> <!-- Кодировка, чтобы грузинский текст отображался правильно -->
+  <meta name="viewport" content="width=device-width,initial-scale=1"> <!-- Адаптивность для телефонов -->
+  <title>Cube Cubic</title> <!-- Заголовок вкладки браузера. Можно изменить текст -->
+
+  <!-- Фавикон (маленькая иконка во вкладке браузера) -->
+  <!-- Файл должен лежать в папке: frontend/images/smallcube.png -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/smallcube.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="/images/smallcube.png">
+  <link rel="apple-touch-icon" href="/images/smallcube.png">
+
+  <!-- Подключение стилей -->
+  <!-- Файл должен лежать в папке: frontend/styles.css -->
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header>
-    <h1>Cube Cubic - კეთილი იყოს თქვენი მობრძანდით</h1>
+    <!-- Главный заголовок сайта. Можно изменить текст внутри <h1> -->
+    <h1>Cube Cubic - კეთილი იყოს თქვენი მობრძანება</h1>
     <nav>
+      <!-- Ссылка на админку. Файл admin.html лежит в папке frontend -->
       <a href="/admin.html">ადმინი</a>
     </nav>
   </header>
+
   <main id="app">
+    <!-- Секция альбомов -->
+    <!-- Заголовок можно изменить внутри <h2> -->
     <section id="albums-section">
       <h2>ალბომები</h2>
-      <div id="albums"></div>
+      <div id="albums"></div> <!-- Здесь JavaScript вставляет список альбомов -->
     </section>
+
+    <!-- Секция треков -->
     <section id="tracks-section">
       <h2>ტრეკები</h2>
-      <div id="tracks"></div>
+      <div id="tracks"></div> <!-- Здесь JavaScript вставляет список треков -->
     </section>
   </main>
-  <!-- Full player (hidden until playback starts) -->
+
+  <!-- Плеер (появляется только при воспроизведении трека) -->
   <div id="player" class="hidden" role="region" aria-label="Player">
-    <div id="player-cover"><img id="player-cover-img" src="" alt=""></div>
+    <div id="player-cover">
+      <!-- Обложка трека -->
+      <img id="player-cover-img" src="" alt="">
+    </div>
     <div id="player-info">
+      <!-- Название и исполнитель -->
       <div id="player-title"></div>
       <div id="player-artist"></div>
-      <!-- Progress bar -->
+
+      <!-- Прогресс-бар -->
       <div id="player-progress">
         <span id="time-current">0:00</span>
         <input id="progress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Progress">
         <span id="time-duration">0:00</span>
       </div>
+
+      <!-- Кнопки управления -->
       <div id="player-controls">
-        <button id="prev" title="წინა">⏮</button>
-        <button id="play" title="პაუზა/დაწყება">⏸</button>
-        <button id="next" title="შემდეგი">⏭</button>
-        <label>ხმა: <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label>
-        <!-- NEW: lyrics button above download -->
-        <button id="show-lyrics" title="ლირიკა">ტექსტი</button>
-        <a id="download" href="#" download>გადმოწერე</a>
+        <button id="prev" title="წინა">⏮</button> <!-- Кнопка "Предыдущий трек" -->
+        <button id="play" title="პაუზა/დაწყება">⏸</button> <!-- Кнопка "Пауза/Старт" -->
+        <button id="next" title="შემდეგი">⏭</button> <!-- Кнопка "Следующий трек" -->
+        <label>ხმა: <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label> <!-- Громкость -->
+        
+        <button id="show-lyrics" title="ლირიკა">ტექსტი</button> <!-- Кнопка "Показать текст песни" -->
+        <a id="download" href="#" download>გადმოწერე</a> <!-- Кнопка "Скачать трек" -->
       </div>
     </div>
-    <audio id="audio" preload="auto"></audio>
+    <audio id="audio" preload="auto"></audio> <!-- Сам аудио-плеер -->
   </div>
-  <!-- Mini player shown when paused (not shown before first play) -->
+
+  <!-- Мини-плеер (появляется при паузе) -->
   <div id="player-mini" class="hidden" aria-hidden="true" title="აღდგენა">
-    <button id="mini-resume">▶</button>
+    <button id="mini-resume">▶</button> <!-- Кнопка "Продолжить воспроизведение" -->
   </div>
-  <!-- Lyrics modal -->
+
+  <!-- Модальное окно для текста песни -->
   <div id="lyrics-modal" class="hidden" role="dialog" aria-modal="true">
     <div class="modal-box">
-      <button id="modal-close" aria-label="close">✖</button>
-      <h3 id="modal-title"></h3>
-      <pre id="modal-lyrics"></pre>
+      <button id="modal-close" aria-label="close">✖</button> <!-- Кнопка "Закрыть" -->
+      <h3 id="modal-title"></h3> <!-- Заголовок модального окна (название трека) -->
+      <pre id="modal-lyrics"></pre> <!-- Здесь отображается текст песни -->
     </div>
   </div>
+
+  <!-- Подключение скрипта -->
+  <!-- Файл app.js лежит в папке frontend -->
   <script src="/app.js"></script>
 </body>
 </html>
