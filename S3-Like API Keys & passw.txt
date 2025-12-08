@@ -1,0 +1,12 @@
+https://archive.org/account/s3.php
+
+
+S3 access key:     gkDGPXfdsaF9hHtz
+
+
+S3 secret key:     rX9rfWGu2tEhdPvF
+
+
+
+
+pass: changeme
