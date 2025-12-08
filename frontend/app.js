@@ -222,3 +222,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tracks = await (await fetch('/api/tracks')).json();
 
   Amplitude
+
+                          // Запускаем загрузку треков для отображения списка
+load();
