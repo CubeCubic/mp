@@ -254,13 +254,14 @@ h2 {
 #lyrics-modal.hidden {
   display: none;
 }
-
 .modal-box {
   background: white;
   padding: 20px;
   border-radius: 6px;
   max-width: 600px;
   width: 90%;
+  max-height: 60vh;       /* ограничиваем высоту окна */
+  overflow-y: auto;       /* добавляем вертикальную прокрутку для длинных текстов */
   color: #000;
 }
 .modal-box h3 {
