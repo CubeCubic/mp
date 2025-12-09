@@ -1,5 +1,5 @@
-// admin.js — обновлённый: поддержка parentId, иерархические селекты, album as id,
-// модальное редактирование альбома, защита от автопоказа модала и обработка Escape/клика по бэкдропу
+// admin.js — исправленный: жёсткое скрытие модала на старте, безопасное открытие/закрытие,
+// поддержка parentId, иерархические селекты, album as id
 (async function() {
   if (!document.getElementById('admin-app')) return;
 
@@ -58,6 +58,12 @@
     // enforce hidden state and aria-hidden true on load
     albumEditModal.classList.add('hidden');
     albumEditModal.setAttribute('aria-hidden', 'true');
+    // also set inline style to none to avoid CSS race conditions
+    albumEditModal.style.display = 'none';
+    // ensure modal content (if any) is not focused
+    try {
+      if (modalAlbumName) modalAlbumName.blur();
+    } catch (e) {}
   })();
 
   // Build tree and append options with indentation
@@ -176,6 +182,7 @@
 
   // Open modal to edit album (replaces prompt)
   function openEditAlbumModal(node) {
+    // safety: ensure modal elements exist
     if (!albumEditModal || !modalAlbumName || !modalAlbumParent) {
       // fallback to prompt if modal elements missing
       const newName = prompt('New album name', node.name);
@@ -210,10 +217,16 @@
     // set current parent if any
     modalAlbumParent.value = node.parentId || '';
 
-    // show modal: сначала делаем aria-hidden=false и убираем класс hidden,
-    // затем ставим фокус в следующем тике, чтобы избежать aria-hidden warning
-    albumEditModal.setAttribute('aria-hidden', 'false');
-    albumEditModal.classList.remove('hidden');
+    // show modal: set inline display first to avoid CSS race, then remove hidden and aria-hidden
+    try {
+      albumEditModal.style.display = 'flex';
+      albumEditModal.setAttribute('aria-hidden', 'false');
+      albumEditModal.classList.remove('hidden');
+    } catch (e) {
+      // fallback: ensure at least aria-hidden toggled
+      albumEditModal.setAttribute('aria-hidden', 'false');
+      albumEditModal.classList.remove('hidden');
+    }
 
     // Отложенный фокус — безопасно для accessibility
     setTimeout(() => {
@@ -225,6 +238,8 @@
   function closeAlbumModal() {
     albumBeingEdited = null;
     if (!albumEditModal) return;
+    // hide with inline style and aria-hidden for accessibility
+    albumEditModal.style.display = 'none';
     albumEditModal.classList.add('hidden');
     albumEditModal.setAttribute('aria-hidden', 'true');
   }
