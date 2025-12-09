@@ -81,6 +81,72 @@ h2 {
   flex-shrink: 0;
 }
 
+/* Двухколоночная сетка для треков */
+#tracks {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  align-items: start;
+  margin-top: 12px;
+}
+
+/* Карточка трека: занимает всю ячейку сетки */
+#tracks .card {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+
+/* Hover эффект карточки */
+#tracks .card:hover,
+#tracks .card:focus-within {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+  background: rgba(255,255,255,0.035);
+  border-color: rgba(255,204,0,0.06);
+}
+
+/* Обложка внутри карточки */
+#tracks .card .track-cover {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+/* Контент карточки (текст) */
+#tracks .card .track-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Действия справа */
+#tracks .card .track-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+/* Адаптив: один столбец на узких экранах */
+@media (max-width: 880px) {
+  #tracks {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 .track-info {
   flex: 1;
   min-width: 0;
