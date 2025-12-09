@@ -236,28 +236,35 @@
   modalCancelBtn.addEventListener('click', () => closeAlbumModal());
 
   // Create album
-  btnCreateAlbum.addEventListener('click', async () => {
-    const name = (albumName.value || '').trim();
-    const parentId = albumParent.value || null;
-    if (!name) return alert('Enter album name');
-    try {
-      const res = await fetch('/api/albums', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, parentId })
-      });
-      if (res.status === 409) {
-        const j = await res.json();
-        alert('Album exists: ' + (j.album && j.album.name));
-        return;
-      }
-      if (!res.ok) throw new Error('create failed');
-      albumName.value = '';
-      await refreshAlbums();
-    } catch (err) {
-      alert('Create album error');
+btnCreateAlbum.addEventListener('click', async () => {
+  const name = (albumName.value || '').trim();
+  const parentVal = albumParent.value;
+  if (!name) return alert('Enter album name');
+
+  const payload = { name };
+  if (parentVal !== undefined && parentVal !== null && parentVal !== '') {
+    const maybeNum = Number(parentVal);
+    payload.parentId = Number.isNaN(maybeNum) ? parentVal : maybeNum;
+  }
+
+  try {
+    const res = await fetch('/api/albums', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.status === 409) {
+      const j = await res.json().catch(()=>({}));
+      alert('Album exists: ' + (j.album && j.album.name));
+      return;
     }
-  });
+    if (!res.ok) throw new Error('create failed');
+    albumName.value = '';
+    await refreshAlbums();
+  } catch (err) {
+    alert('Create album error');
+  }
+});
 
   // Create / upload track
   addForm.addEventListener('submit', async (e) => {
