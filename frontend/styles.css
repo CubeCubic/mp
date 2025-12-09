@@ -12,6 +12,15 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+/* ===========================
+   Скрытие элементов (например, админ-ссылки)
+   =========================== */
+.hidden-text {
+    display: none;  /* Полностью скрывает элемент и не занимает место */
+    /* Альтернативы:
+       visibility: hidden;  — скрывает, но оставляет место на странице
+       color: transparent;  — делает текст прозрачным, но он остаётся selectable */
+}
 }
 
 /* ===========================
