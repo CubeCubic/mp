@@ -143,9 +143,7 @@ h2 {
 @media (max-width: 880px) {
   #tracks {
     grid-template-columns: 1fr;
-  }
 }
-
 
 .track-info {
   flex: 1;
