@@ -12,15 +12,14 @@ body {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-/* ===========================
-   Скрытие элементов (например, админ-ссылки)
-   =========================== */
-.hidden-text {
-   color: transparent; /* делает текст прозрачным, но он остаётся selectable */
-       /* Альтернативы:
-       visibility: hidden;  — скрывает, но оставляет место на странице
-       display: none; - Полностью скрывает элемент и не занимает место */
 }
+
+/* Скрытие элементов (например, админ-ссылки) */
+.hidden-text {
+  color: transparent; /* делает текст прозрачным, но он остаётся selectable */
+  /* Альтернативы:
+     visibility: hidden;  — скрывает, но оставляет место на странице
+     display: none; - Полностью скрывает элемент и не занимает место */
 }
 
 /* ===========================
@@ -132,7 +131,6 @@ h2 {
 /* ===========================
    Плеер
    =========================== */
-/* Плеер: плавное появление/скрытие (slide up + fade) */
 #player {
   position: fixed;
   bottom: 0;
@@ -158,10 +156,7 @@ h2 {
   pointer-events: auto;
 }
 
-/* Сохраняем класс hidden как семантический маркер (не используем display:none) */
-#player.hidden {
-  /* семантический маркер, не влияет на отображение */
-}
+#player.hidden { /* семантический маркер */ }
 
 #player-cover img {
   max-height: 80px;
@@ -190,7 +185,6 @@ h2 {
   margin-top: 4px;
 }
 
-/* Кнопки управления */
 #player-controls button,
 #player-controls a {
   background: #444;
@@ -207,7 +201,6 @@ h2 {
   background: #666;
 }
 
-/* Прогресс-бар */
 #player-progress {
   display: flex;
   align-items: center;
@@ -218,7 +211,6 @@ h2 {
   margin: 0 10px;
 }
 
-/* Мини-плеер (если используется) */
 #player-mini {
   position: fixed;
   bottom: 0;
@@ -254,14 +246,15 @@ h2 {
 #lyrics-modal.hidden {
   display: none;
 }
+
 .modal-box {
   background: white;
   padding: 20px;
   border-radius: 6px;
   max-width: 600px;
   width: 90%;
-  max-height: 60vh;       /* ограничиваем высоту окна */
-  overflow-y: auto;       /* добавляем вертикальную прокрутку для длинных текстов */
+  max-height: 60vh;   /* ограничиваем высоту окна */
+  overflow-y: auto;   /* добавляем прокрутку для длинных текстов */
   color: #000;
 }
 .modal-box h3 {
@@ -277,22 +270,6 @@ h2 {
   float: right;
   cursor: pointer;
   padding: 5px 10px;
-}
-
-/* ===========================
-   Сетка треков: две колонки
-   =========================== */
-#tracks {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* строго две колонки */
-  gap: 14px; /* расстояние между карточками */
-  align-items: start;
-  margin-top: 12px;
-}
-
-#tracks .card {
-  width: 100%;           /* карточка занимает всю ширину ячейки */
-  box-sizing: border-box;
 }
 
 /* ===========================
