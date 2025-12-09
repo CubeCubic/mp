@@ -10,47 +10,30 @@
   <link rel="apple-touch-icon" href="/images/smallcube.png">
 
   <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* Минимальные стили для плеера и сетки треков */
+    #tracks { display:grid; grid-template-columns: repeat(2,1fr); gap:14px; margin-top:12px; }
+    @media (max-width:880px) { #tracks { grid-template-columns:1fr; } }
 
-  <!-- OpenPlayerJS CDN (опционально) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.js"></script>
+    #player { position:fixed; left:50%; transform:translateX(-50%); bottom:18px; width:calc(100% - 40px); max-width:980px; background:#111; color:#fff; border-radius:12px; padding:10px 12px; display:flex; gap:12px; align-items:center; box-shadow:0 10px 30px rgba(0,0,0,0.6); z-index:1200; opacity:0; pointer-events:none; transition: opacity 220ms ease, transform 220ms ease; }
+    #player.visible { opacity:1; pointer-events:auto; transform: translateX(-50%) translateY(0); }
+    #player img { width:64px; height:64px; object-fit:cover; border-radius:8px; }
+    #player .info { flex:1; display:flex; flex-direction:column; gap:4px; }
+    #player .controls { display:flex; gap:8px; align-items:center; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Cube Cubic - კეთილი იყოს თქვენი მობრძანება</h1>
-    <nav>
-      <!-- <a href="/admin.html" style="color:#fff">ადმინისტრატორი/a>  -->
-      <a href="/admin.html" class="hidden-text">ადმინი</a>
-    </nav>
-  </header>
-
   <main id="app">
-    <section id="albums-section">
-      <h2>ალბომები</h2>
-
-      <div class="album-controls">
-        <label for="album-select">Основной альбом</label>
-        <select id="album-select" aria-label="Albums">
-          <option value="">Загрузка...</option>
-        </select>
-
-        <label for="subalbum-select" id="subalbum-label" style="display:none;margin-left:12px;">Подальбом</label>
-        <select id="subalbum-select" aria-label="Subalbums" style="display:none;">
-          <option value="">All</option>
-        </select>
-      </div>
-    </section>
-
     <section id="tracks-section">
       <h2>ტრეკები</h2>
       <div id="tracks"></div>
     </section>
   </main>
 
-  <!-- Плеер (нижний) — скрыт по умолчанию -->
+  <!-- Player -->
   <div id="player" class="hidden" role="region" aria-label="Player">
     <div id="player-cover">
-      <img id="player-cover-img" src="" alt="">
+      <img id="player-cover-img" src="/images/midcube.png" alt="">
     </div>
 
     <div id="player-info">
@@ -65,7 +48,7 @@
 
       <div id="player-controls">
         <button id="prev" title="წინა">⏮</button>
-        <button id="play" title="პაუზა/დაწყება">▶</button>
+        <button id="play" title="პауза/воспроизведение">▶</button>
         <button id="next" title="შემდეგი">⏭</button>
         <label style="margin-left:8px;">ხმა: <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label>
         <button id="show-lyrics" title="ლირიკა">ტექსტი</button>
@@ -73,11 +56,9 @@
       </div>
     </div>
 
-    <!-- Сам аудио-элемент -->
     <audio id="audio" preload="auto"></audio>
   </div>
 
-  <!-- Модальное окно для текста песни -->
   <div id="lyrics-modal" class="hidden" role="dialog" aria-modal="true">
     <div class="modal-box">
       <button id="modal-close" aria-label="close">✖</button>
