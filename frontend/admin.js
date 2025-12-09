@@ -1,5 +1,5 @@
-// admin.js — исправленный: жёсткое скрытие модала на старте, безопасное открытие/закрытие,
-// поддержка parentId, иерархические селекты, album as id
+// admin.js — исправленный: доступ только после логина, явное создание parent-альбомов,
+// иерархические селекты, модальное редактирование альбома
 (async function() {
   if (!document.getElementById('admin-app')) return;
 
@@ -23,6 +23,19 @@
   const trackAlbumSelect = document.getElementById('track-album-select');
   const btnRefreshTracks = document.getElementById('btn-refresh-tracks');
 
+  // Add explicit checkbox for creating parent album (if not present in HTML, we'll create it)
+  let makeParentCheckbox = document.getElementById('make-parent-checkbox');
+  if (!makeParentCheckbox) {
+    const wrapper = albumParent ? albumParent.parentElement : null;
+    if (wrapper) {
+      const cbWrap = document.createElement('div');
+      cbWrap.style.marginTop = '6px';
+      cbWrap.innerHTML = `<label style="font-weight:600;color:#ffd;"><input id="make-parent-checkbox" type="checkbox" style="margin-right:6px"> Make parent album</label>`;
+      wrapper.appendChild(cbWrap);
+      makeParentCheckbox = document.getElementById('make-parent-checkbox');
+    }
+  }
+
   // Modal elements for album edit
   const albumEditModal = document.getElementById('album-edit-modal');
   const modalAlbumName = document.getElementById('modal-album-name');
@@ -34,6 +47,7 @@
   let albums = []; // flat list {id,name,parentId}
   let tracks = [];
   let albumBeingEdited = null; // {id, name, parentId}
+  let loggedIn = false;
 
   // Helpers
   function escapeHtml(s){ return (s||'').toString().replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]); }
@@ -52,18 +66,12 @@
     return e;
   }
 
-  // Ensure modal exists and is hidden on init to avoid accidental visible state
+  // Ensure modal exists and is hidden on init
   (function initModalState() {
     if (!albumEditModal) return;
-    // enforce hidden state and aria-hidden true on load
     albumEditModal.classList.add('hidden');
     albumEditModal.setAttribute('aria-hidden', 'true');
-    // also set inline style to none to avoid CSS race conditions
     albumEditModal.style.display = 'none';
-    // ensure modal content (if any) is not focused
-    try {
-      if (modalAlbumName) modalAlbumName.blur();
-    } catch (e) {}
   })();
 
   // Build tree and append options with indentation
@@ -182,7 +190,6 @@
 
   // Open modal to edit album (replaces prompt)
   function openEditAlbumModal(node) {
-    // safety: ensure modal elements exist
     if (!albumEditModal || !modalAlbumName || !modalAlbumParent) {
       // fallback to prompt if modal elements missing
       const newName = prompt('New album name', node.name);
@@ -217,20 +224,13 @@
     // set current parent if any
     modalAlbumParent.value = node.parentId || '';
 
-    // show modal: set inline display first to avoid CSS race, then remove hidden and aria-hidden
-    try {
-      albumEditModal.style.display = 'flex';
-      albumEditModal.setAttribute('aria-hidden', 'false');
-      albumEditModal.classList.remove('hidden');
-    } catch (e) {
-      // fallback: ensure at least aria-hidden toggled
-      albumEditModal.setAttribute('aria-hidden', 'false');
-      albumEditModal.classList.remove('hidden');
-    }
+    // show modal
+    albumEditModal.style.display = 'flex';
+    albumEditModal.setAttribute('aria-hidden', 'false');
+    albumEditModal.classList.remove('hidden');
 
-    // Отложенный фокус — безопасно для accessibility
     setTimeout(() => {
-      try { modalAlbumName.focus(); } catch (e) { /* ignore */ }
+      try { modalAlbumName.focus(); } catch (e) {}
     }, 0);
   }
 
@@ -238,7 +238,6 @@
   function closeAlbumModal() {
     albumBeingEdited = null;
     if (!albumEditModal) return;
-    // hide with inline style and aria-hidden for accessibility
     albumEditModal.style.display = 'none';
     albumEditModal.classList.add('hidden');
     albumEditModal.setAttribute('aria-hidden', 'true');
@@ -266,26 +265,19 @@
       }
     });
   }
-
   if (modalCancelBtn) modalCancelBtn.addEventListener('click', () => closeAlbumModal());
-
-  // Close modal when clicking on backdrop (outside modal content)
   if (albumEditModal) {
-    albumEditModal.addEventListener('click', (e) => {
-      // if click on backdrop (not inside modal)
-      if (e.target === albumEditModal) closeAlbumModal();
-    });
-    // close on Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeAlbumModal();
-    });
+    albumEditModal.addEventListener('click', (e) => { if (e.target === albumEditModal) closeAlbumModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAlbumModal(); });
   }
 
-  // Create album
+  // Create album (with explicit parent option)
   if (btnCreateAlbum) {
     btnCreateAlbum.addEventListener('click', async () => {
       const name = (albumName.value || '').trim();
-      const parentId = albumParent.value || null;
+      // If checkbox exists and checked => create parent album (parentId null)
+      const forceParent = makeParentCheckbox && makeParentCheckbox.checked;
+      const parentId = forceParent ? null : (albumParent.value || null);
       if (!name) return alert('Enter album name');
       try {
         const res = await fetch('/api/albums', {
@@ -300,6 +292,7 @@
         }
         if (!res.ok) throw new Error('create failed');
         albumName.value = '';
+        if (makeParentCheckbox) makeParentCheckbox.checked = false;
         await refreshAlbums();
       } catch (err) {
         alert('Create album error');
@@ -506,6 +499,8 @@
           body: JSON.stringify({ password })
         });
         if (!res.ok) throw new Error('auth failed');
+        // successful login -> show admin UI
+        loggedIn = true;
         loginForm.classList.add('hidden');
         adminPanel.classList.remove('hidden');
         passwordInput.value = '';
@@ -521,27 +516,19 @@
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       await fetch('/api/admin/logout', { method: 'POST' });
+      loggedIn = false;
       adminPanel.classList.add('hidden');
       loginForm.classList.remove('hidden');
     });
   }
 
-  if (btnRefreshAlbums) btnRefreshAlbums.addEventListener('click', refreshAlbums);
-  if (btnRefreshTracks) btnRefreshTracks.addEventListener('click', refreshTracks);
+  if (btnRefreshAlbums) btnRefreshAlbums.addEventListener('click', async () => { if (loggedIn) await refreshAlbums(); else alert('Please login first'); });
+  if (btnRefreshTracks) btnRefreshTracks.addEventListener('click', async () => { if (loggedIn) await refreshTracks(); else alert('Please login first'); });
 
-  // Initial attempt to load (if already logged in)
-  document.addEventListener('DOMContentLoaded', async () => {
-    try {
-      await refreshAlbums();
-      await refreshTracks();
-      // if fetch succeeded, show admin UI (user likely logged in)
-      adminPanel.classList.remove('hidden');
-      loginForm.classList.add('hidden');
-    } catch (err) {
-      // keep login visible
-      adminPanel.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-    }
+  // On load: do NOT auto-show admin panel. Keep login visible.
+  document.addEventListener('DOMContentLoaded', () => {
+    adminPanel.classList.add('hidden');
+    loginForm.classList.remove('hidden');
   });
 
 })();
