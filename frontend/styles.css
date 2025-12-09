@@ -201,6 +201,12 @@ h2 {
   background: #666;
 }
 
+/* 🔴 Патч: скрываем кнопки "ტექსტი" и "ჩამოტვირთვა" только в проигрывателе */
+#player-controls #show-lyrics,
+#player-controls #download {
+  display: none;
+}
+
 #player-progress {
   display: flex;
   align-items: center;
