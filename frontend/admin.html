@@ -6,117 +6,27 @@
   <title>Admin — Cube Cubic</title>
   <link rel="stylesheet" href="/styles.css">
   <style>
-    /* Локальные стили админки */
-    :root{
-      --panel-bg: rgba(0,0,0,0.6);
-      --card-bg: rgba(255,255,255,0.03);
-      --accent: #ffcc00;
-      --muted: #9aa0a6;
-      --card-radius: 10px;
-      --card-padding: 14px;
-      --shadow-soft: 0 6px 18px rgba(0,0,0,0.45);
-      --shadow-strong: 0 14px 40px rgba(0,0,0,0.55);
-    }
-
-    body { font-family: Inter, Arial, sans-serif; color: #fff; background: #0f0f11; padding: 20px; margin:0; }
-    header { margin-bottom: 14px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    h1 { color: var(--accent); margin: 0; font-size:20px; letter-spacing:0.2px; }
-    a { color: #fff; text-decoration:none; opacity:0.9; }
-    a:hover { opacity:1; text-decoration:underline; }
-
+    /* Небольшие локальные стили для админки */
+    body { font-family: Arial, sans-serif; color: #fff; background: #111; padding: 18px; }
+    header { margin-bottom: 12px; }
+    h1 { color: #ffcc00; margin: 0 0 8px 0; }
     .hidden { display: none; }
-    .panel { background: var(--panel-bg); padding: 14px; border-radius: 10px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
-    label { display:block; margin:8px 0 6px; color:#ffd; font-weight:600; font-size:13px; }
-    input[type="text"], input[type="password"], select, textarea {
-      width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);
-      background:#0b0b0c; color:#fff; box-sizing:border-box; font-size:14px;
-    }
-    textarea { min-height:120px; resize:vertical; }
+    .panel { background: rgba(0,0,0,0.6); padding: 12px; border-radius: 8px; margin-bottom: 12px; }
+    label { display:block; margin:8px 0 4px; color:#ffd; font-weight:600; }
+    input[type="text"], input[type="password"], select, textarea { width:90%; padding:8px; border-radius:6px; border:1px solid #333; background:#111; color:#fff; }
     .row { display:flex; gap:12px; align-items:flex-start; }
     .col { flex:1; }
-    .small { width:240px; flex:0 0 240px; }
-    button { background:#2f2f33; color:#fff; padding:9px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
-    button:hover { background:#444; transform:translateY(-1px); }
-    .list { margin-top:12px; max-height:520px; overflow:auto; border-top:1px dashed rgba(255,255,255,0.04); padding-top:12px; }
+    .small { width:220px; flex:0 0 220px; }
+    button { background:#444; color:#fff; padding:8px 12px; border-radius:6px; border:none; cursor:pointer; }
+    button:hover { background:#666; }
+    .list { margin-top:12px; max-height:320px; overflow:auto; border-top:1px dashed rgba(255,255,255,0.06); padding-top:8px; }
+    .item { padding:8px; border-radius:6px; display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.02); margin-bottom:8px; }
+    .meta { flex:1; color:#ddd; }
+    .indent { padding-left:18px; color:#ccc; }
+    .muted { color:#999; font-size:13px; }
+    .note { color:#ccc; font-size:13px; margin-top:6px; }
 
-    .muted { color: var(--muted); font-size:13px; }
-    .note { color:#cfcfcf; font-size:13px; margin-top:6px; }
-
-    /* Сетка для списка треков: 2 колонки на десктопе, 1 на мобильных */
-    #admin-tracks {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-      align-items: start;
-    }
-
-    /* Карточка трека — улучшенный стиль */
-    #admin-tracks .item {
-      display:flex;
-      gap:14px;
-      align-items:flex-start;
-      background: var(--card-bg);
-      border-radius: var(--card-radius);
-      padding: var(--card-padding);
-      box-sizing: border-box;
-      transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms ease, background 220ms ease;
-      box-shadow: var(--shadow-soft);
-      border: 1px solid rgba(255,255,255,0.03);
-      min-height: 110px;
-      overflow: hidden;
-    }
-
-    /* Hover / focus эффект */
-    #admin-tracks .item:hover,
-    #admin-tracks .item:focus-within {
-      transform: translateY(-6px);
-      box-shadow: var(--shadow-strong);
-      background: rgba(255,255,255,0.035);
-      border-color: rgba(255,204,0,0.08);
-    }
-
-    /* Изображение */
-    #admin-tracks .item img {
-      width: 110px;
-      height: 110px;
-      object-fit: cover;
-      border-radius: 8px;
-      flex-shrink: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12));
-      border: 1px solid rgba(255,255,255,0.03);
-    }
-
-    /* Мета-информация */
-    #admin-tracks .meta { flex:1; display:flex; flex-direction:column; gap:6px; color:#eaeaea; }
-    #admin-tracks .meta strong { font-size:15px; color:#fff; display:block; }
-    #admin-tracks .meta .artist { color: var(--muted); font-size:13px; }
-    #admin-tracks .meta .info { color: var(--muted); font-size:12px; }
-
-    /* Действия справа */
-    #admin-tracks .item > div:last-child {
-      display:flex; flex-direction:column; gap:8px; align-items:flex-end; justify-content:flex-start;
-    }
-    #admin-tracks .item button {
-      background: rgba(255,255,255,0.04);
-      color:#fff;
-      padding:6px 10px;
-      border-radius:8px;
-      border:1px solid rgba(255,255,255,0.03);
-      font-size:13px;
-    }
-    #admin-tracks .item button:hover { background: rgba(255,255,255,0.06); }
-
-    /* Уточняем, чтобы каждая карточка занимала всю ячейку сетки */
-    #admin-tracks .item { width: 100%; margin: 0; }
-
-    /* Адаптив: один столбец на узких экранах */
-    @media (max-width: 880px) {
-      #admin-tracks { grid-template-columns: 1fr; }
-      .row { flex-direction: column; }
-      .small { width: 100%; flex: 0 0 auto; }
-    }
-
-    /* Модал */
+    /* Modal styles */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -126,31 +36,26 @@
       justify-content: center;
       z-index: 2000;
     }
-    .modal-backdrop.hidden { display: none !important; }
+
+    /* Ensure hidden state actually hides the backdrop (specific selector placed after .modal-backdrop) */
+    .modal-backdrop.hidden {
+      display: none !important;
+    }
+
     .modal {
       background: #fff;
       color: #000;
-      border-radius: 10px;
-      width: 460px;
+      border-radius: 8px;
+      width: 420px;
       max-width: 95%;
-      padding: 18px;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+      padding: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
     }
-    .modal h3 { margin-top: 0; color:#111; }
-    .modal label { color:#333; font-weight:600; }
-    .modal input, .modal select { background:#fff; color:#000; border:1px solid #ddd; }
+    .modal h3 { margin-top: 0; }
+    .modal .row { display:block; gap:0; }
+    .modal label { color:#333; }
+    .modal input, .modal select { background:#fff; color:#000; border:1px solid #ccc; }
     .modal .actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
-
-    /* Небольшие улучшения для списка альбомов */
-    #albums-list .item { padding:10px; border-radius:8px; background: rgba(255,255,255,0.02); display:flex; justify-content:space-between; align-items:center; gap:12px; }
-    #albums-list .item .meta strong { color:#fff; }
-    #albums-list .item button { padding:6px 10px; border-radius:6px; }
-
-    /* Фокусируемые элементы — видимая рамка */
-    button:focus, input:focus, select:focus, textarea:focus {
-      outline: 3px solid rgba(255,204,0,0.12);
-      outline-offset: 2px;
-    }
   </style>
 </head>
 <body>
@@ -162,7 +67,7 @@
   <main id="admin-app">
     <div id="login-form" class="panel">
       <h2>შესვლა</h2>
-      <form id="login-form-wrapper" style="margin:0">
+      <form id="login-form-wrapper" style="margin:0"> <!-- обернули пароль в форму, чтобы убрать предупреждение браузера -->
         <input id="admin-password" type="password" placeholder="პაროლი" />
         <div style="margin-top:8px">
           <button id="login-btn" type="button">შესვლა</button>
@@ -202,7 +107,7 @@
               <label>Artist</label>
               <input name="artist" placeholder="შემსრულებელი">
               <label>Lyrics</label>
-              <textarea name="lyrics" placeholder="ტექსტი"></textarea>
+              <textarea name="lyrics" style="resize: both; width: 50%; height: 120px;" placeholder="ტექსტი"></textarea>
             </div>
 
             <div class="small">
@@ -233,7 +138,7 @@
         <div style="margin-bottom:8px">
           <button id="btn-refresh-tracks">Refresh tracks</button>
         </div>
-        <div id="admin-tracks" class="list" aria-live="polite"></div>
+        <div id="admin-tracks" class="list"></div>
       </div>
 
       <div style="margin-top:8px">
@@ -262,5 +167,6 @@
   </div>
 
   <script src="/admin.js"></script>
+
 </body>
 </html>
