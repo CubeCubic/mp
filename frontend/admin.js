@@ -1,4 +1,5 @@
-// admin.js — обновлённый: поддержка parentId, иерархические селекты, album as id, модальное редактирование альбома
+// admin.js — обновлённый: поддержка parentId, иерархические селекты, album as id,
+// модальное редактирование альбома, защита от автопоказа модала и обработка Escape/клика по бэкдропу
 (async function() {
   if (!document.getElementById('admin-app')) return;
 
@@ -44,15 +45,24 @@
       else e.setAttribute(k, attrs[k]);
     }
     (Array.isArray(children) ? children : [children]).forEach(c => {
-      if (!c && c !== 0) return;
+      if (c === null || c === undefined) return;
       if (typeof c === 'string') e.appendChild(document.createTextNode(c));
       else e.appendChild(c);
     });
     return e;
   }
 
+  // Ensure modal exists and is hidden on init to avoid accidental visible state
+  (function initModalState() {
+    if (!albumEditModal) return;
+    // enforce hidden state and aria-hidden true on load
+    albumEditModal.classList.add('hidden');
+    albumEditModal.setAttribute('aria-hidden', 'true');
+  })();
+
   // Build tree and append options with indentation
   function buildTreeOptions(selectEl, includeEmpty = true, excludeIds = []) {
+    if (!selectEl) return;
     selectEl.innerHTML = '';
     if (includeEmpty) selectEl.appendChild(el('option', { value: '' }, '— none —'));
 
@@ -67,10 +77,7 @@
     });
 
     function appendNode(node, depth = 0) {
-      if (excludeIds && excludeIds.includes(node.id)) {
-        // skip node and its subtree entirely
-        return;
-      }
+      if (excludeIds && excludeIds.includes(node.id)) return;
       const prefix = depth === 0 ? '' : '— '.repeat(depth);
       const opt = el('option', { value: node.id }, `${prefix}${node.name}`);
       selectEl.appendChild(opt);
@@ -112,7 +119,6 @@
       if (node.children) node.children.forEach(c => dfs(c));
     }
     if (map[rootId]) {
-      // include all descendants (not including root itself)
       map[rootId].children.forEach(c => dfs(c));
     }
     return result;
@@ -120,6 +126,7 @@
 
   // Render albums list (hierarchical)
   function renderAlbumsList() {
+    if (!albumsList) return;
     albumsList.innerHTML = '';
     const map = {};
     albums.forEach(a => map[a.id] = { ...a, children: [] });
@@ -169,6 +176,29 @@
 
   // Open modal to edit album (replaces prompt)
   function openEditAlbumModal(node) {
+    if (!albumEditModal || !modalAlbumName || !modalAlbumParent) {
+      // fallback to prompt if modal elements missing
+      const newName = prompt('New album name', node.name);
+      if (newName === null) return;
+      const parentName = prompt('Parent album name (leave empty for main album)', node.parentId ? (albums.find(a => a.id === node.parentId) || {}).name : '');
+      let parentId = null;
+      if (parentName && parentName.trim()) {
+        const found = albums.find(a => a.name === parentName.trim());
+        if (!found) { alert('Parent not found'); return; }
+        parentId = found.id;
+        if (parentId === node.id) { alert('Cannot set self as parent'); return; }
+      }
+      fetch(`/api/albums/${node.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName.trim(), parentId: parentId || null })
+      }).then(r => {
+        if (!r.ok) throw new Error('update failed');
+        return r.json();
+      }).then(() => refreshAlbums()).catch(() => alert('Update failed'));
+      return;
+    }
+
     albumBeingEdited = node;
     modalAlbumName.value = node.name || '';
 
@@ -187,116 +217,131 @@
 
     // Отложенный фокус — безопасно для accessibility
     setTimeout(() => {
-      try {
-        modalAlbumName.focus();
-      } catch (e) {
-        // ignore
-      }
+      try { modalAlbumName.focus(); } catch (e) { /* ignore */ }
     }, 0);
   }
 
   // Close modal
   function closeAlbumModal() {
     albumBeingEdited = null;
+    if (!albumEditModal) return;
     albumEditModal.classList.add('hidden');
     albumEditModal.setAttribute('aria-hidden', 'true');
   }
 
   // Save album changes from modal
-  modalSaveBtn.addEventListener('click', async () => {
-    if (!albumBeingEdited) return closeAlbumModal();
-    const newName = (modalAlbumName.value || '').trim();
-    const newParent = modalAlbumParent.value || null;
-    if (!newName) return alert('Enter album name');
-    // prevent setting parent to itself (should be prevented by exclude, but double-check)
-    if (newParent === albumBeingEdited.id) return alert('Invalid parent');
-    try {
-      const res = await fetch(`/api/albums/${albumBeingEdited.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newName, parentId: newParent || null })
-      });
-      if (!res.ok) throw new Error('update failed');
-      await refreshAlbums();
-      closeAlbumModal();
-    } catch (err) {
-      alert('Update failed');
-    }
-  });
+  if (modalSaveBtn) {
+    modalSaveBtn.addEventListener('click', async () => {
+      if (!albumBeingEdited) return closeAlbumModal();
+      const newName = (modalAlbumName.value || '').trim();
+      const newParent = modalAlbumParent.value || null;
+      if (!newName) return alert('Enter album name');
+      if (newParent === albumBeingEdited.id) return alert('Invalid parent');
+      try {
+        const res = await fetch(`/api/albums/${albumBeingEdited.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newName, parentId: newParent || null })
+        });
+        if (!res.ok) throw new Error('update failed');
+        await refreshAlbums();
+        closeAlbumModal();
+      } catch (err) {
+        alert('Update failed');
+      }
+    });
+  }
 
-  modalCancelBtn.addEventListener('click', () => closeAlbumModal());
+  if (modalCancelBtn) modalCancelBtn.addEventListener('click', () => closeAlbumModal());
+
+  // Close modal when clicking on backdrop (outside modal content)
+  if (albumEditModal) {
+    albumEditModal.addEventListener('click', (e) => {
+      // if click on backdrop (not inside modal)
+      if (e.target === albumEditModal) closeAlbumModal();
+    });
+    // close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAlbumModal();
+    });
+  }
 
   // Create album
-  btnCreateAlbum.addEventListener('click', async () => {
-    const name = (albumName.value || '').trim();
-    const parentId = albumParent.value || null;
-    if (!name) return alert('Enter album name');
-    try {
-      const res = await fetch('/api/albums', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, parentId })
-      });
-      if (res.status === 409) {
-        const j = await res.json();
-        alert('Album exists: ' + (j.album && j.album.name));
-        return;
+  if (btnCreateAlbum) {
+    btnCreateAlbum.addEventListener('click', async () => {
+      const name = (albumName.value || '').trim();
+      const parentId = albumParent.value || null;
+      if (!name) return alert('Enter album name');
+      try {
+        const res = await fetch('/api/albums', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, parentId })
+        });
+        if (res.status === 409) {
+          const j = await res.json();
+          alert('Album exists: ' + (j.album && j.album.name));
+          return;
+        }
+        if (!res.ok) throw new Error('create failed');
+        albumName.value = '';
+        await refreshAlbums();
+      } catch (err) {
+        alert('Create album error');
       }
-      if (!res.ok) throw new Error('create failed');
-      albumName.value = '';
-      await refreshAlbums();
-    } catch (err) {
-      alert('Create album error');
-    }
-  });
+    });
+  }
 
   // Create / upload track
-  addForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const title = form.elements['title'].value || 'Untitled';
-    const artist = form.elements['artist'].value || '';
-    const lyrics = form.elements['lyrics'].value || '';
-    const albumId = form.elements['album'] ? form.elements['album'].value : '';
-    const audioUrl = form.elements['audioUrl'] && form.elements['audioUrl'].value ? form.elements['audioUrl'].value.trim() : '';
-    const coverUrl = form.elements['coverUrl'] && form.elements['coverUrl'].value ? form.elements['coverUrl'].value.trim() : '';
-    const audioFile = form.elements['audio'].files[0];
-    const coverFile = form.elements['cover'].files[0];
+  if (addForm) {
+    addForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const title = form.elements['title'].value || 'Untitled';
+      const artist = form.elements['artist'].value || '';
+      const lyrics = form.elements['lyrics'].value || '';
+      const albumId = form.elements['album'] ? form.elements['album'].value : '';
+      const audioUrl = form.elements['audioUrl'] && form.elements['audioUrl'].value ? form.elements['audioUrl'].value.trim() : '';
+      const coverUrl = form.elements['coverUrl'] && form.elements['coverUrl'].value ? form.elements['coverUrl'].value.trim() : '';
+      const audioFile = form.elements['audio'].files[0];
+      const coverFile = form.elements['cover'].files[0];
 
-    try {
-      let res;
-      if (audioFile || coverFile) {
-        const fd = new FormData();
-        fd.append('title', title);
-        fd.append('artist', artist);
-        fd.append('lyrics', lyrics);
-        if (albumId) fd.append('album', albumId);
-        if (audioFile) fd.append('audio', audioFile);
-        if (coverFile) fd.append('cover', coverFile);
-        res = await fetch('/api/tracks', { method: 'POST', body: fd });
-      } else if (audioUrl) {
-        const payload = { title, artist, lyrics, album: albumId || '', audioUrl, coverUrl };
-        res = await fetch('/api/tracks/json', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      } else {
-        alert('Choose file or provide Audio URL');
-        return;
-      }
+      try {
+        let res;
+        if (audioFile || coverFile) {
+          const fd = new FormData();
+          fd.append('title', title);
+          fd.append('artist', artist);
+          fd.append('lyrics', lyrics);
+          if (albumId) fd.append('album', albumId);
+          if (audioFile) fd.append('audio', audioFile);
+          if (coverFile) fd.append('cover', coverFile);
+          res = await fetch('/api/tracks', { method: 'POST', body: fd });
+        } else if (audioUrl) {
+          const payload = { title, artist, lyrics, album: albumId || '', audioUrl, coverUrl };
+          res = await fetch('/api/tracks/json', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        } else {
+          alert('Choose file or provide Audio URL');
+          return;
+        }
 
-      if (res.ok) {
-        alert('Track added');
-        form.reset();
-        await refreshTracks();
-      } else {
-        const j = await res.json().catch(()=>({}));
-        alert('Error: ' + (j.error || JSON.stringify(j)));
+        if (res.ok) {
+          alert('Track added');
+          form.reset();
+          await refreshTracks();
+        } else {
+          const j = await res.json().catch(()=>({}));
+          alert('Error: ' + (j.error || JSON.stringify(j)));
+        }
+      } catch (err) {
+        alert('Upload error: ' + err.message);
       }
-    } catch (err) {
-      alert('Upload error: ' + err.message);
-    }
-  });
+    });
+  }
 
   // Render tracks list
   function renderTracks() {
+    if (!adminTracks) return;
     adminTracks.innerHTML = '';
     if (!tracks.length) { adminTracks.innerHTML = '<div class="muted">No tracks</div>'; return; }
     tracks.forEach(t => {
@@ -436,34 +481,38 @@
   }
 
   // Login / logout
-  loginBtn.addEventListener('click', async () => {
-    const password = passwordInput.value || '';
-    try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
-      });
-      if (!res.ok) throw new Error('auth failed');
-      loginForm.classList.add('hidden');
-      adminPanel.classList.remove('hidden');
-      passwordInput.value = '';
-      await refreshAlbums();
-      await refreshTracks();
-    } catch (err) {
-      loginMsg.textContent = 'პაროლი არასწორია';
-      setTimeout(()=> loginMsg.textContent = '', 3000);
-    }
-  });
+  if (loginBtn) {
+    loginBtn.addEventListener('click', async () => {
+      const password = passwordInput.value || '';
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        if (!res.ok) throw new Error('auth failed');
+        loginForm.classList.add('hidden');
+        adminPanel.classList.remove('hidden');
+        passwordInput.value = '';
+        await refreshAlbums();
+        await refreshTracks();
+      } catch (err) {
+        loginMsg.textContent = 'პაროლი არასწორია';
+        setTimeout(()=> loginMsg.textContent = '', 3000);
+      }
+    });
+  }
 
-  logoutBtn.addEventListener('click', async () => {
-    await fetch('/api/admin/logout', { method: 'POST' });
-    adminPanel.classList.add('hidden');
-    loginForm.classList.remove('hidden');
-  });
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      adminPanel.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+    });
+  }
 
-  btnRefreshAlbums.addEventListener('click', refreshAlbums);
-  btnRefreshTracks.addEventListener('click', refreshTracks);
+  if (btnRefreshAlbums) btnRefreshAlbums.addEventListener('click', refreshAlbums);
+  if (btnRefreshTracks) btnRefreshTracks.addEventListener('click', refreshTracks);
 
   // Initial attempt to load (if already logged in)
   document.addEventListener('DOMContentLoaded', async () => {
