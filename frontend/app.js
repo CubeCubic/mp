@@ -28,8 +28,8 @@
   const modalLyrics = document.getElementById('modal-lyrics');
 
   // State
-  let albums = [];
-  let tracks = [];
+  let albums = []; // плоский список {id, name, parentId}
+  let tracks = []; // список треков (enhanced from backend)
   let currentTrackId = null;
   let defaultAlbumId = null;
 
@@ -58,7 +58,9 @@
     return null;
   }
 
+  // NEW: helper для обложки с fallback
   function getCoverUrl(t) {
+    // fallback path: /images/midcube.png (frontend/images/midcube.png -> /images/midcube.png)
     const fallback = '/images/midcube.png';
     if (!t) return fallback;
     if (t.coverUrl) return t.coverUrl;
@@ -76,10 +78,12 @@
       tracks = await tracksRes.json();
       albums = await albumsRes.json();
 
+      // find default album (სინგლი) if exists
       const def = albums.find(a => a && (a.name === 'სინგლი'));
       if (def) defaultAlbumId = def.id;
 
       buildAlbumSelectors();
+      // auto-select default if present, otherwise first main album
       if (defaultAlbumId) {
         albumSelect.value = defaultAlbumId;
       } else {
@@ -89,10 +93,11 @@
       onAlbumChange();
     } catch (err) {
       console.error('Ошибка загрузки данных:', err);
-      if (tracksContainer) tracksContainer.innerHTML = '<div>Не удалось загрузить треки</div>';
+      tracksContainer.innerHTML = '<div>Не удалось загрузить треки</div>';
     }
   }
 
+  // Build album select (main albums only)
   function buildAlbumSelectors() {
     if (!albumSelect) return;
     albumSelect.innerHTML = '';
@@ -116,6 +121,7 @@
     if (subalbumLabel) subalbumLabel.style.display = 'none';
   }
 
+  // When main album changes
   function onAlbumChange() {
     const mainId = albumSelect ? albumSelect.value : '';
     if (!mainId) {
@@ -125,6 +131,7 @@
       return;
     }
 
+    // build subalbum list
     const children = albums.filter(a => String(a.parentId) === String(mainId));
     if (children.length && subalbumSelect && subalbumLabel) {
       subalbumSelect.style.display = '';
@@ -145,9 +152,11 @@
       if (subalbumLabel) subalbumLabel.style.display = 'none';
     }
 
+    // show tracks for main album (including tracks in subalbums)
     renderTracksForMain(mainId);
   }
 
+  // When subalbum changes
   function onSubalbumChange() {
     const subId = subalbumSelect ? subalbumSelect.value : '';
     const mainId = albumSelect ? albumSelect.value : '';
@@ -160,6 +169,7 @@
     }
   }
 
+  // Render tracks for main album (direct + children)
   function renderTracksForMain(mainId) {
     const direct = tracks.filter(t => String(t.albumId) === String(mainId));
     const childIds = albums.filter(a => String(a.parentId) === String(mainId)).map(a => a.id);
@@ -168,6 +178,7 @@
     renderTrackList(merged);
   }
 
+  // Render a list of track objects
   function renderTrackList(list) {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -183,12 +194,12 @@
       el.className = 'card';
       el.dataset.trackId = t.id;
       el.innerHTML = `
-        ${cover ? `<img class="track-cover cover" src="${escapeHtml(cover)}" alt="${escapeHtml(t.title)}" loading="lazy" data-track-id="${t.id}">` : ''}
-        <div class="track-info meta">
-          <div class="title track-title" data-track-id="${t.id}">${escapeHtml(t.title)}</div>
-          <div class="artist track-artist">${escapeHtml(t.artist || '')}</div>
+        ${cover ? `<img class="track-cover" src="${escapeHtml(cover)}" alt="${escapeHtml(t.title)}" loading="lazy" data-track-id="${t.id}">` : ''}
+        <div class="track-info">
+          <h4 class="track-title" data-track-id="${t.id}">${escapeHtml(t.title)}</h4>
+          <div class="track-artist">${escapeHtml(t.artist || '')}</div>
         </div>
-        <div class="track-actions actions">
+        <div class="track-actions">
           <button class="btn-play" data-id="${t.id}" data-src="${escapeHtml(stream)}">▶</button>
           <button class="btn-download" data-src="${escapeHtml(stream)}">ჩამოტვირთვა</button>
           <button class="btn-like" data-id="${t.id}">❤ <span>${t.likes || 0}</span></button>
@@ -198,6 +209,7 @@
       tracksContainer.appendChild(el);
     });
 
+    // Attach listeners: play buttons, download, like, lyrics
     tracksContainer.querySelectorAll('.btn-play').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.currentTarget.getAttribute('data-id');
@@ -244,6 +256,7 @@
       });
     });
 
+    // Title and cover click: toggle play/pause or start new track
     tracksContainer.querySelectorAll('.track-title').forEach(el => {
       el.addEventListener('click', (e) => {
         const id = e.currentTarget.getAttribute('data-track-id');
@@ -262,19 +275,23 @@
     });
   }
 
+  // Toggle play/pause by track id (click on title/cover or play button)
   function togglePlayByTrackId(id, src) {
     if (!id) return;
+    // if same track is playing
     if (currentTrackId === id) {
       if (audio.paused) {
         audio.play().catch(() => {});
       } else {
-        audio.pause();
+        audio.pause(); // pause will hide player via event listener
       }
       return;
     }
+    // different track: load and play
     playByTrackId(id, src);
   }
 
+  // Play a track by id (load src, update UI, show player)
   function playByTrackId(id, src) {
     const t = tracks.find(x => x.id === id);
     if (!t) return;
@@ -291,8 +308,10 @@
     coverImg.src = getCoverUrl(t);
     coverImg.alt = t.title ? `Cover for ${t.title}` : 'Cover';
     downloadBtn.setAttribute('href', url);
+    // player will be shown on audio.play event
   }
 
+  // Player controls
   playBtn?.addEventListener('click', () => {
     if (audio.paused) audio.play().catch(() => {});
     else audio.pause();
@@ -316,6 +335,7 @@
 
   volume?.addEventListener('input', () => { audio.volume = Number(volume.value); });
 
+  // Progress/time
   audio.addEventListener('loadedmetadata', () => {
     if (audio.duration && !isNaN(audio.duration)) timeDuration.textContent = formatTime(audio.duration);
   });
@@ -333,6 +353,7 @@
     }
   });
 
+  // Show player on play; hide on pause or ended (with smooth animation via CSS)
   audio.addEventListener('play', () => {
     playerEl.classList.add('visible');
     playBtn.textContent = '⏸';
@@ -340,6 +361,7 @@
 
   audio.addEventListener('pause', () => {
     playBtn.textContent = '▶';
+    // hide player with animation
     playerEl.classList.remove('visible');
   });
 
@@ -353,22 +375,27 @@
     timeDuration.textContent = formatTime(0);
   });
 
+  // Lyrics modal
   modalClose?.addEventListener('click', () => lyricsModal.classList.add('hidden'));
   lyricsModal?.addEventListener('click', (e) => { if (e.target === lyricsModal) lyricsModal.classList.add('hidden'); });
 
+  // Utility: get currently filtered list (main + sub selection)
   function getCurrentFilteredList() {
     const mainId = albumSelect ? albumSelect.value : '';
     if (!mainId) return [];
     const subId = subalbumSelect ? subalbumSelect.value : '';
     if (subId) return tracks.filter(t => String(t.albumId) === String(subId));
+    // main + children
     const direct = tracks.filter(t => String(t.albumId) === String(mainId));
     const childIds = albums.filter(a => String(a.parentId) === String(mainId)).map(a => a.id);
     const fromChildren = tracks.filter(t => childIds.includes(String(t.albumId)));
     return [...direct, ...fromChildren];
   }
 
+  // Album/subalbum handlers
   albumSelect?.addEventListener('change', onAlbumChange);
   subalbumSelect?.addEventListener('change', onSubalbumChange);
 
+  // Init
   document.addEventListener('DOMContentLoaded', loadData);
 })();
