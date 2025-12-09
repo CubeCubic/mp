@@ -1,89 +1,154 @@
 <!doctype html>
 <html lang="ka">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Cube Cubic</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cube Cubic — Music</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    :root{
+      --bg:#0f0f11;
+      --panel-bg: rgba(0,0,0,0.6);
+      --card-bg: rgba(255,255,255,0.03);
+      --accent: #ffcc00;
+      --muted: #9aa0a6;
+      --card-radius: 10px;
+      --card-padding: 14px;
+      --shadow-soft: 0 6px 18px rgba(0,0,0,0.45);
+      --shadow-strong: 0 14px 40px rgba(0,0,0,0.55);
+    }
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/smallcube.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="/images/smallcube.png">
-  <link rel="apple-touch-icon" href="/images/smallcube.png">
+    html,body { height:100%; margin:0; background:var(--bg); color:#fff; font-family:Inter, Arial, sans-serif; }
+    .wrap { max-width:1200px; margin:18px auto; padding:0 16px; }
 
-  <link rel="stylesheet" href="/styles.css">
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+    header h1 { margin:0; color:var(--accent); font-size:20px; }
+    header nav a { color:#fff; text-decoration:none; opacity:0.9; margin-left:12px; }
+    header nav a:hover { opacity:1; text-decoration:underline; }
 
-  <!-- OpenPlayerJS CDN (опционально) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.js"></script>
+    .panel { background:var(--panel-bg); padding:14px; border-radius:10px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.4); }
+
+    .controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    select, input[type="text"] { padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:#0b0b0c; color:#fff; }
+    label { color:#ffd; font-weight:600; font-size:13px; margin-right:6px; }
+
+    /* Tracks grid */
+    #tracks {
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:14px;
+      margin-top:12px;
+    }
+
+    /* Card style */
+    .card {
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      background:var(--card-bg);
+      border-radius:var(--card-radius);
+      padding:var(--card-padding);
+      box-shadow:var(--shadow-soft);
+      border:1px solid rgba(255,255,255,0.03);
+      transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms ease, background 220ms ease;
+      min-height:110px;
+      overflow:hidden;
+    }
+    .card:hover, .card:focus-within {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-strong);
+      background: rgba(255,255,255,0.035);
+      border-color: rgba(255,204,0,0.08);
+    }
+
+    .card img.cover {
+      width:110px; height:110px; object-fit:cover; border-radius:8px; flex-shrink:0;
+      border:1px solid rgba(255,255,255,0.03);
+      background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12));
+    }
+
+    .card .meta { flex:1; display:flex; flex-direction:column; gap:6px; }
+    .card .meta .title { font-weight:700; font-size:15px; color:#fff; }
+    .card .meta .artist { color:var(--muted); font-size:13px; }
+    .card .meta .info { color:var(--muted); font-size:12px; }
+
+    .card .actions { display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+    .card .actions button {
+      background: rgba(255,255,255,0.04); color:#fff; padding:6px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.03);
+      cursor:pointer; font-weight:600;
+    }
+    .card .actions button:hover { background: rgba(255,255,255,0.06); transform:translateY(-2px); }
+
+    /* Player (simple) */
+    #player {
+      position:fixed; left:50%; transform:translateX(-50%); bottom:18px; width:calc(100% - 40px); max-width:980px;
+      background: linear-gradient(180deg, rgba(20,20,20,0.95), rgba(10,10,10,0.95)); color:#fff; border-radius:12px; padding:10px 12px;
+      display:flex; gap:12px; align-items:center; box-shadow:0 10px 30px rgba(0,0,0,0.6); z-index:1200; opacity:0; pointer-events:none;
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+    #player.visible { opacity:1; pointer-events:auto; transform: translateX(-50%) translateY(0); }
+    #player img { width:64px; height:64px; object-fit:cover; border-radius:8px; }
+    #player .info { flex:1; display:flex; flex-direction:column; gap:4px; }
+    #player .controls { display:flex; gap:8px; align-items:center; }
+
+    /* Responsive */
+    @media (max-width:880px) {
+      #tracks { grid-template-columns: 1fr; }
+      .controls { flex-direction:column; align-items:stretch; }
+    }
+
+    /* Accessibility focus */
+    button:focus, select:focus, input:focus { outline: 3px solid rgba(255,204,0,0.12); outline-offset:2px; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Cube Cubic - კეთილი იყოს თქვენი მობრძანება</h1>
-    <nav>
-      <!-- <a href="/admin.html" style="color:#fff">ადმინისტრატორი/a>  -->
-      <a href="/admin.html" class="hidden-text">ადმინი</a>
-    </nav>
-  </header>
+  <div class="wrap">
+    <header>
+      <h1>Cube Cubic</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/admin.html">Admin</a>
+      </nav>
+    </header>
 
-  <main id="app">
-    <section id="albums-section">
-      <h2>ალბომები</h2>
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div class="controls" style="align-items:center;">
+          <label for="album-select">Album</label>
+          <select id="album-select" aria-label="Album select"></select>
 
-      <div class="album-controls">
-        <label for="album-select">Основной альбом</label>
-        <select id="album-select" aria-label="Albums">
-          <option value="">Загрузка...</option>
-        </select>
+          <label id="subalbum-label" for="subalbum-select" style="display:none;margin-left:8px;">Subalbum</label>
+          <select id="subalbum-select" style="display:none;"></select>
 
-        <label for="subalbum-select" id="subalbum-label" style="display:none;margin-left:12px;">Подальбом</label>
-        <select id="subalbum-select" aria-label="Subalbums" style="display:none;">
-          <option value="">All</option>
-        </select>
+          <button id="btn-refresh" style="margin-left:8px;">Refresh</button>
+        </div>
+
+        <div class="controls" style="justify-self:end;">
+          <input id="search" type="text" placeholder="Search tracks or artist" />
+          <button id="btn-search">Search</button>
+        </div>
+      </div>
+
+      <div id="tracks" aria-live="polite" class="list">
+        <!-- карточки треков будут вставлены сюда скриптом -->
       </div>
     </section>
-
-    <section id="tracks-section">
-      <h2>ტრეკები</h2>
-      <div id="tracks"></div>
-    </section>
-  </main>
-
-  <!-- Плеер (нижний) — скрыт по умолчанию -->
-  <div id="player" class="hidden" role="region" aria-label="Player">
-    <div id="player-cover">
-      <img id="player-cover-img" src="" alt="">
-    </div>
-
-    <div id="player-info">
-      <div id="player-title"></div>
-      <div id="player-artist"></div>
-
-      <div id="player-progress">
-        <span id="time-current">0:00</span>
-        <input id="progress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Progress">
-        <span id="time-duration">0:00</span>
-      </div>
-
-      <div id="player-controls">
-        <button id="prev" title="წინა">⏮</button>
-        <button id="play" title="პაუზა/დაწყება">▶</button>
-        <button id="next" title="შემდეგი">⏭</button>
-        <label style="margin-left:8px;">ხმა: <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label>
-        <button id="show-lyrics" title="ლირიკა">ტექსტი</button>
-        <a id="download" href="#" download>ჩამოტვირთვა</a>
-      </div>
-    </div>
-
-    <!-- Сам аудио-элемент -->
-    <audio id="audio" preload="auto"></audio>
   </div>
 
-  <!-- Модальное окно для текста песни -->
-  <div id="lyrics-modal" class="hidden" role="dialog" aria-modal="true">
-    <div class="modal-box">
-      <button id="modal-close" aria-label="close">✖</button>
-      <h3 id="modal-title"></h3>
-      <pre id="modal-lyrics"></pre>
+  <!-- Player -->
+  <div id="player" role="region" aria-label="Audio player">
+    <img id="player-cover-img" src="/images/midcube.png" alt="cover">
+    <div class="info">
+      <div id="player-title" style="font-weight:700">Title</div>
+      <div id="player-artist" style="color:var(--muted);font-size:13px">Artist</div>
     </div>
+    <div class="controls">
+      <button id="prev">⏮</button>
+      <button id="play">▶</button>
+      <button id="next">⏭</button>
+      <a id="download" href="#" style="color:#fff;text-decoration:none;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.04);margin-left:8px;">Download</a>
+    </div>
+    <audio id="audio" preload="metadata"></audio>
   </div>
 
   <script src="/app.js"></script>
