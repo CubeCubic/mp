@@ -44,7 +44,7 @@
       else e.setAttribute(k, attrs[k]);
     }
     (Array.isArray(children) ? children : [children]).forEach(c => {
-      if (!c) return;
+      if (!c && c !== 0) return;
       if (typeof c === 'string') e.appendChild(document.createTextNode(c));
       else e.appendChild(c);
     });
@@ -67,7 +67,7 @@
     });
 
     function appendNode(node, depth = 0) {
-      if (excludeIds.includes(node.id)) {
+      if (excludeIds && excludeIds.includes(node.id)) {
         // skip node and its subtree entirely
         return;
       }
@@ -112,7 +112,8 @@
       if (node.children) node.children.forEach(c => dfs(c));
     }
     if (map[rootId]) {
-      map[rootId].children.forEach(c => dfs(c)); // descendants only (exclude root itself if desired)
+      // include all descendants (not including root itself)
+      map[rootId].children.forEach(c => dfs(c));
     }
     return result;
   }
@@ -170,16 +171,28 @@
   function openEditAlbumModal(node) {
     albumBeingEdited = node;
     modalAlbumName.value = node.name || '';
+
     // build options excluding node itself and all its descendants to avoid cycles
     const descendants = getDescendantIds(node.id);
     const exclude = [node.id, ...descendants];
     buildTreeOptions(modalAlbumParent, true, exclude);
+
     // set current parent if any
     modalAlbumParent.value = node.parentId || '';
-    // show modal
-    albumEditModal.classList.remove('hidden');
+
+    // show modal: сначала делаем aria-hidden=false и убираем класс hidden,
+    // затем ставим фокус в следующем тике, чтобы избежать aria-hidden warning
     albumEditModal.setAttribute('aria-hidden', 'false');
-    modalAlbumName.focus();
+    albumEditModal.classList.remove('hidden');
+
+    // Отложенный фокус — безопасно для accessibility
+    setTimeout(() => {
+      try {
+        modalAlbumName.focus();
+      } catch (e) {
+        // ignore
+      }
+    }, 0);
   }
 
   // Close modal
@@ -245,8 +258,8 @@
     const artist = form.elements['artist'].value || '';
     const lyrics = form.elements['lyrics'].value || '';
     const albumId = form.elements['album'] ? form.elements['album'].value : '';
-    const audioUrl = form.elements['audioUrl'].value ? form.elements['audioUrl'].value.trim() : '';
-    const coverUrl = form.elements['coverUrl'].value ? form.elements['coverUrl'].value.trim() : '';
+    const audioUrl = form.elements['audioUrl'] && form.elements['audioUrl'].value ? form.elements['audioUrl'].value.trim() : '';
+    const coverUrl = form.elements['coverUrl'] && form.elements['coverUrl'].value ? form.elements['coverUrl'].value.trim() : '';
     const audioFile = form.elements['audio'].files[0];
     const coverFile = form.elements['cover'].files[0];
 
@@ -291,8 +304,8 @@
       const meta = el('div', { class: 'meta' });
       const title = el('div', {}, el('strong', {}, escapeHtml(t.title || 'Untitled')));
       const artist = el('div', { class: 'muted' }, escapeHtml(t.artist || ''));
-      const albumName = (albums.find(a => a.id === t.albumId) || {}).name || '(no album)';
-      const info = el('div', { class: 'muted' }, `album: ${escapeHtml(albumName)} • likes: ${t.likes || 0}`);
+      const albumNameText = (albums.find(a => a.id === t.albumId) || {}).name || '(no album)';
+      const info = el('div', { class: 'muted' }, `album: ${escapeHtml(albumNameText)} • likes: ${t.likes || 0}`);
       meta.appendChild(title);
       meta.appendChild(artist);
       meta.appendChild(info);
