@@ -1,4 +1,4 @@
-// frontend/app.js — полный файл: альбомы, подальбомы, фильтрация, плеер с анимацией появления/скрытия
+// frontend/app.js — полный файл с fallback-обложкой (/images/midcube.png)
 (function () {
   // DOM элементы
   const albumSelect = document.getElementById('album-select');
@@ -58,6 +58,16 @@
     return null;
   }
 
+  // NEW: helper для обложки с fallback
+  function getCoverUrl(t) {
+    // fallback path: /images/midcube.png (frontend/images/midcube.png -> /images/midcube.png)
+    const fallback = '/images/midcube.png';
+    if (!t) return fallback;
+    if (t.coverUrl) return t.coverUrl;
+    if (t.cover) return '/uploads/' + t.cover;
+    return fallback;
+  }
+
   // Load data from API
   async function loadData() {
     try {
@@ -89,6 +99,7 @@
 
   // Build album select (main albums only)
   function buildAlbumSelectors() {
+    if (!albumSelect) return;
     albumSelect.innerHTML = '';
     const placeholder = document.createElement('option');
     placeholder.value = '';
@@ -103,24 +114,26 @@
       albumSelect.appendChild(opt);
     });
 
-    subalbumSelect.innerHTML = '';
-    subalbumSelect.style.display = 'none';
-    subalbumLabel.style.display = 'none';
+    if (subalbumSelect) {
+      subalbumSelect.innerHTML = '';
+      subalbumSelect.style.display = 'none';
+    }
+    if (subalbumLabel) subalbumLabel.style.display = 'none';
   }
 
   // When main album changes
   function onAlbumChange() {
-    const mainId = albumSelect.value;
+    const mainId = albumSelect ? albumSelect.value : '';
     if (!mainId) {
-      tracksContainer.innerHTML = '<div>Выберите альбом, чтобы увидеть треки</div>';
-      subalbumSelect.style.display = 'none';
-      subalbumLabel.style.display = 'none';
+      if (tracksContainer) tracksContainer.innerHTML = '<div>Выберите альбом, чтобы увидеть треки</div>';
+      if (subalbumSelect) subalbumSelect.style.display = 'none';
+      if (subalbumLabel) subalbumLabel.style.display = 'none';
       return;
     }
 
     // build subalbum list
     const children = albums.filter(a => String(a.parentId) === String(mainId));
-    if (children.length) {
+    if (children.length && subalbumSelect && subalbumLabel) {
       subalbumSelect.style.display = '';
       subalbumLabel.style.display = '';
       subalbumSelect.innerHTML = '';
@@ -135,8 +148,8 @@
         subalbumSelect.appendChild(o);
       });
     } else {
-      subalbumSelect.style.display = 'none';
-      subalbumLabel.style.display = 'none';
+      if (subalbumSelect) subalbumSelect.style.display = 'none';
+      if (subalbumLabel) subalbumLabel.style.display = 'none';
     }
 
     // show tracks for main album (including tracks in subalbums)
@@ -145,8 +158,8 @@
 
   // When subalbum changes
   function onSubalbumChange() {
-    const subId = subalbumSelect.value;
-    const mainId = albumSelect.value;
+    const subId = subalbumSelect ? subalbumSelect.value : '';
+    const mainId = albumSelect ? albumSelect.value : '';
     if (!mainId) return;
     if (!subId) {
       renderTracksForMain(mainId);
@@ -167,6 +180,7 @@
 
   // Render a list of track objects
   function renderTrackList(list) {
+    if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
     if (!list.length) {
       tracksContainer.innerHTML = '<div>Треков нет</div>';
@@ -174,7 +188,7 @@
     }
 
     list.forEach(t => {
-      const cover = t.coverUrl || (t.cover ? '/uploads/' + t.cover : '');
+      const cover = getCoverUrl(t);
       const stream = getStreamUrl(t) || '';
       const el = document.createElement('div');
       el.className = 'card';
@@ -291,9 +305,8 @@
     audio.play().catch(() => {});
     titleEl.textContent = t.title || '';
     artistEl.textContent = t.artist || '';
-    if (t.coverUrl) coverImg.src = t.coverUrl;
-    else if (t.cover) coverImg.src = '/uploads/' + t.cover;
-    else coverImg.src = '';
+    coverImg.src = getCoverUrl(t);
+    coverImg.alt = t.title ? `Cover for ${t.title}` : 'Cover';
     downloadBtn.setAttribute('href', url);
     // player will be shown on audio.play event
   }
@@ -368,9 +381,9 @@
 
   // Utility: get currently filtered list (main + sub selection)
   function getCurrentFilteredList() {
-    const mainId = albumSelect.value;
+    const mainId = albumSelect ? albumSelect.value : '';
     if (!mainId) return [];
-    const subId = subalbumSelect.value;
+    const subId = subalbumSelect ? subalbumSelect.value : '';
     if (subId) return tracks.filter(t => String(t.albumId) === String(subId));
     // main + children
     const direct = tracks.filter(t => String(t.albumId) === String(mainId));
@@ -380,8 +393,8 @@
   }
 
   // Album/subalbum handlers
-  albumSelect.addEventListener('change', onAlbumChange);
-  subalbumSelect.addEventListener('change', onSubalbumChange);
+  albumSelect?.addEventListener('change', onAlbumChange);
+  subalbumSelect?.addEventListener('change', onSubalbumChange);
 
   // Init
   document.addEventListener('DOMContentLoaded', loadData);
