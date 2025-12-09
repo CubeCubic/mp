@@ -36,6 +36,12 @@
       justify-content: center;
       z-index: 2000;
     }
+
+    /* Ensure hidden state actually hides the backdrop (specific selector placed after .modal-backdrop) */
+    .modal-backdrop.hidden {
+      display: none !important;
+    }
+
     .modal {
       background: #fff;
       color: #000;
@@ -61,11 +67,13 @@
   <main id="admin-app">
     <div id="login-form" class="panel">
       <h2>შესვლა</h2>
-      <input id="admin-password" type="password" placeholder="პაროლი">
-      <div style="margin-top:8px">
-        <button id="login-btn">შესვლა</button>
-        <span id="login-msg" class="muted" style="margin-left:10px"></span>
-      </div>
+      <form id="login-form-wrapper" style="margin:0"> <!-- обернули пароль в форму, чтобы убрать предупреждение браузера -->
+        <input id="admin-password" type="password" placeholder="პაროლი" />
+        <div style="margin-top:8px">
+          <button id="login-btn" type="button">შესვლა</button>
+          <span id="login-msg" class="muted" style="margin-left:10px"></span>
+        </div>
+      </form>
     </div>
 
     <div id="admin-panel" class="hidden">
@@ -152,8 +160,8 @@
         <select id="modal-album-parent"></select>
       </div>
       <div class="actions">
-        <button id="modal-cancel">Cancel</button>
-        <button id="modal-save">Save</button>
+        <button id="modal-cancel" type="button">Cancel</button>
+        <button id="modal-save" type="button">Save</button>
       </div>
     </div>
   </div>
