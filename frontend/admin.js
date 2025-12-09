@@ -498,18 +498,15 @@
     return tracks;
   }
 
-  // On load: try to fetch albums/tracks if already logged in
-  document.addEventListener('DOMContentLoaded', async () => {
-    try {
-      await refreshAlbums();
-      await refreshTracks();
-      // If fetch succeeded, show admin UI (user likely logged in)
-      adminPanel.classList.remove('hidden');
-      loginForm.classList.add('hidden');
-    } catch (err) {
-      // not logged in or fetch failed — keep login visible
-      adminPanel.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-    }
-  });
+// Гарантированно скрываем админ-панель при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+  if (adminPanel) {
+    adminPanel.style.display = 'none';
+    adminPanel.classList.add('hidden');
+  }
+  if (loginForm) {
+    loginForm.style.display = '';
+    loginForm.classList.remove('hidden');
+  }
+});
 })();
