@@ -1,9 +1,7 @@
-// admin.js — исправленный: доступ только после логина, явное создание parent-альбомов,
-// иерархические селекты, модальное редактирование альбома
-(async function() {
+// admin.js — показываем панель только после логина, fallback cover, иерархия альбомов
+(function () {
   if (!document.getElementById('admin-app')) return;
 
-  // Elements
   const loginForm = document.getElementById('login-form');
   const adminPanel = document.getElementById('admin-panel');
   const loginBtn = document.getElementById('login-btn');
@@ -23,34 +21,17 @@
   const trackAlbumSelect = document.getElementById('track-album-select');
   const btnRefreshTracks = document.getElementById('btn-refresh-tracks');
 
-  // Add explicit checkbox for creating parent album (if not present in HTML, we'll create it)
-  let makeParentCheckbox = document.getElementById('make-parent-checkbox');
-  if (!makeParentCheckbox) {
-    const wrapper = albumParent ? albumParent.parentElement : null;
-    if (wrapper) {
-      const cbWrap = document.createElement('div');
-      cbWrap.style.marginTop = '6px';
-      cbWrap.innerHTML = `<label style="font-weight:600;color:#ffd;"><input id="make-parent-checkbox" type="checkbox" style="margin-right:6px"> Make parent album</label>`;
-      wrapper.appendChild(cbWrap);
-      makeParentCheckbox = document.getElementById('make-parent-checkbox');
-    }
-  }
-
-  // Modal elements for album edit
   const albumEditModal = document.getElementById('album-edit-modal');
   const modalAlbumName = document.getElementById('modal-album-name');
   const modalAlbumParent = document.getElementById('modal-album-parent');
   const modalSaveBtn = document.getElementById('modal-save');
   const modalCancelBtn = document.getElementById('modal-cancel');
 
-  // State
-  let albums = []; // flat list {id,name,parentId}
+  let albums = [];
   let tracks = [];
-  let albumBeingEdited = null; // {id, name, parentId}
+  let albumBeingEdited = null;
   let loggedIn = false;
 
-  // Helpers
-  function escapeHtml(s){ return (s||'').toString().replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]); }
   function el(tag, attrs = {}, children = []) {
     const e = document.createElement(tag);
     for (const k in attrs) {
@@ -65,16 +46,16 @@
     });
     return e;
   }
+  function escapeHtml(s){ return (s||'').toString().replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]); }
 
-  // Ensure modal exists and is hidden on init
-  (function initModalState() {
-    if (!albumEditModal) return;
-    albumEditModal.classList.add('hidden');
-    albumEditModal.setAttribute('aria-hidden', 'true');
-    albumEditModal.style.display = 'none';
-  })();
+  function getAdminCoverUrl(t) {
+    const fallback = '/images/midcube.png';
+    if (!t) return fallback;
+    if (t.coverUrl) return t.coverUrl;
+    if (t.cover) return '/uploads/' + t.cover;
+    return fallback;
+  }
 
-  // Build tree and append options with indentation
   function buildTreeOptions(selectEl, includeEmpty = true, excludeIds = []) {
     if (!selectEl) return;
     selectEl.innerHTML = '';
@@ -105,7 +86,6 @@
     roots.forEach(r => appendNode(r, 0));
   }
 
-  // Fetch albums/tracks
   async function fetchAlbums() {
     const res = await fetch('/api/albums');
     if (!res.ok) throw new Error('albums fetch failed');
@@ -119,7 +99,6 @@
     return tracks;
   }
 
-  // Build map of descendants for a given album id
   function getDescendantIds(rootId) {
     const map = {};
     albums.forEach(a => map[a.id] = { ...a, children: [] });
@@ -132,13 +111,10 @@
       result.push(node.id);
       if (node.children) node.children.forEach(c => dfs(c));
     }
-    if (map[rootId]) {
-      map[rootId].children.forEach(c => dfs(c));
-    }
+    if (map[rootId]) map[rootId].children.forEach(c => dfs(c));
     return result;
   }
 
-  // Render albums list (hierarchical)
   function renderAlbumsList() {
     if (!albumsList) return;
     albumsList.innerHTML = '';
@@ -188,10 +164,8 @@
     roots.forEach(r => renderNode(r, 0));
   }
 
-  // Open modal to edit album (replaces prompt)
   function openEditAlbumModal(node) {
     if (!albumEditModal || !modalAlbumName || !modalAlbumParent) {
-      // fallback to prompt if modal elements missing
       const newName = prompt('New album name', node.name);
       if (newName === null) return;
       const parentName = prompt('Parent album name (leave empty for main album)', node.parentId ? (albums.find(a => a.id === node.parentId) || {}).name : '');
@@ -215,26 +189,17 @@
 
     albumBeingEdited = node;
     modalAlbumName.value = node.name || '';
-
-    // build options excluding node itself and all its descendants to avoid cycles
     const descendants = getDescendantIds(node.id);
     const exclude = [node.id, ...descendants];
     buildTreeOptions(modalAlbumParent, true, exclude);
-
-    // set current parent if any
     modalAlbumParent.value = node.parentId || '';
 
-    // show modal
     albumEditModal.style.display = 'flex';
     albumEditModal.setAttribute('aria-hidden', 'false');
     albumEditModal.classList.remove('hidden');
-
-    setTimeout(() => {
-      try { modalAlbumName.focus(); } catch (e) {}
-    }, 0);
+    setTimeout(() => { try { modalAlbumName.focus(); } catch (e) {} }, 0);
   }
 
-  // Close modal
   function closeAlbumModal() {
     albumBeingEdited = null;
     if (!albumEditModal) return;
@@ -243,7 +208,6 @@
     albumEditModal.setAttribute('aria-hidden', 'true');
   }
 
-  // Save album changes from modal
   if (modalSaveBtn) {
     modalSaveBtn.addEventListener('click', async () => {
       if (!albumBeingEdited) return closeAlbumModal();
@@ -271,13 +235,10 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAlbumModal(); });
   }
 
-  // Create album (with explicit parent option)
   if (btnCreateAlbum) {
     btnCreateAlbum.addEventListener('click', async () => {
       const name = (albumName.value || '').trim();
-      // If checkbox exists and checked => create parent album (parentId null)
-      const forceParent = makeParentCheckbox && makeParentCheckbox.checked;
-      const parentId = forceParent ? null : (albumParent.value || null);
+      const parentId = albumParent.value || null;
       if (!name) return alert('Enter album name');
       try {
         const res = await fetch('/api/albums', {
@@ -292,7 +253,6 @@
         }
         if (!res.ok) throw new Error('create failed');
         albumName.value = '';
-        if (makeParentCheckbox) makeParentCheckbox.checked = false;
         await refreshAlbums();
       } catch (err) {
         alert('Create album error');
@@ -300,7 +260,6 @@
     });
   }
 
-  // Create / upload track
   if (addForm) {
     addForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -309,8 +268,8 @@
       const artist = form.elements['artist'].value || '';
       const lyrics = form.elements['lyrics'].value || '';
       const albumId = form.elements['album'] ? form.elements['album'].value : '';
-      const audioUrl = form.elements['audioUrl'] && form.elements['audioUrl'].value ? form.elements['audioUrl'].value.trim() : '';
-      const coverUrl = form.elements['coverUrl'] && form.elements['coverUrl'].value ? form.elements['coverUrl'].value.trim() : '';
+      const audioUrl = form.elements['audioUrl'] ? form.elements['audioUrl'].value.trim() : '';
+      const coverUrl = form.elements['coverUrl'] ? form.elements['coverUrl'].value.trim() : '';
       const audioFile = form.elements['audio'].files[0];
       const coverFile = form.elements['cover'].files[0];
 
@@ -347,7 +306,6 @@
     });
   }
 
-  // Render tracks list
   function renderTracks() {
     if (!adminTracks) return;
     adminTracks.innerHTML = '';
@@ -355,10 +313,19 @@
     tracks.forEach(t => {
       const item = el('div', { class: 'item' });
       const meta = el('div', { class: 'meta' });
+
+      const img = el('img', { src: getAdminCoverUrl(t), alt: t.title || '' });
+      img.style.width = '80px';
+      img.style.height = '80px';
+      img.style.objectFit = 'cover';
+      img.style.marginRight = '8px';
+
       const title = el('div', {}, el('strong', {}, escapeHtml(t.title || 'Untitled')));
       const artist = el('div', { class: 'muted' }, escapeHtml(t.artist || ''));
-      const albumNameText = (albums.find(a => a.id === t.albumId) || {}).name || '(no album)';
-      const info = el('div', { class: 'muted' }, `album: ${escapeHtml(albumNameText)} • likes: ${t.likes || 0}`);
+      const albumName = (albums.find(a => a.id === t.albumId) || {}).name || '(no album)';
+      const info = el('div', { class: 'muted' }, `album: ${escapeHtml(albumName)} • likes: ${t.likes || 0}`);
+
+      meta.appendChild(img);
       meta.appendChild(title);
       meta.appendChild(artist);
       meta.appendChild(info);
@@ -382,7 +349,6 @@
     });
   }
 
-  // Edit track dialog (uses album select by id)
   function openEditDialog(track) {
     const dlg = el('div', { class: 'panel' });
     const titleInput = el('input', { type: 'text', value: track.title || '' });
@@ -396,7 +362,6 @@
     const coverFileInput = el('input', { type: 'file' });
     coverFileInput.accept = '.jpg,.jpeg,.png';
 
-    // build album options and set current
     buildTreeOptions(albumSelect, true);
     if (track.albumId) albumSelect.value = track.albumId;
 
@@ -466,7 +431,6 @@
     });
   }
 
-  // Refresh helpers
   async function refreshAlbums() {
     try {
       await fetchAlbums();
@@ -488,10 +452,9 @@
     }
   }
 
-  // Login / logout
   if (loginBtn) {
     loginBtn.addEventListener('click', async () => {
-      const password = passwordInput.value || '';
+      const password = (passwordInput && passwordInput.value) ? passwordInput.value : '';
       try {
         const res = await fetch('/api/admin/login', {
           method: 'POST',
@@ -499,16 +462,19 @@
           body: JSON.stringify({ password })
         });
         if (!res.ok) throw new Error('auth failed');
-        // successful login -> show admin UI
         loggedIn = true;
-        loginForm.classList.add('hidden');
-        adminPanel.classList.remove('hidden');
-        passwordInput.value = '';
+        if (loginForm) loginForm.style.display = 'none';
+        if (adminPanel) { adminPanel.style.display = ''; adminPanel.classList.remove('hidden'); }
+        if (passwordInput) passwordInput.value = '';
         await refreshAlbums();
         await refreshTracks();
       } catch (err) {
-        loginMsg.textContent = 'პაროლი არასწორია';
-        setTimeout(()=> loginMsg.textContent = '', 3000);
+        if (loginMsg) {
+          loginMsg.textContent = 'პაროლი არასწორია';
+          setTimeout(()=> { loginMsg.textContent = ''; }, 3000);
+        } else {
+          alert('Login failed');
+        }
       }
     });
   }
@@ -517,18 +483,16 @@
     logoutBtn.addEventListener('click', async () => {
       await fetch('/api/admin/logout', { method: 'POST' });
       loggedIn = false;
-      adminPanel.classList.add('hidden');
-      loginForm.classList.remove('hidden');
+      if (adminPanel) { adminPanel.style.display = 'none'; adminPanel.classList.add('hidden'); }
+      if (loginForm) loginForm.style.display = '';
     });
   }
 
   if (btnRefreshAlbums) btnRefreshAlbums.addEventListener('click', async () => { if (loggedIn) await refreshAlbums(); else alert('Please login first'); });
   if (btnRefreshTracks) btnRefreshTracks.addEventListener('click', async () => { if (loggedIn) await refreshTracks(); else alert('Please login first'); });
 
-  // On load: do NOT auto-show admin panel. Keep login visible.
   document.addEventListener('DOMContentLoaded', () => {
-    adminPanel.classList.add('hidden');
-    loginForm.classList.remove('hidden');
+    if (adminPanel) { adminPanel.style.display = 'none'; adminPanel.classList.add('hidden'); }
+    if (loginForm) loginForm.style.display = '';
   });
-
 })();
