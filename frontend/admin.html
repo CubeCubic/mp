@@ -6,39 +6,77 @@
   <title>Admin — Cube Cubic</title>
   <link rel="stylesheet" href="/styles.css">
   <style>
-    body { font-family: Inter, Arial, sans-serif; color: #fff; background: #111; padding: 18px; }
+    /* Небольшие локальные стили для админки */
+    body { font-family: Arial, sans-serif; color: #fff; background: #111; padding: 18px; }
+    header { margin-bottom: 12px; }
+    h1 { color: #ffcc00; margin: 0 0 8px 0; }
+    .hidden { display: none; }
     .panel { background: rgba(0,0,0,0.6); padding: 12px; border-radius: 8px; margin-bottom: 12px; }
     label { display:block; margin:8px 0 4px; color:#ffd; font-weight:600; }
-    input, select, textarea { width:100%; padding:8px; border-radius:6px; border:1px solid #333; background:#111; color:#fff; }
+    input[type="text"], input[type="password"], select, textarea { width:90%; padding:8px; border-radius:6px; border:1px solid #333; background:#111; color:#fff; }
     .row { display:flex; gap:12px; align-items:flex-start; }
     .col { flex:1; }
     .small { width:220px; flex:0 0 220px; }
     button { background:#444; color:#fff; padding:8px 12px; border-radius:6px; border:none; cursor:pointer; }
-    .list { margin-top:12px; max-height:520px; overflow:auto; border-top:1px dashed rgba(255,255,255,0.06); padding-top:8px; }
-
-    #admin-tracks { display:grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-items: start; }
-    #admin-tracks .item { padding:12px; border-radius:10px; display:flex; gap:12px; align-items:flex-start; background:rgba(255,255,255,0.02); transition: transform .18s, box-shadow .18s; box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
-    #admin-tracks .item:hover { transform: translateY(-6px); box-shadow: 0 14px 40px rgba(0,0,0,0.45); }
-    #admin-tracks .item img { width:100px; height:100px; object-fit:cover; border-radius:8px; }
+    button:hover { background:#666; }
+    .list { margin-top:12px; max-height:320px; overflow:auto; border-top:1px dashed rgba(255,255,255,0.06); padding-top:8px; }
+    .item { padding:8px; border-radius:6px; display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.02); margin-bottom:8px; }
+    .meta { flex:1; color:#ddd; }
+    .indent { padding-left:18px; color:#ccc; }
     .muted { color:#999; font-size:13px; }
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:2000; }
-    .modal { background:#fff; color:#000; border-radius:8px; width:420px; padding:16px; }
+    .note { color:#ccc; font-size:13px; margin-top:6px; }
+
+    /* Modal styles */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    /* Ensure hidden state actually hides the backdrop (specific selector placed after .modal-backdrop) */
+    .modal-backdrop.hidden {
+      display: none !important;
+    }
+
+    .modal {
+      background: #fff;
+      color: #000;
+      border-radius: 8px;
+      width: 420px;
+      max-width: 95%;
+      padding: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    }
+    .modal h3 { margin-top: 0; }
+    .modal .row { display:block; gap:0; }
+    .modal label { color:#333; }
+    .modal input, .modal select { background:#fff; color:#000; border:1px solid #ccc; }
+    .modal .actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
   </style>
 </head>
 <body>
-  <header><h1 style="color:#ffcc00">ადმინისტრატორი</h1></header>
+  <header>
+    <h1>ადმინისტრატორი</h1>
+    <a href="/" style="color:#fff">მთავარი გვერდი</a>
+  </header>
 
   <main id="admin-app">
     <div id="login-form" class="panel">
       <h2>შესვლა</h2>
-      <input id="admin-password" type="password" placeholder="პაროლი" />
-      <div style="margin-top:8px">
-        <button id="login-btn" type="button">შესვლა</button>
-        <span id="login-msg" class="muted" style="margin-left:10px"></span>
-      </div>
+      <form id="login-form-wrapper" style="margin:0"> <!-- обернули пароль в форму, чтобы убрать предупреждение браузера -->
+        <input id="admin-password" type="password" placeholder="პაროლი" />
+        <div style="margin-top:8px">
+          <button id="login-btn" type="button">შესვლა</button>
+          <span id="login-msg" class="muted" style="margin-left:10px"></span>
+        </div>
+      </form>
     </div>
 
-    <div id="admin-panel" class="panel hidden" style="display:none">
+    <div id="admin-panel" class="hidden">
       <div class="panel">
         <h2>ალბომები</h2>
         <div class="row">
@@ -47,62 +85,88 @@
             <input id="album-name" type="text" placeholder="მაგ: Instrumental">
           </div>
           <div class="small">
-            <label for="album-parent">Parent</label>
-            <select id="album-parent"><option value="">— მთავარი —</option></select>
+            <label for="album-parent">Parent (არჩევა)</label>
+            <select id="album-parent"><option value="">— მთავარი ალბომი —</option></select>
           </div>
           <div class="small" style="display:flex;flex-direction:column;justify-content:flex-end;gap:8px;">
             <button id="btn-create-album">Create album</button>
             <button id="btn-refresh-albums">Refresh</button>
           </div>
         </div>
-        <div class="list" id="albums-list"></div>
+
+        <div class="list" id="albums-list" aria-live="polite"></div>
       </div>
 
       <div class="panel">
-        <h2>ტრეკის დამატება</h2>
+        <h2>ტრეკის დამატება (ფაილი ან URL)</h2>
         <form id="add-track-form" enctype="multipart/form-data">
           <div class="row">
             <div class="col">
-              <label>Title</label><input name="title" required>
-              <label>Artist</label><input name="artist">
-              <label>Lyrics</label><textarea name="lyrics"></textarea>
+              <label>Title</label>
+              <input name="title" placeholder="სათაური" required>
+              <label>Artist</label>
+              <input name="artist" placeholder="შემსრულებელი">
+              <label>Lyrics</label>
+              <textarea name="lyrics" style="resize: both; width: 50%; height: 120px;" placeholder="ტექსტი"></textarea>
             </div>
+
             <div class="small">
-              <label for="track-album-select">Album</label>
+              <label for="track-album-select">Album / Subalbum</label>
               <select id="track-album-select" name="album"></select>
-              <label>Audio URL</label><input name="audioUrl" type="text">
-              <label>Cover URL</label><input name="coverUrl" type="text">
+
+              <label style="margin-top:8px">Audio URL (optional)</label>
+              <input name="audioUrl" type="text" placeholder="https://.../track.mp3">
+
+              <label style="margin-top:8px">Cover URL (optional)</label>
+              <input name="coverUrl" type="text" placeholder="https://.../cover.jpg">
+
               <div style="margin-top:8px">Or upload files:</div>
               <label>Audio file: <input name="audio" type="file" accept=".mp3,.wav,.flac"></label>
               <label>Cover file: <input name="cover" type="file" accept=".jpg,.jpeg,.png"></label>
-              <div style="margin-top:10px"><button type="submit">დამატება</button></div>
+
+              <div style="margin-top:10px">
+                <button type="submit">დამატება</button>
+              </div>
             </div>
           </div>
         </form>
+        <div class="note">If album not selected, track will be assigned to default album (სინგლი).</div>
       </div>
 
       <div class="panel">
         <h2>არსებული ტრეკები</h2>
-        <div style="margin-bottom:8px"><button id="btn-refresh-tracks">Refresh tracks</button></div>
+        <div style="margin-bottom:8px">
+          <button id="btn-refresh-tracks">Refresh tracks</button>
+        </div>
         <div id="admin-tracks" class="list"></div>
       </div>
 
-      <div style="margin-top:8px"><button id="logout-btn">გასვლა</button></div>
+      <div style="margin-top:8px">
+        <button id="logout-btn">გასვლა</button>
+      </div>
     </div>
   </main>
 
-  <div id="album-edit-modal" class="modal-backdrop hidden" aria-hidden="true" style="display:none">
-    <div class="modal" role="dialog" aria-modal="true">
-      <h3>Edit album</h3>
-      <label>Name</label><input id="modal-album-name" type="text">
-      <label>Parent</label><select id="modal-album-parent"></select>
-      <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px;">
-        <button id="modal-cancel">Cancel</button>
-        <button id="modal-save">Save</button>
+  <!-- Modal for editing album -->
+  <div id="album-edit-modal" class="modal-backdrop hidden" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h3 id="modal-title">Edit album</h3>
+      <div class="row">
+        <label for="modal-album-name">Name</label>
+        <input id="modal-album-name" type="text">
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <label for="modal-album-parent">Parent album</label>
+        <select id="modal-album-parent"></select>
+      </div>
+      <div class="actions">
+        <button id="modal-cancel" type="button">Cancel</button>
+        <button id="modal-save" type="button">Save</button>
       </div>
     </div>
   </div>
 
   <script src="/admin.js"></script>
+
 </body>
 </html>
