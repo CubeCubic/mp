@@ -1,4 +1,4 @@
-// admin.js — статическая версия для GitHub Pages
+// admin.js — статическая версия для GitHub Pages с поддержкой подальбомов
 (async function() {
   if (!document.getElementById('admin-app')) return;
 
@@ -52,7 +52,6 @@
     return e;
   }
 
-  // Загрузка tracks.json
   async function fetchTracksJson() {
     const res = await fetch('tracks.json');
     if (!res.ok) throw new Error('Не удалось загрузить tracks.json');
@@ -62,7 +61,6 @@
     return data;
   }
 
-  // Сохранение изменений (в статике — предлагаем скачать новый JSON)
   function downloadJson() {
     const data = { albums, tracks };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -82,7 +80,7 @@
       const item = el('div', { class: 'item' });
       const meta = el('div', { class: 'meta' }, [
         el('strong', {}, escapeHtml(a.name)),
-        el('div', { class: 'muted' }, `id: ${a.id}`)
+        el('div', { class: 'muted' }, `id: ${a.id} • parent: ${a.parentId || '—'}`)
       ]);
       const actions = el('div', {});
       const btnEdit = el('button', {}, 'Edit');
@@ -90,13 +88,22 @@
       actions.appendChild(btnEdit);
       actions.appendChild(btnDelete);
 
+      // редактирование альбома/подальбома
       btnEdit.addEventListener('click', () => {
         albumBeingEdited = a;
         modalAlbumName.value = a.name;
+        modalAlbumParent.innerHTML = '';
+        modalAlbumParent.appendChild(el('option', { value: '' }, '— нет родителя —'));
+        albums.forEach(al => {
+          if (al.id !== a.id) {
+            modalAlbumParent.appendChild(el('option', { value: al.id }, al.name));
+          }
+        });
         modalAlbumParent.value = a.parentId || '';
         albumEditModal.style.display = 'flex';
         albumEditModal.classList.remove('hidden');
       });
+
       btnDelete.addEventListener('click', () => {
         if (!confirm('Delete album?')) return;
         albums = albums.filter(x => x.id !== a.id);
@@ -110,7 +117,61 @@
     });
   }
 
-  // Рендер треков
+  // сохранение изменений альбома/подальбома
+  if (modalSaveBtn) {
+    modalSaveBtn.addEventListener('click', () => {
+      if (!albumBeingEdited) return;
+      const newName = (modalAlbumName.value || '').trim();
+      const newParent = modalAlbumParent.value || null;
+      if (!newName) return alert('Введите название альбома');
+      if (newParent === albumBeingEdited.id) return alert('Нельзя назначить самого себя родителем');
+      albumBeingEdited.name = newName;
+      albumBeingEdited.parentId = newParent;
+      renderAlbumsList();
+      downloadJson();
+      albumEditModal.style.display = 'none';
+      albumBeingEdited = null;
+    });
+  }
+  if (modalCancelBtn) modalCancelBtn.addEventListener('click', () => {
+    albumEditModal.style.display = 'none';
+    albumBeingEdited = null;
+  });
+
+  // Добавление альбома/подальбома
+  if (btnCreateAlbum) {
+    btnCreateAlbum.addEventListener('click', () => {
+      const name = albumName.value.trim();
+      if (!name) return alert('Введите название альбома');
+      const id = Date.now().toString();
+      const parentId = albumParent.value || null; // если выбран родитель → создаём подальбом
+      albums.push({ id, name, parentId });
+      albumName.value = '';
+      renderAlbumsList();
+      downloadJson();
+    });
+  }
+
+  // Добавление трека
+  if (addForm) {
+    addForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const title = form.elements['title'].value || 'Untitled';
+      const artist = form.elements['artist'].value || '';
+      const lyrics = form.elements['lyrics'].value || '';
+      const albumId = form.elements['album'] ? form.elements['album'].value : '';
+      const audioUrl = form.elements['audioUrl'].value.trim();
+      const coverUrl = form.elements['coverUrl'].value.trim();
+
+      const id = Date.now().toString();
+      tracks.push({ id, title, artist, lyrics, albumId, audioUrl, coverUrl });
+      form.reset();
+      renderTracks();
+      downloadJson();
+    });
+  }
+
   function renderTracks() {
     if (!adminTracks) return;
     adminTracks.innerHTML = '';
@@ -140,44 +201,11 @@
     });
   }
 
-  // Добавление альбома
-  if (btnCreateAlbum) {
-    btnCreateAlbum.addEventListener('click', () => {
-      const name = albumName.value.trim();
-      if (!name) return alert('Введите название альбома');
-      const id = Date.now().toString();
-      albums.push({ id, name, parentId: albumParent.value || null });
-      albumName.value = '';
-      renderAlbumsList();
-      downloadJson();
-    });
-  }
-
-  // Добавление трека
-  if (addForm) {
-    addForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const form = e.currentTarget;
-      const title = form.elements['title'].value || 'Untitled';
-      const artist = form.elements['artist'].value || '';
-      const lyrics = form.elements['lyrics'].value || '';
-      const albumId = form.elements['album'] ? form.elements['album'].value : '';
-      const audioUrl = form.elements['audioUrl'].value.trim();
-      const coverUrl = form.elements['coverUrl'].value.trim();
-
-      const id = Date.now().toString();
-      tracks.push({ id, title, artist, lyrics, albumId, audioUrl, coverUrl });
-      form.reset();
-      renderTracks();
-      downloadJson();
-    });
-  }
-
-  // Login / logout (в статике — просто проверка пароля)
+  // Login / logout
   if (loginBtn) {
     loginBtn.addEventListener('click', () => {
       const password = passwordInput.value || '';
-      if (password === '230470') { // простой пароль
+      if (password === 'admin') {
         loggedIn = true;
         loginForm.classList.add('hidden');
         adminPanel.classList.remove('hidden');
@@ -188,24 +216,3 @@
       } else {
         loginMsg.textContent = 'პაროლი არასწორია';
         setTimeout(()=> loginMsg.textContent = '', 3000);
-      }
-    });
-  }
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      loggedIn = false;
-      adminPanel.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-    });
-  }
-
-  if (btnRefreshAlbums) btnRefreshAlbums.addEventListener('click', () => { if (loggedIn) renderAlbumsList(); });
-  if (btnRefreshTracks) btnRefreshTracks.addEventListener('click', () => { if (loggedIn) renderTracks(); });
-
-  document.addEventListener('DOMContentLoaded', () => {
-    adminPanel.classList.add('hidden');
-    loginForm.classList.remove('hidden');
-  });
-
-})();
