@@ -69,7 +69,7 @@
   // Load data from external JSON (archive.org)
   async function loadData() {
     try {
-      const tracksRes = await fetch("https://archive.org/download/tracks_202512/tracks.json");
+     const tracksRes = await fetch("tracks.json");
       const data = await tracksRes.json();
       tracks = data.tracks || [];
       albums = data.albums || [];
