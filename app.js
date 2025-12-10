@@ -1,4 +1,4 @@
-// app.js — полный файл с плеером: при воспроизведении добавляется класс visible
+// app.js — полный файл с плеером: плеер показывается при воспроизведении и скрывается при паузе/стопе
 (function () {
   // DOM элементы
   const albumSelect = document.getElementById('album-select');
@@ -76,11 +76,12 @@
     const mains = albums.filter(a => !a.parentId);
     mains.forEach(a => albumSelect.appendChild(optionEl(a.id, a.name)));
 
-    // prepare subalbum select
+    // prepare subalbum select (hidden by default)
     if (subalbumSelect) {
       subalbumSelect.innerHTML = '';
       subalbumSelect.appendChild(optionEl('', '— ყველა ქვეალბომი —'));
       subalbumSelect.disabled = true;
+      subalbumSelect.style.display = 'none';
       if (subalbumLabel) subalbumLabel.style.display = 'none';
     }
 
@@ -98,18 +99,21 @@
   // Album change handlers
   function onAlbumChange() {
     if (!albumSelect) return;
-    const currentAlbumId = albumSelect.value || '';
+    const currentAlbumId = (albumSelect.value || '').toString();
+
     // fill subalbums
     if (subalbumSelect) {
+      const subs = albums.filter(a => (a.parentId || '').toString() === currentAlbumId);
       subalbumSelect.innerHTML = '';
       subalbumSelect.appendChild(optionEl('', '— ყველა ქვეალბომი —'));
-      const subs = albums.filter(a => a.parentId === currentAlbumId);
       if (subs.length) {
         subs.forEach(s => subalbumSelect.appendChild(optionEl(s.id, s.name)));
         subalbumSelect.disabled = false;
+        subalbumSelect.style.display = ''; // показать селект
         if (subalbumLabel) subalbumLabel.style.display = '';
       } else {
         subalbumSelect.disabled = true;
+        subalbumSelect.style.display = 'none'; // скрыть селект, если нет подальбомов
         if (subalbumLabel) subalbumLabel.style.display = 'none';
       }
       subalbumSelect.value = '';
@@ -126,8 +130,8 @@
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
 
-    const selAlbum = albumSelect ? albumSelect.value || '' : '';
-    const selSub = subalbumSelect ? subalbumSelect.value || '' : '';
+    const selAlbum = albumSelect ? (albumSelect.value || '') : '';
+    const selSub = subalbumSelect ? (subalbumSelect.value || '') : '';
 
     let visible = tracks.slice();
 
@@ -138,7 +142,7 @@
         if (!t.albumId) return false;
         if (t.albumId === selAlbum) return true;
         const albumObj = albums.find(a => a.id === t.albumId);
-        if (albumObj && albumObj.parentId === selAlbum) return true;
+        if (albumObj && (albumObj.parentId || '') === selAlbum) return true;
         return false;
       });
     }
@@ -148,7 +152,7 @@
       return;
     }
 
-    visible.forEach((t, idx) => {
+    visible.forEach((t) => {
       const card = document.createElement('div');
       card.className = 'card';
 
@@ -173,7 +177,6 @@
       const btnPlay = document.createElement('button');
       btnPlay.textContent = 'Play';
       btnPlay.addEventListener('click', () => {
-        // find index in global tracks array
         const globalIndex = tracks.findIndex(x => x.id === t.id);
         playTrackByIndex(globalIndex);
       });
@@ -227,7 +230,7 @@
     // play
     audio.play().then(() => {
       isPlaying = true;
-      if (playerEl) playerEl.classList.add('visible'); // <-- добавлено: показать плеер при воспроизведении
+      if (playerEl) playerEl.classList.add('visible'); // показать плеер при воспроизведении
       updatePlayButton();
     }).catch(err => {
       console.error('Playback error', err);
@@ -253,18 +256,22 @@
   if (audio) {
     audio.addEventListener('play', () => {
       isPlaying = true;
-      if (playerEl) playerEl.classList.add('visible'); // ensure visible on native play
+      if (playerEl) playerEl.classList.add('visible');
       updatePlayButton();
     });
     audio.addEventListener('pause', () => {
       isPlaying = false;
       updatePlayButton();
+      // скрываем плеер при паузе
+      if (playerEl) playerEl.classList.remove('visible');
     });
     audio.addEventListener('ended', () => {
       isPlaying = false;
       updatePlayButton();
-      // auto next
-      playNext();
+      // скрываем плеер при окончании
+      if (playerEl) playerEl.classList.remove('visible');
+      // auto next (если нужно — можно включить)
+      // playNext();
     });
     audio.addEventListener('timeupdate', () => {
       if (!audio.duration || !progress) return;
@@ -282,9 +289,9 @@
   if (playBtn) {
     playBtn.addEventListener('click', () => {
       if (!audio.src) {
-        // if nothing loaded, try to play first visible track
-        const firstVisible = tracks.findIndex(t => true);
-        if (firstVisible >= 0) playTrackByIndex(firstVisible);
+        // если ничего не загружено — попытаться запустить первый видимый трек
+        const firstVisibleIndex = tracks.findIndex(t => true);
+        if (firstVisibleIndex >= 0) playTrackByIndex(firstVisibleIndex);
         return;
       }
       if (audio.paused) audio.play();
