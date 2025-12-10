@@ -4,87 +4,71 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Cube Cubic</title>
-
-  <!-- Иконки -->
-  <link rel="icon" type="image/png" sizes="32x32" href="images/smallcube.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="images/smallcube.png">
-  <link rel="apple-touch-icon" href="images/smallcube.png">
-
-  <!-- Стили -->
   <link rel="stylesheet" href="styles.css">
-
-  <!-- OpenPlayerJS CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.js"></script>
 </head>
 <body>
   <header>
-    <h1>Cube Cubic - კეთილი იყოს თქვენი მობრძანება</h1>
-    <nav>
-      <a href="admin.html" class="hidden-text">ადმინი</a>
-    </nav>
+    <h1>Cube Cubic</h1>
+    <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
   </header>
 
-  <main id="app">
-    <section id="albums-section">
+  <main>
+    <section>
       <h2>ალბომები</h2>
 
-      <div class="album-controls">
+      <div style="display:flex;gap:12px;align-items:center;">
         <label for="album-select">ალბომი</label>
-        <select id="album-select" aria-label="Albums">
-          <option value="">იტვირთება...</option>
+        <select id="album-select" aria-label="Album select">
+          <option value="">— Loading —</option>
         </select>
 
-        <label for="subalbum-select" id="subalbum-label" style="display:none;margin-left:12px;">ქვეალბომი</label>
-        <select id="subalbum-select" aria-label="Subalbums" style="display:none;">
-          <option value="">All</option>
+        <label id="subalbum-label" for="subalbum-select" style="display:none;margin-left:12px;">ქვეალბომი</label>
+        <select id="subalbum-select" aria-label="Subalbum select" style="display:none;">
+          <option value="">— —</option>
         </select>
       </div>
     </section>
 
-    <section id="tracks-section">
+    <section>
       <h2>ტრეკები</h2>
-      <div id="tracks"></div>
+      <div id="tracks" aria-live="polite">
+        <!-- Треки будут отрисованы сюда скриптом -->
+      </div>
     </section>
   </main>
 
-  <!-- Плеер -->
+  <!-- Минимальная разметка плеера (app.js может использовать эти id) -->
   <div id="player" class="hidden" role="region" aria-label="Player">
-    <div id="player-cover">
-      <img id="player-cover-img" src="" alt="">
-    </div>
-
+    <div id="player-cover"><img id="player-cover-img" src="images/midcube.png" alt="cover"></div>
     <div id="player-info">
-      <div id="player-title"></div>
-      <div id="player-artist"></div>
-
-      <div id="player-progress">
-        <span id="time-current">0:00</span>
-        <input id="progress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Progress">
-        <span id="time-duration">0:00</span>
-      </div>
-
-      <div id="player-controls">
-        <button id="prev" title="წინა">⏮</button>
-        <button id="play" title="პაუზა/დაწყება">▶</button>
-        <button id="next" title="შემდეგი">⏭</button>
-        <label style="margin-left:8px;">ხმა: <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label>
-      </div>
+      <div id="player-title">Title</div>
+      <div id="player-artist">Artist</div>
     </div>
-
-    <audio id="audio" preload="auto"></audio>
+    <div id="player-controls">
+      <button id="prev" type="button">Prev</button>
+      <button id="play" type="button">Play</button>
+      <button id="next" type="button">Next</button>
+      <button id="show-lyrics" type="button">ტექსტი</button>
+      <a id="download" href="#" download>ჩამოტვირთვა</a>
+    </div>
+    <audio id="audio" preload="none"></audio>
+    <div id="player-progress">
+      <span id="time-current">0:00</span>
+      <input id="progress" type="range" min="0" max="100" value="0">
+      <span id="time-duration">0:00</span>
+    </div>
   </div>
 
-  <!-- Модальное окно для текста песни -->
-  <div id="lyrics-modal" class="hidden" role="dialog" aria-modal="true">
+  <!-- Modal для текста песни -->
+  <div id="lyrics-modal" class="hidden" aria-hidden="true">
     <div class="modal-box">
-      <button id="modal-close" aria-label="close">✖</button>
-      <h3 id="modal-title"></h3>
+      <button id="modal-close" type="button">Close</button>
+      <h3 id="modal-title">Lyrics</h3>
       <pre id="modal-lyrics"></pre>
     </div>
   </div>
 
-  <!-- Скрипт -->
+  <!-- Скрипты: app.js должен подключаться после DOM -->
   <script src="app.js"></script>
 </body>
 </html>
