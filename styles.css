@@ -8,7 +8,7 @@ body {
   padding: 0;
   font-family: Arial, sans-serif;
   color: #fff;
-  background-image: url("/images/bigcube.jpg");
+  background-image: url("images/bigcube.jpg"); /* относительный путь */
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -17,9 +17,6 @@ body {
 /* Скрытие элементов (например, админ-ссылки) */
 .hidden-text {
   color: transparent; /* делает текст прозрачным, но он остаётся selectable */
-  /* Альтернативы:
-     visibility: hidden;  — скрывает, но оставляет место на странице
-     display: none; - Полностью скрывает элемент и не занимает место */
 }
 
 /* ===========================
