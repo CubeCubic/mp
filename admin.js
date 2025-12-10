@@ -203,16 +203,21 @@
 
   // Login / logout
   if (loginBtn) {
-    loginBtn.addEventListener('click', () => {
-      const password = passwordInput.value || '';
-      if (password === 'admin') {
-        loggedIn = true;
-        loginForm.classList.add('hidden');
-        adminPanel.classList.remove('hidden');
-        fetchTracksJson().then(() => {
-          renderAlbumsList();
-          renderTracks();
-        });
-      } else {
-        loginMsg.textContent = 'პაროლი არასწორია';
-        setTimeout(()=> loginMsg.textContent = '', 3000);
+  loginBtn.addEventListener('click', () => {
+    const password = passwordInput.value || '';
+    if (password === 'admin') {   // здесь можно поставить свой пароль
+      loggedIn = true;
+      loginForm.classList.add('hidden');
+      adminPanel.classList.remove('hidden');
+      passwordInput.value = '';
+      fetchTracksJson().then(() => {
+        renderAlbumsList();
+        renderTracks();
+      });
+    } else {
+      loginMsg.textContent = 'პაროლი არასწორია';
+      setTimeout(() => loginMsg.textContent = '', 3000);
+    }
+  });
+}
+
