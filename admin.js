@@ -219,4 +219,73 @@
     });
   }
 
-  if (btnRefreshAlbums) btnRefreshAlbums.addEventListener('click', () =>
+    // Обновить списки (кнопки)
+  if (btnRefreshAlbums) {
+    btnRefreshAlbums.addEventListener('click', () => {
+      if (loggedIn) {
+        renderAlbumsList();
+      } else {
+        alert('Сначала войдите');
+      }
+    });
+  }
+
+  if (btnRefreshTracks) {
+    btnRefreshTracks.addEventListener('click', () => {
+      if (loggedIn) {
+        renderTracks();
+      } else {
+        alert('Сначала войдите');
+      }
+    });
+  }
+
+  // Логин
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+      const password = passwordInput.value || '';
+      if (password === '230470') {
+        loggedIn = true;
+        loginForm.classList.add('hidden');
+        adminPanel.classList.remove('hidden');
+        passwordInput.value = '';
+        fetchTracksJson().then(() => {
+          renderAlbumsList();
+          renderTracks();
+          // заполнить селекты альбомов для создания трека
+          trackAlbumSelect.innerHTML = '';
+          trackAlbumSelect.appendChild(el('option', { value: '' }, '— без альбома —'));
+          albums.forEach(a => {
+            trackAlbumSelect.appendChild(el('option', { value: a.id }, a.name));
+          });
+          // заполнить селект родителя при создании альбома
+          albumParent.innerHTML = '';
+          albumParent.appendChild(el('option', { value: '' }, '— главный альбом —'));
+          albums.forEach(a => {
+            albumParent.appendChild(el('option', { value: a.id }, a.name));
+          });
+        });
+      } else {
+        loginMsg.textContent = 'პაროლი არასწორია';
+        setTimeout(() => (loginMsg.textContent = ''), 3000);
+      }
+    });
+  }
+
+  // Логаут
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      loggedIn = false;
+      adminPanel.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+    });
+  }
+
+  // На старте показываем форму входа
+  document.addEventListener('DOMContentLoaded', () => {
+    adminPanel.classList.add('hidden');
+    loginForm.classList.remove('hidden');
+  });
+
+})(); // конец IIFE
+
