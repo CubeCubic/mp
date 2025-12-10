@@ -1,5 +1,6 @@
 // admin.js — статическая версия для GitHub Pages
-// Поддержка подальбомов (создание и редактирование) и пароль 230470
+// Поддержка подальбомов (создание и редактирование), пароль 230470
+// и батч-режим: изменения помечаются, скачивание tracks.json выполняется вручную
 (async function() {
   if (!document.getElementById('admin-app')) return;
 
@@ -14,6 +15,7 @@
   const albumParent = document.getElementById('album-parent');
   const btnCreateAlbum = document.getElementById('btn-create-album');
   const btnRefreshAlbums = document.getElementById('btn-refresh-albums');
+  const btnSaveAll = document.getElementById('btn-save-all'); // новая кнопка
   const albumsList = document.getElementById('albums-list');
 
   const addForm = document.getElementById('add-track-form');
@@ -34,10 +36,20 @@
   let albumBeingEdited = null;
   let loggedIn = false;
 
-  // Helpers
-  function escapeHtml(s) {
-    return (s || '').toString().replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]);
+  // Батч-режим: флаг несохранённых изменений
+  let isDirty = false;
+  function markDirty() {
+    isDirty = true;
+    // визуальный индикатор: можно менять заголовок или показывать текст
+    if (loginMsg) loginMsg.textContent = 'Есть несохранённые изменения';
   }
+  function clearDirty() {
+    isDirty = false;
+    if (loginMsg) loginMsg.textContent = '';
+  }
+
+  // Helpers
+  function escapeHtml(s){ return (s||'').toString().replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]); }
   function el(tag, attrs = {}, children = []) {
     const e = document.createElement(tag);
     for (const k in attrs) {
@@ -53,7 +65,6 @@
     return e;
   }
 
-  // Загрузка tracks.json
   async function fetchTracksJson() {
     const res = await fetch('tracks.json');
     if (!res.ok) throw new Error('Не удалось загрузить tracks.json');
@@ -63,7 +74,6 @@
     return data;
   }
 
-  // Скачивание обновлённого JSON
   function downloadJson() {
     const data = { albums, tracks };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -168,7 +178,7 @@
         });
         renderAlbumsList();
         fillAlbumSelects();
-        downloadJson();
+        markDirty(); // помечаем изменения, но не скачиваем автоматически
       });
 
       item.appendChild(meta);
@@ -200,7 +210,7 @@
       albumBeingEdited.parentId = newParent;
       renderAlbumsList();
       fillAlbumSelects();
-      downloadJson();
+      markDirty(); // пометить изменения
 
       albumEditModal.style.display = 'none';
       albumEditModal.classList.add('hidden');
@@ -251,7 +261,7 @@
       albumParent.value = '';
       renderAlbumsList();
       fillAlbumSelects();
-      downloadJson();
+      markDirty(); // пометить изменения
     });
   }
 
@@ -271,7 +281,7 @@
       tracks.push({ id, title, artist, lyrics, albumId, audioUrl, coverUrl });
       form.reset();
       renderTracks();
-      downloadJson();
+      markDirty(); // пометить изменения
     });
   }
 
@@ -298,7 +308,7 @@
         if (!confirm('Delete track?')) return;
         tracks = tracks.filter(x => x.id !== t.id);
         renderTracks();
-        downloadJson();
+        markDirty(); // пометить изменения
       });
       item.appendChild(meta);
       item.appendChild(actions);
@@ -327,6 +337,19 @@
     });
   }
 
+  // Кнопка "Сохранить изменения" — скачивает tracks.json один раз
+  if (btnSaveAll) {
+    btnSaveAll.addEventListener('click', () => {
+      if (!isDirty) {
+        alert('Нет несохранённых изменений');
+        return;
+      }
+      downloadJson();
+      clearDirty();
+      alert('Файл tracks.json скачан. Загрузите его в репозиторий, чтобы изменения стали постоянными.');
+    });
+  }
+
   // Login / logout (пароль 230470)
   if (loginBtn) {
     loginBtn.addEventListener('click', () => {
@@ -340,6 +363,7 @@
           renderAlbumsList();
           renderTracks();
           fillAlbumSelects();
+          clearDirty(); // при загрузке данных считаем, что нет локальных изменений
         }).catch(err => {
           console.error(err);
           alert('Не удалось загрузить tracks.json');
