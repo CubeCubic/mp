@@ -5,14 +5,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Cube Cubic</title>
 
+  <!-- Иконки -->
   <link rel="icon" type="image/png" sizes="32x32" href="images/smallcube.png">
   <link rel="icon" type="image/png" sizes="64x64" href="images/smallcube.png">
   <link rel="apple-touch-icon" href="images/smallcube.png">
 
-
+  <!-- Стили -->
   <link rel="stylesheet" href="styles.css">
 
-  <!-- OpenPlayerJS CDN (опционально) -->
+  <!-- OpenPlayerJS CDN -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.css">
   <script src="https://cdn.jsdelivr.net/npm/openplayerjs@1.0.0/dist/openplayer.min.js"></script>
 </head>
@@ -20,8 +21,7 @@
   <header>
     <h1>Cube Cubic - კეთილი იყოს თქვენი მობრძანება</h1>
     <nav>
-      <!-- <a href="admin.html" style="color:#fff">ადმინისტრატორი/a>  -->
-      <a href="/admin.html" class="hidden-text">ადმინი</a>
+      <a href="admin.html" class="hidden-text">ადმინი</a>
     </nav>
   </header>
 
@@ -48,7 +48,7 @@
     </section>
   </main>
 
-  <!-- Плеер (нижний) — скрыт по умолчанию -->
+  <!-- Плеер -->
   <div id="player" class="hidden" role="region" aria-label="Player">
     <div id="player-cover">
       <img id="player-cover-img" src="" alt="">
@@ -69,10 +69,9 @@
         <button id="play" title="პაუზა/დაწყება">▶</button>
         <button id="next" title="შემდეგი">⏭</button>
         <label style="margin-left:8px;">ხმა: <input id="volume" type="range" min="0" max="1" step="0.01" value="1"></label>
-        </div>
+      </div>
     </div>
 
-    <!-- Сам аудио-элемент -->
     <audio id="audio" preload="auto"></audio>
   </div>
 
@@ -85,6 +84,7 @@
     </div>
   </div>
 
-  <script src="/app.js"><script>
+  <!-- Скрипт -->
+  <script src="app.js"></script>
 </body>
 </html>
