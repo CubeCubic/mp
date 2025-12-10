@@ -2,13 +2,12 @@
    Общие стили для всего сайта
    =========================== */
 
-/* Фон сайта */
 body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
   color: #fff;
-  background-image: url("images/bigcube.jpg"); /* относительный путь */
+  background-image: url("images/bigcube.jpg");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -16,12 +15,10 @@ body {
 
 /* Скрытие элементов (например, админ-ссылки) */
 .hidden-text {
-  color: transparent; /* делает текст прозрачным, но он остаётся selectable */
+  color: transparent;
 }
 
-/* ===========================
-   Шапка сайта
-   =========================== */
+/* Шапка сайта */
 header {
   background-color: rgba(0,0,0,0.6);
   color: #ffcc00;
@@ -38,9 +35,7 @@ header nav a:hover {
   text-decoration: underline;
 }
 
-/* ===========================
-   Секции альбомов и треков
-   =========================== */
+/* Секции альбомов и треков */
 main {
   padding: 20px;
   background-color: rgba(0,0,0,0.5);
@@ -55,7 +50,7 @@ h2 {
   color: #ffcc00;
 }
 
-/* Карточки треков компактные */
+/* Карточки треков */
 .card {
   display: flex;
   align-items: center;
@@ -118,7 +113,7 @@ h2 {
   background: #666;
 }
 
-/* Обложка трека (альтернативный селектор) */
+/* Обложка трека */
 .track-cover {
   max-width: 100px;
   border-radius: 4px;
@@ -135,10 +130,8 @@ h2 {
   right: 0;
   background: rgba(0,0,0,0.85);
   color: white;
-  padding: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  padding: 15px 0 0 0;
+  display: block;
   transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
   transform: translateY(100%);
   opacity: 0;
@@ -147,14 +140,17 @@ h2 {
   z-index: 1000;
 }
 
+/* Плавное появление плеера при добавлении класса visible */
 #player.visible {
   transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
 }
 
-#player.hidden { /* семантический маркер */ }
+/* Семантический маркер (скрыт по умолчанию) */
+#player.hidden {}
 
+/* Внутренние элементы плеера */
 #player-cover img {
   max-height: 80px;
   border-radius: 6px;
@@ -198,7 +194,7 @@ h2 {
   background: #666;
 }
 
-/* 🔴 Патч: скрываем кнопки "ტექსტი" и "ჩამოტვირთვა" только в проигрывателе */
+/* Скрываем кнопки текста и скачивания в мобильном варианте по умолчанию */
 #player-controls #show-lyrics,
 #player-controls #download {
   display: none;
@@ -208,6 +204,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 8px 18px;
 }
 #progress {
   flex: 1;
@@ -256,8 +253,8 @@ h2 {
   border-radius: 6px;
   max-width: 600px;
   width: 90%;
-  max-height: 60vh;   /* ограничиваем высоту окна */
-  overflow-y: auto;   /* добавляем прокрутку для длинных текстов */
+  max-height: 60vh;
+  overflow-y: auto;
   color: #000;
 }
 .modal-box h3 {
