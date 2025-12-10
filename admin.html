@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin — Cube Cubic</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="styles.css">
   <style>
     /* Небольшие локальные стили для админки */
     body { font-family: Arial, sans-serif; color: #fff; background: #111; padding: 18px; }
@@ -37,7 +37,6 @@
       z-index: 2000;
     }
 
-    /* Ensure hidden state actually hides the backdrop (specific selector placed after .modal-backdrop) */
     .modal-backdrop.hidden {
       display: none !important;
     }
@@ -61,13 +60,13 @@
 <body>
   <header>
     <h1>ადმინისტრატორი</h1>
-    <a href="/" style="color:#fff">მთავარი გვერდი</a>
+    <a href="index.html" style="color:#fff">მთავარი გვერდი</a>
   </header>
 
   <main id="admin-app">
     <div id="login-form" class="panel">
       <h2>შესვლა</h2>
-      <form id="login-form-wrapper" style="margin:0"> <!-- обернули пароль в форму, чтобы убрать предупреждение браузера -->
+      <form id="login-form-wrapper" style="margin:0">
         <input id="admin-password" type="password" placeholder="პაროლი" />
         <div style="margin-top:8px">
           <button id="login-btn" type="button">შესვლა</button>
@@ -93,7 +92,6 @@
             <button id="btn-refresh-albums">Refresh</button>
           </div>
         </div>
-
         <div class="list" id="albums-list" aria-live="polite"></div>
       </div>
 
@@ -166,7 +164,6 @@
     </div>
   </div>
 
-  <script src="/admin.js"></script>
-
+  <script src="admin.js"></script>
 </body>
 </html>
