@@ -1,5 +1,5 @@
 // admin.js — статическая версия для GitHub Pages
-// Включает поддержку подальбомов (создание и редактирование) и пароль 230470
+// Поддержка подальбомов (создание и редактирование) и пароль 230470
 (async function() {
   if (!document.getElementById('admin-app')) return;
 
@@ -77,7 +77,6 @@
 
   // Получить всех потомков альбома (id списка)
   function getDescendantIds(rootId) {
-    // Построим карту и дерево
     const map = {};
     albums.forEach(a => { map[a.id] = { ...a, children: [] }; });
     albums.forEach(a => {
@@ -121,8 +120,6 @@
   function renderAlbumsList() {
     if (!albumsList) return;
     albumsList.innerHTML = '';
-    // Отобразим в простом списке; структура вложенности не обязательна для админки,
-    // главное — возможность редактировать parentId
     albums.forEach(a => {
       const item = el('div', { class: 'item' });
       const meta = el('div', { class: 'meta' }, [
@@ -140,7 +137,6 @@
         albumBeingEdited = a;
         modalAlbumName.value = a.name || '';
 
-        // исключаем текущий альбом и всех его потомков, чтобы избежать циклов
         const descendants = getDescendantIds(a.id);
         const exclude = new Set([a.id, ...descendants]);
 
@@ -164,8 +160,8 @@
 
       btnDelete.addEventListener('click', () => {
         if (!confirm('Delete album?')) return;
-        // При удалении альбома — переместим его детей в корень (parentId = null)
-        albums = albums.map(x => x.id === a.id ? null : x).filter(Boolean);
+        // Удаляем альбом и перемещаем детей в корень
+        albums = albums.filter(x => x.id !== a.id);
         albums = albums.map(x => {
           if (x.parentId === a.id) return { ...x, parentId: null };
           return x;
@@ -190,7 +186,6 @@
       if (!newName) return alert('Введите название альбома');
       if (newParent === albumBeingEdited.id) return alert('Нельзя назначить самого себя родителем');
 
-      // Защита от дублей в рамках одного родителя
       const duplicate = albums.find(a =>
         a.id !== albumBeingEdited.id &&
         a.name === newName &&
@@ -242,10 +237,9 @@
       const name = (albumName.value || '').trim();
       if (!name) return alert('Введите название альбома');
 
-      const parentId = albumParent.value || null; // если выбран — подальбом, иначе корень
+      const parentId = albumParent.value || null;
       const id = Date.now().toString();
 
-      // Защита от дублей в рамках одного родителя
       const duplicate = albums.find(a => a.name === name && ((a.parentId || null) === (parentId || null)));
       if (duplicate) {
         alert('Альбом с таким именем уже существует в этом разделе');
@@ -261,7 +255,7 @@
     });
   }
 
-  // Добавление трека (упрощённо — без загрузки файлов на сервер)
+  // Добавление трека (упрощённо)
   if (addForm) {
     addForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -291,10 +285,11 @@
     }
     tracks.forEach(t => {
       const item = el('div', { class: 'item' });
+      const albumNameForTrack = (albums.find(a => a.id === t.albumId) || {}).name || '(no album)';
       const meta = el('div', { class: 'meta' }, [
         el('strong', {}, escapeHtml(t.title || 'Untitled')),
         el('div', { class: 'muted' }, escapeHtml(t.artist || '')),
-        el('div', { class: 'muted' }, `album: ${escapeHtml((albums.find(a => a.id === t.albumId) || {}).name || '(no album)')}`)
+        el('div', { class: 'muted' }, `album: ${escapeHtml(albumNameForTrack)}`)
       ]);
       const actions = el('div', {});
       const btnDelete = el('button', {}, 'Delete');
