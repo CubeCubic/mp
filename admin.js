@@ -1,17 +1,12 @@
-// admin.js — статическая версия для GitHub Pages с поддержкой подальбомов и исправленным входом
+// admin.js — статическая версия с паролем 230470 и поддержкой подальбомов
 (async function() {
   if (!document.getElementById('admin-app')) return;
 
-  // Elements
   const loginForm = document.getElementById('login-form');
   const adminPanel = document.getElementById('admin-panel');
   const loginBtn = document.getElementById('login-btn');
   const loginMsg = document.getElementById('login-msg');
   const passwordInput = document.getElementById('admin-password');
-
-  const addForm = document.getElementById('add-track-form');
-  const adminTracks = document.getElementById('admin-tracks');
-  const logoutBtn = document.getElementById('logout-btn');
 
   const albumName = document.getElementById('album-name');
   const albumParent = document.getElementById('album-parent');
@@ -19,23 +14,23 @@
   const btnRefreshAlbums = document.getElementById('btn-refresh-albums');
   const albumsList = document.getElementById('albums-list');
 
+  const addForm = document.getElementById('add-track-form');
   const trackAlbumSelect = document.getElementById('track-album-select');
   const btnRefreshTracks = document.getElementById('btn-refresh-tracks');
+  const adminTracks = document.getElementById('admin-tracks');
+  const logoutBtn = document.getElementById('logout-btn');
 
-  // Modal elements
   const albumEditModal = document.getElementById('album-edit-modal');
   const modalAlbumName = document.getElementById('modal-album-name');
   const modalAlbumParent = document.getElementById('modal-album-parent');
   const modalSaveBtn = document.getElementById('modal-save');
   const modalCancelBtn = document.getElementById('modal-cancel');
 
-  // State
   let albums = [];
   let tracks = [];
   let albumBeingEdited = null;
   let loggedIn = false;
 
-  // Helpers
   function escapeHtml(s){ return (s||'').toString().replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]); }
   function el(tag, attrs = {}, children = []) {
     const e = document.createElement(tag);
@@ -72,7 +67,6 @@
     URL.revokeObjectURL(url);
   }
 
-  // Рендер альбомов
   function renderAlbumsList() {
     if (!albumsList) return;
     albumsList.innerHTML = '';
@@ -116,7 +110,6 @@
     });
   }
 
-  // сохранение изменений альбома/подальбома
   if (modalSaveBtn) {
     modalSaveBtn.addEventListener('click', () => {
       if (!albumBeingEdited) return;
@@ -132,12 +125,12 @@
       albumBeingEdited = null;
     });
   }
+
   if (modalCancelBtn) modalCancelBtn.addEventListener('click', () => {
     albumEditModal.style.display = 'none';
     albumBeingEdited = null;
   });
 
-  // Добавление альбома/подальбома
   if (btnCreateAlbum) {
     btnCreateAlbum.addEventListener('click', () => {
       const name = albumName.value.trim();
@@ -151,7 +144,6 @@
     });
   }
 
-  // Добавление трека
   if (addForm) {
     addForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -200,11 +192,10 @@
     });
   }
 
-  // Login / logout — исправленный
   if (loginBtn) {
     loginBtn.addEventListener('click', () => {
       const password = passwordInput.value || '';
-      if (password === '230470') {   // можно заменить на свой пароль
+      if (password === '230470') {
         loggedIn = true;
         loginForm.classList.add('hidden');
         adminPanel.classList.remove('hidden');
@@ -222,4 +213,10 @@
 
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
-      loggedIn = false
+      loggedIn = false;
+      adminPanel.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+    });
+  }
+
+  if (btnRefreshAlbums) btnRefreshAlbums.addEventListener('click', () =>
