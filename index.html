@@ -6,7 +6,7 @@
   <title>Cube Cubic</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* Минимальные локальные правки для корректного отображения админки/плеера */
+    /* Локальные стили для страницы (минимальные) */
     body { margin: 0; font-family: Arial, sans-serif; background: #000; color: #fff; }
     main { padding: 20px; max-width: 1100px; margin: 0 auto; }
     header { padding: 28px 20px; text-align: center; color: #ffcc00; }
@@ -98,7 +98,8 @@
   </div>
 
   <!-- Modal для текста песни -->
-  <div id="lyrics-modal" class="hidden" aria-hidden="true" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);">
+  <!-- УБРАН inline display:flex — теперь видимость контролируется классом hidden в CSS -->
+  <div id="lyrics-modal" class="hidden" aria-hidden="true" style="position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);">
     <div class="modal-box" style="background:#fff;color:#000;padding:18px;border-radius:8px;max-width:720px;width:92%;max-height:70vh;overflow:auto;">
       <button id="modal-close" type="button" style="float:right;background:#c00;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Close</button>
       <h3 id="modal-title" style="margin-top:0;">Lyrics</h3>
