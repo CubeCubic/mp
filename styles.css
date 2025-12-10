@@ -194,7 +194,7 @@ h2 {
   background: #666;
 }
 
-/* Скрываем кнопки текста и скачивания в мобильном варианте по умолчанию */
+/* Скрываем кнопки текста и скачивания по умолчанию */
 #player-controls #show-lyrics,
 #player-controls #download {
   display: none;
@@ -211,42 +211,23 @@ h2 {
   margin: 0 10px;
 }
 
-#player-mini {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  background: #444;
-  padding: 10px;
-  border-radius: 6px 0 0 0;
-  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
-  transform: translateY(100%);
-  opacity: 0;
-  pointer-events: none;
-}
-#player-mini.visible {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
+/* Минимальная защита: скрывать модалку, если у неё класс hidden */
+#lyrics-modal.hidden {
+  display: none !important;
 }
 
-/* ===========================
-   Модальное окно для текста песни
-   =========================== */
+/* Модалка текста песни (по умолчанию видимость контролируется классом hidden) */
 #lyrics-modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.7);
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-#lyrics-modal.hidden {
-  display: none;
+  background: rgba(0,0,0,0.7);
+  z-index: 2000;
 }
 
+/* Модальное окно */
 .modal-box {
   background: white;
   padding: 20px;
