@@ -204,7 +204,7 @@
   if (loginBtn) {
     loginBtn.addEventListener('click', () => {
       const password = passwordInput.value || '';
-      if (password === 'admin') {   // можно заменить на свой пароль
+      if (password === '230470') {   // можно заменить на свой пароль
         loggedIn = true;
         loginForm.classList.add('hidden');
         adminPanel.classList.remove('hidden');
