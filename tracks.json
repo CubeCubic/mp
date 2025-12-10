@@ -15,7 +15,12 @@
     },
     {
       "id": "1765384197681",
-      "name": "Jazz",
+      "name": "-Jazz",
+      "parentId": "1765384187417"
+    },
+    {
+      "id": "1765384892685",
+      "name": "-Rock",
       "parentId": "1765384187417"
     }
   ],
@@ -72,6 +77,15 @@
       "albumId": "1765384197681",
       "audioUrl": "https://archive.org/download/cube-cubic-twisted-things/Cube%20Cubic%20-%20Twisted%20Things.flac",
       "coverUrl": "https://archive.org/download/cube-cubic-twisted-things/Cube%20Cubic_thumb.jpg"
+    },
+    {
+      "id": "1765384986157",
+      "title": "Rise Up",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1765384892685",
+      "audioUrl": "https://archive.org/download/cube-cubic-rise-up/Cube%20Cubic%20-%20Rise%20Up.mp3",
+      "coverUrl": "https://archive.org/download/cube-cubic-rise-up/Cube%20Cubic%20-%20Rise%20Up.png"
     }
   ]
 }
