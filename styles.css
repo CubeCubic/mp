@@ -1,0 +1,292 @@
+/* ===========================
+   Общие стили для всего сайта
+   =========================== */
+
+/* Фон сайта */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background-image: url("/images/bigcube.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* Скрытие элементов (например, админ-ссылки) */
+.hidden-text {
+  color: transparent; /* делает текст прозрачным, но он остаётся selectable */
+  /* Альтернативы:
+     visibility: hidden;  — скрывает, но оставляет место на странице
+     display: none; - Полностью скрывает элемент и не занимает место */
+}
+
+/* ===========================
+   Шапка сайта
+   =========================== */
+header {
+  background-color: rgba(0,0,0,0.6);
+  color: #ffcc00;
+  padding: 20px;
+  text-align: center;
+}
+
+header nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 10px;
+}
+header nav a:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+   Секции альбомов и треков
+   =========================== */
+main {
+  padding: 20px;
+  background-color: rgba(0,0,0,0.5);
+  border-radius: 8px;
+  margin: 20px;
+}
+
+h2 {
+  margin-top: 30px;
+  border-bottom: 2px solid #ffcc00;
+  padding-bottom: 5px;
+  color: #ffcc00;
+}
+
+/* Карточки треков компактные */
+.card {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 8px;
+  margin: 8px 0;
+  color: #fff;
+  gap: 12px;
+}
+
+.card img.track-cover {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  margin-right: 10px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.track-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.track-info h4 {
+  margin: 0;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-info div {
+  font-size: 12px;
+  color: #ccc;
+  margin-top: 4px;
+}
+
+.track-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.track-actions button,
+.track-actions a {
+  font-size: 12px;
+  padding: 6px 10px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.track-actions button:hover,
+.track-actions a:hover {
+  background: #666;
+}
+
+/* Обложка трека (альтернативный селектор) */
+.track-cover {
+  max-width: 100px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+/* ===========================
+   Плеер
+   =========================== */
+#player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  z-index: 1000;
+}
+
+#player.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#player.hidden { /* семантический маркер */ }
+
+#player-cover img {
+  max-height: 80px;
+  border-radius: 6px;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+#player-info {
+  flex: 1;
+  margin-left: 15px;
+}
+
+#player-title {
+  font-size: 18px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#player-artist {
+  font-size: 14px;
+  color: #ccc;
+  margin-top: 4px;
+}
+
+#player-controls button,
+#player-controls a {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+#player-controls button:hover,
+#player-controls a:hover {
+  background: #666;
+}
+
+/* 🔴 Патч: скрываем кнопки "ტექსტი" и "ჩამოტვირთვა" только в проигрывателе */
+#player-controls #show-lyrics,
+#player-controls #download {
+  display: none;
+}
+
+#player-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#progress {
+  flex: 1;
+  margin: 0 10px;
+}
+
+#player-mini {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  background: #444;
+  padding: 10px;
+  border-radius: 6px 0 0 0;
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+#player-mini.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ===========================
+   Модальное окно для текста песни
+   =========================== */
+#lyrics-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#lyrics-modal.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: white;
+  padding: 20px;
+  border-radius: 6px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 60vh;   /* ограничиваем высоту окна */
+  overflow-y: auto;   /* добавляем прокрутку для длинных текстов */
+  color: #000;
+}
+.modal-box h3 {
+  margin-top: 0;
+}
+.modal-box pre {
+  white-space: pre-wrap;
+}
+#modal-close {
+  background: red;
+  color: white;
+  border: none;
+  float: right;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+/* ===========================
+   Адаптивность
+   =========================== */
+@media (max-width: 600px) {
+  .card img.track-cover {
+    width: 60px;
+    height: 60px;
+  }
+  .track-info h4 { font-size: 13px; }
+  #player-cover img { width: 60px; height: 60px; max-height: 60px; }
+  #player-title { font-size: 16px; }
+}
