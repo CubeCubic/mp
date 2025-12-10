@@ -1,4 +1,4 @@
-// frontend/app.js — полный файл с fallback-обложкой (/images/midcube.png)
+// frontend/app.js — полный файл с fallback-обложкой (images/midcube.png)
 (function () {
   // DOM элементы
   const albumSelect = document.getElementById('album-select');
@@ -54,22 +54,22 @@
     if (!t) return null;
     if (t.audioUrl) return t.audioUrl;
     if (t.downloadUrl) return t.downloadUrl;
-    if (t.filename) return '/media/' + t.filename;
+    if (t.filename) return 'media/' + t.filename; // относительный путь
     return null;
   }
 
   function getCoverUrl(t) {
-    const fallback = '/images/midcube.png';
+    const fallback = 'images/midcube.png'; // относительный путь
     if (!t) return fallback;
     if (t.coverUrl) return t.coverUrl;
-    if (t.cover) return '/uploads/' + t.cover;
+    if (t.cover) return 'uploads/' + t.cover; // относительный путь
     return fallback;
   }
 
   // Load data from external JSON (archive.org)
   async function loadData() {
     try {
-     const tracksRes = await fetch("tracks.json");
+      const tracksRes = await fetch("tracks.json");
       const data = await tracksRes.json();
       tracks = data.tracks || [];
       albums = data.albums || [];
