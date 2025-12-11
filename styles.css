@@ -38,7 +38,7 @@ header nav a:hover { text-decoration: underline; }
 
 /* Перемещённый поисковик */
 #global-search {
-  margin-top: 12px;    /* <-- смещение вниз (только для поисковика) */
+  margin-top: 14px;    /* <-- смещение вниз (только для поисковика) */
   margin-bottom: 8px;
   padding: 6px 8px;
   border-radius: 6px;
@@ -352,4 +352,5 @@ section > #tracks {
   .card { min-height: auto; padding: 8px; }
   .site-wrapper { padding-left: 8px; padding-right: 8px; }
 }
+
 
