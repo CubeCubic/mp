@@ -9,7 +9,7 @@ body {
   background-attachment: fixed;
 }
 
-/* Ограничение ширины сайта и центрирование содержимого (слегка растянуто) */
+/* Ограничение ширины сайта и центрирование содержимого */
 .site-wrapper {
   max-width: 1600px;
   margin: 0 auto;
@@ -55,7 +55,7 @@ header nav a:hover { text-decoration: underline; }
   margin-bottom: 20px;
 }
 
-/* Сделать надпись "ალბომები" такого же размера, как "ტრეკები" */
+/* Надпись "ალბომები" */
 .controls > label[for="album-select"] {
   display: block;
   margin-top: 30px;
@@ -78,19 +78,18 @@ header nav a:hover { text-decoration: underline; }
   border-bottom: none;
 }
 
-/* Сетка треков — растянутая область треков */
+/* Сетка треков — 8 карт в ряд на широких экранах */
 #tracks {
   display: grid;
-  /* Увеличено количество колонок для более широкой области треков */
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 14px;
   align-items: start;
   width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-/* Если нужно, чтобы область треков визуально занимала чуть больше места по горизонтали,
-   можно убрать боковые отступы у контейнера треков внутри site-wrapper.
-   Ниже правило не меняет HTML, только уменьшает внутренние отступы у секции треков. */
+/* Небольшая компенсация отступов внутри секции, чтобы область треков визуально шире */
 section > #tracks {
   margin-left: -6px;
   margin-right: -6px;
@@ -98,32 +97,33 @@ section > #tracks {
   padding-right: 6px;
 }
 
-/* Карточка трека */
+/* Карточка трека — увеличена для лучшей читаемости */
 .card {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 6px;
-  padding: 8px;
+  border-radius: 8px;
+  padding: 10px;
   color: #fff;
-  min-height: 120px;
+  min-height: 160px;
+  box-sizing: border-box;
 }
 
-/* Кавер */
+/* Кавер — занимает большую часть карточки, пропорции сохранены */
 .card img.track-cover {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   display: block;
 }
 
 /* Инфо */
 .track-info {
-  margin-top: 8px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -137,7 +137,7 @@ section > #tracks {
   text-overflow: ellipsis;
 }
 .track-info div {
-  font-size: 11px;
+  font-size: 12px;
   color: #cfcfcf;
   white-space: nowrap;
   overflow: hidden;
@@ -148,18 +148,18 @@ section > #tracks {
 .track-actions {
   margin-top: 8px;
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
   justify-content: flex-start;
 }
 .track-actions button,
 .track-actions a {
-  font-size: 11px;
-  padding: 6px 9px;
+  font-size: 12px;
+  padding: 6px 10px;
   background: #444;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   text-decoration: none;
 }
@@ -172,11 +172,11 @@ section > #tracks {
 .like-button {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 9px;
+  gap: 8px;
+  padding: 6px 10px;
   background: #b3003b;
   color: #fff;
-  border-radius: 4px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
   font-size: 12px;
@@ -282,26 +282,38 @@ section > #tracks {
 .modal-box h3 { margin-top: 0; font-size: 16px; }
 .modal-box pre { white-space: pre-wrap; font-size: 13px; }
 
-/* Адаптивность и поведение на очень широких экранах */
-@media (min-width: 1500px) {
-  /* На очень широких экранах используем ещё больше колонок */
-  #tracks { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; }
+/* Адаптивность: сохраняем 8 карт в ряд на широких экранах,
+   уменьшаем количество колонок по мере сужения экрана */
+@media (min-width: 1600px) {
+  #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 16px; }
+}
+@media (min-width: 1400px) and (max-width: 1599px) {
+  #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
 }
 
-/* Сохранение прежнего поведения для средних экранов */
+/* Средние экраны */
 @media (max-width: 1200px) {
-  .site-wrapper { max-width: 1000px; padding-left: 12px; padding-right: 12px; }
-  #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+  .site-wrapper { max-width: 1200px; padding-left: 16px; padding-right: 16px; }
+  #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+  .card { min-height: 150px; padding: 9px; }
+}
+
+/* Небольшие экраны */
+@media (max-width: 1000px) {
+  #tracks { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .card { min-height: 140px; padding: 8px; }
+  .track-info h4 { font-size: 12px; }
 }
 
 /* Мобильные точки перелома */
-@media (max-width: 1000px) {
+@media (max-width: 700px) {
   #tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .site-wrapper { padding-left: 10px; padding-right: 10px; }
+  .card { min-height: 130px; padding: 8px; }
+  .track-info h4 { font-size: 12px; }
 }
-@media (max-width: 600px) {
+@media (max-width: 420px) {
   #tracks { grid-template-columns: 1fr; gap: 8px; }
-  .card img.track-cover { height: auto; aspect-ratio: 16/9; }
-  #player-cover img { width: 48px; height: 48px; }
+  .card img.track-cover { aspect-ratio: 16/9; }
+  .card { min-height: auto; padding: 8px; }
   .site-wrapper { padding-left: 8px; padding-right: 8px; }
 }
