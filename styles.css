@@ -89,7 +89,7 @@ h2 {
   text-overflow: ellipsis;
 }
 
-/* Действия — компактно, в одну строку */
+/* Действия — компактно, в одну строку; порядок: текст → download → like */
 .track-actions {
   margin-top: 6px;
   display: flex;
@@ -114,7 +114,7 @@ h2 {
 }
 
 /* Кнопка "сердечко" — отдельный стиль */
-.track-actions .like-button {
+.like-button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -126,9 +126,12 @@ h2 {
   cursor: pointer;
   font-size: 11px;
 }
-.track-actions .like-button .heart {
+.like-button .heart {
   font-size: 14px;
   line-height: 1;
+}
+.like-button .like-count {
+  font-size: 12px;
 }
 
 /* Плеер — компактный и упорядоченный */
