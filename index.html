@@ -5,35 +5,22 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Cube Cubic</title>
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    /* Локальные стили для страницы (минимальные) */
-    body { margin: 0; font-family: Arial, sans-serif; background: #000; color: #fff; }
-    main { padding: 20px; max-width: 1100px; margin: 0 auto; }
-    header { padding: 28px 20px; text-align: center; color: #ffcc00; }
-    header h1 { margin: 0 0 6px; font-size: 34px; }
-    header p { margin: 0; color: #ddd; }
-    .controls { display:flex; gap:12px; align-items:center; margin: 12px 0 18px; flex-wrap:wrap; }
-    label { color:#ffd; margin-right:6px; font-weight:600; }
-    select { padding:8px; border-radius:6px; background:#111; color:#fff; border:1px solid #333; }
-    #tracks { margin-top: 12px; display:flex; flex-direction:column; gap:10px; }
-    .muted { color:#999; }
-    /* Ensure player sits above content */
-    #player { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1200; }
-  </style>
+  <!-- Фавикон -->
+  <link rel="icon" type="image/png" href="images/smallcube.png">
 </head>
 <body>
   <header>
     <h1>Cube Cubic</h1>
     <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
     <nav style="margin-top:12px;">
-    <a href="admin.html" class="hidden-text";">Admin</a>
+      <a href="index.html" style="color:#fff; text-decoration:none; margin-right:12px;">მთავარი</a>
+      <a href="admin.html" style="color:#fff; text-decoration:none;">Admin</a>
     </nav>
   </header>
 
   <main>
     <section aria-labelledby="albums-heading">
       <h2 id="albums-heading">ალბომები</h2>
-
       <div class="controls" role="region" aria-label="Album controls">
         <div style="display:flex;align-items:center;gap:8px;">
           <label for="album-select">ალბომი</label>
@@ -41,75 +28,60 @@
             <option value="">— Loading —</option>
           </select>
         </div>
-
         <div id="subalbum-wrapper" style="display:flex;align-items:center;gap:8px;">
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
           <select id="subalbum-select" aria-label="Subalbum select" style="display:none;">
             <option value="">— —</option>
           </select>
         </div>
-
         <div style="margin-left:auto; display:flex; gap:8px;">
-          <button id="refresh-btn" type="button" style="background:#444;color:#fff;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;">Refresh</button>
+          <button id="refresh-btn" type="button">Refresh</button>
         </div>
       </div>
     </section>
 
     <section aria-labelledby="tracks-heading">
       <h2 id="tracks-heading">ტრეკები</h2>
-      <div id="tracks" aria-live="polite">
-        <!-- Треки будут отрисованы сюда скриптом -->
-      </div>
+      <div id="tracks" aria-live="polite"></div>
     </section>
   </main>
 
-  <!-- Player: скрыт по умолчанию, появляется при воспроизведении -->
+  <!-- Плеер -->
   <div id="player" class="hidden" role="region" aria-label="Player">
-    <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;background:rgba(0,0,0,0.85);border-top:1px solid rgba(255,255,255,0.04);">
-      <div id="player-cover" style="flex:0 0 auto;">
-        <img id="player-cover-img" src="images/midcube.png" alt="cover" style="width:72px;height:72px;object-fit:cover;border-radius:6px;">
+    <div class="player-bar">
+      <div id="player-cover">
+        <img id="player-cover-img" src="images/midcube.png" alt="cover">
       </div>
-
-      <div id="player-info" style="flex:1;min-width:0;">
-        <div id="player-title" style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Title</div>
-        <div id="player-artist" style="color:#ccc;font-size:13px;margin-top:4px;">Artist</div>
+      <div id="player-info">
+        <div id="player-title">Title</div>
+        <div id="player-artist">Artist</div>
       </div>
-
-      <div id="player-controls" style="display:flex;align-items:center;gap:8px;flex:0 0 auto;">
-        <button id="prev" type="button" aria-label="Previous" style="background:#444;color:#fff;border:none;padding:8px;border-radius:6px;cursor:pointer;">⏮</button>
-        <button id="play" type="button" aria-label="Play/Pause" style="background:#444;color:#fff;border:none;padding:8px;border-radius:6px;cursor:pointer;">▶</button>
-        <button id="next" type="button" aria-label="Next" style="background:#444;color:#fff;border:none;padding:8px;border-radius:6px;cursor:pointer;">⏭</button>
-
-        <button id="show-lyrics" type="button" aria-label="Show lyrics" style="background:#444;color:#fff;border:none;padding:8px;border-radius:6px;cursor:pointer;display:none;">ტექსტი</button>
-        <a id="download" href="#" download style="background:#444;color:#fff;padding:8px;border-radius:6px;text-decoration:none;display:none;">ჩამოტვირთვა</a>
-
-        <input id="volume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume" style="width:100px;">
+      <div id="player-controls">
+        <button id="prev" type="button">⏮</button>
+        <button id="play" type="button">▶</button>
+        <button id="next" type="button">⏭</button>
+        <button id="show-lyrics" type="button" style="display:none;">ტექსტი</button>
+        <a id="download" href="#" download style="display:none;">ჩამოტვირთვა</a>
+        <input id="volume" type="range" min="0" max="1" step="0.01" value="1">
       </div>
     </div>
-
-    <div id="player-progress" style="display:flex;align-items:center;gap:8px;padding:8px 18px;background:rgba(0,0,0,0.9);border-top:1px solid rgba(255,255,255,0.02);">
-      <span id="time-current" style="font-size:13px;color:#ccc;">0:00</span>
-      <input id="progress" type="range" min="0" max="100" value="0" aria-label="Progress" style="flex:1;">
-      <span id="time-duration" style="font-size:13px;color:#ccc;">0:00</span>
+    <div id="player-progress">
+      <span id="time-current">0:00</span>
+      <input id="progress" type="range" min="0" max="100" value="0">
+      <span id="time-duration">0:00</span>
     </div>
-
     <audio id="audio" preload="none"></audio>
   </div>
 
-  <!-- Modal для текста песни -->
-  <!-- УБРАН inline display:flex — теперь видимость контролируется классом hidden в CSS -->
-  <div id="lyrics-modal" class="hidden" aria-hidden="true" style="position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);">
-    <div class="modal-box" style="background:#fff;color:#000;padding:18px;border-radius:8px;max-width:720px;width:92%;max-height:70vh;overflow:auto;">
-      <button id="modal-close" type="button" style="float:right;background:#c00;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Close</button>
-      <h3 id="modal-title" style="margin-top:0;">Lyrics</h3>
-      <pre id="modal-lyrics" style="white-space:pre-wrap;color:#111;"></pre>
+  <!-- Модалка для текста -->
+  <div id="lyrics-modal" class="hidden" aria-hidden="true">
+    <div class="modal-box">
+      <button id="modal-close" type="button">Close</button>
+      <h3 id="modal-title">Lyrics</h3>
+      <pre id="modal-lyrics"></pre>
     </div>
   </div>
 
-  <!-- Скрипты: app.js должен подключаться после DOM -->
   <script src="app.js"></script>
 </body>
 </html>
-
-
-
