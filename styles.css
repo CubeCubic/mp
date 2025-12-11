@@ -9,7 +9,7 @@ body {
   background-attachment: fixed;
 }
 
-/* Поля сайта слегка растянуты, чтобы уместить 8 карточек и дать им больше места */
+/* Поля сайта */
 .site-wrapper {
   max-width: 1800px;
   margin: 0 auto;
@@ -23,17 +23,16 @@ header {
   color: #ffcc00;
   padding: 20px;
   text-align: center;
-  position: relative; /* важно для абсолютного позиционирования #header-badge */
+  position: relative;
 }
 
-/* Позиционирование изображения midcube точно в отмеченное место */
-/* Подстройте значения top и left под ваш скриншот для точного совпадения */
+/* Бейдж в шапке */
 #header-badge {
   position: absolute;
-  width: 96px;           /* ширина блока изображения */
-  height: 96px;          /* высота блока изображения */
-  top: 22px;             /* смещение от верхней границы header — подберите точное значение */
-  left: 25px;            /* смещение от левой границы header — подберите точное значение */
+  width: 96px;
+  height: 96px;
+  top: 18px;
+  left: 22px;
   z-index: 10;
   display: block;
 }
@@ -45,7 +44,6 @@ header {
   border-radius: 6px;
 }
 
-/* Навигация и заголовки */
 header nav {
   display: flex;
   justify-content: center;
@@ -58,7 +56,7 @@ header nav a {
 }
 header nav a:hover { text-decoration: underline; }
 
-/* Перемещённый поисковик */
+/* Поисковик — только смещение вниз */
 #global-search {
   margin-top: 12px;
   margin-bottom: 8px;
@@ -71,14 +69,14 @@ header nav a:hover { text-decoration: underline; }
   width: 260px;
 }
 
-/* Контейнер с жёлтой линией */
+/* Контролы */
 .controls {
   border-bottom: 2px solid #ffcc00;
   padding-bottom: 8px;
   margin-bottom: 20px;
 }
 
-/* Надпись "ალბომები" */
+/* Метка "албомы" */
 .controls > label[for="album-select"] {
   display: block;
   margin-top: 18px;
@@ -89,7 +87,7 @@ header nav a:hover { text-decoration: underline; }
   line-height: 1;
 }
 
-/* Блок миниатюр главных альбомов */
+/* Миниатюры главных альбомов */
 .album-thumbs {
   display: flex;
   gap: 12px;
@@ -97,8 +95,6 @@ header nav a:hover { text-decoration: underline; }
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
-
-/* Одна миниатюра альбома */
 .album-thumb {
   display: inline-flex;
   flex-direction: column;
@@ -133,7 +129,7 @@ header nav a:hover { text-decoration: underline; }
   border-color: #ffcc00;
 }
 
-/* Сетка треков — 8 карточек в ряд на широких экранах */
+/* Треки — 8 колонок */
 #tracks {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
@@ -143,8 +139,6 @@ header nav a:hover { text-decoration: underline; }
   margin: 0;
   padding: 0;
 }
-
-/* Небольшая компенсация отступов внутри секции, чтобы область треков визуально шире */
 section > #tracks {
   margin-left: -6px;
   margin-right: -6px;
@@ -152,7 +146,7 @@ section > #tracks {
   padding-right: 6px;
 }
 
-/* Карточка трека */
+/* Карточка трека — компактно */
 .card {
   display: flex;
   flex-direction: column;
@@ -165,8 +159,6 @@ section > #tracks {
   min-height: 140px;
   box-sizing: border-box;
 }
-
-/* Кавер */
 .card img.track-cover {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -175,8 +167,6 @@ section > #tracks {
   cursor: pointer;
   display: block;
 }
-
-/* Инфо */
 .track-info {
   margin-top: 8px;
   display: flex;
@@ -198,8 +188,6 @@ section > #tracks {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-/* Действия */
 .track-actions {
   margin-top: 8px;
   display: flex;
@@ -223,8 +211,6 @@ section > #tracks {
   opacity: 0.5;
   pointer-events: none;
 }
-
-/* Лайк */
 .like-button {
   display: inline-flex;
   align-items: center;
@@ -256,9 +242,90 @@ section > #tracks {
   animation: like-pop 360ms cubic-bezier(.2,.9,.2,1);
 }
 
-/* Плеер и модалки оставлены без изменений */
-#player { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.9); color: white; transform: translateY(100%); opacity: 0; pointer-events: none; transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease; z-index: 1000; }
-#player.visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
+/* Плеер — восстановленные стили */
+#player {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.9);
+  color: white;
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+  z-index: 1000;
+}
+#player.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.player-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+#player-cover img {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+#player-info { flex: 1; min-width: 0; }
+#player-title {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#player-artist {
+  font-size: 12px;
+  color: #ccc;
+  margin-top: 2px;
+}
+#player-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#player-controls button,
+#player-controls a {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#player-controls input[type="range"] { width: 90px; }
+#player-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 12px 14px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+#player-progress span { font-size: 12px; color: #ccc; width: 40px; text-align: center; }
+#progress { flex: 1; }
+
+/* Модалка */
+#lyrics-modal.hidden { display: none !important; }
+#lyrics-modal {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 2000;
+}
+.modal-box {
+  background: white; color: #000;
+  padding: 16px; border-radius: 6px;
+  max-width: 420px; width: 92%;
+  max-height: 70vh; overflow-y: auto;
+}
+.modal-box h3 { margin-top: 0; font-size: 16px; }
+.modal-box pre { white-space: pre-wrap; font-size: 13px; }
 
 /* Адаптивность */
 @media (min-width: 1600px) {
@@ -281,4 +348,3 @@ section > #tracks {
   #tracks { grid-template-columns: 1fr; gap: 8px; }
   .site-wrapper { padding-left: 8px; padding-right: 8px; }
 }
-
