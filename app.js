@@ -1,8 +1,4 @@
-// app.js — полный и завершённый файл
-// Особенности: 4 колонки, проигрывание по клику на обложку, кнопка "ტექსტი" на карточке, компактный плеер
-
 (function () {
-  // DOM элементы (безопасно — проверяем наличие)
   const albumSelect = document.getElementById('album-select');
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
@@ -29,30 +25,17 @@
   const modalTitle = document.getElementById('modal-title');
   const modalLyrics = document.getElementById('modal-lyrics');
 
-  const refreshBtn = document.getElementById('refresh-btn');
-
-  // Состояние
   let albums = [];
   let tracks = [];
   let currentTrackIndex = -1;
   let isPlaying = false;
 
-  // Утилиты
-  function safeText(s) { return (s === null || s === undefined) ? '' : String(s); }
   function formatTime(sec) {
-    if (!isFinite(sec) || sec <= 0) return '0:00';
+    if (!isFinite(sec)) return '0:00';
     const m = Math.floor(sec / 60);
     const s = Math.floor(sec % 60);
     return `${m}:${s.toString().padStart(2, '0')}`;
   }
-  function optionEl(value, text) {
-    const o = document.createElement('option');
-    o.value = value;
-    o.textContent = text;
-    return o;
-  }
-
-  // Пути/ресурсы
   function getStreamUrl(t) {
     if (!t) return null;
     if (t.audioUrl) return t.audioUrl;
@@ -67,14 +50,19 @@
     if (t.cover) return 'uploads/' + t.cover;
     return fallback;
   }
+  function optionEl(value, text) {
+    const o = document.createElement('option');
+    o.value = value;
+    o.textContent = text;
+    return o;
+  }
 
-  // Построение селекторов альбомов
   function buildAlbumSelectors() {
     if (!albumSelect) return;
     albumSelect.innerHTML = '';
     albumSelect.appendChild(optionEl('', '— ყველა ალბომი —'));
     const mains = albums.filter(a => !a.parentId);
-    mains.forEach(a => albumSelect.appendChild(optionEl(a.id, safeText(a.name))));
+    mains.forEach(a => albumSelect.appendChild(optionEl(a.id, a.name)));
 
     if (subalbumSelect) {
       subalbumSelect.innerHTML = '';
@@ -85,33 +73,28 @@
     }
   }
 
-  // Обработчики выбора альбома/подальбома
   function onAlbumChange() {
-    if (!albumSelect) return;
     const currentAlbumId = (albumSelect.value || '').toString();
-
     if (subalbumSelect) {
       const subs = albums.filter(a => (a.parentId || '').toString() === currentAlbumId);
       subalbumSelect.innerHTML = '';
       subalbumSelect.appendChild(optionEl('', '— ყველა ქვეალბომი —'));
       if (subs.length) {
-        subs.forEach(s => subalbumSelect.appendChild(optionEl(s.id, safeText(s.name))));
+        subs.forEach(s => subalbumSelect.appendChild(optionEl(s.id, s.name)));
         subalbumSelect.disabled = false;
         subalbumSelect.style.display = '';
-        if (subalbumLabel) subalbumLabel.style.display = '';
+        subalbumLabel.style.display = '';
       } else {
         subalbumSelect.disabled = true;
         subalbumSelect.style.display = 'none';
-        if (subalbumLabel) subalbumLabel.style.display = 'none';
+        subalbumLabel.style.display = 'none';
       }
       subalbumSelect.value = '';
     }
-
     renderTracks();
   }
   function onSubalbumChange() { renderTracks(); }
 
-  // Рендер карточек треков (4 колонки — CSS отвечает за сетку)
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -133,10 +116,7 @@
     }
 
     if (!visible.length) {
-      const empty = document.createElement('div');
-      empty.className = 'muted';
-      empty.textContent = 'Нет треков';
-      tracksContainer.appendChild(empty);
+      tracksContainer.innerHTML = '<div class="muted">Нет треков</div>';
       return;
     }
 
@@ -144,49 +124,41 @@
       const card = document.createElement('div');
       card.className = 'card';
 
-      // Обложка — клик по ней запускает/пауза
       const img = document.createElement('img');
       img.className = 'track-cover';
       img.src = getCoverUrl(t);
-      img.alt = safeText(t.title) || 'cover';
+      img.alt = t.title || 'cover';
       img.addEventListener('click', () => {
-        const idx = tracks.findIndex(x => x.id === t.id);
-        if (idx === -1) return;
-        // Если клик по уже проигрываемому треку — переключаем паузу/воспроизведение
-        if (idx === currentTrackIndex) {
+        const globalIndex = tracks.findIndex(x => x.id === t.id);
+        if (globalIndex === currentTrackIndex) {
           if (audio.paused) audio.play();
           else audio.pause();
         } else {
-          playTrackByIndex(idx);
+          playTrackByIndex(globalIndex);
         }
       });
 
-      // Информация
       const info = document.createElement('div');
       info.className = 'track-info';
       const h4 = document.createElement('h4');
-      h4.textContent = safeText(t.title) || 'Untitled';
+      h4.textContent = t.title || 'Untitled';
       const meta = document.createElement('div');
       const albumName = (albums.find(a => a.id === t.albumId) || {}).name || '';
       meta.textContent = (t.artist || '') + (albumName ? ' • ' + albumName : '');
       info.appendChild(h4);
       info.appendChild(meta);
 
-      // Действия: кнопка "ტექსტი" и download
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
       const btnLyrics = document.createElement('button');
-      btnLyrics.type = 'button';
       btnLyrics.textContent = 'ტექსტი';
       btnLyrics.addEventListener('click', (ev) => {
         ev.stopPropagation();
-        modalTitle.textContent = safeText(t.title) || 'ტექსტი';
+        modalTitle.textContent = t.title || 'Lyrics';
         modalLyrics.textContent = t.lyrics || '';
-        if (lyricsModal) {
-          lyricsModal.classList.remove('hidden');
-          lyricsModal.setAttribute('aria-hidden', 'false');
-        }
+        lyricsModal.classList.remove('hidden');
+        lyricsModal.setAttribute('aria-hidden', 'false');
       });
       actions.appendChild(btnLyrics);
 
@@ -196,15 +168,13 @@
         aDownload.href = stream;
         aDownload.textContent = 'Download';
         aDownload.download = '';
-        aDownload.className = 'download-link';
       } else {
         aDownload.textContent = 'No file';
         aDownload.href = '#';
-        aDownload.className = 'download-link disabled';
+        aDownload.className = 'disabled';
       }
       actions.appendChild(aDownload);
 
-      // Сборка карточки
       card.appendChild(img);
       card.appendChild(info);
       card.appendChild(actions);
@@ -212,28 +182,23 @@
     });
   }
 
-  // Воспроизведение трека по индексу
   function playTrackByIndex(index) {
     if (index < 0 || index >= tracks.length) return;
     currentTrackIndex = index;
     const t = tracks[currentTrackIndex];
     if (!t) return;
     const src = getStreamUrl(t);
-    if (!src) {
-      alert('Аудиофайл не найден');
-      return;
-    }
+    if (!src) { alert('Аудиофайл не найден'); return; }
 
-    // Обновляем UI плеера
     audio.src = src;
     audio.currentTime = 0;
-    titleEl && (titleEl.textContent = safeText(t.title) || '');
-    artistEl && (artistEl.textContent = safeText(t.artist) || '');
-    coverImg && (coverImg.src = getCoverUrl(t));
-    downloadBtn && (downloadBtn.href = src);
+    if (titleEl) titleEl.textContent = t.title || '';
+    if (artistEl) artistEl.textContent = t.artist || '';
+    if (coverImg) coverImg.src = getCoverUrl(t);
+    if (downloadBtn) downloadBtn.href = src;
     if (downloadBtn) downloadBtn.style.display = src ? '' : 'none';
     if (showLyricsBtn) showLyricsBtn.style.display = (t.lyrics && t.lyrics.trim()) ? '' : 'none';
-    if (modalTitle) modalTitle.textContent = safeText(t.title) || 'ტექსტი';
+    if (modalTitle) modalTitle.textContent = t.title || 'Lyrics';
     if (modalLyrics) modalLyrics.textContent = t.lyrics || '';
 
     audio.play().then(() => {
@@ -241,7 +206,7 @@
       if (playerEl) playerEl.classList.add('visible');
       updatePlayButton();
     }).catch(err => {
-      console.error('Playback error', err);
+      console.error('Ошибка воспроизведения', err);
       isPlaying = false;
       updatePlayButton();
     });
@@ -251,15 +216,9 @@
     if (!playBtn) return;
     playBtn.textContent = isPlaying ? '⏸' : '▶';
   }
+  function playPrev() { if (currentTrackIndex > 0) playTrackByIndex(currentTrackIndex - 1); }
+  function playNext() { if (currentTrackIndex < tracks.length - 1) playTrackByIndex(currentTrackIndex + 1); }
 
-  function playPrev() {
-    if (currentTrackIndex > 0) playTrackByIndex(currentTrackIndex - 1);
-  }
-  function playNext() {
-    if (currentTrackIndex < tracks.length - 1) playTrackByIndex(currentTrackIndex + 1);
-  }
-
-  // События audio
   if (audio) {
     audio.addEventListener('play', () => {
       isPlaying = true;
@@ -287,11 +246,9 @@
     });
   }
 
-  // Контролы плеера
   if (playBtn) {
     playBtn.addEventListener('click', () => {
       if (!audio.src) {
-        // запустить первый трек, если ничего не загружено
         const firstIndex = tracks.findIndex(() => true);
         if (firstIndex >= 0) playTrackByIndex(firstIndex);
         return;
@@ -302,20 +259,13 @@
   }
   if (prevBtn) prevBtn.addEventListener('click', playPrev);
   if (nextBtn) nextBtn.addEventListener('click', playNext);
-  if (volumeEl) {
-    volumeEl.addEventListener('input', () => {
-      audio.volume = parseFloat(volumeEl.value);
-    });
-  }
-  if (progress) {
-    progress.addEventListener('input', () => {
-      if (!audio.duration) return;
-      const pct = parseFloat(progress.value);
-      audio.currentTime = (pct / 100) * audio.duration;
-    });
-  }
+  if (volumeEl) volumeEl.addEventListener('input', () => { audio.volume = parseFloat(volumeEl.value); });
+  if (progress) progress.addEventListener('input', () => {
+    if (!audio.duration) return;
+    const pct = parseFloat(progress.value);
+    audio.currentTime = (pct / 100) * audio.duration;
+  });
 
-  // Модалка текста
   if (showLyricsBtn) {
     showLyricsBtn.addEventListener('click', () => {
       if (!lyricsModal) return;
@@ -331,17 +281,15 @@
     });
   }
 
-  // Загрузка tracks.json
   async function loadData() {
     try {
       const res = await fetch('tracks.json', { cache: 'no-store' });
       if (!res.ok) throw new Error('tracks.json not found');
       const data = await res.json();
-      tracks = Array.isArray(data.tracks) ? data.tracks : (data.tracks || []);
-      albums = Array.isArray(data.albums) ? data.albums : (data.albums || []);
+      tracks = data.tracks || [];
+      albums = data.albums || [];
       buildAlbumSelectors();
 
-      // Подключаем обработчики селектов (один раз)
       if (albumSelect && !albumSelect._hasHandler) {
         albumSelect.addEventListener('change', onAlbumChange);
         albumSelect._hasHandler = true;
@@ -354,18 +302,15 @@
       renderTracks();
     } catch (err) {
       console.error('Ошибка загрузки tracks.json:', err);
-      if (tracksContainer) {
-        tracksContainer.innerHTML = '<div class="muted">Не удалось загрузить треки</div>';
-      }
+      if (tracksContainer) tracksContainer.innerHTML = '<div class="muted">Не удалось загрузить треки</div>';
     }
   }
 
+  const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) refreshBtn.addEventListener('click', () => loadData());
 
-  // Инициализация
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
-    // Установим начальные значения громкости и прогресса
     if (volumeEl && audio) audio.volume = parseFloat(volumeEl.value || 1);
     if (progress) progress.value = 0;
   });
