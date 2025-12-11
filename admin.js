@@ -1,6 +1,9 @@
 // admin.js — статическая версия для GitHub Pages
-// Поддержка подальбомов (создание и редактирование), пароль 230470
-// и батч-режим: изменения помечаются, скачивание tracks.json выполняется вручную
+// Поддержка подальбомов (создание и редактирование), пароль 230470,
+// батч-режим (скачивание tracks.json вручную),
+// + вход по Enter
+// + редактирование треков (модалка)
+
 (async function() {
   if (!document.getElementById('admin-app')) return;
 
@@ -15,7 +18,7 @@
   const albumParent = document.getElementById('album-parent');
   const btnCreateAlbum = document.getElementById('btn-create-album');
   const btnRefreshAlbums = document.getElementById('btn-refresh-albums');
-  const btnSaveAll = document.getElementById('btn-save-all'); // новая кнопка
+  const btnSaveAll = document.getElementById('btn-save-all');
   const albumsList = document.getElementById('albums-list');
 
   const addForm = document.getElementById('add-track-form');
@@ -30,6 +33,11 @@
   const modalSaveBtn = document.getElementById('modal-save');
   const modalCancelBtn = document.getElementById('modal-cancel');
 
+  // Динамическая модалка редактирования трека (создаём в JS, чтобы не менять HTML)
+  let trackEditModalBackdrop = null;
+  let trackEditRefs = null; // {title, artist, lyrics, album, audioUrl, coverUrl, saveBtn, cancelBtn}
+  let trackBeingEdited = null;
+
   // State
   let albums = [];
   let tracks = [];
@@ -40,7 +48,6 @@
   let isDirty = false;
   function markDirty() {
     isDirty = true;
-    // визуальный индикатор: можно менять заголовок или показывать текст
     if (loginMsg) loginMsg.textContent = 'Есть несохранённые изменения';
   }
   function clearDirty() {
@@ -123,6 +130,15 @@
         .slice()
         .sort((x, y) => (x.name || '').localeCompare(y.name || ''))
         .forEach(a => trackAlbumSelect.appendChild(el('option', { value: a.id }, a.name)));
+    }
+    // Также обновляем селект в модалке редактирования трека, если она создана
+    if (trackEditRefs && trackEditRefs.album) {
+      trackEditRefs.album.innerHTML = '';
+      trackEditRefs.album.appendChild(el('option', { value: '' }, '— без альбома —'));
+      albums
+        .slice()
+        .sort((x, y) => (x.name || '').localeCompare(y.name || ''))
+        .forEach(a => trackEditRefs.album.appendChild(el('option', { value: a.id }, a.name)));
     }
   }
 
@@ -241,6 +257,91 @@
     }});
   }
 
+  // Создание модалки редактирования трека (динамически)
+  function ensureTrackEditModal() {
+    if (trackEditModalBackdrop) return;
+
+    trackEditModalBackdrop = el('div', { class: 'modal-backdrop hidden', id: 'track-edit-dynamic' });
+    const modal = el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true' }, [
+      el('h3', {}, 'Edit track'),
+      el('label', {}, 'Title'),
+      (trackEditRefs = trackEditRefs || {}).title = el('input', { type: 'text' }),
+      el('label', {}, 'Artist'),
+      (trackEditRefs.artist = el('input', { type: 'text' })),
+      el('label', {}, 'Lyrics'),
+      (trackEditRefs.lyrics = el('textarea', {})),
+      el('label', {}, 'Album'),
+      (trackEditRefs.album = el('select', {})),
+      el('label', {}, 'Audio URL'),
+      (trackEditRefs.audioUrl = el('input', { type: 'text' })),
+      el('label', {}, 'Cover URL'),
+      (trackEditRefs.coverUrl = el('input', { type: 'text' })),
+      el('div', { class: 'actions' }, [
+        (trackEditRefs.cancelBtn = el('button', { type: 'button' }, 'Cancel')),
+        (trackEditRefs.saveBtn = el('button', { type: 'button' }, 'Save'))
+      ])
+    ]);
+    trackEditModalBackdrop.appendChild(modal);
+    document.body.appendChild(trackEditModalBackdrop);
+
+    // backdrop close
+    trackEditModalBackdrop.addEventListener('click', (e) => {
+      if (e.target === trackEditModalBackdrop) closeTrackEditModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !trackEditModalBackdrop.classList.contains('hidden')) {
+        closeTrackEditModal();
+      }
+    });
+
+    // wire buttons
+    trackEditRefs.cancelBtn.addEventListener('click', closeTrackEditModal);
+    trackEditRefs.saveBtn.addEventListener('click', () => {
+      if (!trackBeingEdited) return;
+      const newTitle = (trackEditRefs.title.value || '').trim();
+      if (!newTitle) return alert('Введите Title');
+
+      trackBeingEdited.title = newTitle;
+      trackBeingEdited.artist = (trackEditRefs.artist.value || '').trim();
+      trackBeingEdited.lyrics = (trackEditRefs.lyrics.value || '').toString();
+      trackBeingEdited.albumId = trackEditRefs.album.value || '';
+      trackBeingEdited.audioUrl = (trackEditRefs.audioUrl.value || '').trim();
+      trackBeingEdited.coverUrl = (trackEditRefs.coverUrl.value || '').trim();
+
+      markDirty();
+      renderTracks();
+      closeTrackEditModal();
+    });
+  }
+
+  function openTrackEditModal(track) {
+    ensureTrackEditModal();
+    trackBeingEdited = track;
+
+    // Заполнить селект альбомов
+    fillAlbumSelects();
+
+    // Префилд
+    trackEditRefs.title.value = track.title || '';
+    trackEditRefs.artist.value = track.artist || '';
+    trackEditRefs.lyrics.value = track.lyrics || '';
+    trackEditRefs.album.value = track.albumId || '';
+    trackEditRefs.audioUrl.value = track.audioUrl || '';
+    trackEditRefs.coverUrl.value = track.coverUrl || '';
+
+    trackEditModalBackdrop.classList.remove('hidden');
+    trackEditModalBackdrop.setAttribute('aria-hidden', 'false');
+
+    setTimeout(() => { try { trackEditRefs.title.focus(); } catch(e){} }, 0);
+  }
+
+  function closeTrackEditModal() {
+    if (!trackEditModalBackdrop) return;
+    trackEditModalBackdrop.classList.add('hidden');
+    trackEditModalBackdrop.setAttribute('aria-hidden', 'true');
+    trackBeingEdited = null;
+  }
+
   // Создание альбома / подальбома
   if (btnCreateAlbum) {
     btnCreateAlbum.addEventListener('click', () => {
@@ -302,14 +403,22 @@
         el('div', { class: 'muted' }, `album: ${escapeHtml(albumNameForTrack)}`)
       ]);
       const actions = el('div', {});
+      const btnEdit = el('button', {}, 'Edit');
       const btnDelete = el('button', {}, 'Delete');
+      actions.appendChild(btnEdit);
       actions.appendChild(btnDelete);
+
+      btnEdit.addEventListener('click', () => {
+        openTrackEditModal(t);
+      });
+
       btnDelete.addEventListener('click', () => {
         if (!confirm('Delete track?')) return;
         tracks = tracks.filter(x => x.id !== t.id);
         renderTracks();
         markDirty(); // пометить изменения
       });
+
       item.appendChild(meta);
       item.appendChild(actions);
       adminTracks.appendChild(item);
@@ -351,26 +460,37 @@
   }
 
   // Login / logout (пароль 230470)
+  function tryLogin() {
+    const password = (passwordInput.value || '').toString();
+    if (password === '230470') {
+      loggedIn = true;
+      loginForm.classList.add('hidden');
+      adminPanel.classList.remove('hidden');
+      passwordInput.value = '';
+      fetchTracksJson().then(() => {
+        renderAlbumsList();
+        renderTracks();
+        fillAlbumSelects();
+        clearDirty(); // при загрузке данных считаем, что нет локальных изменений
+      }).catch(err => {
+        console.error(err);
+        alert('Не удалось загрузить tracks.json');
+      });
+    } else {
+      loginMsg.textContent = 'პაროლი არასწორია';
+      setTimeout(() => { loginMsg.textContent = ''; }, 3000);
+    }
+  }
+
   if (loginBtn) {
-    loginBtn.addEventListener('click', () => {
-      const password = (passwordInput.value || '').toString();
-      if (password === '230470') {
-        loggedIn = true;
-        loginForm.classList.add('hidden');
-        adminPanel.classList.remove('hidden');
-        passwordInput.value = '';
-        fetchTracksJson().then(() => {
-          renderAlbumsList();
-          renderTracks();
-          fillAlbumSelects();
-          clearDirty(); // при загрузке данных считаем, что нет локальных изменений
-        }).catch(err => {
-          console.error(err);
-          alert('Не удалось загрузить tracks.json');
-        });
-      } else {
-        loginMsg.textContent = 'პაროლი არასწორია';
-        setTimeout(() => { loginMsg.textContent = ''; }, 3000);
+    loginBtn.addEventListener('click', tryLogin);
+  }
+  // Вход по Enter
+  if (passwordInput) {
+    passwordInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        tryLogin();
       }
     });
   }
