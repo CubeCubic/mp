@@ -37,16 +37,6 @@ h2 {
   color: #ffcc00;
 }
 
-/* Надпись „ალბომი“ оформлена как заголовок */
-.album-label {
-  margin-top: 30px;
-  margin-bottom: 8px;
-  font-size: 24px;
-  color: #ffcc00;
-  border-bottom: 2px solid #ffcc00;
-  padding-bottom: 5px;
-}
-
 /* Заголовок „ტრეკები“ и поисковик на одной линии */
 .tracks-header {
   display: flex;
@@ -67,6 +57,18 @@ h2 {
   background: #111;
   color: #fff;
   font-size: 14px;
+}
+
+/* Надпись „ალბომი“ перед селектором */
+.album-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.album-label {
+  font-size: 22px;
+  color: #ffcc00;
 }
 
 /* Сетка треков */
