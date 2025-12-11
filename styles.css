@@ -1,6 +1,5 @@
 body {
   margin: 0;
-  padding: 0;
   font-family: Arial, sans-serif;
   color: #fff;
   background-image: url("images/bigcube.jpg");
@@ -15,7 +14,6 @@ header {
   padding: 20px;
   text-align: center;
 }
-
 header nav a {
   color: #fff;
   text-decoration: none;
@@ -29,7 +27,6 @@ main {
   border-radius: 8px;
   margin: 20px;
 }
-
 h2 {
   margin-top: 30px;
   border-bottom: 2px solid #ffcc00;
@@ -37,57 +34,31 @@ h2 {
   color: #ffcc00;
 }
 
-/* Двухколоночная сетка для треков */
+/* Четыре столбца */
 #tracks {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
-  align-items: start;
 }
-
 .card {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 6px;
   padding: 8px;
   color: #fff;
-  gap: 12px;
 }
-
 .card img.track-cover {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
+  width: 100%;
+  height: auto;
   border-radius: 6px;
-  flex-shrink: 0;
-}
-
-.track-info { flex: 1; min-width: 0; }
-.track-info h4 {
-  margin: 0;
-  font-size: 15px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.track-info div { font-size: 12px; color: #ccc; margin-top: 4px; }
-
-.track-actions { display: flex; gap: 6px; align-items: center; }
-.track-actions button,
-.track-actions a {
-  font-size: 12px;
-  padding: 6px 10px;
-  background: #444;
-  color: white;
-  border: none;
-  border-radius: 4px;
   cursor: pointer;
-  text-decoration: none;
 }
-.track-actions button:hover,
-.track-actions a:hover { background: #666; }
+.track-info { margin-top: 6px; }
+.track-info h4 { margin: 0; font-size: 15px; }
+.track-info div { font-size: 12px; color: #ccc; }
+.track-actions { margin-top: 6px; display: flex; gap: 6px; }
 
 /* Плеер */
 #player {
@@ -95,51 +66,43 @@ h2 {
   bottom: 0; left: 0; right: 0;
   background: rgba(0,0,0,0.85);
   color: white;
-  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
   transform: translateY(100%);
   opacity: 0;
   pointer-events: none;
-  z-index: 1000;
+  transition: transform 320ms, opacity 220ms;
 }
 #player.visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
 
-#player-cover img {
-  max-height: 80px; width: 80px; height: 80px;
-  border-radius: 6px; object-fit: cover;
+.player-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
 }
-#player-info { flex: 1; margin-left: 15px; }
-#player-title {
-  font-size: 18px; font-weight: bold;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+#player-cover img { width: 60px; height: 60px; border-radius: 6px; }
+#player-info { flex: 1; margin: 0 12px; }
+#player-title { font-size: 16px; font-weight: bold; }
+#player-artist { font-size: 13px; color: #ccc; }
+#player-controls { display: flex; gap: 8px; align-items: center; }
+
+#player-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
 }
-#player-artist { font-size: 14px; color: #ccc; margin-top: 4px; }
-
-#player-controls button,
-#player-controls a {
-  background: #444; color: white;
-  border: none; padding: 8px 12px; margin: 5px;
-  border-radius: 4px; cursor: pointer; text-decoration: none;
-}
-#player-controls button:hover,
-#player-controls a:hover { background: #666; }
-
-#player-controls #show-lyrics,
-#player-controls #download { display: none; }
-
-#player-progress { display: flex; align-items: center; gap: 8px; padding: 8px 18px; }
-#progress { flex: 1; margin: 0 10px; }
+#progress { flex: 1; }
 
 /* Модалка */
 #lyrics-modal.hidden { display: none !important; }
 #lyrics-modal {
   position: fixed; inset: 0;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.7); z-index: 2000;
+  background: rgba(0,0,0,0.7);
 }
 .modal-box {
   background: white; color: #000;
   padding: 20px; border-radius: 6px;
-  max-width: 600px; width: 90%;
+  max-width: 400px; width: 90%;
   max-height: 60vh; overflow-y: auto;
 }
-.modal-box h
