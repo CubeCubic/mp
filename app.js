@@ -1,5 +1,5 @@
 (function () {
-  // Константы и элементы
+  // Элементы
   const albumSelect = document.getElementById('album-select');
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
@@ -35,9 +35,9 @@
 
   // Поиск
   let searchQuery = '';
-  let filteredTracks = []; // результат фильтра по поиску
+  let filteredTracks = [];
 
-  // Лайки (локально)
+  // Лайки (localStorage)
   const LIKES_KEY = 'trackLikes';
   const LIKED_KEY = 'likedTracks';
 
@@ -45,14 +45,10 @@
     try {
       const raw = localStorage.getItem(LIKES_KEY);
       return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
+    } catch { return {}; }
   }
   function saveLikes(obj) {
-    try {
-      localStorage.setItem(LIKES_KEY, JSON.stringify(obj));
-    } catch {}
+    try { localStorage.setItem(LIKES_KEY, JSON.stringify(obj)); } catch {}
   }
   function getLikesFor(id) {
     const map = loadLikes();
@@ -68,14 +64,10 @@
     try {
       const raw = localStorage.getItem(LIKED_KEY);
       return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
+    } catch { return {}; }
   }
   function saveLikedSet(obj) {
-    try {
-      localStorage.setItem(LIKED_KEY, JSON.stringify(obj));
-    } catch {}
+    try { localStorage.setItem(LIKED_KEY, JSON.stringify(obj)); } catch {}
   }
   function hasLiked(id) {
     const set = loadLikedSet();
@@ -114,11 +106,9 @@
     o.textContent = text;
     return o;
   }
-  function safeStr(v) {
-    return (v == null) ? '' : String(v);
-  }
+  function safeStr(v) { return (v == null) ? '' : String(v); }
 
-  // Инициализация селекторов альбомов
+  // Селекторы альбомов
   function buildAlbumSelectors() {
     if (!albumSelect) return;
     albumSelect.innerHTML = '';
@@ -135,7 +125,6 @@
     }
   }
 
-  // Изменение выбранного альбома
   function onAlbumChange() {
     const currentAlbumId = (albumSelect.value || '').toString();
     if (subalbumSelect) {
@@ -158,12 +147,10 @@
   }
   function onSubalbumChange() { renderTracks(); }
 
-  // Поисковая фильтрация
+  // Поиск
   function matchesQuery(t, query) {
     if (!query) return true;
     const q = query.toLowerCase();
-
-    // Поля для поиска (кроме кавера и текста): title, artist, album name, id, filename, audioUrl, downloadUrl
     const albumName = (albums.find(a => a.id === t.albumId) || {}).name || '';
     const haystack = [
       safeStr(t.title),
@@ -173,19 +160,13 @@
       safeStr(t.filename),
       safeStr(t.audioUrl),
       safeStr(t.downloadUrl)
-      // Не включаем: cover, coverUrl, lyrics
+      // исключаем: cover, coverUrl, lyrics
     ].join(' ').toLowerCase();
-
     return haystack.includes(q);
   }
-
   function applySearch() {
-    const query = searchQuery.trim();
-    if (!query) {
-      filteredTracks = [];
-      return;
-    }
-    filteredTracks = tracks.filter(t => matchesQuery(t, query));
+    const query = (searchQuery || '').trim();
+    filteredTracks = query ? tracks.filter(t => matchesQuery(t, query)) : [];
   }
 
   // Рендер треков
@@ -248,7 +229,7 @@
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
-      // Текст (модалка)
+      // Кнопка текста
       const btnLyrics = document.createElement('button');
       btnLyrics.type = 'button';
       btnLyrics.textContent = 'ტექსტი';
@@ -277,7 +258,7 @@
       }
       actions.appendChild(aDownload);
 
-      // Like button
+      // Like
       const likeBtn = document.createElement('button');
       likeBtn.type = 'button';
       likeBtn.className = 'like-button';
@@ -296,9 +277,7 @@
       likeBtn.appendChild(heartSpan);
       likeBtn.appendChild(countSpan);
 
-      if (hasLiked(key)) {
-        likeBtn.classList.add('liked');
-      }
+      if (hasLiked(key)) likeBtn.classList.add('liked');
 
       likeBtn.addEventListener('click', (ev) => {
         ev.stopPropagation();
@@ -324,7 +303,7 @@
     });
   }
 
-  // Плеер
+  // Плеер (как был)
   function playTrackByIndex(index) {
     if (index < 0 || index >= tracks.length) return;
     currentTrackIndex = index;
@@ -456,7 +435,7 @@
   const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) refreshBtn.addEventListener('click', () => loadData());
 
-  // Обработчики поиска
+  // Поиск — обработчик
   if (searchInput) {
     searchInput.addEventListener('input', () => {
       searchQuery = searchInput.value || '';
