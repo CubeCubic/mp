@@ -151,9 +151,7 @@
         ev.preventDefault();
         if (albumSelect) {
           albumSelect.value = String(a.id || '');
-          // визуально отметить выбранную миниатюру
           updateThumbSelection();
-          // вызвать обработчик как при выборе в селекте
           onAlbumChange();
         }
       });

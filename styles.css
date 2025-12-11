@@ -9,12 +9,12 @@ body {
   background-attachment: fixed;
 }
 
-/* Ограничение ширины сайта и центрирование содержимого */
+/* Поля сайта слегка растянуты, чтобы уместить 8 карточек и дать им больше места */
 .site-wrapper {
-  max-width: 1600px;
+  max-width: 1800px; /* увеличено для дополнительного пространства */
   margin: 0 auto;
-  padding-left: 22px;
-  padding-right: 22px;
+  padding-left: 24px;
+  padding-right: 24px;
   box-sizing: border-box;
 }
 
@@ -51,7 +51,7 @@ header nav a:hover { text-decoration: underline; }
 /* Контейнер с жёлтой линией */
 .controls {
   border-bottom: 2px solid #ffcc00;
-  padding-bottom: 5px;
+  padding-bottom: 8px;
   margin-bottom: 20px;
 }
 
@@ -66,7 +66,7 @@ header nav a:hover { text-decoration: underline; }
   line-height: 1;
 }
 
-/* Селект альбомов (восстановлен видимый селект) */
+/* Селект альбомов */
 #album-select {
   margin-bottom: 10px;
   padding: 6px 8px;
@@ -91,7 +91,7 @@ header nav a:hover { text-decoration: underline; }
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  width: 120px; /* ширина миниатюры */
+  width: 120px;
   cursor: pointer;
   text-align: center;
   color: #fff;
@@ -115,31 +115,17 @@ header nav a:hover { text-decoration: underline; }
   text-overflow: ellipsis;
   width: 100%;
 }
-
-/* Состояние выбранной миниатюры */
 .album-thumb.selected img {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 8px 24px rgba(0,0,0,0.45);
   border-color: #ffcc00;
 }
 
-/* Заголовок «ტრეკები» */
-.tracks-header {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 12px;
-}
-.tracks-header h2 {
-  margin: 0;
-  border-bottom: none;
-}
-
-/* Сетка треков — 8 карт в ряд на широких экранах */
+/* Сетка треков — 8 карточек в ряд на широких экранах */
 #tracks {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
   align-items: start;
   width: 100%;
   margin: 0;
@@ -154,7 +140,7 @@ section > #tracks {
   padding-right: 6px;
 }
 
-/* Карточка трека — увеличена для лучшей читаемости */
+/* Карточка трека — компактная и пропорциональная, чтобы вместить лайк-кнопку */
 .card {
   display: flex;
   flex-direction: column;
@@ -162,9 +148,9 @@ section > #tracks {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 8px;
-  padding: 10px;
+  padding: 8px;            /* уменьшено для компактности */
   color: #fff;
-  min-height: 160px;
+  min-height: 140px;      /* уменьшено, но достаточно для контента */
   box-sizing: border-box;
 }
 
@@ -178,41 +164,42 @@ section > #tracks {
   display: block;
 }
 
-/* Инфо */
+/* Инфо — уменьшенные шрифты для компактного размещения */
 .track-info {
-  margin-top: 10px;
+  margin-top: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 .track-info h4 {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.1;
+  font-size: 12px;       /* уменьшено */
+  line-height: 1.05;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .track-info div {
-  font-size: 12px;
+  font-size: 11px;       /* уменьшено */
   color: #cfcfcf;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Действия */
+/* Действия — компактные кнопки, лайк выровнен вправо */
 .track-actions {
   margin-top: 8px;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   justify-content: flex-start;
+  width: 100%;
 }
 .track-actions button,
 .track-actions a {
-  font-size: 12px;
-  padding: 6px 10px;
+  font-size: 11px;       /* уменьшено */
+  padding: 4px 6px;      /* уменьшено */
   background: #444;
   color: white;
   border: none;
@@ -225,12 +212,12 @@ section > #tracks {
   pointer-events: none;
 }
 
-/* Лайк */
+/* Лайк — уменьшенные отступы, и сдвиг в правую часть строки */
 .like-button {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
+  gap: 6px;
+  padding: 4px 6px;      /* уменьшено */
   background: #b3003b;
   color: #fff;
   border-radius: 6px;
@@ -238,6 +225,7 @@ section > #tracks {
   cursor: pointer;
   font-size: 12px;
   transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+  margin-left: auto;     /* сдвигает кнопку лайка вправо, чтобы она помещалась */
 }
 .like-button .heart { font-size: 14px; line-height: 1; }
 .like-button .like-count { font-size: 12px; }
@@ -352,20 +340,20 @@ section > #tracks {
 @media (max-width: 1200px) {
   .site-wrapper { max-width: 1200px; padding-left: 16px; padding-right: 16px; }
   #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
-  .card { min-height: 150px; padding: 9px; }
+  .card { min-height: 140px; padding: 8px; }
 }
 
 /* Небольшие экраны */
 @media (max-width: 1000px) {
   #tracks { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-  .card { min-height: 140px; padding: 8px; }
+  .card { min-height: 130px; padding: 7px; }
   .track-info h4 { font-size: 12px; }
 }
 
 /* Мобильные точки перелома */
 @media (max-width: 700px) {
   #tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .card { min-height: 130px; padding: 8px; }
+  .card { min-height: 120px; padding: 8px; }
   .track-info h4 { font-size: 12px; }
 }
 @media (max-width: 420px) {
