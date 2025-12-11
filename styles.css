@@ -43,8 +43,8 @@ header h1 {
 /* Бейдж в шапке — аккуратное позиционирование */
 #header-badge {
   position: absolute;
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   top: 18px;
   left: 22px;
   z-index: 10;
@@ -56,6 +56,12 @@ header h1 {
   object-fit: contain;
   display: block;
   border-radius: 6px;
+
+  /* Эффект объёмности */
+  box-shadow: 
+  0 4px 6px rgba(0,0,0,0.6),
+  0 8px 16px rgba(0,0,0,0.4),
+  0 0 12px rgba(255,255,0,0.4); /* жёлтое свечение */
 }
 
 /* Навигация */
@@ -395,6 +401,7 @@ section > #tracks {
   .card img.track-cover { aspect-ratio: 16/9; }
   .card { min-height: auto; padding: 8px; }
 }
+
 
 
 
