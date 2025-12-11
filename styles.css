@@ -35,11 +35,11 @@ h2 {
   color: #ffcc00;
 }
 
-/* Сетка треков: 6 колонок */
+/* Сетка треков: 8 колонок */
 #tracks {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
   align-items: start;
 }
 
@@ -56,10 +56,10 @@ h2 {
   min-height: 120px;
 }
 
-/* Уменьшенные каверы для 6 колонок */
+/* Квадратные каверы: сохраняем пропорции с помощью aspect-ratio */
 .card img.track-cover {
   width: 100%;
-  height: 90px; /* уменьшённый размер */
+  aspect-ratio: 1 / 1; /* гарантирует квадрат */
   object-fit: cover;
   border-radius: 4px;
   cursor: pointer;
@@ -75,7 +75,7 @@ h2 {
 }
 .track-info h4 {
   margin: 0;
-  font-size: 13px; /* компактный размер */
+  font-size: 12px; /* компактный размер */
   line-height: 1.1;
   white-space: nowrap;
   overflow: hidden;
@@ -205,6 +205,9 @@ h2 {
 .modal-box pre { white-space: pre-wrap; font-size: 13px; }
 
 /* Адаптивность: уменьшаем кол-во колонок на узких экранах */
+@media (max-width: 1800px) {
+  #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
 @media (max-width: 1400px) {
   #tracks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
@@ -213,6 +216,6 @@ h2 {
 }
 @media (max-width: 600px) {
   #tracks { grid-template-columns: 1fr; }
-  .card img.track-cover { height: 140px; }
+  .card img.track-cover { height: auto; aspect-ratio: 16/9; }
   #player-cover img { width: 48px; height: 48px; }
 }
