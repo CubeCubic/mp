@@ -38,6 +38,12 @@ header h1 {
   2px 2px 0 #000,
   4px 4px 6px rgba(0,0,0,0.6),
   -1px -1px 0 #fff; /* лёгкая подсветка сверху */
+  
+    /* Эффект свечения */
+  text-shadow:
+    0 0 8px #ffcc00,      /* мягкое жёлтое свечение */
+    0 0 16px #ffcc00,     /* более широкое свечение */
+    0 0 24px rgba(255,255,0,0.8); /* глубокое сияние */
 }
 
 /* Бейдж в шапке — аккуратное позиционирование */
@@ -401,6 +407,7 @@ section > #tracks {
   .card img.track-cover { aspect-ratio: 16/9; }
   .card { min-height: auto; padding: 8px; }
 }
+
 
 
 
