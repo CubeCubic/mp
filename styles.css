@@ -9,6 +9,15 @@ body {
   background-attachment: fixed;
 }
 
+/* Ограничение ширины сайта и центрирование содержимого */
+.site-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+}
+
 header {
   background-color: rgba(0,0,0,0.6);
   color: #ffcc00;
@@ -262,17 +271,16 @@ header nav a:hover { text-decoration: underline; }
 .modal-box pre { white-space: pre-wrap; font-size: 13px; }
 
 /* Адаптивность */
-@media (max-width: 1800px) {
-  #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-}
-@media (max-width: 1400px) {
-  #tracks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1200px) {
+  .site-wrapper { max-width: 1000px; padding-left: 12px; padding-right: 12px; }
 }
 @media (max-width: 1000px) {
   #tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .site-wrapper { padding-left: 10px; padding-right: 10px; }
 }
 @media (max-width: 600px) {
   #tracks { grid-template-columns: 1fr; }
   .card img.track-cover { height: auto; aspect-ratio: 16/9; }
   #player-cover img { width: 48px; height: 48px; }
+  .site-wrapper { padding-left: 8px; padding-right: 8px; }
 }
