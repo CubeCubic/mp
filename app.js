@@ -32,6 +32,8 @@
 
   // Работа с локальным хранилищем лайков
   const LIKES_KEY = 'trackLikes';
+  const LIKED_KEY = 'likedTracks'; // список треков, которые текущий браузер уже лайкнул
+
   function loadLikes() {
     try {
       const raw = localStorage.getItem(LIKES_KEY);
@@ -54,6 +56,29 @@
     map[id] = (map[id] || 0) + 1;
     saveLikes(map);
     return map[id];
+  }
+
+  function loadLikedSet() {
+    try {
+      const raw = localStorage.getItem(LIKED_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }
+  function saveLikedSet(obj) {
+    try {
+      localStorage.setItem(LIKED_KEY, JSON.stringify(obj));
+    } catch {}
+  }
+  function hasLiked(id) {
+    const set = loadLikedSet();
+    return !!set[id];
+  }
+  function markLiked(id) {
+    const set = loadLikedSet();
+    set[id] = true;
+    saveLikedSet(set);
   }
 
   function formatTime(sec) {
@@ -177,7 +202,7 @@
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
-      // 1) Кнопка открытия модалки с текстом (ტექსტი) — на своём месте
+      // 1) Кнопка открытия модалки с текстом (ტექსტი)
       const btnLyrics = document.createElement('button');
       btnLyrics.type = 'button';
       btnLyrics.textContent = 'ტექსტი';
@@ -221,10 +246,28 @@
       likeBtn.appendChild(heartSpan);
       likeBtn.appendChild(countSpan);
 
+      // Подсветка, если уже лайкнул
+      if (hasLiked(key)) {
+        likeBtn.classList.add('liked');
+      }
+
       likeBtn.addEventListener('click', (ev) => {
         ev.stopPropagation();
+        // Если уже лайкнул — не инкрементируем повторно
+        if (hasLiked(key)) {
+          // краткая анимация подтверждения (без увеличения счёта)
+          likeBtn.classList.add('animate');
+          setTimeout(() => likeBtn.classList.remove('animate'), 380);
+          return;
+        }
+        // Инкремент и пометка как лайкнутого
         const newCount = incrementLikesFor(key);
         countSpan.textContent = newCount;
+        markLiked(key);
+        likeBtn.classList.add('liked');
+        // Анимация pop
+        likeBtn.classList.add('animate');
+        setTimeout(() => likeBtn.classList.remove('animate'), 380);
       });
 
       actions.appendChild(likeBtn);
