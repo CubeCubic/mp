@@ -10,7 +10,7 @@
 <body>
   <div class="site-wrapper">
     <header>
-      <!-- Добавлено изображение midcube.png в место, отмеченное белым квадратом -->
+      <!-- Бейдж с midcube.png в шапке, позиционируется через CSS -->
       <div id="header-badge" aria-hidden="false">
         <img src="images/midcube.png" alt="midcube">
       </div>
@@ -30,9 +30,10 @@
 
           <label for="album-select">ალბომები</label>
 
-          <!-- Скрытое поле album-select для совместимости с логикой -->
+          <!-- Скрытое поле для выбранного главного альбома -->
           <input type="hidden" id="album-select" value="">
 
+          <!-- Картинки главных альбомов -->
           <div id="album-thumbs" class="album-thumbs" aria-hidden="false"></div>
 
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
@@ -52,6 +53,7 @@
       </section>
     </main>
 
+    <!-- Плеер: восстановлен полностью -->
     <div id="player" class="hidden">
       <div class="player-bar">
         <div id="player-cover">
@@ -65,7 +67,7 @@
           <button id="prev" type="button">⏮</button>
           <button id="play" type="button">▶</button>
           <button id="next" type="button">⏭</button>
-          <button id="show-lyrics" type="button" style="display:none;">ტექსტი</button>
+          <button id="show-lyrics" type="button" style="display:none;">ტექსტি</button>
           <a id="download" href="#" download style="display:none;">ჩამოტვირთვა</a>
           <input id="volume" type="range" min="0" max="1" step="0.01" value="1">
         </div>
@@ -78,6 +80,7 @@
       <audio id="audio" preload="none"></audio>
     </div>
 
+    <!-- Модалка текста -->
     <div id="lyrics-modal" class="hidden" aria-hidden="true">
       <div class="modal-box">
         <button id="modal-close" type="button">Close</button>
