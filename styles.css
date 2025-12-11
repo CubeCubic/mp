@@ -78,12 +78,24 @@ header nav a:hover { text-decoration: underline; }
   border-bottom: none;
 }
 
-/* Сетка треков (слегка плотнее на широких экранах) */
+/* Сетка треков — растянутая область треков */
 #tracks {
   display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
-  gap: 10px;
+  /* Увеличено количество колонок для более широкой области треков */
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 12px;
   align-items: start;
+  width: 100%;
+}
+
+/* Если нужно, чтобы область треков визуально занимала чуть больше места по горизонтали,
+   можно убрать боковые отступы у контейнера треков внутри site-wrapper.
+   Ниже правило не меняет HTML, только уменьшает внутренние отступы у секции треков. */
+section > #tracks {
+  margin-left: -6px;
+  margin-right: -6px;
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 /* Карточка трека */
@@ -272,23 +284,23 @@ header nav a:hover { text-decoration: underline; }
 
 /* Адаптивность и поведение на очень широких экранах */
 @media (min-width: 1500px) {
-  /* На очень широких экранах используем больше колонок */
-  #tracks { grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 12px; }
+  /* На очень широких экранах используем ещё больше колонок */
+  #tracks { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; }
 }
 
 /* Сохранение прежнего поведения для средних экранов */
 @media (max-width: 1200px) {
   .site-wrapper { max-width: 1000px; padding-left: 12px; padding-right: 12px; }
-  #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
 }
 
 /* Мобильные точки перелома */
 @media (max-width: 1000px) {
-  #tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .site-wrapper { padding-left: 10px; padding-right: 10px; }
 }
 @media (max-width: 600px) {
-  #tracks { grid-template-columns: 1fr; }
+  #tracks { grid-template-columns: 1fr; gap: 8px; }
   .card img.track-cover { height: auto; aspect-ratio: 16/9; }
   #player-cover img { width: 48px; height: 48px; }
   .site-wrapper { padding-left: 8px; padding-right: 8px; }
