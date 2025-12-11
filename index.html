@@ -12,42 +12,38 @@
   <header>
     <h1>Cube Cubic</h1>
     <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
-    <nav style="margin-top:12px;">
-      <a href="index.html" style="color:#fff; text-decoration:none; margin-right:12px;">მთავარი</a>
-      <a href="admin.html" style="color:#fff; text-decoration:none;">Admin</a>
+    <nav>
+      <a href="index.html">მთავარი</a>
+      <a href="admin.html">Admin</a>
     </nav>
   </header>
 
   <main>
-    <section aria-labelledby="albums-heading">
-      <h2 id="albums-heading">ალბომები</h2>
-      <div class="controls" role="region" aria-label="Album controls">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <label for="album-select">ალბომი</label>
-          <select id="album-select" aria-label="Album select">
-            <option value="">— Loading —</option>
-          </select>
-        </div>
-        <div id="subalbum-wrapper" style="display:flex;align-items:center;gap:8px;">
-          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
-          <select id="subalbum-select" aria-label="Subalbum select" style="display:none;">
-            <option value="">— —</option>
-          </select>
-        </div>
-        <div style="margin-left:auto; display:flex; gap:8px;">
-          <button id="refresh-btn" type="button">Refresh</button>
-        </div>
+    <section>
+      <h2>ალბომები</h2>
+      <div class="controls">
+        <label for="album-select">ალბომი</label>
+        <select id="album-select">
+          <option value="">— Loading —</option>
+        </select>
+
+        <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
+        <select id="subalbum-select" style="display:none;">
+          <option value="">— —</option>
+        </select>
+
+        <button id="refresh-btn" type="button">Refresh</button>
       </div>
     </section>
 
-    <section aria-labelledby="tracks-heading">
-      <h2 id="tracks-heading">ტრეკები</h2>
-      <div id="tracks" aria-live="polite"></div>
+    <section>
+      <h2>ტრეკები</h2>
+      <div id="tracks"></div>
     </section>
   </main>
 
   <!-- Плеер -->
-  <div id="player" class="hidden" role="region" aria-label="Player">
+  <div id="player" class="hidden">
     <div class="player-bar">
       <div id="player-cover">
         <img id="player-cover-img" src="images/midcube.png" alt="cover">
