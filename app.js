@@ -30,6 +30,32 @@
   let currentTrackIndex = -1;
   let isPlaying = false;
 
+  // Работа с локальным хранилищем лайков
+  const LIKES_KEY = 'trackLikes';
+  function loadLikes() {
+    try {
+      const raw = localStorage.getItem(LIKES_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }
+  function saveLikes(obj) {
+    try {
+      localStorage.setItem(LIKES_KEY, JSON.stringify(obj));
+    } catch {}
+  }
+  function getLikesFor(id) {
+    const map = loadLikes();
+    return map[id] || 0;
+  }
+  function incrementLikesFor(id) {
+    const map = loadLikes();
+    map[id] = (map[id] || 0) + 1;
+    saveLikes(map);
+    return map[id];
+  }
+
   function formatTime(sec) {
     if (!isFinite(sec)) return '0:00';
     const m = Math.floor(sec / 60);
@@ -151,17 +177,29 @@
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
-      const btnLyrics = document.createElement('button');
-      btnLyrics.textContent = 'ტექსტი';
-      btnLyrics.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        modalTitle.textContent = t.title || 'Lyrics';
-        modalLyrics.textContent = t.lyrics || '';
-        lyricsModal.classList.remove('hidden');
-        lyricsModal.setAttribute('aria-hidden', 'false');
-      });
-      actions.appendChild(btnLyrics);
+      // Кнопка "сердечко" (лайк) — рядом с Download
+      const likeBtn = document.createElement('button');
+      likeBtn.type = 'button';
+      likeBtn.className = 'like-button';
+      likeBtn.setAttribute('aria-label', 'Like track');
+      const heartSpan = document.createElement('span');
+      heartSpan.className = 'heart';
+      heartSpan.textContent = '❤';
+      const countSpan = document.createElement('span');
+      const currentLikes = getLikesFor(String(t.id || t.filename || t.title));
+      countSpan.className = 'like-count';
+      countSpan.textContent = currentLikes;
+      likeBtn.appendChild(heartSpan);
+      likeBtn.appendChild(countSpan);
 
+      likeBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const key = String(t.id || t.filename || t.title);
+        const newCount = incrementLikesFor(key);
+        countSpan.textContent = newCount;
+      });
+
+      // Download
       const aDownload = document.createElement('a');
       const stream = getStreamUrl(t);
       if (stream) {
@@ -173,6 +211,9 @@
         aDownload.href = '#';
         aDownload.className = 'disabled';
       }
+
+      // Порядок: сначала like, затем download (как просили)
+      actions.appendChild(likeBtn);
       actions.appendChild(aDownload);
 
       card.appendChild(img);
