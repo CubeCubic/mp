@@ -46,6 +46,17 @@ header nav a:hover { text-decoration: underline; }
   margin-bottom: 20px;
 }
 
+/* Сделать надпись "ალბომები" такого же размера, как "ტრეკები" */
+.controls > label[for="album-select"] {
+  display: block;
+  margin-top: 30px;
+  margin-bottom: 6px;
+  color: #ffcc00;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 /* Заголовок «ტრეკები» */
 .tracks-header {
   display: flex;
@@ -249,3 +260,19 @@ header nav a:hover { text-decoration: underline; }
 }
 .modal-box h3 { margin-top: 0; font-size: 16px; }
 .modal-box pre { white-space: pre-wrap; font-size: 13px; }
+
+/* Адаптивность */
+@media (max-width: 1800px) {
+  #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+@media (max-width: 1400px) {
+  #tracks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 1000px) {
+  #tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  #tracks { grid-template-columns: 1fr; }
+  .card img.track-cover { height: auto; aspect-ratio: 16/9; }
+  #player-cover img { width: 48px; height: 48px; }
+}

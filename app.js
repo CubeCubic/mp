@@ -463,6 +463,13 @@
   const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) refreshBtn.addEventListener('click', () => loadData());
 
+  // Поиск — обработчик глобального поля
+  if (globalSearchInput) {
+    globalSearchInput.addEventListener('input', () => {
+      applyGlobalSearch(globalSearchInput.value);
+    });
+  }
+
   // Инициализация
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
