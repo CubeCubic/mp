@@ -19,9 +19,9 @@
 
   <main>
     <section>
-      <!-- Надпись „ალბომი“ перед селектором -->
-      <div class="album-header">
-        <span class="album-label">ალბომი</span>
+      <h2>ალბომები</h2>
+      <div class="controls">
+        <label for="album-select">ალბომი</label>
         <select id="album-select">
           <option value="">— Loading —</option>
         </select>
@@ -36,6 +36,7 @@
     </section>
 
     <section>
+      <!-- Заголовок «ტრეკები» и поисковик на одной линии -->
       <div class="tracks-header">
         <h2>ტრეკები</h2>
         <input id="search-input" type="text" placeholder="Search..." aria-label="Search tracks">
@@ -44,7 +45,7 @@
     </section>
   </main>
 
-  <!-- Плеер -->
+  <!-- Плеер (как был) -->
   <div id="player" class="hidden">
     <div class="player-bar">
       <div id="player-cover">
