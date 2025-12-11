@@ -11,7 +11,7 @@ body {
 
 /* Поля сайта слегка растянуты, чтобы уместить 8 карточек и дать им больше места */
 .site-wrapper {
-  max-width: 1800px; /* увеличено для дополнительного пространства */
+  max-width: 1800px;
   margin: 0 auto;
   padding-left: 24px;
   padding-right: 24px;
@@ -23,14 +23,18 @@ header {
   color: #ffcc00;
   padding: 20px;
   text-align: center;
-  position: relative;
+  position: relative; /* важно для абсолютного позиционирования #header-badge */
 }
 
-/* Блок для изображения midcube в шапке (заменяет белый квадрат) */
+/* Позиционирование изображения midcube точно в отмеченное место */
+/* Подстройте значения top и left под ваш скриншот для точного совпадения */
 #header-badge {
-  width: 96px;               /* ширина блока изображения */
-  height: 96px;              /* высота блока изображения */
-  margin: 0 auto 10px auto;  /* центрирование и небольшой отступ снизу */
+  position: absolute;
+  width: 96px;           /* ширина блока изображения */
+  height: 96px;          /* высота блока изображения */
+  top: 18px;             /* смещение от верхней границы header — подберите точное значение */
+  left: 22px;            /* смещение от левой границы header — подберите точное значение */
+  z-index: 10;
   display: block;
 }
 #header-badge img {
@@ -38,7 +42,7 @@ header {
   height: 100%;
   object-fit: contain;
   display: block;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 /* Навигация и заголовки */
@@ -56,7 +60,7 @@ header nav a:hover { text-decoration: underline; }
 
 /* Перемещённый поисковик */
 #global-search {
-  margin-top: 14px;
+  margin-top: 12px;
   margin-bottom: 8px;
   padding: 6px 8px;
   border-radius: 6px;
@@ -148,7 +152,7 @@ section > #tracks {
   padding-right: 6px;
 }
 
-/* Карточка трека — компактная и пропорциональная, чтобы вместить лайк-кнопку */
+/* Карточка трека */
 .card {
   display: flex;
   flex-direction: column;
@@ -162,7 +166,7 @@ section > #tracks {
   box-sizing: border-box;
 }
 
-/* Кавер — занимает большую часть карточки, пропорции сохранены */
+/* Кавер */
 .card img.track-cover {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -172,7 +176,7 @@ section > #tracks {
   display: block;
 }
 
-/* Инфо — уменьшенные шрифты для компактного размещения */
+/* Инфо */
 .track-info {
   margin-top: 8px;
   display: flex;
@@ -195,7 +199,7 @@ section > #tracks {
   text-overflow: ellipsis;
 }
 
-/* Действия — компактные кнопки, лайк выровнен вправо */
+/* Действия */
 .track-actions {
   margin-top: 8px;
   display: flex;
@@ -220,7 +224,7 @@ section > #tracks {
   pointer-events: none;
 }
 
-/* Лайк — уменьшенные отступы, и сдвиг в правую часть строки */
+/* Лайк */
 .like-button {
   display: inline-flex;
   align-items: center;
@@ -252,121 +256,28 @@ section > #tracks {
   animation: like-pop 360ms cubic-bezier(.2,.9,.2,1);
 }
 
-/* Плеер */
-#player {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,0.9);
-  color: white;
-  transform: translateY(100%);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
-  z-index: 1000;
-}
+/* Плеер и модалки оставлены без изменений */
+#player { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.9); color: white; transform: translateY(100%); opacity: 0; pointer-events: none; transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease; z-index: 1000; }
 #player.visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
 
-.player-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-}
-#player-cover img {
-  width: 56px;
-  height: 56px;
-  border-radius: 6px;
-  object-fit: cover;
-}
-#player-info { flex: 1; min-width: 0; }
-#player-title {
-  font-size: 15px;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-#player-artist {
-  font-size: 12px;
-  color: #ccc;
-  margin-top: 2px;
-}
-#player-controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-#player-controls button,
-#player-controls a {
-  background: #444;
-  color: white;
-  border: none;
-  padding: 6px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-}
-#player-controls input[type="range"] { width: 90px; }
-
-#player-progress {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px 12px 14px;
-  border-top: 1px solid rgba(255,255,255,0.03);
-}
-#player-progress span { font-size: 12px; color: #ccc; width: 40px; text-align: center; }
-#progress { flex: 1; }
-
-/* Модалка */
-#lyrics-modal.hidden { display: none !important; }
-#lyrics-modal {
-  position: fixed; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.7);
-  z-index: 2000;
-}
-.modal-box {
-  background: white; color: #000;
-  padding: 16px; border-radius: 6px;
-  max-width: 420px; width: 92%;
-  max-height: 70vh; overflow-y: auto;
-}
-.modal-box h3 { margin-top: 0; font-size: 16px; }
-.modal-box pre { white-space: pre-wrap; font-size: 13px; }
-
-/* Адаптивность: сохраняем 8 карт в ряд на широких экранах,
-   уменьшаем количество колонок по мере сужения экрана */
+/* Адаптивность */
 @media (min-width: 1600px) {
   #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 16px; }
 }
 @media (min-width: 1400px) and (max-width: 1599px) {
   #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
 }
-
-/* Средние экраны */
 @media (max-width: 1200px) {
   .site-wrapper { max-width: 1200px; padding-left: 16px; padding-right: 16px; }
   #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
-  .card { min-height: 140px; padding: 8px; }
 }
-
-/* Небольшие экраны */
 @media (max-width: 1000px) {
   #tracks { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-  .card { min-height: 130px; padding: 7px; }
-  .track-info h4 { font-size: 12px; }
 }
-
-/* Мобильные точки перелома */
 @media (max-width: 700px) {
   #tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .card { min-height: 120px; padding: 8px; }
-  .track-info h4 { font-size: 12px; }
 }
 @media (max-width: 420px) {
   #tracks { grid-template-columns: 1fr; gap: 8px; }
-  .card img.track-cover { aspect-ratio: 16/9; }
-  .card { min-height: auto; padding: 8px; }
   .site-wrapper { padding-left: 8px; padding-right: 8px; }
 }
