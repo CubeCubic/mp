@@ -27,11 +27,17 @@ header {
 }
 
 header h1 {
-  font-size: 48px;       /* увеличенный размер шрифта */
-  font-weight: 800;      /* более жирный */
-  color: #ffcc00;        /* оставляем жёлтый цвет */
-  margin: 12px 0;        /* аккуратные отступы сверху и снизу */
-  letter-spacing: 1px;   /* лёгкое разрежение букв */
+  font-size: 48px;
+  font-weight: 800;
+  color: #ffcc00;
+  margin: 12px 0;
+  letter-spacing: 1px;
+
+  /* Эффект объёмного текста */
+  text-shadow: 
+  2px 2px 0 #000,
+  4px 4px 6px rgba(0,0,0,0.6),
+  -1px -1px 0 #fff; /* лёгкая подсветка сверху */
 }
 
 /* Бейдж в шапке — аккуратное позиционирование */
@@ -388,4 +394,5 @@ section > #tracks {
   .card img.track-cover { aspect-ratio: 16/9; }
   .card { min-height: auto; padding: 8px; }
 }
+
 
