@@ -110,7 +110,7 @@
   function buildAlbumSelectors() {
     if (!albumSelect) return;
     albumSelect.innerHTML = '';
-    albumSelect.appendChild(optionEl('', '— ყველა ალბომი —'));
+    albumSelect.appendChild(optionEl('', '— ყველა ალბომи —'));
     const mains = albums.filter(a => !a.parentId);
     mains.forEach(a => albumSelect.appendChild(optionEl(a.id, a.name)));
 
@@ -233,4 +233,218 @@
       btnLyrics.textContent = 'ტექსტი';
       btnLyrics.addEventListener('click', (ev) => {
         ev.stopPropagation();
-        if (modal
+        if (modalTitle) modalTitle.textContent = t.title || 'Lyrics';
+        if (modalLyrics) modalLyrics.textContent = t.lyrics || '';
+        if (lyricsModal) {
+          lyricsModal.classList.remove('hidden');
+          lyricsModal.setAttribute('aria-hidden', 'false');
+        }
+      });
+      actions.appendChild(btnLyrics);
+
+      // Download
+      const aDownload = document.createElement('a');
+      const stream = getStreamUrl(t);
+      if (stream) {
+        aDownload.href = stream;
+        aDownload.textContent = 'Download';
+        aDownload.download = '';
+      } else {
+        aDownload.textContent = 'No file';
+        aDownload.href = '#';
+        aDownload.className = 'disabled';
+      }
+      actions.appendChild(aDownload);
+
+      // Like
+      const likeBtn = document.createElement('button');
+      likeBtn.type = 'button';
+      likeBtn.className = 'like-button';
+      likeBtn.setAttribute('aria-label', 'Like track');
+
+      const heartSpan = document.createElement('span');
+      heartSpan.className = 'heart';
+      heartSpan.textContent = '❤';
+
+      const countSpan = document.createElement('span');
+      countSpan.className = 'like-count';
+
+      const key = String(t.id || t.filename || t.title);
+      countSpan.textContent = getLikesFor(key);
+
+      likeBtn.appendChild(heartSpan);
+      likeBtn.appendChild(countSpan);
+
+      if (hasLiked(key)) likeBtn.classList.add('liked');
+
+      likeBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        if (hasLiked(key)) {
+          likeBtn.classList.add('animate');
+          setTimeout(() => likeBtn.classList.remove('animate'), 380);
+          return;
+        }
+        const newCount = incrementLikesFor(key);
+        countSpan.textContent = newCount;
+        markLiked(key);
+        likeBtn.classList.add('liked');
+        likeBtn.classList.add('animate');
+        setTimeout(() => likeBtn.classList.remove('animate'), 380);
+      });
+
+      actions.appendChild(likeBtn);
+
+      card.appendChild(img);
+      card.appendChild(info);
+      card.appendChild(actions);
+      tracksContainer.appendChild(card);
+    });
+  }
+
+  // Плеер (как был)
+  function playTrackByIndex(index) {
+    if (index < 0 || index >= tracks.length) return;
+    currentTrackIndex = index;
+    const t = tracks[currentTrackIndex];
+    if (!t) return;
+    const src = getStreamUrl(t);
+    if (!src) { alert('Аудиофайл не найден'); return; }
+
+    audio.src = src;
+    audio.currentTime = 0;
+    if (titleEl) titleEl.textContent = t.title || '';
+    if (artistEl) artistEl.textContent = t.artist || '';
+    if (coverImg) coverImg.src = getCoverUrl(t);
+    if (downloadBtn) {
+      downloadBtn.href = src;
+      downloadBtn.style.display = src ? '' : 'none';
+    }
+    if (showLyricsBtn) showLyricsBtn.style.display = (t.lyrics && t.lyrics.trim()) ? '' : 'none';
+    if (modalTitle) modalTitle.textContent = t.title || 'Lyrics';
+    if (modalLyrics) modalLyrics.textContent = t.lyrics || '';
+
+    audio.play().then(() => {
+      isPlaying = true;
+      if (playerEl) playerEl.classList.add('visible');
+      updatePlayButton();
+    }).catch(err => {
+      console.error('Ошибка воспроизведения', err);
+      isPlaying = false;
+      updatePlayButton();
+    });
+  }
+
+  function updatePlayButton() {
+    if (!playBtn) return;
+    playBtn.textContent = isPlaying ? '⏸' : '▶';
+  }
+  function playPrev() { if (currentTrackIndex > 0) playTrackByIndex(currentTrackIndex - 1); }
+  function playNext() { if (currentTrackIndex < tracks.length - 1) playTrackByIndex(currentTrackIndex + 1); }
+
+  if (audio) {
+    audio.addEventListener('play', () => {
+      isPlaying = true;
+      if (playerEl) playerEl.classList.add('visible');
+      updatePlayButton();
+    });
+    audio.addEventListener('pause', () => {
+      isPlaying = false;
+      updatePlayButton();
+      if (playerEl) playerEl.classList.remove('visible');
+    });
+    audio.addEventListener('ended', () => {
+      isPlaying = false;
+      updatePlayButton();
+      if (playerEl) playerEl.classList.remove('visible');
+    });
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.duration) return;
+      if (progress) progress.value = (audio.currentTime / audio.duration) * 100;
+      if (timeCurrent) timeCurrent.textContent = formatTime(audio.currentTime);
+      if (timeDuration) timeDuration.textContent = formatTime(audio.duration);
+    });
+    audio.addEventListener('loadedmetadata', () => {
+      if (timeDuration) timeDuration.textContent = formatTime(audio.duration);
+    });
+  }
+
+  if (playBtn) {
+    playBtn.addEventListener('click', () => {
+      if (!audio.src) {
+        const firstIndex = tracks.findIndex(() => true);
+        if (firstIndex >= 0) playTrackByIndex(firstIndex);
+        return;
+      }
+      if (audio.paused) audio.play();
+      else audio.pause();
+    });
+  }
+  if (prevBtn) prevBtn.addEventListener('click', playPrev);
+  if (nextBtn) nextBtn.addEventListener('click', playNext);
+  if (volumeEl) volumeEl.addEventListener('input', () => { audio.volume = parseFloat(volumeEl.value); });
+  if (progress) progress.addEventListener('input', () => {
+    if (!audio.duration) return;
+    const pct = parseFloat(progress.value);
+    audio.currentTime = (pct / 100) * audio.duration;
+  });
+
+  if (showLyricsBtn) {
+    showLyricsBtn.addEventListener('click', () => {
+      if (!lyricsModal) return;
+      lyricsModal.classList.remove('hidden');
+      lyricsModal.setAttribute('aria-hidden', 'false');
+    });
+  }
+  if (modalClose) {
+    modalClose.addEventListener('click', () => {
+      if (!lyricsModal) return;
+      lyricsModal.classList.add('hidden');
+      lyricsModal.setAttribute('aria-hidden', 'true');
+    });
+  }
+
+  // Загрузка данных
+  async function loadData() {
+    try {
+      const res = await fetch('tracks.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error('tracks.json not found');
+      const data = await res.json();
+      tracks = data.tracks || [];
+      albums = data.albums || [];
+      buildAlbumSelectors();
+
+      if (albumSelect && !albumSelect._hasHandler) {
+        albumSelect.addEventListener('change', onAlbumChange);
+        albumSelect._hasHandler = true;
+      }
+      if (subalbumSelect && !subalbumSelect._hasHandler) {
+        subalbumSelect.addEventListener('change', onSubalbumChange);
+        subalbumSelect._hasHandler = true;
+      }
+
+      applySearch();
+      renderTracks();
+    } catch (err) {
+      console.error('Ошибка загрузки tracks.json:', err);
+      if (tracksContainer) tracksContainer.innerHTML = '<div class="muted">Не удалось загрузить треки</div>';
+    }
+  }
+
+  const refreshBtn = document.getElementById('refresh-btn');
+  if (refreshBtn) refreshBtn.addEventListener('click', () => loadData());
+
+  // Поиск — обработчик
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      searchQuery = searchInput.value || '';
+      applySearch();
+      renderTracks();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    if (volumeEl && audio) audio.volume = parseFloat(volumeEl.value || 1);
+    if (progress) progress.value = 0;
+  });
+})();
