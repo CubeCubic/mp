@@ -1,11 +1,14 @@
 (function () {
-  const albumSelect = document.getElementById('album-select');
+  const albumSelect = document.getElementById('album-select'); // теперь скрытое поле
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
   const tracksContainer = document.getElementById('tracks');
 
   // global search input (перемещённый поисковик)
   const globalSearchInput = document.getElementById('global-search');
+
+  // блок миниатюр альбомов
+  const albumThumbsContainer = document.getElementById('album-thumbs');
 
   const playerEl = document.getElementById('player');
   const audio = document.getElementById('audio');
@@ -108,14 +111,85 @@
   }
   function safeStr(v) { return (v == null) ? '' : String(v); }
 
-  // Селекторы альбомов
-  function buildAlbumSelectors() {
-    if (!albumSelect) return;
-    albumSelect.innerHTML = '';
-    albumSelect.appendChild(optionEl('', '— ყველა ალბომი —'));
-    const mains = albums.filter(a => !a.parentId);
-    mains.forEach(a => albumSelect.appendChild(optionEl(a.id, a.name)));
+  // --- Новая логика: миниатюры альбомов ---
+  // Простая функция для выбора имени файла миниатюры по названию альбома.
+  // Если название содержит "instrumental" или "georgian" — используем конкретные файлы, иначе fallback.
+  function albumImageForName(name) {
+    if (!name) return 'images/default-album.jpeg';
+    const n = name.toLowerCase();
+    if (n.includes('instrumental')) return 'images/instrumental.jpeg';
+    if (n.includes('georgian')) return 'images/georgian.jpeg';
+    if (n.includes('jazz')) return 'images/jazz.jpeg';
+    if (n.includes('rock')) return 'images/rock.jpeg';
+    // fallback
+    return 'images/default-album.jpeg';
+  }
 
+  // Рендер миниатюр альбомов
+  function renderAlbumThumbs() {
+    if (!albumThumbsContainer) return;
+    albumThumbsContainer.innerHTML = '';
+    if (!albums || !albums.length) return;
+
+    albums.forEach(a => {
+      const thumb = document.createElement('div');
+      thumb.className = 'album-thumb';
+      thumb.setAttribute('data-album-id', a.id || '');
+      thumb.setAttribute('role', 'button');
+      thumb.setAttribute('tabindex', '0');
+
+      const img = document.createElement('img');
+      img.src = albumImageForName(a.name);
+      img.alt = a.name || 'album';
+      thumb.appendChild(img);
+
+      const label = document.createElement('div');
+      label.className = 'album-name';
+      label.textContent = a.name || '';
+      thumb.appendChild(label);
+
+      // Клик по миниатюре — устанавливаем скрытое поле album-select и вызываем onAlbumChange
+      thumb.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        selectAlbumById(String(a.id || ''));
+      });
+      // Поддержка клавиатуры (Enter)
+      thumb.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          selectAlbumById(String(a.id || ''));
+        }
+      });
+
+      albumThumbsContainer.appendChild(thumb);
+    });
+  }
+
+  // Устанавливает выбранный альбом (в скрытом поле) и обновляет визуальное состояние миниатюр
+  function selectAlbumById(albumId) {
+    if (!albumSelect) return;
+    albumSelect.value = albumId || '';
+    // визуально отметить выбранную миниатюру
+    const thumbs = albumThumbsContainer ? Array.from(albumThumbsContainer.querySelectorAll('.album-thumb')) : [];
+    thumbs.forEach(t => {
+      if (t.getAttribute('data-album-id') === albumId) t.classList.add('selected');
+      else t.classList.remove('selected');
+    });
+    // Сброс подальбомов при смене альбома
+    if (subalbumSelect) {
+      subalbumSelect.value = '';
+      subalbumSelect.disabled = true;
+      subalbumSelect.style.display = 'none';
+      if (subalbumLabel) subalbumLabel.style.display = 'none';
+    }
+    // Вызвать существующую функцию фильтрации
+    onAlbumChange();
+  }
+
+  // Селекторы альбомов (оставлена для совместимости, но теперь также вызывает renderAlbumThumbs)
+  function buildAlbumSelectors() {
+    // Скрытое поле album-select уже есть — не трогаем его содержимое здесь
+    // Заполним подальбомы по необходимости (как раньше) и отрисуем миниатюры
     if (subalbumSelect) {
       subalbumSelect.innerHTML = '';
       subalbumSelect.appendChild(optionEl('', '— ყველა ქვეალბომი —'));
@@ -123,8 +197,11 @@
       subalbumSelect.style.display = 'none';
       if (subalbumLabel) subalbumLabel.style.display = 'none';
     }
+    // Отрисовать миниатюры
+    renderAlbumThumbs();
   }
 
+  // onAlbumChange и onSubalbumChange остаются прежними, они читают значение из albumSelect (скрытого поля)
   function onAlbumChange() {
     const currentAlbumId = (albumSelect.value || '').toString();
     if (subalbumSelect) {
@@ -444,6 +521,7 @@
       buildAlbumSelectors();
 
       if (albumSelect && !albumSelect._hasHandler) {
+        // albumSelect теперь скрытое поле; оставляем обработчик на случай внешних изменений
         albumSelect.addEventListener('change', onAlbumChange);
         albumSelect._hasHandler = true;
       }

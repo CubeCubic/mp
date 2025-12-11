@@ -58,12 +58,58 @@ header nav a:hover { text-decoration: underline; }
 /* Надпись "ალბომები" */
 .controls > label[for="album-select"] {
   display: block;
-  margin-top: 30px;
-  margin-bottom: 6px;
+  margin-top: 18px;
+  margin-bottom: 8px;
   color: #ffcc00;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   line-height: 1;
+}
+
+/* Блок миниатюр альбомов */
+.album-thumbs {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+/* Одна миниатюра альбома */
+.album-thumb {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120px; /* ширина миниатюры */
+  cursor: pointer;
+  text-align: center;
+  color: #fff;
+  text-decoration: none;
+}
+.album-thumb img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  display: block;
+}
+.album-thumb .album-name {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #ffcc00;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+/* Состояние выбранной миниатюры */
+.album-thumb.selected img {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  border-color: #ffcc00;
 }
 
 /* Заголовок «ტრეკები» */

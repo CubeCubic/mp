@@ -20,15 +20,18 @@
 
     <main>
       <section>
-        <!-- Удалена большая надпись "ალბომები" (текст убран), линия сохранена через .controls -->
+        <!-- Убрано визуальное выпадающее меню; добавлены миниатюры альбомов.
+             Скрытое поле album-select оставлено для совместимости с существующим JS. -->
         <div class="controls">
-          <!-- Поисковик перемещён сюда -->
           <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
 
           <label for="album-select">ალბომები</label>
-          <select id="album-select">
-            <option value="">— Loading —</option>
-          </select>
+
+          <!-- Скрытое поле, чтобы существующий JS, который обращается к #album-select, продолжил работать -->
+          <input type="hidden" id="album-select" value="">
+
+          <!-- Блок миниатюр альбомов (здесь будут вставлены картинки через JS) -->
+          <div id="album-thumbs" class="album-thumbs" aria-hidden="false"></div>
 
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
           <select id="subalbum-select" style="display:none;">
