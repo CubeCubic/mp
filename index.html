@@ -10,7 +10,7 @@
 <body>
   <header>
     <h1>Cube Cubic</h1>
-    <p class="muted">კუბური იუს თქვენი მობრუნება</p>
+    <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
     <nav>
       <a href="index.html">მთავარი</a>
       <a href="admin.html">Admin</a>
@@ -19,12 +19,14 @@
 
   <main>
     <section>
-      <h2>ალბომები</h2>
-      <div class="controls">
-        <label for="album-select">ალბომი</label>
-        <select id="album-select">
-          <option value="">— Loading —</option>
-        </select>
+  <div style="display:flex; align-items:center; justify-content:space-between;">
+      <h2 style="margin:0;">ტრეკები</h2>
+      <input id="search-input" type="text" placeholder="Search tracks..." 
+           style="margin-left:12px; flex:0 0 240px; padding:6px; border-radius:6px; border:1px solid #333; background:#111; color:#fff;">
+      </div>
+      <div id="tracks"></div>
+    </section>
+
 
         <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
         <select id="subalbum-select" style="display:none;">
@@ -84,3 +86,4 @@
   <script src="app.js"></script>
 </body>
 </html>
+
