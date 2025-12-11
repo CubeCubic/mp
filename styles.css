@@ -113,7 +113,7 @@ h2 {
   pointer-events: none;
 }
 
-/* Кнопка "сердечко" — отдельный стиль */
+/* Кнопка "сердечко" — базовый стиль */
 .like-button {
   display: inline-flex;
   align-items: center;
@@ -125,6 +125,7 @@ h2 {
   border: none;
   cursor: pointer;
   font-size: 11px;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
 .like-button .heart {
   font-size: 14px;
@@ -132,6 +133,24 @@ h2 {
 }
 .like-button .like-count {
   font-size: 12px;
+}
+
+/* Подсветка, если пользователь уже лайкнул */
+.like-button.liked {
+  background: linear-gradient(90deg, #ff6b81 0%, #ff3b6b 100%);
+  box-shadow: 0 6px 18px rgba(255,59,107,0.22);
+  transform: translateY(-1px);
+}
+
+/* Анимация "pop" при нажатии */
+@keyframes like-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); }
+  70% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+.like-button.animate {
+  animation: like-pop 360ms cubic-bezier(.2,.9,.2,1);
 }
 
 /* Плеер — компактный и упорядоченный */
