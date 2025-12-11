@@ -1,5 +1,8 @@
-// app.js — полный файл с плеером: плеер показывается при воспроизведении и скрывается при паузе/стопе
+// app.js — полный файл: плеер показывается при воспроизведении и скрывается при паузе/окончании,
+// селектор подальбомов корректно заполняется и отображается, пути относительные
+
 (function () {
+  // DOM-элементы
   const albumSelect = document.getElementById('album-select');
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
@@ -26,6 +29,7 @@
   const modalTitle = document.getElementById('modal-title');
   const modalLyrics = document.getElementById('modal-lyrics');
 
+  // Состояние
   let albums = [];
   let tracks = [];
   let currentTrackIndex = -1;
@@ -33,38 +37,35 @@
   let defaultAlbumId = null;
   let isPlaying = false;
 
-  function escapeHtml(str) {
-    if (typeof str !== 'string') return '';
-    return str.replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
+  // Хелперы
   function formatTime(sec) {
     if (!isFinite(sec)) return '0:00';
     const m = Math.floor(sec / 60);
     const s = Math.floor(sec % 60);
     return `${m}:${s.toString().padStart(2, '0')}`;
   }
-
   function getStreamUrl(t) {
     if (!t) return null;
     if (t.audioUrl) return t.audioUrl;
     if (t.downloadUrl) return t.downloadUrl;
-    if (t.filename) return 'media/' + t.filename;
+    if (t.filename) return 'media/' + t.filename; // относительный путь
     return null;
   }
-
   function getCoverUrl(t) {
-    const fallback = 'images/midcube.png';
+    const fallback = 'images/midcube.png'; // относительный путь
     if (!t) return fallback;
     if (t.coverUrl) return t.coverUrl;
-    if (t.cover) return 'uploads/' + t.cover;
+    if (t.cover) return 'uploads/' + t.cover; // относительный путь
     return fallback;
   }
+  function optionEl(value, text) {
+    const o = document.createElement('option');
+    o.value = value;
+    o.textContent = text;
+    return o;
+  }
 
+  // Построение селекторов альбомов/подальбомов
   function buildAlbumSelectors() {
     if (!albumSelect) return;
     albumSelect.innerHTML = '';
@@ -74,7 +75,7 @@
 
     if (subalbumSelect) {
       subalbumSelect.innerHTML = '';
-      subalbumSelect.appendChild(optionEl('', '— ყველა ქვეალბომი —'));
+      subalbumSelect.appendChild(optionEl('', '— ყველა ქვეალბომи —'));
       subalbumSelect.disabled = true;
       subalbumSelect.style.display = 'none';
       if (subalbumLabel) subalbumLabel.style.display = 'none';
@@ -84,13 +85,7 @@
     if (def) defaultAlbumId = def.id;
   }
 
-  function optionEl(value, text) {
-    const o = document.createElement('option');
-    o.value = value;
-    o.textContent = text;
-    return o;
-  }
-
+  // Смена главного альбома
   function onAlbumChange() {
     if (!albumSelect) return;
     const currentAlbumId = (albumSelect.value || '').toString();
@@ -111,13 +106,16 @@
       }
       subalbumSelect.value = '';
     }
+
     renderTracks();
   }
 
+  // Смена подальбома
   function onSubalbumChange() {
     renderTracks();
   }
 
+  // Рендер треков
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -158,7 +156,8 @@
       const h4 = document.createElement('h4');
       h4.textContent = t.title || 'Untitled';
       const meta = document.createElement('div');
-      meta.textContent = (t.artist || '') + ' • ' + (albums.find(a => a.id === t.albumId)?.name || '');
+      const albumName = (albums.find(a => a.id === t.albumId) || {}).name || '';
+      meta.textContent = (t.artist || '') + (albumName ? ' • ' + albumName : '');
 
       info.appendChild(h4);
       info.appendChild(meta);
@@ -194,6 +193,7 @@
     });
   }
 
+  // Логика плеера
   function playTrackByIndex(index) {
     if (index < 0 || index >= tracks.length) return;
     currentTrackIndex = index;
@@ -219,7 +219,7 @@
 
     audio.play().then(() => {
       isPlaying = true;
-      if (playerEl) playerEl.classList.add('visible');
+      if (playerEl) playerEl.classList.add('visible'); // показать плеер
       updatePlayButton();
     }).catch(err => {
       console.error('Playback error', err);
@@ -240,21 +240,22 @@
     if (currentTrackIndex < tracks.length - 1) playTrackByIndex(currentTrackIndex + 1);
   }
 
+  // События audio
   if (audio) {
     audio.addEventListener('play', () => {
       isPlaying = true;
-      if (playerEl) playerEl.classList.add('visible');
+      if (playerEl) playerEl.classList.add('visible'); // показать при нативном play
       updatePlayButton();
     });
     audio.addEventListener('pause', () => {
       isPlaying = false;
       updatePlayButton();
-      if (playerEl) playerEl.classList.remove('visible');
+      if (playerEl) playerEl.classList.remove('visible'); // скрыть плеер при паузе
     });
     audio.addEventListener('ended', () => {
       isPlaying = false;
       updatePlayButton();
-      if (playerEl) playerEl.classList.remove('visible');
+      if (playerEl) playerEl.classList.remove('visible'); // скрыть плеер при окончании
     });
     audio.addEventListener('timeupdate', () => {
       if (!audio.duration || !progress) return;
@@ -268,10 +269,12 @@
     });
   }
 
+  // Управление плеером
   if (playBtn) {
     playBtn.addEventListener('click', () => {
       if (!audio.src) {
-        const firstVisibleIndex = tracks.findIndex(t => true);
+        // если ничего не загружено — попытаться запустить первый видимый трек
+        const firstVisibleIndex = tracks.findIndex(() => true);
         if (firstVisibleIndex >= 0) playTrackByIndex(firstVisibleIndex);
         return;
       }
@@ -294,6 +297,7 @@
     });
   }
 
+  // Модалка с текстом
   if (showLyricsBtn) {
     showLyricsBtn.addEventListener('click', () => {
       if (!lyricsModal) return;
@@ -309,6 +313,7 @@
     });
   }
 
+  // Загрузка данных
   async function loadData() {
     try {
       const res = await fetch('tracks.json');
@@ -338,8 +343,10 @@
     }
   }
 
+  // Refresh (если есть кнопка)
   const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) refreshBtn.addEventListener('click', () => loadData());
 
+  // Инициализация
   document.addEventListener('DOMContentLoaded', loadData);
 })();
