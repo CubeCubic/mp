@@ -110,7 +110,7 @@
   function buildAlbumSelectors() {
     if (!albumSelect) return;
     albumSelect.innerHTML = '';
-    albumSelect.appendChild(optionEl('', '— ყველა ალბომи —'));
+    albumSelect.appendChild(optionEl('', '— ყველა ალბომი —'));
     const mains = albums.filter(a => !a.parentId);
     mains.forEach(a => albumSelect.appendChild(optionEl(a.id, a.name)));
 
@@ -145,7 +145,7 @@
   }
   function onSubalbumChange() { renderTracks(); }
 
-  // Поиск
+  // Поиск по локальному полю searchInput (треки)
   function matchesQuery(t, query) {
     if (!query) return true;
     const q = query.toLowerCase();
@@ -158,13 +158,43 @@
       safeStr(t.filename),
       safeStr(t.audioUrl),
       safeStr(t.downloadUrl)
-      // исключаем: cover, coverUrl, lyrics
     ].join(' ').toLowerCase();
     return haystack.includes(q);
   }
   function applySearch() {
     const query = (searchQuery || '').trim();
     filteredTracks = query ? tracks.filter(t => matchesQuery(t, query)) : [];
+  }
+
+  // Глобальный поисковик (альбомы, подальбомы, треки)
+  const globalSearchInput = document.getElementById('global-search');
+
+  function applyGlobalSearch(query) {
+    const q = (query || '').trim().toLowerCase();
+    if (!q) {
+      searchQuery = '';
+      filteredTracks = [];
+      renderTracks();
+      return;
+    }
+    filteredTracks = tracks.filter(t => {
+      const albumName = (albums.find(a => a.id === t.albumId) || {}).name || '';
+      const haystack = [
+        safeStr(t.title),
+        safeStr(t.artist),
+        safeStr(albumName),
+        safeStr(t.id),
+        safeStr(t.audioUrl)
+      ].join(' ').toLowerCase();
+      return haystack.includes(q);
+    });
+    renderTracks();
+  }
+
+  if (globalSearchInput) {
+    globalSearchInput.addEventListener('input', () => {
+      applyGlobalSearch(globalSearchInput.value);
+    });
   }
 
   // Рендер треков
@@ -433,7 +463,7 @@
   const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) refreshBtn.addEventListener('click', () => loadData());
 
-  // Поиск — обработчик
+  // Поиск — обработчик локального поля
   if (searchInput) {
     searchInput.addEventListener('input', () => {
       searchQuery = searchInput.value || '';
