@@ -9,12 +9,12 @@ body {
   background-attachment: fixed;
 }
 
-/* Поля сайта */
+/* Контейнер сайта: компактная, сбалансированная ширина + адаптивные поля */
 .site-wrapper {
-  max-width: 1800px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: 20px;
+  padding-right: 20px;
   box-sizing: border-box;
 }
 
@@ -26,11 +26,11 @@ header {
   position: relative;
 }
 
-/* Бейдж в шапке */
+/* Бейдж в шапке — аккуратное позиционирование */
 #header-badge {
   position: absolute;
-  width: 96px;
-  height: 96px;
+  width: 92px;
+  height: 92px;
   top: 18px;
   left: 22px;
   z-index: 10;
@@ -44,6 +44,7 @@ header {
   border-radius: 6px;
 }
 
+/* Навигация */
 header nav {
   display: flex;
   justify-content: center;
@@ -56,50 +57,50 @@ header nav a {
 }
 header nav a:hover { text-decoration: underline; }
 
-/* Поисковик — только смещение вниз */
+/* Поисковик — аккуратный отступ и ширина */
 #global-search {
   margin-top: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   padding: 6px 8px;
   border-radius: 6px;
   border: 1px solid #333;
   background: #111;
   color: #fff;
   font-size: 14px;
-  width: 260px;
+  width: 280px;
 }
 
-/* Контролы */
+/* Контролы с нижним делителем */
 .controls {
   border-bottom: 2px solid #ffcc00;
   padding-bottom: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
-/* Метка "албомы" */
+/* Надпись "ალბომები" — компактно, но выразительно */
 .controls > label[for="album-select"] {
   display: block;
-  margin-top: 18px;
+  margin-top: 16px;
   margin-bottom: 8px;
   color: #ffcc00;
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 700;
   line-height: 1;
 }
 
-/* Миниатюры главных альбомов */
+/* Миниатюры главных альбомов — немного крупнее и стабильнее */
 .album-thumbs {
   display: flex;
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 .album-thumb {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  width: 120px;
+  width: 132px;
   cursor: pointer;
   text-align: center;
   color: #fff;
@@ -107,7 +108,7 @@ header nav a:hover { text-decoration: underline; }
 }
 .album-thumb img {
   width: 100%;
-  height: 100px;
+  height: 108px;
   object-fit: cover;
   border-radius: 8px;
   border: 2px solid transparent;
@@ -124,21 +125,34 @@ header nav a:hover { text-decoration: underline; }
   width: 100%;
 }
 .album-thumb.selected img {
-  transform: translateY(-4px) scale(1.02);
+  transform: translateY(-3px) scale(1.02);
   box-shadow: 0 8px 24px rgba(0,0,0,0.45);
   border-color: #ffcc00;
 }
 
-/* Треки — 8 колонок */
+/* Заголовок «ტრეკები» */
+.tracks-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+.tracks-header h2 {
+  margin: 0;
+}
+
+/* Сетка треков — ровные брейкпоинты и стабильный ритм */
 #tracks {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
   align-items: start;
   width: 100%;
   margin: 0;
   padding: 0;
 }
+
+/* Небольшая компенсация границ секции */
 section > #tracks {
   margin-left: -6px;
   margin-right: -6px;
@@ -146,19 +160,21 @@ section > #tracks {
   padding-right: 6px;
 }
 
-/* Карточка трека — компактно */
+/* Карточка трека — компактно и читабельно */
 .card {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 8px;
   padding: 8px;
   color: #fff;
-  min-height: 140px;
+  min-height: 136px;
   box-sizing: border-box;
 }
+
+/* Кавер — строгая квадратная пропорция */
 .card img.track-cover {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -167,6 +183,8 @@ section > #tracks {
   cursor: pointer;
   display: block;
 }
+
+/* Инфо — компактные шрифты и плотный line-height */
 .track-info {
   margin-top: 8px;
   display: flex;
@@ -176,7 +194,7 @@ section > #tracks {
 .track-info h4 {
   margin: 0;
   font-size: 12px;
-  line-height: 1.05;
+  line-height: 1.08;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -188,6 +206,8 @@ section > #tracks {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Действия — ужатые кнопки, лайк стабильно помещается */
 .track-actions {
   margin-top: 8px;
   display: flex;
@@ -211,6 +231,8 @@ section > #tracks {
   opacity: 0.5;
   pointer-events: none;
 }
+
+/* Лайк — компактный, выравнивается вправо */
 .like-button {
   display: inline-flex;
   align-items: center;
@@ -242,7 +264,8 @@ section > #tracks {
   animation: like-pop 360ms cubic-bezier(.2,.9,.2,1);
 }
 
-/* Плеер — восстановленные стили */
+/* Плеер — не изменён */
+/* ----- начало блока плеера ----- */
 #player {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -254,11 +277,7 @@ section > #tracks {
   transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
   z-index: 1000;
 }
-#player.visible {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
-}
+#player.visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
 .player-bar {
   display: flex;
   align-items: center;
@@ -309,6 +328,7 @@ section > #tracks {
 }
 #player-progress span { font-size: 12px; color: #ccc; width: 40px; text-align: center; }
 #progress { flex: 1; }
+/* ----- конец блока плеера ----- */
 
 /* Модалка */
 #lyrics-modal.hidden { display: none !important; }
@@ -327,24 +347,36 @@ section > #tracks {
 .modal-box h3 { margin-top: 0; font-size: 16px; }
 .modal-box pre { white-space: pre-wrap; font-size: 13px; }
 
-/* Адаптивность */
+/* Адаптивность — предсказуемые ступени */
 @media (min-width: 1600px) {
-  #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 16px; }
-}
-@media (min-width: 1400px) and (max-width: 1599px) {
+  .site-wrapper { max-width: 1600px; padding-left: 22px; padding-right: 22px; }
   #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
 }
-@media (max-width: 1200px) {
-  .site-wrapper { max-width: 1200px; padding-left: 16px; padding-right: 16px; }
+@media (min-width: 1400px) and (max-width: 1599px) {
+  .site-wrapper { max-width: 1480px; }
+  #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
+}
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .site-wrapper { max-width: 1320px; }
+  #tracks { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; }
+}
+@media (min-width: 1000px) and (max-width: 1199px) {
+  .site-wrapper { max-width: 1120px; padding-left: 16px; padding-right: 16px; }
   #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+  .card { min-height: 132px; padding: 8px; }
 }
-@media (max-width: 1000px) {
+@media (min-width: 700px) and (max-width: 999px) {
+  .site-wrapper { max-width: 860px; padding-left: 14px; padding-right: 14px; }
   #tracks { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .card { min-height: 128px; padding: 8px; }
 }
-@media (max-width: 700px) {
+@media (min-width: 420px) and (max-width: 699px) {
+  .site-wrapper { max-width: 560px; padding-left: 12px; padding-right: 12px; }
   #tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 }
-@media (max-width: 420px) {
+@media (max-width: 419px) {
+  .site-wrapper { max-width: 360px; padding-left: 10px; padding-right: 10px; }
   #tracks { grid-template-columns: 1fr; gap: 8px; }
-  .site-wrapper { padding-left: 8px; padding-right: 8px; }
+  .card img.track-cover { aspect-ratio: 16/9; }
+  .card { min-height: auto; padding: 8px; }
 }

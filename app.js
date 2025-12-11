@@ -7,7 +7,6 @@
   const globalSearchInput = document.getElementById('global-search');
   const albumThumbsContainer = document.getElementById('album-thumbs');
 
-  // Плеер — восстановленные элементы
   const playerEl = document.getElementById('player');
   const audio = document.getElementById('audio');
   const playBtn = document.getElementById('play');
@@ -37,7 +36,6 @@
   let searchQuery = '';
   let filteredTracks = [];
 
-  // Лайки (localStorage)
   const LIKES_KEY = 'trackLikes';
   const LIKED_KEY = 'likedTracks';
 
@@ -65,7 +63,6 @@
     saveLikedSet(set);
   }
 
-  // Утилиты
   function formatTime(sec) {
     if (!isFinite(sec)) return '0:00';
     const m = Math.floor(sec / 60);
@@ -94,7 +91,6 @@
   }
   function safeStr(v) { return (v == null) ? '' : String(v); }
 
-  // Картинки только для главных альбомов
   function albumImageForName(name) {
     if (!name) return 'images/default-album.jpeg';
     const n = name.toLowerCase();
@@ -157,16 +153,12 @@
   }
 
   function buildAlbumSelectors() {
-    // скрытое поле для главного альбома
     albumSelect.value = '';
-
-    // восстановлен селект подальбомов
     subalbumSelect.innerHTML = '';
     subalbumSelect.appendChild(optionEl('', '— ყველა ქვეალბომი —'));
     subalbumSelect.disabled = true;
     subalbumSelect.style.display = 'none';
     subalbumLabel.style.display = 'none';
-
     renderAlbumThumbs();
   }
 
@@ -190,22 +182,6 @@
   }
   function onSubalbumChange() { renderTracks(); }
 
-  // Поиск
-  function matchesQuery(t, query) {
-    if (!query) return true;
-    const q = query.toLowerCase();
-    const albumName = (albums.find(a => a.id === t.albumId) || {}).name || '';
-    const haystack = [
-      safeStr(t.title),
-      safeStr(t.artist),
-      safeStr(albumName),
-      safeStr(t.id),
-      safeStr(t.filename),
-      safeStr(t.audioUrl),
-      safeStr(t.downloadUrl)
-    ].join(' ').toLowerCase();
-    return haystack.includes(q);
-  }
   function applyGlobalSearch(query) {
     const q = (query || '').trim().toLowerCase();
     searchQuery = q;
@@ -228,7 +204,6 @@
     globalSearchInput.addEventListener('input', () => applyGlobalSearch(globalSearchInput.value));
   }
 
-  // Рендер треков
   function renderTracks() {
     tracksContainer.innerHTML = '';
 
@@ -356,11 +331,9 @@
     });
   }
 
-  // Плеер — восстановленная логика
   function playTrackByIndex(index) {
     if (index < 0 || index >= tracks.length) return;
-    currentTrackIndex = index;
-    const t = tracks[currentTrackIndex];
+    const t = tracks[index];
     const src = getStreamUrl(t);
     if (!src) { alert('Аудиофайл не найден'); return; }
 
@@ -377,73 +350,70 @@
 
     audio.play().then(() => {
       isPlaying = true;
-      playerEl.classList.add('visible');
+      if (playerEl) playerEl.classList.add('visible');
       updatePlayButton();
     }).catch(() => {
       isPlaying = false;
       updatePlayButton();
     });
   }
-
   function updatePlayButton() {
+    if (!playBtn) return;
     playBtn.textContent = isPlaying ? '⏸' : '▶';
   }
-  function playPrev() { if (currentTrackIndex > 0) playTrackByIndex(currentTrackIndex - 1); }
-  function playNext() { if (currentTrackIndex < tracks.length - 1) playTrackByIndex(currentTrackIndex + 1); }
+  function playPrev() { const i = tracks.findIndex(x => x.id === (tracks[currentTrackIndex] || {}).id); if (i > 0) playTrackByIndex(i - 1); }
+  function playNext() { const i = tracks.findIndex(x => x.id === (tracks[currentTrackIndex] || {}).id); if (i < tracks.length - 1) playTrackByIndex(i + 1); }
 
-  audio.addEventListener('play', () => {
-    isPlaying = true;
-    playerEl.classList.add('visible');
-    updatePlayButton();
-  });
-  audio.addEventListener('pause', () => {
-    isPlaying = false;
-    updatePlayButton();
-    playerEl.classList.remove('visible');
-  });
-  audio.addEventListener('ended', () => {
-    isPlaying = false;
-    updatePlayButton();
-    playerEl.classList.remove('visible');
-  });
-  audio.addEventListener('timeupdate', () => {
-    if (!audio.duration) return;
-    progress.value = (audio.currentTime / audio.duration) * 100;
-    timeCurrent.textContent = formatTime(audio.currentTime);
-    timeDuration.textContent = formatTime(audio.duration);
-  });
-  audio.addEventListener('loadedmetadata', () => {
-    timeDuration.textContent = formatTime(audio.duration);
-  });
+  if (audio) {
+    audio.addEventListener('play', () => { isPlaying = true; playerEl.classList.add('visible'); updatePlayButton(); });
+    audio.addEventListener('pause', () => { isPlaying = false; updatePlayButton(); playerEl.classList.remove('visible'); });
+    audio.addEventListener('ended', () => { isPlaying = false; updatePlayButton(); playerEl.classList.remove('visible'); });
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.duration) return;
+      if (progress) progress.value = (audio.currentTime / audio.duration) * 100;
+      if (timeCurrent) timeCurrent.textContent = formatTime(audio.currentTime);
+      if (timeDuration) timeDuration.textContent = formatTime(audio.duration);
+    });
+    audio.addEventListener('loadedmetadata', () => {
+      if (timeDuration) timeDuration.textContent = formatTime(audio.duration);
+    });
+  }
 
-  playBtn.addEventListener('click', () => {
-    if (!audio.src) {
-      const firstIndex = tracks.findIndex(() => true);
-      if (firstIndex >= 0) playTrackByIndex(firstIndex);
-      return;
-    }
-    if (audio.paused) audio.play();
-    else audio.pause();
-  });
-  prevBtn.addEventListener('click', playPrev);
-  nextBtn.addEventListener('click', playNext);
-  volumeEl.addEventListener('input', () => { audio.volume = parseFloat(volumeEl.value); });
-  progress.addEventListener('input', () => {
+  if (playBtn) {
+    playBtn.addEventListener('click', () => {
+      if (!audio.src) {
+        const firstIndex = tracks.findIndex(() => true);
+        if (firstIndex >= 0) playTrackByIndex(firstIndex);
+        return;
+      }
+      if (audio.paused) audio.play();
+      else audio.pause();
+    });
+  }
+  if (prevBtn) prevBtn.addEventListener('click', playPrev);
+  if (nextBtn) nextBtn.addEventListener('click', playNext);
+  if (volumeEl) volumeEl.addEventListener('input', () => { audio.volume = parseFloat(volumeEl.value); });
+  if (progress) progress.addEventListener('input', () => {
     if (!audio.duration) return;
     const pct = parseFloat(progress.value);
     audio.currentTime = (pct / 100) * audio.duration;
   });
 
-  showLyricsBtn.addEventListener('click', () => {
-    lyricsModal.classList.remove('hidden');
-    lyricsModal.setAttribute('aria-hidden', 'false');
-  });
-  modalClose.addEventListener('click', () => {
-    lyricsModal.classList.add('hidden');
-    lyricsModal.setAttribute('aria-hidden', 'true');
-  });
+  if (showLyricsBtn) {
+    showLyricsBtn.addEventListener('click', () => {
+      if (!lyricsModal) return;
+      lyricsModal.classList.remove('hidden');
+      lyricsModal.setAttribute('aria-hidden', 'false');
+    });
+  }
+  if (modalClose) {
+    modalClose.addEventListener('click', () => {
+      if (!lyricsModal) return;
+      lyricsModal.classList.add('hidden');
+      lyricsModal.setAttribute('aria-hidden', 'true');
+    });
+  }
 
-  // Загрузка данных
   async function loadData() {
     try {
       const res = await fetch('tracks.json', { cache: 'no-store' });
@@ -453,11 +423,11 @@
       albums = data.albums || [];
       buildAlbumSelectors();
 
-      if (!albumSelect._hasHandler) {
+      if (albumSelect && !albumSelect._hasHandler) {
         albumSelect.addEventListener('change', onAlbumChange);
         albumSelect._hasHandler = true;
       }
-      if (!subalbumSelect._hasHandler) {
+      if (subalbumSelect && !subalbumSelect._hasHandler) {
         subalbumSelect.addEventListener('change', onSubalbumChange);
         subalbumSelect._hasHandler = true;
       }
@@ -465,16 +435,16 @@
       renderTracks();
     } catch (err) {
       console.error('Ошибка загрузки tracks.json:', err);
-      tracksContainer.innerHTML = '<div class="muted">Не удалось загрузить треки</div>';
+      if (tracksContainer) tracksContainer.innerHTML = '<div class="muted">Не удалось загрузить треки</div>';
     }
   }
 
   const refreshBtn = document.getElementById('refresh-btn');
-  refreshBtn.addEventListener('click', () => loadData());
+  if (refreshBtn) refreshBtn.addEventListener('click', () => loadData());
 
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
-    audio.volume = parseFloat(volumeEl.value || 1);
-    progress.value = 0;
+    if (volumeEl && audio) audio.volume = parseFloat(volumeEl.value || 1);
+    if (progress) progress.value = 0;
   });
 })();
