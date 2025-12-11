@@ -8,80 +8,81 @@
   <link rel="icon" type="image/png" href="images/smallcube.png">
 </head>
 <body>
-  <header>
-    <h1>Cube Cubic</h1>
-    <p class="muted">კუბური იუს თქვენი მობრუნება</p>
-    <nav>
-      <a href="index.html">მთავარი</a>
-      <a href="admin.html">Admin</a>
-    </nav>
-  </header>
+  <div class="site-wrapper">
+    <header>
+      <h1>Cube Cubic</h1>
+      <p class="muted">კუბური იუს თქვენი მობრუნება</p>
+      <nav>
+        <a href="index.html">მთავარი</a>
+        <a href="admin.html">Admin</a>
+      </nav>
+    </header>
 
-  <main>
-    <section>
-      <!-- Удалена надпись "ალბომები", но линия осталась -->
-      <div class="controls">
-        <!-- Перемещённый поисковик -->
-        <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
+    <main>
+      <section>
+        <!-- Удалена большая надпись "ალბომები" (текст убран), линия сохранена через .controls -->
+        <div class="controls">
+          <!-- Поисковик перемещён сюда -->
+          <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
 
-        <label for="album-select">ალბომები</label>
-        <select id="album-select">
-          <option value="">— Loading —</option>
-        </select>
+          <label for="album-select">ალბომები</label>
+          <select id="album-select">
+            <option value="">— Loading —</option>
+          </select>
 
-        <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
-        <select id="subalbum-select" style="display:none;">
-          <option value="">— —</option>
-        </select>
+          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
+          <select id="subalbum-select" style="display:none;">
+            <option value="">— —</option>
+          </select>
 
-        <button id="refresh-btn" type="button">Refresh</button>
+          <button id="refresh-btn" type="button">Refresh</button>
+        </div>
+      </section>
+
+      <section>
+        <div class="tracks-header">
+          <h2>ტრეკები</h2>
+        </div>
+        <div id="tracks"></div>
+      </section>
+    </main>
+
+    <!-- Плеер сохранён и находится внутри site-wrapper -->
+    <div id="player" class="hidden">
+      <div class="player-bar">
+        <div id="player-cover">
+          <img id="player-cover-img" src="images/midcube.png" alt="cover">
+        </div>
+        <div id="player-info">
+          <div id="player-title">Title</div>
+          <div id="player-artist">Artist</div>
+        </div>
+        <div id="player-controls">
+          <button id="prev" type="button">⏮</button>
+          <button id="play" type="button">▶</button>
+          <button id="next" type="button">⏭</button>
+          <button id="show-lyrics" type="button" style="display:none;">ტექსტი</button>
+          <a id="download" href="#" download style="display:none;">ჩამოტვირთვა</a>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="1">
+        </div>
       </div>
-    </section>
+      <div id="player-progress">
+        <span id="time-current">0:00</span>
+        <input id="progress" type="range" min="0" max="100" value="0">
+        <span id="time-duration">0:00</span>
+      </div>
+      <audio id="audio" preload="none"></audio>
+    </div>
 
-    <section>
-      <!-- Удалён поисковик справа от "ტრეკები" -->
-      <div class="tracks-header">
-        <h2>ტრეკები</h2>
-      </div>
-      <div id="tracks"></div>
-    </section>
-  </main>
-
-  <!-- Плеер сохранён -->
-  <div id="player" class="hidden">
-    <div class="player-bar">
-      <div id="player-cover">
-        <img id="player-cover-img" src="images/midcube.png" alt="cover">
-      </div>
-      <div id="player-info">
-        <div id="player-title">Title</div>
-        <div id="player-artist">Artist</div>
-      </div>
-      <div id="player-controls">
-        <button id="prev" type="button">⏮</button>
-        <button id="play" type="button">▶</button>
-        <button id="next" type="button">⏭</button>
-        <button id="show-lyrics" type="button" style="display:none;">ტექსტი</button>
-        <a id="download" href="#" download style="display:none;">ჩამოტვირთვა</a>
-        <input id="volume" type="range" min="0" max="1" step="0.01" value="1">
+    <!-- Модалка для текста -->
+    <div id="lyrics-modal" class="hidden" aria-hidden="true">
+      <div class="modal-box">
+        <button id="modal-close" type="button">Close</button>
+        <h3 id="modal-title">Lyrics</h3>
+        <pre id="modal-lyrics"></pre>
       </div>
     </div>
-    <div id="player-progress">
-      <span id="time-current">0:00</span>
-      <input id="progress" type="range" min="0" max="100" value="0">
-      <span id="time-duration">0:00</span>
-    </div>
-    <audio id="audio" preload="none"></audio>
-  </div>
-
-  <!-- Модалка для текста -->
-  <div id="lyrics-modal" class="hidden" aria-hidden="true">
-    <div class="modal-box">
-      <button id="modal-close" type="button">Close</button>
-      <h3 id="modal-title">Lyrics</h3>
-      <pre id="modal-lyrics"></pre>
-    </div>
-  </div>
+  </div> <!-- /.site-wrapper -->
 
   <script src="app.js"></script>
 </body>
