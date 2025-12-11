@@ -10,7 +10,7 @@
 <body>
   <header>
     <h1>Cube Cubic</h1>
-    <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
+    <p class="muted">კუბური იუს თქვენი მობრუნება</p>
     <nav>
       <a href="index.html">მთავარი</a>
       <a href="admin.html">Admin</a>
@@ -31,12 +31,16 @@
           <option value="">— —</option>
         </select>
 
-        <button id="refresh-btn" type="button">განახლება</button>
+        <button id="refresh-btn" type="button">Refresh</button>
       </div>
     </section>
 
     <section>
       <h2>ტრეკები</h2>
+      <!-- Поисковая строка -->
+      <div class="search-box">
+        <input id="search-input" type="text" placeholder="Search tracks...">
+      </div>
       <div id="tracks"></div>
     </section>
   </main>
@@ -80,4 +84,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
