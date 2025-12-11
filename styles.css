@@ -66,17 +66,6 @@ header nav a:hover { text-decoration: underline; }
   line-height: 1;
 }
 
-/* Селект альбомов */
-#album-select {
-  margin-bottom: 10px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid #333;
-  background: #111;
-  color: #fff;
-  font-size: 14px;
-}
-
 /* Блок миниатюр главных альбомов */
 .album-thumbs {
   display: flex;

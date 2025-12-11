@@ -24,10 +24,12 @@
           <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
 
           <label for="album-select">ალბომები</label>
-          <select id="album-select">
-            <option value="">— ყველა ალბომი —</option>
-          </select>
 
+          <!-- Удалён видимый выпадающий список альбомов.
+               Для совместимости с существующей логикой оставлено скрытое поле album-select -->
+          <input type="hidden" id="album-select" value="">
+
+          <!-- Блок миниатюр главных альбомов -->
           <div id="album-thumbs" class="album-thumbs" aria-hidden="false"></div>
 
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>

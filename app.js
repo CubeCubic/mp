@@ -1,5 +1,5 @@
 (function () {
-  const albumSelect = document.getElementById('album-select'); // видимый селект для альбомов
+  const albumSelect = document.getElementById('album-select'); // скрытое поле для совместимости
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
   const tracksContainer = document.getElementById('tracks');
@@ -146,7 +146,7 @@
       label.textContent = a.name || '';
       thumb.appendChild(label);
 
-      // Клик по миниатюре — устанавливаем значение видимого селекта album-select и вызываем onAlbumChange
+      // Клик по миниатюре — устанавливаем значение скрытого поля album-select и вызываем onAlbumChange
       thumb.addEventListener('click', (ev) => {
         ev.preventDefault();
         if (albumSelect) {
@@ -183,14 +183,12 @@
     });
   }
 
-  // Селекторы альбомов — восстановлено поведение: album-select заполняется главными альбомами,
-  // subalbum-select работает как раньше (подальбомы).
+  // Селекторы альбомов — album-select теперь скрытое поле, subalbum-select работает как раньше
   function buildAlbumSelectors() {
-    if (!albumSelect) return;
-    albumSelect.innerHTML = '';
-    albumSelect.appendChild(optionEl('', '— ყველა ალბომი —'));
-    const mains = albums.filter(a => !a.parentId);
-    mains.forEach(a => albumSelect.appendChild(optionEl(a.id, a.name)));
+    if (albumSelect) {
+      // albumSelect скрытое поле — не заполняем видимый select, но для совместимости оставляем значение пустым
+      albumSelect.value = '';
+    }
 
     if (subalbumSelect) {
       subalbumSelect.innerHTML = '';
@@ -205,7 +203,7 @@
   }
 
   function onAlbumChange() {
-    const currentAlbumId = (albumSelect.value || '').toString();
+    const currentAlbumId = (albumSelect ? (albumSelect.value || '') : '').toString();
     if (subalbumSelect) {
       const subs = albums.filter(a => (a.parentId || '').toString() === currentAlbumId);
       subalbumSelect.innerHTML = '';
@@ -523,6 +521,7 @@
       buildAlbumSelectors();
 
       if (albumSelect && !albumSelect._hasHandler) {
+        // albumSelect скрытое поле — оставляем обработчик на случай внешних изменений
         albumSelect.addEventListener('change', onAlbumChange);
         albumSelect._hasHandler = true;
       }
