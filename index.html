@@ -20,17 +20,16 @@
 
     <main>
       <section>
-        <!-- Убрано визуальное выпадающее меню; добавлены миниатюры альбомов.
-             Скрытое поле album-select оставлено для совместимости с существующим JS. -->
         <div class="controls">
           <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
 
           <label for="album-select">ალბომები</label>
+          <!-- Видимый селект для выбора альбома (восстановлен) -->
+          <select id="album-select">
+            <option value="">— ყველა ალბომი —</option>
+          </select>
 
-          <!-- Скрытое поле, чтобы существующий JS, который обращается к #album-select, продолжил работать -->
-          <input type="hidden" id="album-select" value="">
-
-          <!-- Блок миниатюр альбомов (здесь будут вставлены картинки через JS) -->
+          <!-- Блок миниатюр главных альбомов (только главные альбомы без parentId) -->
           <div id="album-thumbs" class="album-thumbs" aria-hidden="false"></div>
 
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
@@ -50,7 +49,6 @@
       </section>
     </main>
 
-    <!-- Плеер сохранён и находится внутри site-wrapper -->
     <div id="player" class="hidden">
       <div class="player-bar">
         <div id="player-cover">
@@ -77,7 +75,6 @@
       <audio id="audio" preload="none"></audio>
     </div>
 
-    <!-- Модалка для текста -->
     <div id="lyrics-modal" class="hidden" aria-hidden="true">
       <div class="modal-box">
         <button id="modal-close" type="button">Close</button>
@@ -85,7 +82,7 @@
         <pre id="modal-lyrics"></pre>
       </div>
     </div>
-  </div> <!-- /.site-wrapper -->
+  </div>
 
   <script src="app.js"></script>
 </body>

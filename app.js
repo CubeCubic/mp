@@ -1,5 +1,5 @@
 (function () {
-  const albumSelect = document.getElementById('album-select'); // теперь скрытое поле
+  const albumSelect = document.getElementById('album-select'); // видимый селект для альбомов
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
   const tracksContainer = document.getElementById('tracks');
@@ -7,7 +7,7 @@
   // global search input (перемещённый поисковик)
   const globalSearchInput = document.getElementById('global-search');
 
-  // блок миниатюр альбомов
+  // блок миниатюр главных альбомов
   const albumThumbsContainer = document.getElementById('album-thumbs');
 
   const playerEl = document.getElementById('player');
@@ -111,9 +111,7 @@
   }
   function safeStr(v) { return (v == null) ? '' : String(v); }
 
-  // --- Новая логика: миниатюры альбомов ---
-  // Простая функция для выбора имени файла миниатюры по названию альбома.
-  // Если название содержит "instrumental" или "georgian" — используем конкретные файлы, иначе fallback.
+  // --- Логика миниатюр только для главных альбомов (без parentId) ---
   function albumImageForName(name) {
     if (!name) return 'images/default-album.jpeg';
     const n = name.toLowerCase();
@@ -121,17 +119,17 @@
     if (n.includes('georgian')) return 'images/georgian.jpeg';
     if (n.includes('jazz')) return 'images/jazz.jpeg';
     if (n.includes('rock')) return 'images/rock.jpeg';
-    // fallback
     return 'images/default-album.jpeg';
   }
 
-  // Рендер миниатюр альбомов
+  // Рендер миниатюр только для главных альбомов (albums без parentId)
   function renderAlbumThumbs() {
     if (!albumThumbsContainer) return;
     albumThumbsContainer.innerHTML = '';
     if (!albums || !albums.length) return;
 
-    albums.forEach(a => {
+    const mains = albums.filter(a => !a.parentId);
+    mains.forEach(a => {
       const thumb = document.createElement('div');
       thumb.className = 'album-thumb';
       thumb.setAttribute('data-album-id', a.id || '');
@@ -148,48 +146,54 @@
       label.textContent = a.name || '';
       thumb.appendChild(label);
 
-      // Клик по миниатюре — устанавливаем скрытое поле album-select и вызываем onAlbumChange
+      // Клик по миниатюре — устанавливаем значение видимого селекта album-select и вызываем onAlbumChange
       thumb.addEventListener('click', (ev) => {
         ev.preventDefault();
-        selectAlbumById(String(a.id || ''));
+        if (albumSelect) {
+          albumSelect.value = String(a.id || '');
+          // визуально отметить выбранную миниатюру
+          updateThumbSelection();
+          // вызвать обработчик как при выборе в селекте
+          onAlbumChange();
+        }
       });
-      // Поддержка клавиатуры (Enter)
       thumb.addEventListener('keydown', (ev) => {
         if (ev.key === 'Enter' || ev.key === ' ') {
           ev.preventDefault();
-          selectAlbumById(String(a.id || ''));
+          if (albumSelect) {
+            albumSelect.value = String(a.id || '');
+            updateThumbSelection();
+            onAlbumChange();
+          }
         }
       });
 
       albumThumbsContainer.appendChild(thumb);
     });
+
+    // Обновить выделение, если уже выбран альбом
+    updateThumbSelection();
   }
 
-  // Устанавливает выбранный альбом (в скрытом поле) и обновляет визуальное состояние миниатюр
-  function selectAlbumById(albumId) {
-    if (!albumSelect) return;
-    albumSelect.value = albumId || '';
-    // визуально отметить выбранную миниатюру
-    const thumbs = albumThumbsContainer ? Array.from(albumThumbsContainer.querySelectorAll('.album-thumb')) : [];
+  function updateThumbSelection() {
+    if (!albumThumbsContainer) return;
+    const thumbs = Array.from(albumThumbsContainer.querySelectorAll('.album-thumb'));
+    const current = albumSelect ? String(albumSelect.value || '') : '';
     thumbs.forEach(t => {
-      if (t.getAttribute('data-album-id') === albumId) t.classList.add('selected');
+      if (t.getAttribute('data-album-id') === current) t.classList.add('selected');
       else t.classList.remove('selected');
     });
-    // Сброс подальбомов при смене альбома
-    if (subalbumSelect) {
-      subalbumSelect.value = '';
-      subalbumSelect.disabled = true;
-      subalbumSelect.style.display = 'none';
-      if (subalbumLabel) subalbumLabel.style.display = 'none';
-    }
-    // Вызвать существующую функцию фильтрации
-    onAlbumChange();
   }
 
-  // Селекторы альбомов (оставлена для совместимости, но теперь также вызывает renderAlbumThumbs)
+  // Селекторы альбомов — восстановлено поведение: album-select заполняется главными альбомами,
+  // subalbum-select работает как раньше (подальбомы).
   function buildAlbumSelectors() {
-    // Скрытое поле album-select уже есть — не трогаем его содержимое здесь
-    // Заполним подальбомы по необходимости (как раньше) и отрисуем миниатюры
+    if (!albumSelect) return;
+    albumSelect.innerHTML = '';
+    albumSelect.appendChild(optionEl('', '— ყველა ალბომი —'));
+    const mains = albums.filter(a => !a.parentId);
+    mains.forEach(a => albumSelect.appendChild(optionEl(a.id, a.name)));
+
     if (subalbumSelect) {
       subalbumSelect.innerHTML = '';
       subalbumSelect.appendChild(optionEl('', '— ყველა ქვეალბომი —'));
@@ -197,11 +201,11 @@
       subalbumSelect.style.display = 'none';
       if (subalbumLabel) subalbumLabel.style.display = 'none';
     }
-    // Отрисовать миниатюры
+
+    // Отрисовать миниатюры только для главных альбомов
     renderAlbumThumbs();
   }
 
-  // onAlbumChange и onSubalbumChange остаются прежними, они читают значение из albumSelect (скрытого поля)
   function onAlbumChange() {
     const currentAlbumId = (albumSelect.value || '').toString();
     if (subalbumSelect) {
@@ -224,7 +228,7 @@
   }
   function onSubalbumChange() { renderTracks(); }
 
-  // Поиск (локальный) — оставляем функцию matchesQuery для совместимости
+  // Поиск (локальный)
   function matchesQuery(t, query) {
     if (!query) return true;
     const q = query.toLowerCase();
@@ -248,7 +252,7 @@
   // Глобальный поисковик (альбомы, подальбомы, треки)
   function applyGlobalSearch(query) {
     const q = (query || '').trim().toLowerCase();
-    searchQuery = q; // чтобы сообщение "По запросу..." работало корректно
+    searchQuery = q;
     if (!q) {
       filteredTracks = [];
       renderTracks();
@@ -521,7 +525,6 @@
       buildAlbumSelectors();
 
       if (albumSelect && !albumSelect._hasHandler) {
-        // albumSelect теперь скрытое поле; оставляем обработчик на случай внешних изменений
         albumSelect.addEventListener('change', onAlbumChange);
         albumSelect._hasHandler = true;
       }
