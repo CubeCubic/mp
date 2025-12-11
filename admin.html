@@ -6,7 +6,6 @@
   <title>Admin — Cube Cubic</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Небольшие локальные стили для админки */
     body { font-family: Arial, sans-serif; color: #fff; background: #111; padding: 18px; }
     header { margin-bottom: 12px; }
     h1 { color: #ffcc00; margin: 0 0 8px 0; }
@@ -22,11 +21,9 @@
     .list { margin-top:12px; max-height:320px; overflow:auto; border-top:1px dashed rgba(255,255,255,0.06); padding-top:8px; }
     .item { padding:8px; border-radius:6px; display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.02); margin-bottom:8px; }
     .meta { flex:1; color:#ddd; }
-    .indent { padding-left:18px; color:#ccc; }
     .muted { color:#999; font-size:13px; }
     .note { color:#ccc; font-size:13px; margin-top:6px; }
 
-    /* Modal styles */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -36,24 +33,13 @@
       justify-content: center;
       z-index: 2000;
     }
-
-    .modal-backdrop.hidden {
-      display: none !important;
-    }
-
+    .modal-backdrop.hidden { display: none !important; }
     .modal {
-      background: #fff;
-      color: #000;
-      border-radius: 8px;
-      width: 420px;
-      max-width: 95%;
-      padding: 16px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      background: #fff; color: #000;
+      border-radius: 8px; width: 420px; max-width: 95%;
+      padding: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
     }
     .modal h3 { margin-top: 0; }
-    .modal .row { display:block; gap:0; }
-    .modal label { color:#333; }
-    .modal input, .modal select { background:#fff; color:#000; border:1px solid #ccc; }
     .modal .actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
   </style>
 </head>
@@ -81,86 +67,90 @@
         <div class="row">
           <div class="col">
             <label for="album-name">სახელი</label>
-            <input id="album-name" type="text" placeholder="მაგ: Instrumental">
+            <input id="album-name" type="text">
           </div>
           <div class="small">
-            <label for="album-parent">Parent (არჩევა)</label>
+            <label for="album-parent">Parent</label>
             <select id="album-parent"><option value="">— მთავარი ალბომი —</option></select>
           </div>
-          <div class="small" style="display:flex;flex-direction:column;justify-content:flex-end;gap:8px;">
+          <div class="small" style="display:flex;flex-direction:column;gap:8px;">
             <button id="btn-create-album">Create album</button>
             <button id="btn-refresh-albums">Refresh</button>
-            <button id="btn-save-all" type="button">Сохранить изменения (скачать tracks.json)</button>
+            <button id="btn-save-all" type="button">Сохранить изменения</button>
           </div>
         </div>
-        <div class="list" id="albums-list" aria-live="polite"></div>
+        <div class="list" id="albums-list"></div>
       </div>
 
       <div class="panel">
-        <h2>ტრეკის დამატება (ფაილი ან URL)</h2>
-        <form id="add-track-form" enctype="multipart/form-data">
+        <h2>ტრეკის დამატება</h2>
+        <form id="add-track-form">
           <div class="row">
             <div class="col">
               <label>Title</label>
-              <input name="title" placeholder="სათაური" required>
+              <input name="title" required>
               <label>Artist</label>
-              <input name="artist" placeholder="შემსრულებელი">
+              <input name="artist">
               <label>Lyrics</label>
-              <textarea name="lyrics" style="resize: both; width: 50%; height: 120px;" placeholder="ტექსტი"></textarea>
+              <textarea name="lyrics"></textarea>
             </div>
-
             <div class="small">
-              <label for="track-album-select">Album / Subalbum</label>
+              <label>Album</label>
               <select id="track-album-select" name="album"></select>
-
-              <label style="margin-top:8px">Audio URL (optional)</label>
-              <input name="audioUrl" type="text" placeholder="https://.../track.mp3">
-
-              <label style="margin-top:8px">Cover URL (optional)</label>
-              <input name="coverUrl" type="text" placeholder="https://.../cover.jpg">
-
-              <div style="margin-top:8px">Or upload files:</div>
-              <label>Audio file: <input name="audio" type="file" accept=".mp3,.wav,.flac"></label>
-              <label>Cover file: <input name="cover" type="file" accept=".jpg,.jpeg,.png"></label>
-
-              <div style="margin-top:10px">
-                <button type="submit">დამატება</button>
-              </div>
+              <label>Audio URL</label>
+              <input name="audioUrl">
+              <label>Cover URL</label>
+              <input name="coverUrl">
+              <button type="submit">დამატება</button>
             </div>
           </div>
         </form>
-        <div class="note">If album not selected, track will be assigned to default album (სინგლი).</div>
       </div>
 
       <div class="panel">
         <h2>არსებული ტრეკები</h2>
-        <div style="margin-bottom:8px">
-          <button id="btn-refresh-tracks">Refresh tracks</button>
-        </div>
+        <button id="btn-refresh-tracks">Refresh tracks</button>
         <div id="admin-tracks" class="list"></div>
       </div>
 
-      <div style="margin-top:8px">
-        <button id="logout-btn">გასვლა</button>
-      </div>
+      <button id="logout-btn">გასვლა</button>
     </div>
   </main>
 
   <!-- Modal for editing album -->
-  <div id="album-edit-modal" class="modal-backdrop hidden" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <h3 id="modal-title">Edit album</h3>
-      <div class="row">
-        <label for="modal-album-name">Name</label>
-        <input id="modal-album-name" type="text">
-      </div>
-      <div class="row" style="margin-top:8px;">
-        <label for="modal-album-parent">Parent album</label>
-        <select id="modal-album-parent"></select>
-      </div>
+  <div id="album-edit-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Edit album</h3>
+      <label>Name</label>
+      <input id="modal-album-name">
+      <label>Parent album</label>
+      <select id="modal-album-parent"></select>
       <div class="actions">
-        <button id="modal-cancel" type="button">Cancel</button>
-        <button id="modal-save" type="button">Save</button>
+        <button id="modal-cancel">Cancel</button>
+        <button id="modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for editing track -->
+  <div id="track-edit-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Edit track</h3>
+      <label>Title</label>
+      <input id="modal-track-title">
+      <label>Artist</label>
+      <input id="modal-track-artist">
+      <label>Lyrics</label>
+      <textarea id="modal-track-lyrics"></textarea>
+      <label>Album</label>
+      <select id="modal-track-album"></select>
+      <label>Audio URL</label>
+      <input id="modal-track-audioUrl">
+      <label>Cover URL</label>
+      <input id="modal-track-coverUrl">
+      <div class="actions">
+        <button id="modal-track-cancel">Cancel</button>
+        <button id="modal-track-save">Save</button>
       </div>
     </div>
   </div>
