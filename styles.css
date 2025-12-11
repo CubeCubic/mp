@@ -35,20 +35,22 @@ h2 {
   color: #ffcc00;
 }
 
-/* Поисковая строка */
-.search-box {
-  margin: 10px 0;
+/* Строка поиска — короткая, под заголовком */
+.search-box-inline {
+  margin: 8px 0 12px;
 }
 #search-input {
-  width: 100%;
-  padding: 8px;
+  width: 240px; /* короткая строка поиска */
+  max-width: 60vw;
+  padding: 6px 8px;
   border-radius: 6px;
   border: 1px solid #333;
   background: #111;
   color: #fff;
+  font-size: 14px;
 }
 
-/* Сетка треков */
+/* Сетка треков: 8 колонок */
 #tracks {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
@@ -56,7 +58,7 @@ h2 {
   align-items: start;
 }
 
-/* Карточка трека */
+/* Карточка трека — компактная */
 .card {
   display: flex;
   flex-direction: column;
@@ -68,6 +70,8 @@ h2 {
   color: #fff;
   min-height: 120px;
 }
+
+/* Квадратные каверы */
 .card img.track-cover {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -77,7 +81,7 @@ h2 {
   display: block;
 }
 
-/* Информация */
+/* Информация под кавером — компактно */
 .track-info {
   margin-top: 6px;
   display: flex;
@@ -100,7 +104,7 @@ h2 {
   text-overflow: ellipsis;
 }
 
-/* Действия */
+/* Действия — компактно; порядок: текст → download → like */
 .track-actions {
   margin-top: 6px;
   display: flex;
@@ -124,12 +128,126 @@ h2 {
   pointer-events: none;
 }
 
-/* Плеер */
-#player { /* ... остальное без изменений ... */ }
+/* Кнопка "сердечко" — базовый стиль */
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: #b3003b;
+  color: #fff;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+.like-button .heart { font-size: 14px; line-height: 1; }
+.like-button .like-count { font-size: 12px; }
+
+/* Подсветка при лайке */
+.like-button.liked {
+  background: linear-gradient(90deg, #ff6b81 0%, #ff3b6b 100%);
+  box-shadow: 0 6px 18px rgba(255,59,107,0.22);
+  transform: translateY(-1px);
+}
+
+/* Анимация "pop" при нажатии */
+@keyframes like-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); }
+  70% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+.like-button.animate {
+  animation: like-pop 360ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* Плеер — компактный и упорядоченный (как был) */
+#player {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.9);
+  color: white;
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+  z-index: 1000;
+}
+#player.visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
+
+.player-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+#player-cover img {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+#player-info { flex: 1; min-width: 0; }
+#player-title {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#player-artist {
+  font-size: 12px;
+  color: #ccc;
+  margin-top: 2px;
+}
+
+/* Контролы компактно */
+#player-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#player-controls button,
+#player-controls a {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#player-controls input[type="range"] { width: 90px; }
+
+/* Прогресс */
+#player-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 12px 14px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+#player-progress span { font-size: 12px; color: #ccc; width: 40px; text-align: center; }
+#progress { flex: 1; }
 
 /* Модалка */
 #lyrics-modal.hidden { display: none !important; }
-#lyrics-modal { /* ... остальное без изменений ... */ }
+#lyrics-modal {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 2000;
+}
+.modal-box {
+  background: white; color: #000;
+  padding: 16px; border-radius: 6px;
+  max-width: 420px; width: 92%;
+  max-height: 70vh; overflow-y: auto;
+}
+.modal-box h3 { margin-top: 0; font-size: 16px; }
+.modal-box pre { white-space: pre-wrap; font-size: 13px; }
 
 /* Адаптивность */
 @media (max-width: 1800px) {
@@ -144,4 +262,5 @@ h2 {
 @media (max-width: 600px) {
   #tracks { grid-template-columns: 1fr; }
   .card img.track-cover { height: auto; aspect-ratio: 16/9; }
+  #player-cover img { width: 48px; height: 48px; }
 }
