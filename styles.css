@@ -124,7 +124,7 @@ header nav a:hover { text-decoration: underline; }
   width: 100%;
   height: 108px;
   object-fit: contain;          /* картинка полностью помещается внутрь */
-  background-color: #000;       /* фон для пустых областей */
+  background-color: transparent;       /* фон для пустых областей */
   border-radius: 8px;
   border: 2px solid transparent;
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
@@ -395,6 +395,7 @@ section > #tracks {
   .card img.track-cover { aspect-ratio: 16/9; }
   .card { min-height: auto; padding: 8px; }
 }
+
 
 
 
