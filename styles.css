@@ -1,3 +1,4 @@
+/* Общие */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -34,63 +35,156 @@ h2 {
   color: #ffcc00;
 }
 
-/* Четыре столбца */
+/* Сетка треков: 6 колонок */
 #tracks {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  align-items: start;
 }
+
+/* Карточка трека — компактная */
 .card {
   display: flex;
   flex-direction: column;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
+  align-items: stretch;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 6px;
-  padding: 8px;
+  padding: 6px;
   color: #fff;
+  min-height: 120px;
 }
-.card img.track-cover {
-  width: 50%;
-  height: auto;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.track-info { margin-top: 6px; }
-.track-info h4 { margin: 0; font-size: 15px; }
-.track-info div { font-size: 12px; color: #ccc; }
-.track-actions { margin-top: 6px; display: flex; gap: 6px; }
 
-/* Плеер */
+/* Уменьшенные каверы для 6 колонок */
+.card img.track-cover {
+  width: 100%;
+  height: 90px; /* уменьшённый размер */
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+}
+
+/* Информация под кавером — компактно */
+.track-info {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.track-info h4 {
+  margin: 0;
+  font-size: 13px; /* компактный размер */
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.track-info div {
+  font-size: 11px;
+  color: #cfcfcf;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Действия — компактно, в одну строку */
+.track-actions {
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-start;
+}
+.track-actions button,
+.track-actions a {
+  font-size: 11px;
+  padding: 5px 8px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.track-actions a.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Плеер — компактный и упорядоченный */
 #player {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.9);
   color: white;
   transform: translateY(100%);
   opacity: 0;
   pointer-events: none;
-  transition: transform 320ms, opacity 220ms;
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+  z-index: 1000;
 }
 #player.visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
 
 .player-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px 18px;
+  gap: 12px;
+  padding: 10px 14px;
 }
-#player-cover img { width: 60px; height: 60px; border-radius: 6px; }
-#player-info { flex: 1; margin: 0 12px; }
-#player-title { font-size: 16px; font-weight: bold; }
-#player-artist { font-size: 13px; color: #ccc; }
-#player-controls { display: flex; gap: 8px; align-items: center; }
+#player-cover img {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+#player-info {
+  flex: 1;
+  min-width: 0;
+}
+#player-title {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#player-artist {
+  font-size: 12px;
+  color: #ccc;
+  margin-top: 2px;
+}
 
+/* Контролы компактно */
+#player-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#player-controls button,
+#player-controls a {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#player-controls input[type="range"] {
+  width: 90px;
+}
+
+/* Прогресс */
 #player-progress {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
+  padding: 8px 14px 12px 14px;
+  border-top: 1px solid rgba(255,255,255,0.03);
 }
+#player-progress span { font-size: 12px; color: #ccc; width: 40px; text-align: center; }
 #progress { flex: 1; }
 
 /* Модалка */
@@ -99,10 +193,26 @@ h2 {
   position: fixed; inset: 0;
   display: flex; align-items: center; justify-content: center;
   background: rgba(0,0,0,0.7);
+  z-index: 2000;
 }
 .modal-box {
   background: white; color: #000;
-  padding: 20px; border-radius: 6px;
-  max-width: 400px; width: 90%;
-  max-height: 60vh; overflow-y: auto;
+  padding: 16px; border-radius: 6px;
+  max-width: 420px; width: 92%;
+  max-height: 70vh; overflow-y: auto;
+}
+.modal-box h3 { margin-top: 0; font-size: 16px; }
+.modal-box pre { white-space: pre-wrap; font-size: 13px; }
+
+/* Адаптивность: уменьшаем кол-во колонок на узких экранах */
+@media (max-width: 1400px) {
+  #tracks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 1000px) {
+  #tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  #tracks { grid-template-columns: 1fr; }
+  .card img.track-cover { height: 140px; }
+  #player-cover img { width: 48px; height: 48px; }
 }
