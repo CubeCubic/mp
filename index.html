@@ -10,8 +10,13 @@
 <body>
   <div class="site-wrapper">
     <header>
+      <!-- Добавлено изображение midcube.png в место, отмеченное белым квадратом -->
+      <div id="header-badge" aria-hidden="false">
+        <img src="images/midcube.png" alt="midcube">
+      </div>
+
       <h1>Cube Cubic</h1>
-      <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
+      <p class="muted">კუბური იუს თქვენი მობრუნება</p>
       <nav>
         <a href="index.html">მთავარი</a>
         <a href="admin.html">Admin</a>
@@ -25,11 +30,9 @@
 
           <label for="album-select">ალბომები</label>
 
-          <!-- Удалён видимый выпадающий список альбомов.
-               Для совместимости с существующей логикой оставлено скрытое поле album-select -->
+          <!-- Скрытое поле album-select для совместимости с логикой -->
           <input type="hidden" id="album-select" value="">
 
-          <!-- Блок миниатюр главных альбомов -->
           <div id="album-thumbs" class="album-thumbs" aria-hidden="false"></div>
 
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
@@ -87,4 +90,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-

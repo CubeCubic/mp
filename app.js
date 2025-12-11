@@ -186,7 +186,6 @@
   // Селекторы альбомов — album-select теперь скрытое поле, subalbum-select работает как раньше
   function buildAlbumSelectors() {
     if (albumSelect) {
-      // albumSelect скрытое поле — не заполняем видимый select, но для совместимости оставляем значение пустым
       albumSelect.value = '';
     }
 

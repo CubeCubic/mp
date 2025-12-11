@@ -23,7 +23,25 @@ header {
   color: #ffcc00;
   padding: 20px;
   text-align: center;
+  position: relative;
 }
+
+/* Блок для изображения midcube в шапке (заменяет белый квадрат) */
+#header-badge {
+  width: 96px;               /* ширина блока изображения */
+  height: 96px;              /* высота блока изображения */
+  margin: 0 auto 10px auto;  /* центрирование и небольшой отступ снизу */
+  display: block;
+}
+#header-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
+}
+
+/* Навигация и заголовки */
 header nav {
   display: flex;
   justify-content: center;
@@ -38,7 +56,7 @@ header nav a:hover { text-decoration: underline; }
 
 /* Перемещённый поисковик */
 #global-search {
-  margin-top: 14px;    /* <-- смещение вниз (только для поисковика) */
+  margin-top: 14px;
   margin-bottom: 8px;
   padding: 6px 8px;
   border-radius: 6px;
@@ -138,9 +156,9 @@ section > #tracks {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 8px;
-  padding: 8px;            /* уменьшено для компактности */
+  padding: 8px;
   color: #fff;
-  min-height: 140px;      /* уменьшено, но достаточно для контента */
+  min-height: 140px;
   box-sizing: border-box;
 }
 
@@ -163,14 +181,14 @@ section > #tracks {
 }
 .track-info h4 {
   margin: 0;
-  font-size: 12px;       /* уменьшено */
+  font-size: 12px;
   line-height: 1.05;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .track-info div {
-  font-size: 11px;       /* уменьшено */
+  font-size: 11px;
   color: #cfcfcf;
   white-space: nowrap;
   overflow: hidden;
@@ -188,8 +206,8 @@ section > #tracks {
 }
 .track-actions button,
 .track-actions a {
-  font-size: 11px;       /* уменьшено */
-  padding: 4px 6px;      /* уменьшено */
+  font-size: 11px;
+  padding: 4px 6px;
   background: #444;
   color: white;
   border: none;
@@ -207,7 +225,7 @@ section > #tracks {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 6px;      /* уменьшено */
+  padding: 4px 6px;
   background: #b3003b;
   color: #fff;
   border-radius: 6px;
@@ -215,7 +233,7 @@ section > #tracks {
   cursor: pointer;
   font-size: 12px;
   transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
-  margin-left: auto;     /* сдвигает кнопку лайка вправо, чтобы она помещалась */
+  margin-left: auto;
 }
 .like-button .heart { font-size: 14px; line-height: 1; }
 .like-button .like-count { font-size: 12px; }
@@ -352,5 +370,3 @@ section > #tracks {
   .card { min-height: auto; padding: 8px; }
   .site-wrapper { padding-left: 8px; padding-right: 8px; }
 }
-
-
