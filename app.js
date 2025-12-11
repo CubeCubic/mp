@@ -3,7 +3,9 @@
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
   const tracksContainer = document.getElementById('tracks');
-  const searchInput = document.getElementById('search-input');
+
+  // global search input (перемещённый поисковик)
+  const globalSearchInput = document.getElementById('global-search');
 
   const playerEl = document.getElementById('player');
   const audio = document.getElementById('audio');
@@ -145,7 +147,7 @@
   }
   function onSubalbumChange() { renderTracks(); }
 
-  // Поиск по локальному полю searchInput (треки)
+  // Поиск (локальный) — оставляем функцию matchesQuery для совместимости
   function matchesQuery(t, query) {
     if (!query) return true;
     const q = query.toLowerCase();
@@ -167,12 +169,10 @@
   }
 
   // Глобальный поисковик (альбомы, подальбомы, треки)
-  const globalSearchInput = document.getElementById('global-search');
-
   function applyGlobalSearch(query) {
     const q = (query || '').trim().toLowerCase();
+    searchQuery = q; // чтобы сообщение "По запросу..." работало корректно
     if (!q) {
-      searchQuery = '';
       filteredTracks = [];
       renderTracks();
       return;
@@ -331,7 +331,7 @@
     });
   }
 
-  // Плеер (как был)
+  // Плеер
   function playTrackByIndex(index) {
     if (index < 0 || index >= tracks.length) return;
     currentTrackIndex = index;
@@ -463,15 +463,7 @@
   const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) refreshBtn.addEventListener('click', () => loadData());
 
-  // Поиск — обработчик локального поля
-  if (searchInput) {
-    searchInput.addEventListener('input', () => {
-      searchQuery = searchInput.value || '';
-      applySearch();
-      renderTracks();
-    });
-  }
-
+  // Инициализация
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
     if (volumeEl && audio) audio.volume = parseFloat(volumeEl.value || 1);
