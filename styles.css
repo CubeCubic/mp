@@ -26,6 +26,14 @@ header {
   position: relative;
 }
 
+header h1 {
+  font-size: 48px;       /* увеличенный размер шрифта */
+  font-weight: 800;      /* более жирный */
+  color: #ffcc00;        /* оставляем жёлтый цвет */
+  margin: 12px 0;        /* аккуратные отступы сверху и снизу */
+  letter-spacing: 1px;   /* лёгкое разрежение букв */
+}
+
 /* Бейдж в шапке — аккуратное позиционирование */
 #header-badge {
   position: absolute;
@@ -380,3 +388,4 @@ section > #tracks {
   .card img.track-cover { aspect-ratio: 16/9; }
   .card { min-height: auto; padding: 8px; }
 }
+
