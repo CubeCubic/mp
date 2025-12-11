@@ -11,7 +11,7 @@ body {
 
 /* Ограничение ширины сайта и центрирование содержимого */
 .site-wrapper {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding-left: 16px;
   padding-right: 16px;
@@ -284,3 +284,4 @@ header nav a:hover { text-decoration: underline; }
   #player-cover img { width: 48px; height: 48px; }
   .site-wrapper { padding-left: 8px; padding-right: 8px; }
 }
+
