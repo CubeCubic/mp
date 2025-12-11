@@ -113,6 +113,24 @@ h2 {
   pointer-events: none;
 }
 
+/* Кнопка "сердечко" — отдельный стиль */
+.track-actions .like-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: #b3003b;
+  color: #fff;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+}
+.track-actions .like-button .heart {
+  font-size: 14px;
+  line-height: 1;
+}
+
 /* Плеер — компактный и упорядоченный */
 #player {
   position: fixed;
