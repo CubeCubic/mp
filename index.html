@@ -10,7 +10,7 @@
 <body>
   <header>
     <h1>Cube Cubic</h1>
-    <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
+    <p class="muted">კუბური იუს თქვენი მობრუნება</p>
     <nav>
       <a href="index.html">მთავარი</a>
       <a href="admin.html">Admin</a>
@@ -19,12 +19,13 @@
 
   <main>
     <section>
-  <div style="display:flex; align-items:center; justify-content:space-between;">
-      <h2 style="margin:0;">ტრეკები</h2>  <input id="search-input" type="text" placeholder="Search tracks..." 
-       style="margin-left:12px; flex:0 0 240px; padding:6px; border-radius:6px; border:1px solid #333; background:#111; color:#fff;">
-      </div>
-      <div id="tracks"></div>
-    </section>
+      <h2>ალბომები</h2>
+      <div class="controls">
+        <label for="album-select">ალბომი</label>
+        <select id="album-select">
+          <option value="">— Loading —</option>
+        </select>
+
         <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
         <select id="subalbum-select" style="display:none;">
           <option value="">— —</option>
@@ -36,15 +37,16 @@
 
     <section>
       <h2>ტრეკები</h2>
-      <!-- Поисковая строка -->
-      <div class="search-box">
-        <input id="search-input" type="text" placeholder="Search tracks...">
+      <!-- Короткая строка поиска сразу под заголовком -->
+      <div class="search-box-inline">
+        <input id="search-input" type="text" placeholder="Search..." aria-label="Search tracks">
       </div>
+
       <div id="tracks"></div>
     </section>
   </main>
 
-  <!-- Плеер -->
+  <!-- Плеер (как был) -->
   <div id="player" class="hidden">
     <div class="player-bar">
       <div id="player-cover">
@@ -83,5 +85,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
-
