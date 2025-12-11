@@ -32,8 +32,8 @@ header {
   position: absolute;
   width: 96px;           /* ширина блока изображения */
   height: 96px;          /* высота блока изображения */
-  top: 18px;             /* смещение от верхней границы header — подберите точное значение */
-  left: 22px;            /* смещение от левой границы header — подберите точное значение */
+  top: 22px;             /* смещение от верхней границы header — подберите точное значение */
+  left: 25px;            /* смещение от левой границы header — подберите точное значение */
   z-index: 10;
   display: block;
 }
@@ -281,3 +281,4 @@ section > #tracks {
   #tracks { grid-template-columns: 1fr; gap: 8px; }
   .site-wrapper { padding-left: 8px; padding-right: 8px; }
 }
+
