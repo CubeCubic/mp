@@ -177,29 +177,22 @@
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
-      // Кнопка "сердечко" (лайк) — рядом с Download
-      const likeBtn = document.createElement('button');
-      likeBtn.type = 'button';
-      likeBtn.className = 'like-button';
-      likeBtn.setAttribute('aria-label', 'Like track');
-      const heartSpan = document.createElement('span');
-      heartSpan.className = 'heart';
-      heartSpan.textContent = '❤';
-      const countSpan = document.createElement('span');
-      const currentLikes = getLikesFor(String(t.id || t.filename || t.title));
-      countSpan.className = 'like-count';
-      countSpan.textContent = currentLikes;
-      likeBtn.appendChild(heartSpan);
-      likeBtn.appendChild(countSpan);
-
-      likeBtn.addEventListener('click', (ev) => {
+      // 1) Кнопка открытия модалки с текстом (ტექსტი) — на своём месте
+      const btnLyrics = document.createElement('button');
+      btnLyrics.type = 'button';
+      btnLyrics.textContent = 'ტექსტი';
+      btnLyrics.addEventListener('click', (ev) => {
         ev.stopPropagation();
-        const key = String(t.id || t.filename || t.title);
-        const newCount = incrementLikesFor(key);
-        countSpan.textContent = newCount;
+        if (modalTitle) modalTitle.textContent = t.title || 'Lyrics';
+        if (modalLyrics) modalLyrics.textContent = t.lyrics || '';
+        if (lyricsModal) {
+          lyricsModal.classList.remove('hidden');
+          lyricsModal.setAttribute('aria-hidden', 'false');
+        }
       });
+      actions.appendChild(btnLyrics);
 
-      // Download
+      // 2) Download — рядом с кнопкой текста
       const aDownload = document.createElement('a');
       const stream = getStreamUrl(t);
       if (stream) {
@@ -211,10 +204,30 @@
         aDownload.href = '#';
         aDownload.className = 'disabled';
       }
-
-      // Порядок: сначала like, затем download (как просили)
-      actions.appendChild(likeBtn);
       actions.appendChild(aDownload);
+
+      // 3) Кнопка оценки (сердечко) — рядом с Download
+      const likeBtn = document.createElement('button');
+      likeBtn.type = 'button';
+      likeBtn.className = 'like-button';
+      likeBtn.setAttribute('aria-label', 'Like track');
+      const heartSpan = document.createElement('span');
+      heartSpan.className = 'heart';
+      heartSpan.textContent = '❤';
+      const countSpan = document.createElement('span');
+      countSpan.className = 'like-count';
+      const key = String(t.id || t.filename || t.title);
+      countSpan.textContent = getLikesFor(key);
+      likeBtn.appendChild(heartSpan);
+      likeBtn.appendChild(countSpan);
+
+      likeBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const newCount = incrementLikesFor(key);
+        countSpan.textContent = newCount;
+      });
+
+      actions.appendChild(likeBtn);
 
       card.appendChild(img);
       card.appendChild(info);
