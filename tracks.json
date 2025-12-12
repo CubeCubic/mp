@@ -28,15 +28,6 @@
   ],
   "tracks": [
     {
-      "id": "1765384244825",
-      "title": "Twisted Things",
-      "artist": "Cube Cubic",
-      "lyrics": "",
-      "albumId": "1765384197681",
-      "audioUrl": "https://archive.org/download/cube-cubic-twisted-things/Cube%20Cubic%20-%20Twisted%20Things.flac",
-      "coverUrl": "https://archive.org/download/cube-cubic-twisted-things/Cube%20Cubic_thumb.jpg"
-    },
-    {
       "id": "1765384986157",
       "title": "Rise Up",
       "artist": "Cube Cubic",
@@ -62,6 +53,15 @@
       "albumId": "1765384187417",
       "audioUrl": "https://archive.org/download/cube-cubic-morning-coffee/Cube%20Cubic%20-%20Morning%20Coffee.mp3",
       "coverUrl": ""
+    },
+    {
+      "id": "1765536301714",
+      "title": "გადის დრო",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1765388188962",
+      "audioUrl": "https://archive.org/download/20251212_20251212_1034/%E1%83%92%E1%83%90%E1%83%93%E1%83%98%E1%83%A1%20%E1%83%93%E1%83%A0%E1%83%9D.wav",
+      "coverUrl": "https://archive.org/download/20251212_20251212_1034/%E1%83%92%E1%83%90%E1%83%93%E1%83%98%E1%83%A1%20%E1%83%93%E1%83%A0%E1%83%9D.png"
     }
   ]
 }
