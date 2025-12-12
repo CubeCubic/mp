@@ -32,10 +32,11 @@ header h1 {
   color: #ffcc00;
   margin: 12px 0;
   letter-spacing: 1px;
-  text-shadow:
-    0 0 8px #ffcc00,
-    0 0 16px #ffcc00,
-    0 0 24px rgba(255,255,0,0.8);
+
+  /* Эффект объёмного текста */
+  text-shadow: 
+    2px 2px 0 #000,     /* чёрная тень прямо под текстом */
+    4px 4px 6px rgba(0,0,0,0.6); /* мягкая размытая тень для глубины */
 }
 
 /* Бейдж в шапке — аккуратное позиционирование */
@@ -425,3 +426,4 @@ section > #tracks {
   .card img.track-cover { aspect-ratio: 16/9; }
   .card { min-height: auto; padding: 8px; }
 }
+
