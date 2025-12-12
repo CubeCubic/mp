@@ -32,18 +32,10 @@ header h1 {
   color: #ffcc00;
   margin: 12px 0;
   letter-spacing: 1px;
-
-  /* Эффект объёмного текста */
-  text-shadow: 
-  2px 2px 0 #000,
-  4px 4px 6px rgba(0,0,0,0.6),
-  -1px -1px 0 #fff; /* лёгкая подсветка сверху */
-  
-    /* Эффект свечения */
   text-shadow:
-    0 0 8px #ffcc00,      /* мягкое жёлтое свечение */
-   /* 0 0 16px #ffcc00,      более широкое свечение */
-   /* 0 0 24px rgba(255,255,0,0.8);  глубокое сияние */
+    0 0 8px #ffcc00,
+    0 0 16px #ffcc00,
+    0 0 24px rgba(255,255,0,0.8);
 }
 
 /* Бейдж в шапке — аккуратное позиционирование */
@@ -62,12 +54,10 @@ header h1 {
   object-fit: contain;
   display: block;
   border-radius: 6px;
-
-  /* Эффект объёмности */
   box-shadow: 
-  0 4px 6px rgba(0,0,0,0.6),
-  0 8px 16px rgba(0,0,0,0.4),
-  0 0 12px rgba(255,255,0,0.4); /* жёлтое свечение */
+    0 4px 6px rgba(0,0,0,0.6),
+    0 8px 16px rgba(0,0,0,0.4),
+    0 0 12px rgba(255,255,0,0.4);
 }
 
 /* Навигация */
@@ -77,11 +67,14 @@ header nav {
   align-items: center;
   gap: 12px;
 }
-header nav a {
+header nav a, header nav button {
   color: #fff;
-  text-decoration: none;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
 }
-header nav a:hover { text-decoration: underline; }
+header nav a:hover, header nav button:hover { text-decoration: underline; }
 
 /* Поисковик — аккуратный отступ и ширина */
 #global-search {
@@ -373,6 +366,31 @@ section > #tracks {
 }
 .modal-box h3 { margin-top: 0; font-size: 16px; }
 .modal-box pre { white-space: pre-wrap; font-size: 13px; }
+
+/* Модалка письма */
+#contact-modal.hidden { display: none !important; }
+#contact-modal {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 2000;
+}
+#contact-modal .modal-box {
+  background: white; color: #000;
+  padding: 16px; border-radius: 6px;
+  max-width: 420px; width: 92%;
+}
+#contact-modal h3 { margin-top: 0; font-size: 18px; }
+#contact-modal form {
+  display: flex; flex-direction: column; gap: 10px;
+}
+#contact-modal input, #contact-modal textarea {
+  padding: 6px; border: 1px solid #ccc; border-radius: 4px;
+}
+#contact-modal button[type="submit"] {
+  background: #ffcc00; border: none; padding: 8px; border-radius: 4px;
+  cursor: pointer; font-weight: bold;
+}
 
 /* Адаптивность — предсказуемые ступени */
 @media (min-width: 1600px) {
