@@ -33,6 +33,8 @@
   const contactBtn = document.getElementById('contact-btn');
   const contactModal = document.getElementById('contact-modal');
   const contactClose = document.getElementById('contact-close');
+  const contactForm = document.getElementById('contact-form');
+  const contactStatus = document.getElementById('contact-status');
 
   let albums = [];
   let tracks = [];
@@ -558,6 +560,39 @@
       if (ev.key === 'Escape' && contactModal && !contactModal.classList.contains('hidden')) {
         contactModal.classList.add('hidden');
         contactModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
+
+  // Обработчик отправки формы через fetch (AJAX) — чтобы не было редиректа на Formspree
+  if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!contactForm.action) return;
+      if (contactStatus) contactStatus.textContent = 'Отправка...';
+      const formData = new FormData(contactForm);
+      try {
+        const res = await fetch(contactForm.action, {
+          method: 'POST',
+          body: formData,
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          if (contactStatus) contactStatus.textContent = 'Спасибо! Ваше сообщение отправлено.';
+          contactForm.reset();
+          setTimeout(() => {
+            if (contactModal) {
+              contactModal.classList.add('hidden');
+              contactModal.setAttribute('aria-hidden', 'true');
+            }
+            if (contactStatus) contactStatus.textContent = '';
+          }, 1800);
+        } else {
+          const data = await res.json().catch(() => ({}));
+          if (contactStatus) contactStatus.textContent = data.error || 'Ошибка отправки. Попробуйте позже.';
+        }
+      } catch (err) {
+        if (contactStatus) contactStatus.textContent = 'Ошибка сети. Попробуйте позже.';
       }
     });
   }

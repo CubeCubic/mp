@@ -34,7 +34,8 @@ header h1 {
   letter-spacing: 1px;
   text-shadow:
     0 0 8px #ffcc00,
-    0 0 16px #ffcc00;
+    0 0 16px #ffcc00,
+    0 0 24px rgba(255,255,0,0.8);
 }
 
 /* Бейдж в шапке — аккуратное позиционирование */
@@ -53,12 +54,10 @@ header h1 {
   object-fit: contain;
   display: block;
   border-radius: 6px;
-
-  /* Эффект объёмности */
   box-shadow: 
-    0 4px 6px rgba(0,0,0,0.6),   /* основная мягкая тень */
-    0 8px 16px rgba(0,0,0,0.4);  /* дополнительная глубокая тень */
-  border: 2px solid rgba(255,255,255,0.2); /* лёгкий контур для выделения */
+    0 4px 6px rgba(0,0,0,0.6),
+    0 8px 16px rgba(0,0,0,0.4),
+    0 0 12px rgba(255,255,0,0.4);
 }
 
 /* Навигация */
@@ -426,5 +425,3 @@ section > #tracks {
   .card img.track-cover { aspect-ratio: 16/9; }
   .card { min-height: auto; padding: 8px; }
 }
-
-
