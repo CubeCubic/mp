@@ -29,6 +29,11 @@
   const modalTitle = document.getElementById('modal-title');
   const modalLyrics = document.getElementById('modal-lyrics');
 
+  // Контакты: элементы модалки письма
+  const contactBtn = document.getElementById('contact-btn');
+  const contactModal = document.getElementById('contact-modal');
+  const contactClose = document.getElementById('contact-close');
+
   let albums = [];
   let tracks = [];
   let currentTrackIndex = -1;
@@ -528,6 +533,34 @@
 
   const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) refreshBtn.addEventListener('click', () => loadData());
+
+  // Модалка письма: открытие/закрытие
+  if (contactBtn && contactModal && contactClose) {
+    contactBtn.addEventListener('click', () => {
+      contactModal.classList.remove('hidden');
+      contactModal.setAttribute('aria-hidden', 'false');
+    });
+    contactClose.addEventListener('click', () => {
+      contactModal.classList.add('hidden');
+      contactModal.setAttribute('aria-hidden', 'true');
+    });
+
+    // Закрыть по клику на фон
+    contactModal.addEventListener('click', (ev) => {
+      if (ev.target === contactModal) {
+        contactModal.classList.add('hidden');
+        contactModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    // Закрыть по Esc
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape' && contactModal && !contactModal.classList.contains('hidden')) {
+        contactModal.classList.add('hidden');
+        contactModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
 
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
