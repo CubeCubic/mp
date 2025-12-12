@@ -436,16 +436,22 @@
       const btnLyrics = document.createElement('button');
       btnLyrics.type = 'button';
       btnLyrics.textContent = 'ტექსტი';
+
+      // если у трека есть lyrics — добавляем класс
+      if (t.lyrics && t.lyrics.trim()) {
+      btnLyrics.classList.add('btn-has-lyrics');
+  }
+
       btnLyrics.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        if (modalTitle) modalTitle.textContent = t.title || 'Lyrics';
-        if (modalLyrics) modalLyrics.textContent = t.lyrics || '';
-        if (lyricsModal) {
-          lyricsModal.classList.remove('hidden');
-          lyricsModal.setAttribute('aria-hidden', 'false');
-        }
-      });
-      actions.appendChild(btnLyrics);
+      ev.stopPropagation();
+    if (modalTitle) modalTitle.textContent = t.title || 'Lyrics';
+    if (modalLyrics) modalLyrics.textContent = t.lyrics || '';
+    if (lyricsModal) {
+    lyricsModal.classList.remove('hidden');
+    lyricsModal.setAttribute('aria-hidden', 'false');
+  }
+});
+actions.appendChild(btnLyrics);
 
       // Download
       const aDownload = document.createElement('a');
@@ -603,3 +609,4 @@
     if (progress) progress.value = 0;
   });
 })();
+
