@@ -248,9 +248,17 @@ section > #tracks {
   cursor: pointer;
   text-decoration: none;
 }
+
 .track-actions a.disabled {
   opacity: 0.5;
   pointer-events: none;
+}
+
+/* Дополнительный класс для кнопки текста, если у трека есть lyrics */
+.track-actions button.btn-has-lyrics {
+  background: #ffcc00;
+  color: #000;
+  font-weight: bold;
 }
 
 /* Лайк — компактный, выравнивается вправо */
@@ -426,4 +434,5 @@ section > #tracks {
   .card img.track-cover { aspect-ratio: 16/9; }
   .card { min-height: auto; padding: 8px; }
 }
+
 
