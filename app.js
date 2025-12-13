@@ -1,9 +1,8 @@
 (function () {
   // --- Настройки ---
-  // Если true — плеер будет автоматически скрываться при паузе
-  const HIDE_PLAYER_ON_PAUSE = true;
+  const HIDE_PLAYER_ON_PAUSE = true; // опция: скрывать плеер при паузе
 
-  const albumSelect = document.getElementById('album-select'); // скрытое поле (главные альбомы)
+  const albumSelect = document.getElementById('album-select');
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
   const tracksContainer = document.getElementById('tracks');
@@ -11,7 +10,10 @@
   const globalSearchInput = document.getElementById('global-search');
   const albumThumbsContainer = document.getElementById('album-thumbs');
 
-  // Плеер — изменён: кавер удалён, но элементы остались для совместимости
+  // Share site button
+  const siteShareBtn = document.getElementById('site-share-btn');
+
+  // Плеер
   const playerEl = document.getElementById('player');
   const audio = document.getElementById('audio');
   const playBtn = document.getElementById('play');
@@ -20,8 +22,6 @@
   const volumeEl = document.getElementById('volume');
   const downloadBtn = document.getElementById('download');
   const showLyricsBtn = document.getElementById('show-lyrics');
-  // coverImg был удалён из DOM — оставляем переменную, но проверяем на null
-  const coverImg = document.getElementById('player-cover-img');
   const titleEl = document.getElementById('player-title');
   const artistEl = document.getElementById('player-artist');
 
@@ -34,7 +34,17 @@
   const modalTitle = document.getElementById('modal-title');
   const modalLyrics = document.getElementById('modal-lyrics');
 
-  // Контакты: элементы модалки письма
+  // Share modal & toast
+  const shareModal = document.getElementById('share-modal');
+  const shareModalClose = document.getElementById('share-modal-close');
+  const shareUrlInput = document.getElementById('share-url-input');
+  const shareCopyBtn = document.getElementById('share-copy-btn');
+  const shareTwitter = document.getElementById('share-twitter');
+  const shareTelegram = document.getElementById('share-telegram');
+  const shareMail = document.getElementById('share-mail');
+  const toast = document.getElementById('toast');
+
+  // Контакты
   const contactBtn = document.getElementById('contact-btn');
   const contactModal = document.getElementById('contact-modal');
   const contactClose = document.getElementById('contact-close');
@@ -48,6 +58,9 @@
 
   let searchQuery = '';
   let filteredTracks = [];
+
+  // Для deep-link: если при загрузке есть trackId, сохраняем и применим после рендера
+  let pendingTrackToOpen = null;
 
   // Лайки (localStorage)
   const LIKES_KEY = 'trackLikes';
@@ -106,7 +119,7 @@
   }
   function safeStr(v) { return (v == null) ? '' : String(v); }
 
-  // --- Логика миниатюр только для главных альбомов (без parentId) ---
+  // --- Album thumbs ---
   function albumImageForName(name) {
     if (!name) return 'images/default-album.jpeg';
     const n = name.toLowerCase();
@@ -117,7 +130,6 @@
     return 'images/default-album.jpeg';
   }
 
-  // Рендер миниатюр только для главных альбомов (albums без parentId)
   function renderAlbumThumbs() {
     if (!albumThumbsContainer) return;
     albumThumbsContainer.innerHTML = '';
@@ -176,7 +188,7 @@
     });
   }
 
-  // Селекторы альбомов — album-select скрытое поле, subalbum-select работает как раньше
+  // Album selectors
   function buildAlbumSelectors() {
     if (albumSelect) {
       albumSelect.value = '';
@@ -215,7 +227,7 @@
   }
   function onSubalbumChange() { renderTracks(); }
 
-  // Поиск (локальный)
+  // Поиск
   function matchesQuery(t, query) {
     if (!query) return true;
     const q = query.toLowerCase();
@@ -236,7 +248,7 @@
     filteredTracks = query ? tracks.filter(t => matchesQuery(t, query)) : [];
   }
 
-  // Глобальный поисковик (альбомы, подальбомы, треки)
+  // Global search
   function applyGlobalSearch(query) {
     const q = (query || '').trim().toLowerCase();
     searchQuery = q;
@@ -265,31 +277,21 @@
     });
   }
 
-  // --- Динамический отступ для .site-wrapper, чтобы плеер не перекрывал контент ---
+  // --- Динамический отступ для .site-wrapper ---
   const siteWrapper = document.querySelector('.site-wrapper');
   let resizeTimer = null;
   function getSafeAreaInsetBottom() {
-    // Попытка учесть CSS env() для iOS notch
-    try {
-      // Если браузер поддерживает env(), можно добавить CSS переменную; здесь возвращаем 0 и используем CSS fallback
-      return 0;
-    } catch (e) {
-      return 0;
-    }
+    return 0;
   }
-
   function updatePlayerPadding() {
     if (!siteWrapper) return;
-    // Если плеер видим, вычисляем его реальную высоту
     const isVisible = playerEl && playerEl.classList.contains('visible');
     if (isVisible) {
       const rect = playerEl.getBoundingClientRect();
       const h = Math.ceil(rect.height || 0);
       const safe = getSafeAreaInsetBottom();
-      // Добавляем небольшой запас 8px
       siteWrapper.style.paddingBottom = (h + safe + 8) + 'px';
     } else {
-      // Сбрасываем padding-bottom
       siteWrapper.style.paddingBottom = '';
     }
   }
@@ -300,11 +302,9 @@
       resizeTimer = null;
     }, 120);
   }
-  // Вызываем при ресайзе и ориентации
   window.addEventListener('resize', debounceUpdatePlayerPadding);
   window.addEventListener('orientationchange', debounceUpdatePlayerPadding);
 
-  // Утилита для централизованного управления видимостью плеера
   function setPlayerVisible(visible) {
     if (!playerEl) return;
     if (visible) {
@@ -314,11 +314,97 @@
       playerEl.classList.remove('visible');
       playerEl.setAttribute('aria-hidden', 'true');
     }
-    // Обновляем padding с небольшой задержкой, чтобы учесть CSS-анимацию
     setTimeout(updatePlayerPadding, 40);
   }
 
-  // Плеер: воспроизведение трека по индексу (без изменений функционала, но с вызовом updatePlayerPadding)
+  // --- Share utilities ---
+  function buildShareUrlForTrack(trackId) {
+    const base = location.origin + location.pathname;
+    return `${base}?track=${encodeURIComponent(trackId)}`;
+  }
+  function buildShareUrlForPage() {
+    return location.href;
+  }
+
+  async function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Ссылка скопирована');
+        return true;
+      } catch (e) {
+        return false;
+      }
+    } else {
+      // fallback: create temporary input
+      try {
+        const tmp = document.createElement('input');
+        tmp.value = text;
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand('copy');
+        document.body.removeChild(tmp);
+        showToast('Ссылка скопирована');
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+  }
+
+  function openShareModal(url, title, text) {
+    if (!shareModal) return;
+    shareUrlInput.value = url;
+    shareModal.classList.remove('hidden');
+    shareModal.setAttribute('aria-hidden', 'false');
+
+    // Prepare social links
+    const encodedUrl = encodeURIComponent(url);
+    const encodedText = encodeURIComponent((text || title || '') + ' ' + url);
+    shareTwitter.href = `https://twitter.com/intent/tweet?text=${encodedText}`;
+    shareTelegram.href = `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(text || title || '')}`;
+    shareMail.href = `mailto:?subject=${encodeURIComponent(title || 'Share')}&body=${encodeURIComponent((text || '') + '\n\n' + url)}`;
+  }
+
+  async function doShare({ title, text, url }) {
+    // Try Web Share API
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: title || document.title, text: text || '', url });
+        return;
+      } catch (err) {
+        // user cancelled or error — fallback to copy/modal
+      }
+    }
+    // Fallback: copy to clipboard and open modal on desktop
+    const copied = await copyToClipboard(url);
+    if (!copied) {
+      openShareModal(url, title, text);
+    } else {
+      // On desktop, still offer modal if user wants more options
+      if (!navigator.share && window.innerWidth > 800) {
+        // show modal but keep toast
+        setTimeout(() => openShareModal(url, title, text), 600);
+      }
+    }
+  }
+
+  // Toast
+  let toastTimer = null;
+  function showToast(msg, ms = 1600) {
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.add('visible');
+    toast.classList.remove('hidden');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('visible');
+      toast.classList.add('hidden');
+      toastTimer = null;
+    }, ms);
+  }
+
+  // --- Player functions ---
   function playTrackByIndex(index) {
     if (index < 0 || index >= tracks.length) return;
     currentTrackIndex = index;
@@ -331,7 +417,6 @@
     audio.currentTime = 0;
     if (titleEl) titleEl.textContent = t.title || '';
     if (artistEl) artistEl.textContent = t.artist || '';
-    if (coverImg) coverImg.src = getCoverUrl(t); // безопасно — coverImg может быть null
     if (downloadBtn) {
       downloadBtn.href = src;
       downloadBtn.style.display = src ? '' : 'none';
@@ -344,6 +429,11 @@
       isPlaying = true;
       setPlayerVisible(true);
       updatePlayButton();
+      // update URL (pushState) to reflect current track
+      const newUrl = buildShareUrlForTrack(t.id);
+      try {
+        history.replaceState(null, '', newUrl);
+      } catch (e) {}
     }).catch(() => {
       isPlaying = false;
       updatePlayButton();
@@ -357,7 +447,6 @@
   function playPrev() { if (currentTrackIndex > 0) playTrackByIndex(currentTrackIndex - 1); }
   function playNext() { if (currentTrackIndex < tracks.length - 1) playTrackByIndex(currentTrackIndex + 1); }
 
-  // События аудио — обновляем видимость плеера и padding
   if (audio) {
     audio.addEventListener('play', () => {
       isPlaying = true;
@@ -368,11 +457,9 @@
     audio.addEventListener('pause', () => {
       isPlaying = false;
       updatePlayButton();
-      // Опциональное поведение: скрывать плеер при паузе
       if (HIDE_PLAYER_ON_PAUSE) {
         setPlayerVisible(false);
       } else {
-        // Если не скрываем — просто обновляем padding (возможно плеер остаётся видимым)
         setTimeout(updatePlayerPadding, 40);
       }
     });
@@ -380,7 +467,6 @@
     audio.addEventListener('ended', () => {
       isPlaying = false;
       updatePlayButton();
-      // При окончании трека скрываем плеер (как раньше)
       setPlayerVisible(false);
     });
 
@@ -430,7 +516,7 @@
     });
   }
 
-  // Рендер треков
+  // --- Render tracks (adds share button per card) ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -462,22 +548,19 @@
     visible.forEach((t) => {
       const card = document.createElement('div');
       card.className = 'card';
+      card.setAttribute('data-track-id', String(t.id || ''));
 
       const img = document.createElement('img');
       img.className = 'track-cover';
       img.src = getCoverUrl(t);
       img.alt = t.title || 'cover';
 
-      // Клик по каверу — поведение: пауза/продолжение для того же трека или воспроизведение нового
       img.addEventListener('click', () => {
         const globalIndex = tracks.findIndex(x => x.id === t.id);
         if (globalIndex === currentTrackIndex) {
           if (!audio.paused) {
             audio.pause();
-            if (!HIDE_PLAYER_ON_PAUSE) {
-              // если не скрываем плеер на паузе — убрать видимость не нужно, но обновим padding
-              setTimeout(updatePlayerPadding, 40);
-            }
+            if (!HIDE_PLAYER_ON_PAUSE) setTimeout(updatePlayerPadding, 40);
           } else {
             audio.play();
           }
@@ -499,15 +582,11 @@
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
-      // Кнопка текста
+      // Lyrics button
       const btnLyrics = document.createElement('button');
       btnLyrics.type = 'button';
       btnLyrics.textContent = 'ტექსტი';
-
-      if (t.lyrics && t.lyrics.trim()) {
-        btnLyrics.classList.add('btn-has-lyrics');
-      }
-
+      if (t.lyrics && t.lyrics.trim()) btnLyrics.classList.add('btn-has-lyrics');
       btnLyrics.addEventListener('click', (ev) => {
         ev.stopPropagation();
         if (modalTitle) modalTitle.textContent = t.title || 'Lyrics';
@@ -532,6 +611,21 @@
         aDownload.className = 'disabled';
       }
       actions.appendChild(aDownload);
+
+      // Share (per-track)
+      const shareBtn = document.createElement('button');
+      shareBtn.type = 'button';
+      shareBtn.className = 'share-button';
+      shareBtn.textContent = 'Share';
+      shareBtn.setAttribute('aria-label', `Share track ${t.title || ''}`);
+      shareBtn.addEventListener('click', async (ev) => {
+        ev.stopPropagation();
+        const url = buildShareUrlForTrack(t.id);
+        const title = t.title || document.title;
+        const text = `${t.title || ''} — ${t.artist || ''}`;
+        await doShare({ title, text, url });
+      });
+      actions.appendChild(shareBtn);
 
       // Like
       const likeBtn = document.createElement('button');
@@ -576,9 +670,24 @@
       card.appendChild(actions);
       tracksContainer.appendChild(card);
     });
+
+    // После рендера — если есть pendingTrackToOpen, прокрутить и/или воспроизвести
+    if (pendingTrackToOpen) {
+      const id = String(pendingTrackToOpen);
+      const el = tracksContainer.querySelector(`[data-track-id="${id}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Найти индекс и воспроизвести
+        const idx = tracks.findIndex(t => String(t.id) === id);
+        if (idx >= 0) {
+          playTrackByIndex(idx);
+        }
+      }
+      pendingTrackToOpen = null;
+    }
   }
 
-  // Загрузка данных
+  // --- Load data ---
   async function loadData() {
     try {
       const res = await fetch('tracks.json', { cache: 'no-store' });
@@ -608,7 +717,7 @@
   const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) refreshBtn.addEventListener('click', () => loadData());
 
-  // Модалка письма: открытие/закрытие
+  // --- Contact modal ---
   if (contactBtn && contactModal && contactClose) {
     contactBtn.addEventListener('click', () => {
       contactModal.classList.remove('hidden');
@@ -634,7 +743,7 @@
     });
   }
 
-  // Обработчик отправки формы через fetch (AJAX)
+  // Contact form submit
   if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -667,11 +776,51 @@
     });
   }
 
+  // --- Share modal handlers ---
+  if (shareModalClose) {
+    shareModalClose.addEventListener('click', () => {
+      shareModal.classList.add('hidden');
+      shareModal.setAttribute('aria-hidden', 'true');
+    });
+  }
+  if (shareCopyBtn) {
+    shareCopyBtn.addEventListener('click', async () => {
+      const url = shareUrlInput.value || '';
+      if (!url) return;
+      const ok = await copyToClipboard(url);
+      if (ok) showToast('Ссылка скопирована');
+    });
+  }
+
+  // Site-wide share button
+  if (siteShareBtn) {
+    siteShareBtn.addEventListener('click', async () => {
+      const url = buildShareUrlForPage();
+      const title = document.title;
+      const text = 'Послушай Cube Cubic';
+      await doShare({ title, text, url });
+    });
+  }
+
+  // Deep-link parsing on load
+  function parseDeepLink() {
+    const params = new URLSearchParams(location.search);
+    const track = params.get('track') || null;
+    if (track) {
+      pendingTrackToOpen = track;
+    } else {
+      // also support hash like #track-<id>
+      const h = location.hash || '';
+      const m = h.match(/track-([^\s]+)/);
+      if (m) pendingTrackToOpen = m[1];
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
+    parseDeepLink();
     loadData();
     if (volumeEl && audio) audio.volume = parseFloat(volumeEl.value || 1);
     if (progress) progress.value = 0;
-    // Обновляем padding при загрузке (в случае, если плеер видим)
     setTimeout(updatePlayerPadding, 60);
   });
 })();

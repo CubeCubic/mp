@@ -9,14 +9,13 @@ body {
   background-attachment: fixed;
 }
 
-/* Контейнер сайта: компактная, сбалансированная ширина + адаптивные поля */
+/* Контейнер сайта */
 .site-wrapper {
   max-width: 1440px;
   margin: 0 auto;
   padding-left: 20px;
   padding-right: 20px;
   box-sizing: border-box;
-  /* Плавный переход отступа при появлении/скрытии плеера */
   transition: padding-bottom 320ms cubic-bezier(.2,.9,.2,1);
 }
 
@@ -75,6 +74,17 @@ header nav a, header nav button {
 }
 header nav a:hover, header nav button:hover { text-decoration: underline; }
 
+/* Site-wide share button */
+#site-share-btn {
+  background: #2b8cff;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Поисковик */
 #global-search {
   margin-top: 12px;
   margin-bottom: 10px;
@@ -216,7 +226,7 @@ section > #tracks {
   text-overflow: ellipsis;
 }
 
-/* Действия — ужатые кнопки, лайк стабильно помещается */
+/* Действия */
 .track-actions {
   margin-top: 8px;
   display: flex;
@@ -242,14 +252,20 @@ section > #tracks {
   pointer-events: none;
 }
 
-/* Дополнительный класс для кнопки текста, если у трека есть lyrics */
+/* Share button on card */
+.track-actions .share-button {
+  background: #2b8cff;
+  color: #fff;
+}
+
+/* Дополнительный класс для кнопки текста */
 .track-actions button.btn-has-lyrics {
   background: #ffcc00;
   color: #000;
   font-weight: bold;
 }
 
-/* Лайк — компактный, выравнивается вправо */
+/* Лайк */
 .like-button {
   display: inline-flex;
   align-items: center;
@@ -281,8 +297,7 @@ section > #tracks {
   animation: like-pop 360ms cubic-bezier(.2,.9,.2,1);
 }
 
-/* Плеер — компактный, кавер удалён */
-/* ----- начало блока плеера ----- */
+/* Плеер — компактный */
 #player {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -293,12 +308,10 @@ section > #tracks {
   pointer-events: none;
   transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
   z-index: 1000;
-  /* чуть меньшая высота по умолчанию */
   --player-compact-height: 64px;
 }
 #player.visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
 
-/* Упрощённая и компактная панель */
 .player-bar {
   display: flex;
   align-items: center;
@@ -325,8 +338,6 @@ section > #tracks {
   gap: 8px;
   align-items: center;
 }
-
-/* Кнопки чуть компактнее */
 #player-controls button,
 #player-controls a {
   background: #444;
@@ -340,7 +351,6 @@ section > #tracks {
 }
 #player-controls input[type="range"] { width: 80px; }
 
-/* Прогресс — компактный */
 #player-progress {
   display: flex;
   align-items: center;
@@ -350,7 +360,6 @@ section > #tracks {
 }
 #player-progress span { font-size: 12px; color: #ccc; width: 40px; text-align: center; }
 #progress { flex: 1; }
-/* ----- конец блока плеера ----- */
 
 /* Модалки */
 #lyrics-modal.hidden { display: none !important; }
@@ -369,6 +378,46 @@ section > #tracks {
 .modal-box h3 { margin-top: 0; font-size: 16px; }
 .modal-box pre { white-space: pre-wrap; font-size: 13px; }
 
+/* Share modal */
+#share-modal.hidden { display: none !important; }
+#share-modal {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 2100;
+}
+#share-modal .modal-box .share-links {
+  display: flex; gap: 8px; margin-bottom: 10px;
+}
+#share-modal .modal-box .share-links a {
+  background: #2b8cff; color: #fff; padding: 6px 8px; border-radius: 6px; text-decoration: none;
+}
+#share-modal .modal-box .share-copy {
+  display: flex; gap: 8px; align-items: center;
+}
+#share-modal .modal-box input[type="text"] {
+  flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;
+}
+#share-modal .modal-box button { padding: 6px 8px; border-radius: 4px; border: none; background: #444; color: #fff; cursor: pointer; }
+
+/* Toast */
+#toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 90px;
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  z-index: 3000;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+#toast.visible { opacity: 1; }
+
+/* Contact modal */
 #contact-modal.hidden { display: none !important; }
 #contact-modal {
   position: fixed; inset: 0;

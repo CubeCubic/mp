@@ -18,6 +18,7 @@
       <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
       <nav>
         <a href="index.html">მთავარი</a>
+        <button id="site-share-btn" type="button" aria-label="Share site">Share</button>
         <button id="contact-btn" type="button">Contact</button>
         <a href="admin.html">Admin</a>
       </nav>
@@ -50,7 +51,7 @@
     </main>
   </div>
 
-  <!-- Плеер: кавер удалён, плеер стал компактнее -->
+  <!-- Плеер: компактный -->
   <div id="player" class="hidden" aria-hidden="true">
     <div class="player-bar">
       <div id="player-info">
@@ -58,11 +59,11 @@
         <div id="player-artist">Artist</div>
       </div>
       <div id="player-controls">
-        <button id="prev" type="button">⏮</button>
-        <button id="play" type="button">▶</button>
-        <button id="next" type="button">⏭</button>
-        <button id="show-lyrics" type="button" style="display:none;">ტექსტი</button>
-        <a id="download" href="#" download style="display:none;">ჩამოტვირთვა</a>
+        <button id="prev" type="button" aria-label="Previous">⏮</button>
+        <button id="play" type="button" aria-label="Play">▶</button>
+        <button id="next" type="button" aria-label="Next">⏭</button>
+        <button id="show-lyrics" type="button" style="display:none;" aria-label="Show lyrics">ტექსტი</button>
+        <a id="download" href="#" download style="display:none;" aria-label="Download">ჩამოტვირთვა</a>
         <input id="volume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
       </div>
     </div>
@@ -74,6 +75,7 @@
     <audio id="audio" preload="none"></audio>
   </div>
 
+  <!-- Модалка текстов -->
   <div id="lyrics-modal" class="hidden" aria-hidden="true">
     <div class="modal-box">
       <button id="modal-close" type="button">Close</button>
@@ -81,6 +83,27 @@
       <pre id="modal-lyrics"></pre>
     </div>
   </div>
+
+  <!-- Share modal (fallback on desktop) -->
+  <div id="share-modal" class="hidden" aria-hidden="true">
+    <div class="modal-box">
+      <button id="share-modal-close" type="button">Close</button>
+      <h3>Share</h3>
+      <p id="share-modal-text">Share this link:</p>
+      <div class="share-links">
+        <a id="share-twitter" href="#" target="_blank" rel="noopener">Twitter</a>
+        <a id="share-telegram" href="#" target="_blank" rel="noopener">Telegram</a>
+        <a id="share-mail" href="#" target="_blank" rel="noopener">Email</a>
+      </div>
+      <div class="share-copy">
+        <input id="share-url-input" type="text" readonly aria-label="Share URL">
+        <button id="share-copy-btn" type="button">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden" role="status" aria-live="polite"></div>
 
   <!-- Модалка для письма -->
   <div id="contact-modal" class="hidden" aria-hidden="true">
