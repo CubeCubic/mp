@@ -1,19 +1,17 @@
 // Cube Cubic — главная страница.
-// Исправлены пути для GitHub Pages: BASE = '/mp/'.
-// Реализовано: альбомы/треки без Artist, столбец Cover, модалка кавера,
-// модалка текста, поиск, скачивание по URL, устойчивый плеер.
+// Источник данных: tracks.json (в корне репозитория).
+// Реализовано:
+// - Альбомы/треки без Artist;
+// - Колонка маленького кавера перед Title;
+// - Модалка увеличенного кавера;
+// - Модалка текста (кнопка «ტექსტი» подсвечивается при наличии);
+// - Поиск по текущему альбому;
+// - Скачивание по конкретному URL (downloadUrl);
+// - Проигрыватель: воспроизведение/пауза, prev/next, прогресс, время, громкость;
+// - Устойчивость к отсутствующим файлам: onerror + fallback.
 
 document.addEventListener('DOMContentLoaded', () => {
-  const BASE = '/mp/';
-  const PATH = {
-    covers: BASE + 'covers/',
-    tracks: BASE + 'tracks/',
-    logo: BASE + 'midcube.png',
-    fallbackCover: BASE + 'placeholder-cover.png',
-    fallbackAudio: BASE + 'silence.mp3' // короткая тишина как заглушка (добавь файл)
-  };
-
-  // DOM
+  // DOM refs
   const albumsContainer = document.getElementById('albums');
   const tracksTableBody = document.querySelector('#tracks tbody');
   const searchInput = document.getElementById('search');
@@ -38,58 +36,50 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnNext = document.getElementById('btn-next');
   const volumeRange = document.getElementById('volume');
 
+  // Fallbacks
+  const FALLBACK = {
+    cover: 'images/placeholder-cover.png', // создай этот файл для красивой заглушки
+    audio: 'tracks/silence.mp3'            // короткая тишина, если аудио не найдено
+  };
+
+  // Audio
   const audio = new Audio();
   audio.preload = 'metadata';
   audio.crossOrigin = 'anonymous';
 
   // State
+  let albums = [];
   let currentAlbumIndex = 0;
   let currentTrackIndex = 0;
   let filteredTracks = null;
 
-  // Данные с реальными путями (проверь имена файлов и регистр)
-  const albums = [
-    {
-      title: 'Cube Cubic',
-      cover: PATH.covers + 'midcube.png',
-      tracks: [
-        { title: 'Cube Cubic', cover: PATH.covers + 'midcube.png', lyrics: 'Cube Cubic lyrics...', downloadUrl: PATH.tracks + 'cube-cubic.mp3' },
-        { title: 'Tesseract', cover: PATH.covers + 'tesseract.png', lyrics: '', downloadUrl: PATH.tracks + 'tesseract.mp3' },
-        { title: 'Silence', cover: PATH.covers + 'silence.png', lyrics: 'Silence lyrics...', downloadUrl: PATH.tracks + 'silence.mp3' },
-        { title: 'Lowpoly', cover: PATH.covers + 'lowpoly.png', lyrics: '', downloadUrl: PATH.tracks + 'lowpoly.mp3' },
-        { title: 'Neon', cover: PATH.covers + 'neon.png', lyrics: '', downloadUrl: PATH.tracks + 'neon.mp3' }
-      ]
-    },
-    {
-      title: 'Helio World',
-      cover: PATH.covers + 'helio.png',
-      tracks: [
-        { title: 'Helio Intro', cover: PATH.covers + 'helio-intro.png', lyrics: '', downloadUrl: PATH.tracks + 'helio-intro.mp3' },
-        { title: 'Helio Rise', cover: PATH.covers + 'helio-rise.png', lyrics: '', downloadUrl: PATH.tracks + 'helio-rise.mp3' }
-      ]
-    },
-    {
-      title: 'Alphx Wave',
-      cover: PATH.covers + 'alphx.png',
-      tracks: [
-        { title: 'Wave 1', cover: PATH.covers + 'wave1.png', lyrics: '', downloadUrl: PATH.tracks + 'wave1.mp3' },
-        { title: 'Wave 2', cover: PATH.covers + 'wave2.png', lyrics: 'Wave 2 lyrics...', downloadUrl: PATH.tracks + 'wave2.mp3' }
-      ]
-    },
-    {
-      title: 'Funky Friday',
-      cover: PATH.covers + 'funky.png',
-      tracks: [
-        { title: 'Funk A', cover: PATH.covers + 'funka.png', lyrics: '', downloadUrl: PATH.tracks + 'funka.mp3' },
-        { title: 'Funk B', cover: PATH.covers + 'funkb.png', lyrics: '', downloadUrl: PATH.tracks + 'funkb.mp3' }
-      ]
-    }
-  ];
-
-  // Init
-  renderAlbums();
-  renderTracks(getCurrentTracks());
-  selectTrack(0, false);
+  // Load data
+  fetch('tracks.json', { cache: 'no-store' })
+    .then(async (res) => {
+      if (!res.ok) throw new Error('tracks.json not found');
+      const data = await res.json();
+      validateDataShape(data);
+      albums = data.albums || [];
+      renderAlbums();
+      renderTracks(getCurrentTracks());
+      selectTrack(0, false);
+    })
+    .catch((err) => {
+      console.error('Ошибка загрузки tracks.json:', err);
+      // Минимальный fallback, если файл отсутствует
+      albums = [
+        {
+          title: 'Cube Cubic',
+          cover: 'images/midcube.png',
+          tracks: [
+            { title: 'Cube Cubic', cover: 'images/midcube.png', lyrics: 'Cube Cubic lyrics...', downloadUrl: 'tracks/cube-cubic.mp3' }
+          ]
+        }
+      ];
+      renderAlbums();
+      renderTracks(getCurrentTracks());
+      selectTrack(0, false);
+    });
 
   // Search
   searchInput.addEventListener('input', () => {
@@ -163,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   audio.addEventListener('error', () => {
     // Fallback на тишину, чтобы UI не ломался
-    audio.src = PATH.fallbackAudio;
+    audio.src = FALLBACK.audio;
     audio.play().catch(() => {});
   });
 
@@ -186,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
       img.className = 'album-thumb';
       img.src = album.cover;
       img.alt = album.title;
-      img.onerror = () => { img.src = PATH.fallbackCover; };
+      img.onerror = () => { img.src = FALLBACK.cover; };
 
       const title = document.createElement('div');
       title.className = 'album-title';
@@ -227,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
       coverImg.className = 'track-cover';
       coverImg.src = t.cover;
       coverImg.alt = t.title || 'Cover';
-      coverImg.onerror = () => { coverImg.src = PATH.fallbackCover; };
+      coverImg.onerror = () => { coverImg.src = FALLBACK.cover; };
       coverImg.addEventListener('click', (ev) => {
         ev.stopPropagation();
         coverModalImg.src = coverImg.src;
@@ -285,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Player: select track
   function selectTrack(trackIndex, autoplay) {
     const list = getActiveTrackList();
     if (!list.length) return;
@@ -293,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     playerTitle.textContent = track.title || '—';
 
-    const url = track.downloadUrl || PATH.fallbackAudio;
+    const url = track.downloadUrl || FALLBACK.audio;
     audio.src = url;
     audio.currentTime = 0;
 
@@ -313,9 +304,11 @@ document.addEventListener('DOMContentLoaded', () => {
     updateProgressUI();
   }
 
+  // Helpers
   function getActiveTrackList() {
     return Array.isArray(filteredTracks) ? filteredTracks : getCurrentTracks();
   }
+
   function getCurrentTracks() {
     const album = albums[currentAlbumIndex];
     return album ? album.tracks || [] : [];
@@ -343,11 +336,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.removeChild(a);
   }
 
-  function clamp(n, min, max) { return Math.min(Math.max(n, min), max); }
+  function clamp(n, min, max) {
+    return Math.min(Math.max(n, min), max);
+  }
+
   function formatTime(sec) {
     const s = Math.floor(sec || 0);
     const m = Math.floor(s / 60);
     const r = s % 60;
     return `${m}:${String(r).padStart(2, '0')}`;
+  }
+
+  function validateDataShape(data) {
+    if (!data || typeof data !== 'object' || !Array.isArray(data.albums)) {
+      console.warn('Неверный формат tracks.json: ожидался объект { albums: [...] }');
+    }
   }
 });
