@@ -255,12 +255,12 @@
       return;
     }
 
-    // Build table
+    // Build table with Covers column (Artist column removed)
     const table = document.createElement('table');
     table.className = 'table';
     const thead = document.createElement('thead');
     const headRow = document.createElement('tr');
-    ['#','Title','Artist','Action'].forEach(h => {
+    ['#','Covers','Title','Action'].forEach(h => {
       const th = document.createElement('th');
       th.textContent = h;
       headRow.appendChild(th);
@@ -273,10 +273,23 @@
     visible.forEach((t, idx) => {
       const tr = document.createElement('tr');
 
+      // Index
       const tdIndex = document.createElement('td');
       tdIndex.textContent = (idx + 1).toString();
       tr.appendChild(tdIndex);
 
+      // Covers column: small thumbnail(s) in one row
+      const tdCovers = document.createElement('td');
+      tdCovers.className = 'covers-cell';
+      const coverImgEl = document.createElement('img');
+      coverImgEl.className = 'cover-thumb';
+      coverImgEl.src = getCoverUrl(t);
+      coverImgEl.alt = t.title || 'cover';
+      coverImgEl.onerror = () => { coverImgEl.src = 'images/midcube.png'; };
+      tdCovers.appendChild(coverImgEl);
+      tr.appendChild(tdCovers);
+
+      // Title column (title + artist/album meta)
       const tdTitle = document.createElement('td');
       const titleWrap = document.createElement('div');
       titleWrap.className = 'track-title';
@@ -284,42 +297,85 @@
       const albumName = (albums.find(a => a.id === t.albumId) || {}).name || '';
       const meta = document.createElement('div');
       meta.className = 'track-artist';
-      meta.textContent = (t.artist || '') + (albumName ? ' • ' + albumName : '');
+      meta.textContent = albumName ? albumName : '';
       tdTitle.appendChild(titleWrap);
       tdTitle.appendChild(meta);
       tr.appendChild(tdTitle);
 
-      const tdArtist = document.createElement('td');
-      tdArtist.textContent = t.artist || '';
-      tr.appendChild(tdArtist);
-
+      // Action column: lyrics button (if present) and download
       const tdAction = document.createElement('td');
-      // Lyrics button
+
+      // Lyrics button (visible only when lyrics exist)
       if (t.lyrics && t.lyrics.trim()) {
         const btnLyrics = document.createElement('button');
         btnLyrics.className = 'action-btn lyrics';
+        btnLyrics.type = 'button';
         btnLyrics.textContent = 'Lyrics';
         btnLyrics.addEventListener('click', (ev) => {
           ev.stopPropagation();
           if (modalTitle) modalTitle.textContent = t.title || 'Lyrics';
           if (modalLyrics) modalLyrics.textContent = t.lyrics || '';
-          if (lyricsModal) { lyricsModal.classList.remove('hidden'); lyricsModal.setAttribute('aria-hidden','false'); }
+          if (lyricsModal) {
+            lyricsModal.classList.remove('hidden');
+            lyricsModal.setAttribute('aria-hidden', 'false');
+          }
         });
         tdAction.appendChild(btnLyrics);
       }
-      // Download
+
+      // Download anchor (always shown; disabled if no stream)
       const stream = getStreamUrl(t);
       const aDownload = document.createElement('a');
       aDownload.className = 'action-btn download';
       aDownload.textContent = 'Download';
-      if (stream) { aDownload.href = stream; aDownload.setAttribute('download',''); } else { aDownload.href = '#'; aDownload.classList.add('disabled'); }
+      if (stream) {
+        aDownload.href = stream;
+        aDownload.setAttribute('download', '');
+        aDownload.setAttribute('rel', 'noopener noreferrer');
+        aDownload.setAttribute('target', '_blank');
+      } else {
+        aDownload.href = '#';
+        aDownload.classList.add('disabled');
+      }
       tdAction.appendChild(aDownload);
 
-      // Play on click
+      // Like button (kept as before)
+      const likeBtn = document.createElement('button');
+      likeBtn.type = 'button';
+      likeBtn.className = 'like-button';
+      likeBtn.setAttribute('aria-label', 'Like track');
+      const heartSpan = document.createElement('span');
+      heartSpan.className = 'heart';
+      heartSpan.textContent = '❤';
+      const countSpan = document.createElement('span');
+      countSpan.className = 'like-count';
+      const key = String(t.id || t.filename || t.title);
+      countSpan.textContent = getLikesFor(key);
+      likeBtn.appendChild(heartSpan);
+      likeBtn.appendChild(countSpan);
+      if (hasLiked(key)) likeBtn.classList.add('liked');
+      likeBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        if (hasLiked(key)) {
+          likeBtn.classList.add('animate');
+          setTimeout(() => likeBtn.classList.remove('animate'), 380);
+          return;
+        }
+        const newCount = incrementLikesFor(key);
+        countSpan.textContent = newCount;
+        markLiked(key);
+        likeBtn.classList.add('liked');
+        likeBtn.classList.add('animate');
+        setTimeout(() => likeBtn.classList.remove('animate'), 380);
+      });
+      tdAction.appendChild(likeBtn);
+
+      // Row click: play/pause or play new
       tr.addEventListener('click', () => {
         const globalIndex = tracks.findIndex(x => x.id === t.id);
         if (globalIndex === currentTrackIndex) {
-          if (!audio.paused) audio.pause(); else audio.play();
+          if (!audio.paused) audio.pause();
+          else audio.play();
         } else {
           playTrackByIndex(globalIndex);
         }
