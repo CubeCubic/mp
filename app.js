@@ -1,4 +1,8 @@
 (function () {
+  // --- Настройки ---
+  // Если true — плеер будет автоматически скрываться при паузе
+  const HIDE_PLAYER_ON_PAUSE = true;
+
   const albumSelect = document.getElementById('album-select'); // скрытое поле (главные альбомы)
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
@@ -273,6 +277,7 @@
       return 0;
     }
   }
+
   function updatePlayerPadding() {
     if (!siteWrapper) return;
     // Если плеер видим, вычисляем его реальную высоту
@@ -299,6 +304,20 @@
   window.addEventListener('resize', debounceUpdatePlayerPadding);
   window.addEventListener('orientationchange', debounceUpdatePlayerPadding);
 
+  // Утилита для централизованного управления видимостью плеера
+  function setPlayerVisible(visible) {
+    if (!playerEl) return;
+    if (visible) {
+      playerEl.classList.add('visible');
+      playerEl.setAttribute('aria-hidden', 'false');
+    } else {
+      playerEl.classList.remove('visible');
+      playerEl.setAttribute('aria-hidden', 'true');
+    }
+    // Обновляем padding с небольшой задержкой, чтобы учесть CSS-анимацию
+    setTimeout(updatePlayerPadding, 40);
+  }
+
   // Плеер: воспроизведение трека по индексу (без изменений функционала, но с вызовом updatePlayerPadding)
   function playTrackByIndex(index) {
     if (index < 0 || index >= tracks.length) return;
@@ -323,10 +342,8 @@
 
     audio.play().then(() => {
       isPlaying = true;
-      if (playerEl) playerEl.classList.add('visible');
+      setPlayerVisible(true);
       updatePlayButton();
-      // Обновляем отступ после анимации появления плеера (немного задерживаем)
-      setTimeout(updatePlayerPadding, 40);
     }).catch(() => {
       isPlaying = false;
       updatePlayButton();
@@ -344,24 +361,29 @@
   if (audio) {
     audio.addEventListener('play', () => {
       isPlaying = true;
-      if (playerEl) playerEl.classList.add('visible');
+      setPlayerVisible(true);
       updatePlayButton();
-      setTimeout(updatePlayerPadding, 40);
     });
+
     audio.addEventListener('pause', () => {
       isPlaying = false;
       updatePlayButton();
-      // Оставляем плеер видимым при паузе, но если нужно скрывать — можно убрать класс visible
-      // Если вы хотите скрывать плеер при паузе, раскомментируйте следующую строку:
-      // if (playerEl) playerEl.classList.remove('visible');
-      setTimeout(updatePlayerPadding, 40);
+      // Опциональное поведение: скрывать плеер при паузе
+      if (HIDE_PLAYER_ON_PAUSE) {
+        setPlayerVisible(false);
+      } else {
+        // Если не скрываем — просто обновляем padding (возможно плеер остаётся видимым)
+        setTimeout(updatePlayerPadding, 40);
+      }
     });
+
     audio.addEventListener('ended', () => {
       isPlaying = false;
       updatePlayButton();
-      if (playerEl) playerEl.classList.remove('visible');
-      setTimeout(updatePlayerPadding, 40);
+      // При окончании трека скрываем плеер (как раньше)
+      setPlayerVisible(false);
     });
+
     audio.addEventListener('timeupdate', () => {
       if (!audio.duration) return;
       if (progress) progress.value = (audio.currentTime / audio.duration) * 100;
@@ -452,12 +474,12 @@
         if (globalIndex === currentTrackIndex) {
           if (!audio.paused) {
             audio.pause();
-            if (playerEl) playerEl.classList.remove('visible');
-            setTimeout(updatePlayerPadding, 40);
+            if (!HIDE_PLAYER_ON_PAUSE) {
+              // если не скрываем плеер на паузе — убрать видимость не нужно, но обновим padding
+              setTimeout(updatePlayerPadding, 40);
+            }
           } else {
             audio.play();
-            if (playerEl) playerEl.classList.add('visible');
-            setTimeout(updatePlayerPadding, 40);
           }
         } else {
           playTrackByIndex(globalIndex);
