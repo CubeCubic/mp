@@ -265,36 +265,16 @@ section > #tracks {
   font-weight: bold;
 }
 
-/* Лайк */
-.like-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 6px;
-  background: #b3003b;
-  color: #fff;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 12px;
-  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
-  margin-left: auto;
-}
-.like-button .heart { font-size: 14px; line-height: 1; }
-.like-button .like-count { font-size: 12px; }
-.like-button.liked {
-  background: linear-gradient(90deg, #ff6b81 0%, #ff3b6b 100%);
-  box-shadow: 0 6px 18px rgba(255,59,107,0.22);
-  transform: translateY(-1px);
-}
-@keyframes like-pop {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.18); }
-  70% { transform: scale(0.98); }
-  100% { transform: scale(1); }
-}
-.like-button.animate {
-  animation: like-pop 360ms cubic-bezier(.2,.9,.2,1);
+/* Лайк — скрываем визуально, но код остаётся в DOM */
+.track-actions .like-button {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  margin-left: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
 }
 
 /* Плеер — компактный */
