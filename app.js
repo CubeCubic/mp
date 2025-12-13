@@ -7,7 +7,7 @@
   const globalSearchInput = document.getElementById('global-search');
   const albumThumbsContainer = document.getElementById('album-thumbs');
 
-  // Плеер — не трогаю (только фиксим поведение при клике на кавер)
+  // Плеер — изменён: кавер удалён, но элементы остались для совместимости
   const playerEl = document.getElementById('player');
   const audio = document.getElementById('audio');
   const playBtn = document.getElementById('play');
@@ -16,6 +16,7 @@
   const volumeEl = document.getElementById('volume');
   const downloadBtn = document.getElementById('download');
   const showLyricsBtn = document.getElementById('show-lyrics');
+  // coverImg был удалён из DOM — оставляем переменную, но проверяем на null
   const coverImg = document.getElementById('player-cover-img');
   const titleEl = document.getElementById('player-title');
   const artistEl = document.getElementById('player-artist');
@@ -136,7 +137,6 @@
       label.textContent = a.name || '';
       thumb.appendChild(label);
 
-      // Клик по миниатюре — устанавливаем значение скрытого поля album-select и вызываем onAlbumChange
       thumb.addEventListener('click', (ev) => {
         ev.preventDefault();
         if (albumSelect) {
@@ -159,7 +159,6 @@
       albumThumbsContainer.appendChild(thumb);
     });
 
-    // Обновить выделение, если уже выбран альбом
     updateThumbSelection();
   }
 
@@ -187,7 +186,6 @@
       if (subalbumLabel) subalbumLabel.style.display = 'none';
     }
 
-    // Отрисовать миниатюры только для главных альбомов
     renderAlbumThumbs();
   }
 
@@ -263,7 +261,45 @@
     });
   }
 
-  // Плеер: воспроизведение трека по индексу (без изменений функционала)
+  // --- Динамический отступ для .site-wrapper, чтобы плеер не перекрывал контент ---
+  const siteWrapper = document.querySelector('.site-wrapper');
+  let resizeTimer = null;
+  function getSafeAreaInsetBottom() {
+    // Попытка учесть CSS env() для iOS notch
+    try {
+      // Если браузер поддерживает env(), можно добавить CSS переменную; здесь возвращаем 0 и используем CSS fallback
+      return 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+  function updatePlayerPadding() {
+    if (!siteWrapper) return;
+    // Если плеер видим, вычисляем его реальную высоту
+    const isVisible = playerEl && playerEl.classList.contains('visible');
+    if (isVisible) {
+      const rect = playerEl.getBoundingClientRect();
+      const h = Math.ceil(rect.height || 0);
+      const safe = getSafeAreaInsetBottom();
+      // Добавляем небольшой запас 8px
+      siteWrapper.style.paddingBottom = (h + safe + 8) + 'px';
+    } else {
+      // Сбрасываем padding-bottom
+      siteWrapper.style.paddingBottom = '';
+    }
+  }
+  function debounceUpdatePlayerPadding() {
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      updatePlayerPadding();
+      resizeTimer = null;
+    }, 120);
+  }
+  // Вызываем при ресайзе и ориентации
+  window.addEventListener('resize', debounceUpdatePlayerPadding);
+  window.addEventListener('orientationchange', debounceUpdatePlayerPadding);
+
+  // Плеер: воспроизведение трека по индексу (без изменений функционала, но с вызовом updatePlayerPadding)
   function playTrackByIndex(index) {
     if (index < 0 || index >= tracks.length) return;
     currentTrackIndex = index;
@@ -276,7 +312,7 @@
     audio.currentTime = 0;
     if (titleEl) titleEl.textContent = t.title || '';
     if (artistEl) artistEl.textContent = t.artist || '';
-    if (coverImg) coverImg.src = getCoverUrl(t);
+    if (coverImg) coverImg.src = getCoverUrl(t); // безопасно — coverImg может быть null
     if (downloadBtn) {
       downloadBtn.href = src;
       downloadBtn.style.display = src ? '' : 'none';
@@ -289,6 +325,8 @@
       isPlaying = true;
       if (playerEl) playerEl.classList.add('visible');
       updatePlayButton();
+      // Обновляем отступ после анимации появления плеера (немного задерживаем)
+      setTimeout(updatePlayerPadding, 40);
     }).catch(() => {
       isPlaying = false;
       updatePlayButton();
@@ -302,22 +340,27 @@
   function playPrev() { if (currentTrackIndex > 0) playTrackByIndex(currentTrackIndex - 1); }
   function playNext() { if (currentTrackIndex < tracks.length - 1) playTrackByIndex(currentTrackIndex + 1); }
 
-  // События аудио — без изменений
+  // События аудио — обновляем видимость плеера и padding
   if (audio) {
     audio.addEventListener('play', () => {
       isPlaying = true;
       if (playerEl) playerEl.classList.add('visible');
       updatePlayButton();
+      setTimeout(updatePlayerPadding, 40);
     });
     audio.addEventListener('pause', () => {
       isPlaying = false;
       updatePlayButton();
-      if (playerEl) playerEl.classList.remove('visible');
+      // Оставляем плеер видимым при паузе, но если нужно скрывать — можно убрать класс visible
+      // Если вы хотите скрывать плеер при паузе, раскомментируйте следующую строку:
+      // if (playerEl) playerEl.classList.remove('visible');
+      setTimeout(updatePlayerPadding, 40);
     });
     audio.addEventListener('ended', () => {
       isPlaying = false;
       updatePlayButton();
       if (playerEl) playerEl.classList.remove('visible');
+      setTimeout(updatePlayerPadding, 40);
     });
     audio.addEventListener('timeupdate', () => {
       if (!audio.duration) return;
@@ -403,16 +446,18 @@
       img.src = getCoverUrl(t);
       img.alt = t.title || 'cover';
 
-      // ИСПРАВЛЕННОЕ ПОВЕДЕНИЕ: клик по каверу — пауза/продолжение и скрытие/показ плеера для того же трека
+      // Клик по каверу — поведение: пауза/продолжение для того же трека или воспроизведение нового
       img.addEventListener('click', () => {
         const globalIndex = tracks.findIndex(x => x.id === t.id);
         if (globalIndex === currentTrackIndex) {
           if (!audio.paused) {
             audio.pause();
             if (playerEl) playerEl.classList.remove('visible');
+            setTimeout(updatePlayerPadding, 40);
           } else {
             audio.play();
             if (playerEl) playerEl.classList.add('visible');
+            setTimeout(updatePlayerPadding, 40);
           }
         } else {
           playTrackByIndex(globalIndex);
@@ -437,21 +482,20 @@
       btnLyrics.type = 'button';
       btnLyrics.textContent = 'ტექსტი';
 
-      // если у трека есть lyrics — добавляем класс
       if (t.lyrics && t.lyrics.trim()) {
-      btnLyrics.classList.add('btn-has-lyrics');
-  }
+        btnLyrics.classList.add('btn-has-lyrics');
+      }
 
       btnLyrics.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-    if (modalTitle) modalTitle.textContent = t.title || 'Lyrics';
-    if (modalLyrics) modalLyrics.textContent = t.lyrics || '';
-    if (lyricsModal) {
-    lyricsModal.classList.remove('hidden');
-    lyricsModal.setAttribute('aria-hidden', 'false');
-  }
-});
-actions.appendChild(btnLyrics);
+        ev.stopPropagation();
+        if (modalTitle) modalTitle.textContent = t.title || 'Lyrics';
+        if (modalLyrics) modalLyrics.textContent = t.lyrics || '';
+        if (lyricsModal) {
+          lyricsModal.classList.remove('hidden');
+          lyricsModal.setAttribute('aria-hidden', 'false');
+        }
+      });
+      actions.appendChild(btnLyrics);
 
       // Download
       const aDownload = document.createElement('a');
@@ -553,7 +597,6 @@ actions.appendChild(btnLyrics);
       contactModal.setAttribute('aria-hidden', 'true');
     });
 
-    // Закрыть по клику на фон
     contactModal.addEventListener('click', (ev) => {
       if (ev.target === contactModal) {
         contactModal.classList.add('hidden');
@@ -561,7 +604,6 @@ actions.appendChild(btnLyrics);
       }
     });
 
-    // Закрыть по Esc
     document.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape' && contactModal && !contactModal.classList.contains('hidden')) {
         contactModal.classList.add('hidden');
@@ -570,7 +612,7 @@ actions.appendChild(btnLyrics);
     });
   }
 
-  // Обработчик отправки формы через fetch (AJAX) — чтобы не было редиректа на Formspree
+  // Обработчик отправки формы через fetch (AJAX)
   if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -607,6 +649,7 @@ actions.appendChild(btnLyrics);
     loadData();
     if (volumeEl && audio) audio.volume = parseFloat(volumeEl.value || 1);
     if (progress) progress.value = 0;
+    // Обновляем padding при загрузке (в случае, если плеер видим)
+    setTimeout(updatePlayerPadding, 60);
   });
 })();
-

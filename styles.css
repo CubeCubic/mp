@@ -16,6 +16,8 @@ body {
   padding-left: 20px;
   padding-right: 20px;
   box-sizing: border-box;
+  /* Плавный переход отступа при появлении/скрытии плеера */
+  transition: padding-bottom 320ms cubic-bezier(.2,.9,.2,1);
 }
 
 header {
@@ -32,14 +34,11 @@ header h1 {
   color: #ffcc00;
   margin: 12px 0;
   letter-spacing: 1px;
-
-  /* Эффект объёмного текста */
-  text-shadow: 
-    2px 2px 0 #000,     /* чёрная тень прямо под текстом */
-    4px 4px 6px rgba(0,0,0,0.6); /* мягкая размытая тень для глубины */
+  text-shadow:
+    2px 2px 0 #000,
+    4px 4px 6px rgba(0,0,0,0.6);
 }
 
-/* Бейдж в шапке — аккуратное позиционирование */
 #header-badge {
   position: absolute;
   width: 140px;
@@ -55,13 +54,12 @@ header h1 {
   object-fit: contain;
   display: block;
   border-radius: 6px;
-  box-shadow: 
+  box-shadow:
     0 4px 6px rgba(0,0,0,0.6),
     0 8px 16px rgba(0,0,0,0.4),
     0 0 12px rgba(255,255,0,0.4);
 }
 
-/* Навигация */
 header nav {
   display: flex;
   justify-content: center;
@@ -77,7 +75,6 @@ header nav a, header nav button {
 }
 header nav a:hover, header nav button:hover { text-decoration: underline; }
 
-/* Поисковик — аккуратный отступ и ширина */
 #global-search {
   margin-top: 12px;
   margin-bottom: 10px;
@@ -90,14 +87,12 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   width: 280px;
 }
 
-/* Контролы с нижним делителем */
 .controls {
   border-bottom: 2px solid #ffcc00;
   padding-bottom: 8px;
   margin-bottom: 18px;
 }
 
-/* Надпись "ალბომები" — компактно, но выразительно */
 .controls > label[for="album-select"] {
   display: block;
   margin-top: 16px;
@@ -108,7 +103,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   line-height: 1;
 }
 
-/* Миниатюры главных альбомов — немного крупнее и стабильнее */
 .album-thumbs {
   display: flex;
   gap: 12px;
@@ -129,8 +123,8 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 .album-thumb img {
   width: 100%;
   height: 108px;
-  object-fit: contain;          /* картинка полностью помещается внутрь */
-  background-color: transparent;       /* фон для пустых областей */
+  object-fit: contain;
+  background-color: transparent;
   border-radius: 8px;
   border: 2px solid transparent;
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
@@ -151,7 +145,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   border-color: #ffcc00;
 }
 
-/* Заголовок «ტრეკები» */
 .tracks-header {
   display: flex;
   align-items: center;
@@ -162,7 +155,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   margin: 0;
 }
 
-/* Сетка треков — ровные брейкпоинты и стабильный ритм */
 #tracks {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
@@ -173,7 +165,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   padding: 0;
 }
 
-/* Небольшая компенсация границ секции */
 section > #tracks {
   margin-left: -6px;
   margin-right: -6px;
@@ -181,7 +172,6 @@ section > #tracks {
   padding-right: 6px;
 }
 
-/* Карточка трека — компактно и читабельно */
 .card {
   display: flex;
   flex-direction: column;
@@ -195,7 +185,6 @@ section > #tracks {
   box-sizing: border-box;
 }
 
-/* Кавер — строгая квадратная пропорция */
 .card img.track-cover {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -205,7 +194,6 @@ section > #tracks {
   display: block;
 }
 
-/* Инфо — компактные шрифты и плотный line-height */
 .track-info {
   margin-top: 8px;
   display: flex;
@@ -293,35 +281,35 @@ section > #tracks {
   animation: like-pop 360ms cubic-bezier(.2,.9,.2,1);
 }
 
-/* Плеер — не изменён */
+/* Плеер — компактный, кавер удалён */
 /* ----- начало блока плеера ----- */
 #player {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,0.9);
+  background: rgba(0,0,0,0.92);
   color: white;
   transform: translateY(100%);
   opacity: 0;
   pointer-events: none;
   transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
   z-index: 1000;
+  /* чуть меньшая высота по умолчанию */
+  --player-compact-height: 64px;
 }
 #player.visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
+
+/* Упрощённая и компактная панель */
 .player-bar {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
-}
-#player-cover img {
-  width: 56px;
-  height: 56px;
-  border-radius: 6px;
-  object-fit: cover;
+  padding: 8px 12px;
+  min-height: var(--player-compact-height);
+  box-sizing: border-box;
 }
 #player-info { flex: 1; min-width: 0; }
 #player-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -337,6 +325,8 @@ section > #tracks {
   gap: 8px;
   align-items: center;
 }
+
+/* Кнопки чуть компактнее */
 #player-controls button,
 #player-controls a {
   background: #444;
@@ -345,21 +335,24 @@ section > #tracks {
   padding: 6px 8px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1;
 }
-#player-controls input[type="range"] { width: 90px; }
+#player-controls input[type="range"] { width: 80px; }
+
+/* Прогресс — компактный */
 #player-progress {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 14px 12px 14px;
+  padding: 6px 12px 10px 12px;
   border-top: 1px solid rgba(255,255,255,0.03);
 }
 #player-progress span { font-size: 12px; color: #ccc; width: 40px; text-align: center; }
 #progress { flex: 1; }
 /* ----- конец блока плеера ----- */
 
-/* Модалка */
+/* Модалки */
 #lyrics-modal.hidden { display: none !important; }
 #lyrics-modal {
   position: fixed; inset: 0;
@@ -376,7 +369,6 @@ section > #tracks {
 .modal-box h3 { margin-top: 0; font-size: 16px; }
 .modal-box pre { white-space: pre-wrap; font-size: 13px; }
 
-/* Модалка письма */
 #contact-modal.hidden { display: none !important; }
 #contact-modal {
   position: fixed; inset: 0;
@@ -401,7 +393,7 @@ section > #tracks {
   cursor: pointer; font-weight: bold;
 }
 
-/* Адаптивность — предсказуемые ступени */
+/* Адаптивность */
 @media (min-width: 1600px) {
   .site-wrapper { max-width: 1600px; padding-left: 22px; padding-right: 22px; }
   #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
@@ -434,5 +426,3 @@ section > #tracks {
   .card img.track-cover { aspect-ratio: 16/9; }
   .card { min-height: auto; padding: 8px; }
 }
-
-
