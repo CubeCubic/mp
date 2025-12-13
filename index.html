@@ -1,104 +1,95 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ka">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cube Cubic</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" type="image/png" href="images/smallcube.png">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="site-wrapper">
-    <header>
-      <div id="header-badge" aria-hidden="false">
-        <img src="images/midcube.png" alt="midcube">
-      </div>
-
-      <h1>Cube Cubic</h1>
-      <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
-      <nav>
-        <a href="index.html">მთავარი</a>
-        <button id="contact-btn" type="button">Contact</button>
-        <a href="admin.html">Admin</a>
-      </nav>
-    </header>
-
-    <main>
-      <section>
-        <div class="controls">
-          <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
-
-          <label for="album-select">ალბომები</label>
-          <input type="hidden" id="album-select" value="">
-          <div id="album-thumbs" class="album-thumbs" aria-hidden="false"></div>
-
-          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
-          <select id="subalbum-select" style="display:none;">
-            <option value="">— —</option>
-          </select>
-
-          <button id="refresh-btn" type="button">Refresh</button>
-        </div>
-      </section>
-
-      <section>
-        <div class="tracks-header">
-          <h2>ტრეკები</h2>
-        </div>
-        <div id="tracks"></div>
-      </section>
-    </main>
-
-    <div id="player" class="hidden">
-      <div class="player-bar">
-        <div id="player-cover">
-          <img id="player-cover-img" src="images/midcube.png" alt="cover">
-        </div>
-        <div id="player-info">
-          <div id="player-title">Title</div>
-          <div id="player-artist">Artist</div>
-        </div>
-        <div id="player-controls">
-          <button id="prev" type="button">⏮</button>
-          <button id="play" type="button">▶</button>
-          <button id="next" type="button">⏭</button>
-          <button id="show-lyrics" type="button" style="display:none;">ტექსტი</button>
-          <a id="download" href="#" download style="display:none;">ჩამოტვირთვა</a>
-          <input id="volume" type="range" min="0" max="1" step="0.01" value="1">
-        </div>
-      </div>
-      <div id="player-progress">
-        <span id="time-current">0:00</span>
-        <input id="progress" type="range" min="0" max="100" value="0">
-        <span id="time-duration">0:00</span>
-      </div>
-      <audio id="audio" preload="none"></audio>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="brand">
+      <img src="midcube.png" alt="Cube Cubic Logo" class="logo">
+      <span class="brand-title">CUBE CUBIC</span>
     </div>
+    <nav class="site-nav">
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+      <a href="admin.html" class="admin-btn">Admin Panel</a>
+    </nav>
+  </header>
 
-    <div id="lyrics-modal" class="hidden" aria-hidden="true">
-      <div class="modal-box">
-        <button id="modal-close" type="button">Close</button>
+  <!-- Search -->
+  <section class="search-section">
+    <div class="search-bar">
+      <input type="text" id="search" placeholder="Search">
+    </div>
+  </section>
+
+  <!-- Albums -->
+  <section class="albums-section">
+    <h2 class="section-title">Albums</h2>
+    <div id="albums" class="albums-grid"></div>
+  </section>
+
+  <!-- Tracks -->
+  <section class="tracks-section">
+    <h2 class="section-title">Tracks</h2>
+    <table id="tracks" class="tracks-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Cover</th>
+          <th>Title</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Player -->
+  <footer class="player-footer">
+    <div id="player" class="player">
+      <div class="player-left">
+        <span id="player-title">—</span>
+      </div>
+      <div class="player-center">
+        <div class="progress">
+          <div class="progress-bar" id="player-progress">
+            <div class="progress-handle" id="player-handle"></div>
+          </div>
+          <div class="progress-time">
+            <span id="player-current">0:00</span>
+            <span id="player-duration">0:00</span>
+          </div>
+        </div>
+      </div>
+      <div class="player-right">
+        <button id="btn-prev">⏮</button>
+        <button id="btn-play">⏯</button>
+        <button id="btn-next">⏭</button>
+        <input type="range" id="volume" min="0" max="100" value="80">
+      </div>
+    </div>
+  </footer>
+
+  <!-- Модалка кавера -->
+  <div id="cover-modal" class="cover-modal" aria-hidden="true">
+    <button id="cover-modal-close" class="cover-modal-close">×</button>
+    <img id="cover-modal-img" src="" alt="Cover">
+  </div>
+
+  <!-- Модалка текста -->
+  <div id="lyrics-modal" class="lyrics-modal hidden" aria-hidden="true">
+    <div class="lyrics-content">
+      <div class="lyrics-header">
         <h3 id="modal-title">Lyrics</h3>
-        <pre id="modal-lyrics"></pre>
+        <button id="close-lyrics">×</button>
       </div>
-    </div>
-
-    <!-- Модалка для письма -->
-    <div id="contact-modal" class="hidden" aria-hidden="true">
-      <div class="modal-box">
-        <button id="contact-close" type="button">Close</button>
-        <h3>მომწერე</h3>
-        <form id="contact-form" action="https://formspree.io/f/xqarwkwl" method="POST">
-          <label>თქვენი სახელი:</label>
-          <input type="text" name="name" required>
-          <label>თქვენი email:</label>
-          <input type="email" name="email" required>
-          <label>ტექსტი:</label>
-          <textarea name="message" required></textarea>
-          <button type="submit">გაგზავნა</button>
-          <p id="contact-status" style="margin:8px 0 0 0;"></p>
-        </form>
-      </div>
+      <pre id="modal-lyrics"></pre>
     </div>
   </div>
 
