@@ -1,7 +1,7 @@
 // admin.js
 // Unified admin script for static GitHub Pages deployment
 // - Normalizes tracks.json formats
-// - Temporary sessionStorage-based admin token (no secrets in code)
+// - Hardcoded admin password "230470" (convenience; not secure for public hosting)
 // - CRUD for albums and tracks with modals
 // - Export (download) updated tracks.json
 // - Resource checks using Audio element (CORS-friendly)
@@ -14,6 +14,7 @@
   // ====== Config ======
   const TRACKS_JSON_PATH = 'tracks.json';
   const AUDIO_CHECK_TIMEOUT = 8000;
+  const ADMIN_PASSWORD = '230470'; // Hardcoded password as requested
 
   // ====== DOM ======
   const loginForm = document.getElementById('login-form');
@@ -477,30 +478,33 @@
     return cmd;
   }
 
-  // ====== Login (temporary sessionStorage token) ======
+  // ====== Login (hardcoded password) ======
   function tryLogin() {
     const password = (passwordInput.value || '').toString();
-    const expected = sessionStorage.getItem('cube_admin_token') || '';
-    if (!expected) {
-      loginMsg.textContent = 'Admin token not set in sessionStorage. Set sessionStorage key "cube_admin_token" to a secret and reload.';
-      return;
-    }
-    if (password === expected) {
+    if (password === ADMIN_PASSWORD) {
       loggedIn = true;
-      loginForm.classList.add('hidden');
-      adminPanel.classList.remove('hidden');
+      if (loginForm) loginForm.classList.add('hidden');
+      if (adminPanel) {
+        adminPanel.classList.remove('hidden');
+        adminPanel.setAttribute('aria-hidden', 'false');
+      }
       passwordInput.value = '';
       loadTracksJson();
       clearDirty();
     } else {
-      loginMsg.textContent = 'პაროლი არასწორია';
-      setTimeout(() => { loginMsg.textContent = ''; }, 3000);
+      if (loginMsg) loginMsg.textContent = 'პაროლი არასწორია';
+      setTimeout(() => { if (loginMsg) loginMsg.textContent = ''; }, 3000);
     }
   }
 
   if (loginBtn) loginBtn.addEventListener('click', tryLogin);
   if (passwordInput) passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); tryLogin(); } });
-  if (logoutBtn) logoutBtn.addEventListener('click', () => { loggedIn = false; adminPanel.classList.add('hidden'); loginForm.classList.remove('hidden'); });
+  if (logoutBtn) logoutBtn.addEventListener('click', () => {
+    loggedIn = false;
+    if (adminPanel) adminPanel.classList.add('hidden');
+    if (loginForm) loginForm.classList.remove('hidden');
+    if (adminPanel) adminPanel.setAttribute('aria-hidden', 'true');
+  });
 
   // ====== Refresh buttons ======
   if (btnRefreshAlbums) btnRefreshAlbums.addEventListener('click', () => { if (!loggedIn) return alert('Сначала войдите'); renderAlbumsList(); fillAlbumSelects(); });
@@ -508,8 +512,8 @@
 
   // ====== Init ======
   document.addEventListener('DOMContentLoaded', () => {
-    adminPanel.classList.add('hidden');
-    loginForm.classList.remove('hidden');
+    if (adminPanel) adminPanel.classList.add('hidden');
+    if (loginForm) loginForm.classList.remove('hidden');
   });
 
   // Expose some helpers for debugging
