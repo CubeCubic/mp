@@ -265,7 +265,7 @@ section > #tracks {
   font-weight: bold;
 }
 
-/* Лайк — скрываем визуально, но код остаётся в DOM */
+/* Скрытие кнопки лайка (код остаётся, но визуально спрятан) */
 .track-actions .like-button {
   display: none !important;
   visibility: hidden !important;
@@ -275,6 +275,33 @@ section > #tracks {
   padding: 0 !important;
   border: none !important;
   background: transparent !important;
+}
+
+/* Стили для кнопки скачивания-иконки */
+.track-actions .download-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 6px;
+  background: #2ecc71;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.track-actions .download-button svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  fill: currentColor;
+}
+.track-actions .download-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(46,204,113,0.14);
 }
 
 /* Плеер — компактный */

@@ -336,7 +336,6 @@
         return false;
       }
     } else {
-      // fallback: create temporary input
       try {
         const tmp = document.createElement('input');
         tmp.value = text;
@@ -358,7 +357,6 @@
     shareModal.classList.remove('hidden');
     shareModal.setAttribute('aria-hidden', 'false');
 
-    // Prepare social links
     const encodedUrl = encodeURIComponent(url);
     const encodedText = encodeURIComponent((text || title || '') + ' ' + url);
     shareTwitter.href = `https://twitter.com/intent/tweet?text=${encodedText}`;
@@ -367,23 +365,18 @@
   }
 
   async function doShare({ title, text, url }) {
-    // Try Web Share API
     if (navigator.share) {
       try {
         await navigator.share({ title: title || document.title, text: text || '', url });
         return;
       } catch (err) {
-        // user cancelled or error — fallback to copy/modal
       }
     }
-    // Fallback: copy to clipboard and open modal on desktop
     const copied = await copyToClipboard(url);
     if (!copied) {
       openShareModal(url, title, text);
     } else {
-      // On desktop, still offer modal if user wants more options
       if (!navigator.share && window.innerWidth > 800) {
-        // show modal but keep toast
         setTimeout(() => openShareModal(url, title, text), 600);
       }
     }
@@ -402,6 +395,29 @@
       toast.classList.add('hidden');
       toastTimer = null;
     }, ms);
+  }
+
+  // --- Download helper (used by card download icon) ---
+  // Создаёт временный <a> и инициирует скачивание.
+  function triggerDownload(url, suggestedName) {
+    if (!url) {
+      showToast('Файл не найден');
+      return;
+    }
+    try {
+      const a = document.createElement('a');
+      a.href = url;
+      if (suggestedName) a.download = suggestedName;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('Скачивание началось');
+    } catch (e) {
+      // fallback: открыть в новой вкладке
+      window.open(url, '_blank', 'noopener');
+      showToast('Открылось в новой вкладке');
+    }
   }
 
   // --- Player functions ---
@@ -429,7 +445,6 @@
       isPlaying = true;
       setPlayerVisible(true);
       updatePlayButton();
-      // update URL (pushState) to reflect current track
       const newUrl = buildShareUrlForTrack(t.id);
       try {
         history.replaceState(null, '', newUrl);
@@ -516,7 +531,7 @@
     });
   }
 
-  // --- Render tracks (adds share button per card) ---
+  // --- Render tracks (adds download icon button per card) ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -598,19 +613,36 @@
       });
       actions.appendChild(btnLyrics);
 
-      // Download
-      const aDownload = document.createElement('a');
+      // Download icon button (вместо текста "Download")
       const stream = getStreamUrl(t);
+      const downloadBtnCard = document.createElement('button');
+      downloadBtnCard.type = 'button';
+      downloadBtnCard.className = 'download-button';
+      downloadBtnCard.setAttribute('aria-label', `Download ${t.title || ''}`);
+      // SVG иконка стрелки вниз
+      downloadBtnCard.innerHTML = `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/>
+        </svg>
+      `;
       if (stream) {
-        aDownload.href = stream;
-        aDownload.textContent = 'Download';
-        aDownload.download = '';
+        downloadBtnCard.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          // Попытка предложить имя файла из URL
+          let suggested = '';
+          try {
+            const u = new URL(stream);
+            const parts = u.pathname.split('/');
+            suggested = parts[parts.length - 1] || '';
+          } catch (e) { suggested = ''; }
+          triggerDownload(stream, suggested);
+        });
       } else {
-        aDownload.textContent = 'No file';
-        aDownload.href = '#';
-        aDownload.className = 'disabled';
+        downloadBtnCard.disabled = true;
+        downloadBtnCard.title = 'No file';
+        downloadBtnCard.style.opacity = '0.5';
       }
-      actions.appendChild(aDownload);
+      actions.appendChild(downloadBtnCard);
 
       // Share (per-track)
       const shareBtn = document.createElement('button');
@@ -627,7 +659,7 @@
       });
       actions.appendChild(shareBtn);
 
-      // Like
+      // Like (код остаётся, но кнопка скрыта через CSS)
       const likeBtn = document.createElement('button');
       likeBtn.type = 'button';
       likeBtn.className = 'like-button';
@@ -677,7 +709,6 @@
       const el = tracksContainer.querySelector(`[data-track-id="${id}"]`);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        // Найти индекс и воспроизвести
         const idx = tracks.findIndex(t => String(t.id) === id);
         if (idx >= 0) {
           playTrackByIndex(idx);
@@ -809,7 +840,6 @@
     if (track) {
       pendingTrackToOpen = track;
     } else {
-      // also support hash like #track-<id>
       const h = location.hash || '';
       const m = h.match(/track-([^\s]+)/);
       if (m) pendingTrackToOpen = m[1];
