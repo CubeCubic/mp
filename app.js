@@ -1,32 +1,33 @@
-// Cube Cubic — фронт‑логика главной страницы.
-// Что реализовано:
-// - Альбомы и треки без столбца Artist.
-// - Колонка маленького кавера перед Title.
-// - Модалка увеличенного кавера.
-// - Модалка текста трека (кнопка «ტექსტი» подсвечивается при наличии).
-// - Поиск по текущему альбому.
-// - Скачивание по конкретному URL (downloadUrl).
-// - Проигрыватель: воспроизведение/пауза, prev/next, прогресс, время, громкость.
-// Допуск: проигрыватель обновлён для лучшей интеграции, без внешних зависимостей.
+// Cube Cubic — главная страница.
+// Исправлены пути для GitHub Pages: BASE = '/mp/'.
+// Реализовано: альбомы/треки без Artist, столбец Cover, модалка кавера,
+// модалка текста, поиск, скачивание по URL, устойчивый плеер.
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ==== DOM ссылки ====
+  const BASE = '/mp/';
+  const PATH = {
+    covers: BASE + 'covers/',
+    tracks: BASE + 'tracks/',
+    logo: BASE + 'midcube.png',
+    fallbackCover: BASE + 'placeholder-cover.png',
+    fallbackAudio: BASE + 'silence.mp3' // короткая тишина как заглушка (добавь файл)
+  };
+
+  // DOM
   const albumsContainer = document.getElementById('albums');
   const tracksTableBody = document.querySelector('#tracks tbody');
   const searchInput = document.getElementById('search');
 
-  // Cover modal
   const coverModal = document.getElementById('cover-modal');
   const coverModalImg = document.getElementById('cover-modal-img');
   const coverModalClose = document.getElementById('cover-modal-close');
 
-  // Lyrics modal
   const lyricsModal = document.getElementById('lyrics-modal');
   const modalTitle = document.getElementById('modal-title');
   const modalLyrics = document.getElementById('modal-lyrics');
   const closeLyrics = document.getElementById('close-lyrics');
 
-  // Player
+  // Player refs
   const playerTitle = document.getElementById('player-title');
   const playerProgressBar = document.getElementById('player-progress');
   const playerHandle = document.getElementById('player-handle');
@@ -37,119 +38,60 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnNext = document.getElementById('btn-next');
   const volumeRange = document.getElementById('volume');
 
-  // Внутренний audio элемент (скрытый)
   const audio = new Audio();
   audio.preload = 'metadata';
-  audio.crossOrigin = 'anonymous'; // если треки с другого домена и разрешён CORS
+  audio.crossOrigin = 'anonymous';
 
-  // ==== Состояние ====
-  let albums = [];
+  // State
   let currentAlbumIndex = 0;
   let currentTrackIndex = 0;
-  let filteredTracks = null; // массив треков после поиска, если активен
+  let filteredTracks = null;
 
-  // ==== Реальные данные альбомов/треков ====
-  // Вставь свои пути к каверам и трекам. При необходимости расширь данные.
-  albums = [
+  // Данные с реальными путями (проверь имена файлов и регистр)
+  const albums = [
     {
       title: 'Cube Cubic',
-      cover: 'covers/midcube.png',
+      cover: PATH.covers + 'midcube.png',
       tracks: [
-        {
-          title: 'Cube Cubic',
-          cover: 'covers/midcube.png',
-          lyrics: 'Cube Cubic lyrics...',
-          downloadUrl: 'tracks/cube-cubic.mp3'
-        },
-        {
-          title: 'Tesseract',
-          cover: 'covers/tesseract.png',
-          lyrics: '',
-          downloadUrl: 'tracks/tesseract.mp3'
-        },
-        {
-          title: 'Silence',
-          cover: 'covers/silence.png',
-          lyrics: 'Silence lyrics...',
-          downloadUrl: 'tracks/silence.mp3'
-        },
-        {
-          title: 'Lowpoly',
-          cover: 'covers/lowpoly.png',
-          lyrics: '',
-          downloadUrl: 'tracks/lowpoly.mp3'
-        },
-        {
-          title: 'Neon',
-          cover: 'covers/neon.png',
-          lyrics: '',
-          downloadUrl: 'tracks/neon.mp3'
-        }
+        { title: 'Cube Cubic', cover: PATH.covers + 'midcube.png', lyrics: 'Cube Cubic lyrics...', downloadUrl: PATH.tracks + 'cube-cubic.mp3' },
+        { title: 'Tesseract', cover: PATH.covers + 'tesseract.png', lyrics: '', downloadUrl: PATH.tracks + 'tesseract.mp3' },
+        { title: 'Silence', cover: PATH.covers + 'silence.png', lyrics: 'Silence lyrics...', downloadUrl: PATH.tracks + 'silence.mp3' },
+        { title: 'Lowpoly', cover: PATH.covers + 'lowpoly.png', lyrics: '', downloadUrl: PATH.tracks + 'lowpoly.mp3' },
+        { title: 'Neon', cover: PATH.covers + 'neon.png', lyrics: '', downloadUrl: PATH.tracks + 'neon.mp3' }
       ]
     },
     {
       title: 'Helio World',
-      cover: 'covers/helio.png',
+      cover: PATH.covers + 'helio.png',
       tracks: [
-        {
-          title: 'Helio Intro',
-          cover: 'covers/helio-intro.png',
-          lyrics: '',
-          downloadUrl: 'tracks/helio-intro.mp3'
-        },
-        {
-          title: 'Helio Rise',
-          cover: 'covers/helio-rise.png',
-          lyrics: '',
-          downloadUrl: 'tracks/helio-rise.mp3'
-        }
+        { title: 'Helio Intro', cover: PATH.covers + 'helio-intro.png', lyrics: '', downloadUrl: PATH.tracks + 'helio-intro.mp3' },
+        { title: 'Helio Rise', cover: PATH.covers + 'helio-rise.png', lyrics: '', downloadUrl: PATH.tracks + 'helio-rise.mp3' }
       ]
     },
     {
       title: 'Alphx Wave',
-      cover: 'covers/alphx.png',
+      cover: PATH.covers + 'alphx.png',
       tracks: [
-        {
-          title: 'Wave 1',
-          cover: 'covers/wave1.png',
-          lyrics: '',
-          downloadUrl: 'tracks/wave1.mp3'
-        },
-        {
-          title: 'Wave 2',
-          cover: 'covers/wave2.png',
-          lyrics: 'Wave 2 lyrics...',
-          downloadUrl: 'tracks/wave2.mp3'
-        }
+        { title: 'Wave 1', cover: PATH.covers + 'wave1.png', lyrics: '', downloadUrl: PATH.tracks + 'wave1.mp3' },
+        { title: 'Wave 2', cover: PATH.covers + 'wave2.png', lyrics: 'Wave 2 lyrics...', downloadUrl: PATH.tracks + 'wave2.mp3' }
       ]
     },
     {
       title: 'Funky Friday',
-      cover: 'covers/funky.png',
+      cover: PATH.covers + 'funky.png',
       tracks: [
-        {
-          title: 'Funk A',
-          cover: 'covers/funka.png',
-          lyrics: '',
-          downloadUrl: 'tracks/funka.mp3'
-        },
-        {
-          title: 'Funk B',
-          cover: 'covers/funkb.png',
-          lyrics: '',
-          downloadUrl: 'tracks/funkb.mp3'
-        }
+        { title: 'Funk A', cover: PATH.covers + 'funka.png', lyrics: '', downloadUrl: PATH.tracks + 'funka.mp3' },
+        { title: 'Funk B', cover: PATH.covers + 'funkb.png', lyrics: '', downloadUrl: PATH.tracks + 'funkb.mp3' }
       ]
     }
   ];
 
-  // ==== Инициализация ====
+  // Init
   renderAlbums();
   renderTracks(getCurrentTracks());
-  // Выставим первый трек в плеер (без автоплей)
   selectTrack(0, false);
 
-  // ==== Поиск по текущему альбому ====
+  // Search
   searchInput.addEventListener('input', () => {
     const q = (searchInput.value || '').trim().toLowerCase();
     const tracks = getCurrentTracks();
@@ -162,18 +104,15 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTracks(filteredTracks);
   });
 
-  // ==== Модалка кавера ====
+  // Cover modal
   coverModalClose.addEventListener('click', () => {
     coverModal.setAttribute('aria-hidden', 'true');
   });
   coverModal.addEventListener('click', (e) => {
-    // Закрытие по клику на фон
-    if (e.target === coverModal) {
-      coverModal.setAttribute('aria-hidden', 'true');
-    }
+    if (e.target === coverModal) coverModal.setAttribute('aria-hidden', 'true');
   });
 
-  // ==== Модалка текста ====
+  // Lyrics modal
   closeLyrics.addEventListener('click', () => {
     lyricsModal.classList.add('hidden');
     lyricsModal.setAttribute('aria-hidden', 'true');
@@ -186,54 +125,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ==== Управление плеером ====
+  // Player controls
   btnPlay.addEventListener('click', () => {
     if (audio.paused) {
-      audio.play().catch(() => {});
-      btnPlay.textContent = '⏸'; // визуально: пауза
+      audio.play().then(() => btnPlay.textContent = '⏸').catch(() => {});
     } else {
       audio.pause();
-      btnPlay.textContent = '⏯'; // визуально: плей
+      btnPlay.textContent = '⏯';
     }
   });
-
   btnPrev.addEventListener('click', () => {
-    const tracks = getActiveTrackList();
-    if (!tracks.length) return;
-    currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+    const list = getActiveTrackList();
+    if (!list.length) return;
+    currentTrackIndex = (currentTrackIndex - 1 + list.length) % list.length;
     selectTrack(currentTrackIndex, true);
   });
-
   btnNext.addEventListener('click', () => {
-    const tracks = getActiveTrackList();
-    if (!tracks.length) return;
-    currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+    const list = getActiveTrackList();
+    if (!list.length) return;
+    currentTrackIndex = (currentTrackIndex + 1) % list.length;
     selectTrack(currentTrackIndex, true);
   });
-
   volumeRange.addEventListener('input', () => {
     audio.volume = clamp(volumeRange.value / 100, 0, 1);
   });
 
-  // Обновление времени и прогресса
-  audio.addEventListener('timeupdate', () => {
-    updateProgressUI();
-  });
-
+  audio.addEventListener('timeupdate', updateProgressUI);
   audio.addEventListener('loadedmetadata', () => {
     playerDurationEl.textContent = formatTime(audio.duration);
     updateProgressUI();
   });
-
   audio.addEventListener('ended', () => {
-    // Автопереход к следующему треку
-    const tracks = getActiveTrackList();
-    if (!tracks.length) return;
-    currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+    const list = getActiveTrackList();
+    if (!list.length) return;
+    currentTrackIndex = (currentTrackIndex + 1) % list.length;
     selectTrack(currentTrackIndex, true);
   });
+  audio.addEventListener('error', () => {
+    // Fallback на тишину, чтобы UI не ломался
+    audio.src = PATH.fallbackAudio;
+    audio.play().catch(() => {});
+  });
 
-  // Перемотка по клику на прогресс‑бар
   playerProgressBar.addEventListener('click', (e) => {
     const rect = playerProgressBar.getBoundingClientRect();
     const ratio = clamp((e.clientX - rect.left) / rect.width, 0, 1);
@@ -242,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ==== Рендер альбомов ====
+  // Render albums
   function renderAlbums() {
     albumsContainer.innerHTML = '';
     albums.forEach((album, idx) => {
@@ -253,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
       img.className = 'album-thumb';
       img.src = album.cover;
       img.alt = album.title;
+      img.onerror = () => { img.src = PATH.fallbackCover; };
 
       const title = document.createElement('div');
       title.className = 'album-title';
@@ -268,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
         filteredTracks = null;
         searchInput.value = '';
         renderTracks(getCurrentTracks());
-        // При переключении альбома сбрасываем текущий трек на первый
         selectTrack(0, false);
       });
 
@@ -276,36 +209,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ==== Рендер треков (без Artist; с маленьким Cover) ====
+  // Render tracks
   function renderTracks(tracks) {
     tracksTableBody.innerHTML = '';
 
     tracks.forEach((t, i) => {
       const tr = document.createElement('tr');
 
-      // #
       const tdNum = document.createElement('td');
       tdNum.className = 'col-num';
       tdNum.textContent = i + 1;
       tr.appendChild(tdNum);
 
-      // Cover (маленький)
       const tdCover = document.createElement('td');
       tdCover.className = 'col-cover';
-
       const coverImg = document.createElement('img');
       coverImg.className = 'track-cover';
       coverImg.src = t.cover;
       coverImg.alt = t.title || 'Cover';
+      coverImg.onerror = () => { coverImg.src = PATH.fallbackCover; };
       coverImg.addEventListener('click', (ev) => {
         ev.stopPropagation();
-        coverModalImg.src = t.cover;
+        coverModalImg.src = coverImg.src;
         coverModal.setAttribute('aria-hidden', 'false');
       });
       tdCover.appendChild(coverImg);
       tr.appendChild(tdCover);
 
-      // Title (клик по названию — воспроизведение)
       const tdTitle = document.createElement('td');
       tdTitle.className = 'col-title';
       tdTitle.textContent = t.title || '—';
@@ -320,11 +250,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       tr.appendChild(tdTitle);
 
-      // Actions
       const tdActions = document.createElement('td');
       tdActions.className = 'col-actions';
 
-      // Lyrics
       const btnLyrics = document.createElement('button');
       btnLyrics.type = 'button';
       btnLyrics.className = 'btn btn-lyrics';
@@ -341,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       tdActions.appendChild(btnLyrics);
 
-      // Download
       const btnDownload = document.createElement('button');
       btnDownload.type = 'button';
       btnDownload.className = 'btn btn-icon';
@@ -358,21 +285,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ==== Выбор трека в плеере ====
   function selectTrack(trackIndex, autoplay) {
     const list = getActiveTrackList();
     if (!list.length) return;
     currentTrackIndex = clamp(trackIndex, 0, list.length - 1);
     const track = list[currentTrackIndex];
 
-    // Обновляем заголовок в плеере
     playerTitle.textContent = track.title || '—';
 
-    // Устанавливаем источник и начинаем/останавливаем проигрывание
-    audio.src = track.downloadUrl; // используем downloadUrl как реальный аудио‑URL
+    const url = track.downloadUrl || PATH.fallbackAudio;
+    audio.src = url;
     audio.currentTime = 0;
 
-    // Кнопка плей/пауза — согласно состоянию
     if (autoplay) {
       audio.play().then(() => {
         btnPlay.textContent = '⏸';
@@ -384,24 +308,19 @@ document.addEventListener('DOMContentLoaded', () => {
       btnPlay.textContent = '⏯';
     }
 
-    // Сброс прогресса/времени
     playerCurrentTimeEl.textContent = '0:00';
-    playerDurationEl.textContent = isFinite(audio.duration) ? formatTime(audio.duration) : '0:00';
+    playerDurationEl.textContent = '0:00';
     updateProgressUI();
   }
 
-  // ==== Активный список треков (учёт поиска) ====
   function getActiveTrackList() {
     return Array.isArray(filteredTracks) ? filteredTracks : getCurrentTracks();
   }
-
-  // ==== Треки текущего альбома ====
   function getCurrentTracks() {
     const album = albums[currentAlbumIndex];
     return album ? album.tracks || [] : [];
   }
 
-  // ==== Обновление прогресс‑UI ====
   function updateProgressUI() {
     const duration = audio.duration || 0;
     const current = audio.currentTime || 0;
@@ -414,24 +333,17 @@ document.addEventListener('DOMContentLoaded', () => {
     playerHandle.style.left = Math.max(0, Math.floor(x)) + 'px';
   }
 
-  // ==== Скачивание файла ====
   function triggerDownload(track) {
-    // Если нужен программный «скачать» без перехода:
-    // создаём временную ссылку и кликаем по ней
     if (!track || !track.downloadUrl) return;
     const a = document.createElement('a');
     a.href = track.downloadUrl;
-    a.download = ''; // пусть браузер пытается скачать; можно задать имя
+    a.download = ''; // можно задать имя: `${track.title}.mp3`
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   }
 
-  // ==== Утилиты ====
-  function clamp(n, min, max) {
-    return Math.min(Math.max(n, min), max);
-  }
-
+  function clamp(n, min, max) { return Math.min(Math.max(n, min), max); }
   function formatTime(sec) {
     const s = Math.floor(sec || 0);
     const m = Math.floor(s / 60);
