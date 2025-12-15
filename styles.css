@@ -84,7 +84,7 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   background: #111;
   color: #fff;
   font-size: 14px;
-  width: 280px;
+  width: 200px;
 }
 
 .controls {
@@ -395,4 +395,5 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 
 @media (min-width: 1600px) {
   .site-wrapper { max-width: 1600px; padding-left: 22px; padding-right: 22px; }
+
 }
