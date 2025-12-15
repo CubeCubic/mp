@@ -40,7 +40,7 @@
   let currentTrackIndex = -1;
   let filteredTracks = [];
   let pendingTrackToOpen = null;
-  let userHasInteracted = false; // флаг: был ли клик по треку
+  let userHasInteracted = false;
 
   // --- Утилиты ---
   function formatTime(sec) {
@@ -75,11 +75,15 @@
     setTimeout(() => toast.classList.remove('visible'), 3000);
   }
 
-  function triggerDownload(url, filename) {
+  function triggerDownload(url, filename = 'track.mp3') {
+    if (!url || url.trim() === '') return;
     const a = document.createElement('a');
     a.href = url;
-    if (filename) a.download = filename;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
   }
 
   // --- Рендер списка альбомов ---
@@ -233,7 +237,7 @@
       }
     }
 
-    if (!selectedAlbumId && !selectedSubalbumId && globalSearchInput.value.trim() === '') {
+    if (!selectedAlbumId && !selectedSubalbumId && (!globalSearchInput || globalSearchInput.value.trim() === '')) {
       toRender = tracks;
     }
 
@@ -267,6 +271,7 @@
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
+      // Текст песни
       if (t.lyrics) {
         const lyricsBtn = document.createElement('button');
         lyricsBtn.type = 'button';
@@ -282,20 +287,22 @@
         actions.appendChild(lyricsBtn);
       }
 
+      // Скачивание
       const stream = getStreamUrl(t);
       const downloadBtnCard = document.createElement('button');
       downloadBtnCard.type = 'button';
       downloadBtnCard.className = 'download-button';
       downloadBtnCard.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
-      if (stream) {
+      if (stream && stream.trim() !== '') {
         downloadBtnCard.addEventListener('click', (ev) => {
+          ev.preventDefault();
           ev.stopPropagation();
-          let suggested = '';
+          let filename = 'track.mp3';
           try {
             const u = new URL(stream);
-            suggested = u.pathname.split('/').pop() || '';
+            filename = decodeURIComponent(u.pathname.split('/').pop() || 'track.mp3');
           } catch {}
-          triggerDownload(stream, suggested);
+          triggerDownload(stream, filename);
         });
       } else {
         downloadBtnCard.disabled = true;
@@ -308,7 +315,7 @@
       card.appendChild(actions);
 
       card.addEventListener('click', () => {
-        userHasInteracted = true; // пользователь кликнул — теперь toast может показываться
+        userHasInteracted = true;
         const idx = toRender.indexOf(t);
         playTrackByIndex(idx);
       });
@@ -323,6 +330,8 @@
         playTrackByIndex(idx);
       }
       pendingTrackToOpen = null;
+    } else if (currentTrackIndex === -1 && toRender.length > 0) {
+      playTrackByIndex(0);
     }
   }
 
@@ -366,13 +375,13 @@
     showLyricsSidebar.style.display = t.lyrics ? 'block' : 'none';
 
     const stream = getStreamUrl(t);
-    if (stream) {
+    if (stream && stream.trim() !== '') {
       downloadSidebar.href = stream;
       downloadSidebar.style.display = 'inline-flex';
-      let suggested = '';
+      let suggested = 'track.mp3';
       try {
         const u = new URL(stream);
-        suggested = u.pathname.split('/').pop() || '';
+        suggested = decodeURIComponent(u.pathname.split('/').pop() || 'track.mp3');
       } catch {}
       downloadSidebar.download = suggested;
     } else {
@@ -395,7 +404,6 @@
     audio.src = getStreamUrl(t) || '';
     audio.load();
 
-    // Показываем toast ТОЛЬКО если был клик по треку и автоплей заблокирован
     audio.play().catch(e => {
       if (e.name === 'NotAllowedError' && userHasInteracted) {
         playBtnSidebar.textContent = '▶';
@@ -407,7 +415,7 @@
   }
 
   function togglePlayPause() {
-    userHasInteracted = true; // любое нажатие на кнопку плеера — взаимодействие
+    userHasInteracted = true;
     if (audio.paused || audio.ended) {
       audio.play().catch(console.error);
     } else {
