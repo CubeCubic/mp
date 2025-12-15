@@ -75,8 +75,13 @@
     setTimeout(() => toast.classList.remove('visible'), 3000);
   }
 
+  // Надёжная функция скачивания без перехода
   function triggerDownload(url, filename = 'track.mp3') {
-    if (!url || url.trim() === '') return;
+    if (!url || url.trim() === '') {
+      showToast('ფაილი არ არის ხელმისაწვდომი');
+      return;
+    }
+
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
@@ -287,21 +292,24 @@
         actions.appendChild(lyricsBtn);
       }
 
-      // Скачивание
+      // Скачивание — без перехода
       const stream = getStreamUrl(t);
       const downloadBtnCard = document.createElement('button');
       downloadBtnCard.type = 'button';
       downloadBtnCard.className = 'download-button';
       downloadBtnCard.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
+
       if (stream && stream.trim() !== '') {
         downloadBtnCard.addEventListener('click', (ev) => {
           ev.preventDefault();
           ev.stopPropagation();
+
           let filename = 'track.mp3';
           try {
             const u = new URL(stream);
             filename = decodeURIComponent(u.pathname.split('/').pop() || 'track.mp3');
           } catch {}
+
           triggerDownload(stream, filename);
         });
       } else {
@@ -357,7 +365,7 @@
   // --- Плеер ---
   function updateSidebarPlayer(t = null) {
     if (!t) {
-      playerTitleSidebar.textContent = 'Выберите трек';
+      playerTitleSidebar.textContent = 'აირჩიეთ ტრეკი';
       playerArtistSidebar.textContent = '';
       playerCoverImg.src = 'images/midcube.png';
       playBtnSidebar.textContent = '▶';
@@ -407,7 +415,7 @@
     audio.play().catch(e => {
       if (e.name === 'NotAllowedError' && userHasInteracted) {
         playBtnSidebar.textContent = '▶';
-        showToast('Нажмите ▶ для воспроизведения');
+        showToast('დააჭირეთ ▶ დაკვრისთვის');
       } else if (e.name !== 'NotAllowedError') {
         console.error('Play error:', e);
       }
