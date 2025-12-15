@@ -13,11 +13,12 @@
       <div id="header-badge" aria-hidden="false">
         <img src="images/midcube.png" alt="midcube">
       </div>
+
       <h1>Cube Cubic</h1>
       <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
       <nav>
         <a href="index.html">მთავარი</a>
-        <button id="site-share-btn" type="button" aria-label="Share site">Share</button>
+        <!-- <button id="site-share-btn" type="button" aria-label="Share site">Share</button>  -->
         <button id="contact-btn" type="button">Contact</button>
         <a href="admin.html">Admin</a>
       </nav>
@@ -27,13 +28,16 @@
       <section>
         <div class="controls">
           <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
+
           <label for="album-select">ალბომები</label>
           <input type="hidden" id="album-select" value="">
           <div id="album-thumbs" class="album-thumbs" aria-hidden="false"></div>
+
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
           <select id="subalbum-select" style="display:none;">
             <option value="">— —</option>
           </select>
+
           <button id="refresh-btn" type="button">Refresh</button>
         </div>
       </section>
@@ -47,7 +51,7 @@
     </main>
   </div>
 
-  <!-- Плеер -->
+  <!-- Плеер: компактный -->
   <div id="player" class="hidden" aria-hidden="true">
     <div class="player-bar">
       <div id="player-info">
@@ -80,7 +84,7 @@
     </div>
   </div>
 
-  <!-- Share modal -->
+  <!-- Share modal (fallback on desktop) -->
   <div id="share-modal" class="hidden" aria-hidden="true">
     <div class="modal-box">
       <button id="share-modal-close" type="button">Close</button>
@@ -98,24 +102,10 @@
     </div>
   </div>
 
-  <!-- Download modal -->
-  <div id="download-modal" class="hidden" aria-hidden="true">
-    <div class="modal-box">
-      <button id="download-modal-close" type="button">Close</button>
-      <h3 id="download-modal-title">Скачивание</h3>
-      <p id="download-modal-filename">Подготовка...</p>
-      <div class="download-progress-wrap">
-        <progress id="download-progress" value="0" max="100"></progress>
-        <div id="download-progress-text">0%</div>
-      </div>
-      <p id="download-modal-status" style="margin-top:8px;color:#333;"></p>
-    </div>
-  </div>
-
   <!-- Toast -->
   <div id="toast" class="hidden" role="status" aria-live="polite"></div>
 
-  <!-- Contact modal -->
+  <!-- Модалка для письма -->
   <div id="contact-modal" class="hidden" aria-hidden="true">
     <div class="modal-box">
       <button id="contact-close" type="button">Close</button>
@@ -136,3 +126,4 @@
   <script src="app.js"></script>
 </body>
 </html>
+

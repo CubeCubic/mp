@@ -1,26 +1,283 @@
-/* ... базовые стили ... */
+/* Общие */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background-image: url("images/bigcube.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
 
-/* Download modal */
-#download-modal.hidden { display: none !important; }
-#download-modal {
-  position: fixed; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.6);
-  z-index: 2200;
+/* Контейнер сайта */
+.site-wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
+  transition: padding-bottom 320ms cubic-bezier(.2,.9,.2,1);
 }
-#download-modal .modal-box {
-  background: #fff; color: #000;
-  padding: 16px; border-radius: 8px;
-  max-width: 520px; width: 92%;
-}
-.download-progress-wrap {
-  display: flex; align-items: center; gap: 12px; margin-top: 8px;
-}
-#download-progress { width: 100%; height: 12px; }
-#download-progress-text { min-width: 44px; text-align: right; font-size: 13px; color: #333; }
-#download-modal button { float: right; background: #444; color: #fff; border: none; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
 
-/* Кнопка скачивания на карточке */
+header {
+  background-color: rgba(0,0,0,0.6);
+  color: #ffcc00;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+}
+
+header h1 {
+  font-size: 48px;
+  font-weight: 800;
+  color: #ffcc00;
+  margin: 12px 0;
+  letter-spacing: 1px;
+  text-shadow:
+    2px 2px 0 #000,
+    4px 4px 6px rgba(0,0,0,0.6);
+}
+
+#header-badge {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  top: 22px;
+  left: 30px;
+  z-index: 10;
+  display: block;
+}
+#header-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+  box-shadow:
+    0 4px 6px rgba(0,0,0,0.6),
+    0 8px 16px rgba(0,0,0,0.4),
+    0 0 12px rgba(255,255,0,0.4);
+}
+
+header nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+header nav a, header nav button {
+  color: #fff;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+header nav a:hover, header nav button:hover { text-decoration: underline; }
+
+/* Site-wide share button */
+#site-share-btn {
+  background: #2b8cff;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Поисковик */
+#global-search {
+  margin-top: 12px;
+  margin-bottom: 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #111;
+  color: #fff;
+  font-size: 14px;
+  width: 280px;
+}
+
+.controls {
+  border-bottom: 2px solid #ffcc00;
+  padding-bottom: 8px;
+  margin-bottom: 18px;
+}
+
+.controls > label[for="album-select"] {
+  display: block;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: #ffcc00;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.album-thumbs {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.album-thumb {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 132px;
+  cursor: pointer;
+  text-align: center;
+  color: #fff;
+  text-decoration: none;
+}
+.album-thumb img {
+  width: 100%;
+  height: 108px;
+  object-fit: contain;
+  background-color: transparent;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  display: block;
+}
+.album-thumb .album-name {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #ffcc00;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+.album-thumb.selected img {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  border-color: #ffcc00;
+}
+
+.tracks-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+.tracks-header h2 {
+  margin: 0;
+}
+
+#tracks {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+section > #tracks {
+  margin-left: -6px;
+  margin-right: -6px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 8px;
+  color: #fff;
+  min-height: 136px;
+  box-sizing: border-box;
+}
+
+.card img.track-cover {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+}
+
+.track-info {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.track-info h4 {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.08;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.track-info div {
+  font-size: 11px;
+  color: #cfcfcf;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Действия */
+.track-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+.track-actions button,
+.track-actions a {
+  font-size: 11px;
+  padding: 4px 6px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.track-actions a.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Share button on card */
+.track-actions .share-button {
+  background: #2b8cff;
+  color: #fff;
+}
+
+/* Дополнительный класс для кнопки текста */
+.track-actions button.btn-has-lyrics {
+  background: #ffcc00;
+  color: #000;
+  font-weight: bold;
+}
+
+/* Скрытие кнопки лайка (код остаётся, но визуально спрятан) */
+.track-actions .like-button {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  margin-left: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Стили для кнопки скачивания-иконки */
 .track-actions .download-button {
   display: inline-flex;
   align-items: center;
@@ -33,9 +290,195 @@
   border-radius: 8px;
   border: none;
   cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
 }
 .track-actions .download-button svg {
   width: 16px;
   height: 16px;
+  display: block;
   fill: currentColor;
+}
+.track-actions .download-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(46,204,113,0.14);
+}
+
+/* Плеер — компактный */
+#player {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.92);
+  color: white;
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+  z-index: 1000;
+  --player-compact-height: 64px;
+}
+#player.visible { transform: translateY(0); opacity: 1; pointer-events: auto; }
+
+.player-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  min-height: var(--player-compact-height);
+  box-sizing: border-box;
+}
+#player-info { flex: 1; min-width: 0; }
+#player-title {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#player-artist {
+  font-size: 12px;
+  color: #ccc;
+  margin-top: 2px;
+}
+#player-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#player-controls button,
+#player-controls a {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+#player-controls input[type="range"] { width: 80px; }
+
+#player-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 10px 12px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+#player-progress span { font-size: 12px; color: #ccc; width: 40px; text-align: center; }
+#progress { flex: 1; }
+
+/* Модалки */
+#lyrics-modal.hidden { display: none !important; }
+#lyrics-modal {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 2000;
+}
+.modal-box {
+  background: white; color: #000;
+  padding: 16px; border-radius: 6px;
+  max-width: 420px; width: 92%;
+  max-height: 70vh; overflow-y: auto;
+}
+.modal-box h3 { margin-top: 0; font-size: 16px; }
+.modal-box pre { white-space: pre-wrap; font-size: 13px; }
+
+/* Share modal */
+#share-modal.hidden { display: none !important; }
+#share-modal {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 2100;
+}
+#share-modal .modal-box .share-links {
+  display: flex; gap: 8px; margin-bottom: 10px;
+}
+#share-modal .modal-box .share-links a {
+  background: #2b8cff; color: #fff; padding: 6px 8px; border-radius: 6px; text-decoration: none;
+}
+#share-modal .modal-box .share-copy {
+  display: flex; gap: 8px; align-items: center;
+}
+#share-modal .modal-box input[type="text"] {
+  flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;
+}
+#share-modal .modal-box button { padding: 6px 8px; border-radius: 4px; border: none; background: #444; color: #fff; cursor: pointer; }
+
+/* Toast */
+#toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 90px;
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  z-index: 3000;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+#toast.visible { opacity: 1; }
+
+/* Contact modal */
+#contact-modal.hidden { display: none !important; }
+#contact-modal {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 2000;
+}
+#contact-modal .modal-box {
+  background: white; color: #000;
+  padding: 16px; border-radius: 6px;
+  max-width: 420px; width: 92%;
+}
+#contact-modal h3 { margin-top: 0; font-size: 18px; }
+#contact-modal form {
+  display: flex; flex-direction: column; gap: 10px;
+}
+#contact-modal input, #contact-modal textarea {
+  padding: 6px; border: 1px solid #ccc; border-radius: 4px;
+}
+#contact-modal button[type="submit"] {
+  background: #ffcc00; border: none; padding: 8px; border-radius: 4px;
+  cursor: pointer; font-weight: bold;
+}
+
+/* Адаптивность */
+@media (min-width: 1600px) {
+  .site-wrapper { max-width: 1600px; padding-left: 22px; padding-right: 22px; }
+  #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
+}
+@media (min-width: 1400px) and (max-width: 1599px) {
+  .site-wrapper { max-width: 1480px; }
+  #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
+}
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .site-wrapper { max-width: 1320px; }
+  #tracks { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; }
+}
+@media (min-width: 1000px) and (max-width: 1199px) {
+  .site-wrapper { max-width: 1120px; padding-left: 16px; padding-right: 16px; }
+  #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+  .card { min-height: 132px; padding: 8px; }
+}
+@media (min-width: 700px) and (max-width: 999px) {
+  .site-wrapper { max-width: 860px; padding-left: 14px; padding-right: 14px; }
+  #tracks { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .card { min-height: 128px; padding: 8px; }
+}
+@media (min-width: 420px) and (max-width: 699px) {
+  .site-wrapper { max-width: 560px; padding-left: 12px; padding-right: 12px; }
+  #tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+}
+@media (max-width: 419px) {
+  .site-wrapper { max-width: 360px; padding-left: 10px; padding-right: 10px; }
+  #tracks { grid-template-columns: 1fr; gap: 8px; }
+  .card img.track-cover { aspect-ratio: 16/9; }
+  .card { min-height: auto; padding: 8px; }
 }
