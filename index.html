@@ -13,35 +13,27 @@
       <div id="header-badge" aria-hidden="false">
         <img src="images/midcube.png" alt="midcube">
       </div>
-
       <h1>Cube Cubic</h1>
       <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
       <nav>
         <a href="index.html">მთავარი</a>
-        <!-- 
-        <button id="contact-btn" type="button">Contact</button> -->
         <a href="admin.html">Admin</a>
       </nav>
     </header>
-
     <main class="new-main-layout">
       <aside class="albums-sidebar">
         <div class="controls">
           <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
-
           <label for="album-select" style="display:none;">ალბომები</label>
           <input type="hidden" id="album-select" value="">
           <div id="album-list" class="album-list-vertical"></div>
-
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
           <select id="subalbum-select" style="display:none;">
             <option value="">— —</option>
           </select>
-
           <button id="refresh-btn" type="button">Refresh</button>
         </div>
-
-        <!-- Новый вертикальный плеер -->
+        <!-- Вертикальный плеер -->
         <div id="player-sidebar" class="player-sidebar">
           <div id="player-cover">
             <img id="player-cover-img" src="images/midcube.png" alt="Cover">
@@ -69,7 +61,6 @@
           </a>
         </div>
       </aside>
-
       <section class="tracks-section">
         <div class="tracks-header">
           <h2>ტრეკები</h2>
@@ -79,7 +70,7 @@
     </main>
   </div>
 
-  <!-- Аудио элемент (скрытый) -->
+  <!-- Аудио элемент -->
   <audio id="audio" preload="none"></audio>
 
   <!-- Модалка текстов -->
@@ -91,12 +82,12 @@
     </div>
   </div>
 
-  <!-- Share modal 
+  <!-- Share modal (оставлена для кнопки Share на треках) -->
   <div id="share-modal" class="hidden" aria-hidden="true">
     <div class="modal-box">
       <button id="share-modal-close" type="button">Close</button>
       <h3>Share</h3>
-      <p id="share-modal-text">Share this link:</p>
+      <p>Share this link:</p>
       <div class="share-links">
         <a id="share-twitter" href="#" target="_blank" rel="noopener">Twitter</a>
         <a id="share-telegram" href="#" target="_blank" rel="noopener">Telegram</a>
@@ -112,27 +103,6 @@
   <!-- Toast -->
   <div id="toast" class="hidden" role="status" aria-live="polite"></div>
 
-  <!-- Contact modal 
-  <div id="contact-modal" class="hidden" aria-hidden="true">
-    <div class="modal-box">
-      <button id="contact-close" type="button">Close</button>
-      <h3>მომწერე</h3>
-      <form id="contact-form" action="https://formspree.io/f/xqarwkwl" method="POST">
-        <label>თქვენი სახელი:</label>
-        <input type="text" name="name" required>
-        <label>თქვენი email:</label>
-        <input type="email" name="email" required>
-        <label>ტექსტი:</label>
-        <textarea name="message" required></textarea>
-        <button type="submit">გაგზავნა</button>
-        <p id="contact-status" style="margin:8px 0 0 0;"></p>
-      </form>
-    </div>
-  </div> -->
-
-  <script src="app.js"></script> -->
+  <script src="app.js"></script>
 </body>
-
 </html>
-
-
