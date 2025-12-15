@@ -23,15 +23,6 @@
   ],
   "tracks": [
     {
-      "id": "1765384986157",
-      "title": "Rise Up",
-      "artist": "Cube Cubic",
-      "lyrics": "",
-      "albumId": "1765384892685",
-      "audioUrl": "https://archive.org/download/cube-cubic-rise-up/Cube%20Cubic%20-%20Rise%20Up.mp3",
-      "coverUrl": ""
-    },
-    {
       "id": "1765388280922",
       "title": "ორშაბათს გოგონა გავიცანი",
       "artist": "Cube Cubic",
@@ -39,15 +30,6 @@
       "albumId": "1765388179450",
       "audioUrl": "https://archive.org/download/20251212_20251212_1034/%E1%83%9D%E1%83%A0%E1%83%A8%E1%83%90%E1%83%91%E1%83%90%E1%83%97%E1%83%A1%20%E1%83%92%E1%83%9D%E1%83%92%E1%83%9D%E1%83%9C%E1%83%90%20%E1%83%92%E1%83%90%E1%83%95%E1%83%98%E1%83%AA%E1%83%90%E1%83%9C%E1%83%98.wav",
       "coverUrl": "https://archive.org/download/20251212_20251212_1034/%E1%83%9D%E1%83%A0%E1%83%A8%E1%83%90%E1%83%91%E1%83%90%E1%83%97%E1%83%A1%20%E1%83%92%E1%83%9D%E1%83%92%E1%83%9D%E1%83%9C%E1%83%90%20%E1%83%92%E1%83%90%E1%83%95%E1%83%98%E1%83%AA%E1%83%90%E1%83%9C%E1%83%98_thumb.jpg"
-    },
-    {
-      "id": "1765429625093",
-      "title": "Morning Coffee",
-      "artist": "",
-      "lyrics": "",
-      "albumId": "1765384187417",
-      "audioUrl": "https://archive.org/download/cube-cubic-morning-coffee/Cube%20Cubic%20-%20Morning%20Coffee.mp3",
-      "coverUrl": ""
     },
     {
       "id": "1765536301714",
