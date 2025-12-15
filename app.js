@@ -100,21 +100,14 @@
     return `${base}?track=${encodeURIComponent(trackId)}`;
   }
 
-  function buildShareUrlForPage() {
-    return location.href.split('?')[0];
-  }
-
   async function doShare({ title, text, url }) {
     if (navigator.share && navigator.canShare && navigator.canShare({ url })) {
       try {
         await navigator.share({ title, text, url });
         return;
-      } catch (err) {
-        console.log('Web Share failed:', err);
-      }
+      } catch {}
     }
 
-    // Fallback модалка
     shareUrlInput.value = url;
     shareTwitter.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
     shareTelegram.href = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
@@ -189,7 +182,10 @@
 
     if (subalbumSelect) {
       subalbumSelect.innerHTML = '';
-      subalbumSelect.appendChild(document.createElement('option')).textContent = '— ყველა ქვეალბომი —';
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = '— ყველა ქვეალბომი —';
+      subalbumSelect.appendChild(opt);
       subalbumSelect.disabled = true;
       subalbumSelect.style.display = 'none';
       if (subalbumLabel) subalbumLabel.style.display = 'none';
@@ -234,8 +230,172 @@
     renderTracks();
   }
 
-  // --- Поиск и рендер треков (оставьте ваш текущий код или из предыдущих версий) ---
-  // ... (applySearch, renderTracks и т.д.)
+  // --- Поиск ---
+  function matchesQuery(track, query) {
+    if (!query) return true;
+    const q = query.toLowerCase();
+    return (
+      safeStr(track.title).toLowerCase().includes(q) ||
+      safeStr(track.artist).toLowerCase().includes(q) ||
+      safeStr(track.lyrics).toLowerCase().includes(q) ||
+      (albums.find(a => String(a.id) === String(track.albumId)) || {}).name?.toLowerCase().includes(q)
+    );
+  }
+
+  function applySearch() {
+    const query = globalSearchInput ? globalSearchInput.value.trim() : '';
+    filteredTracks = tracks.filter(t => matchesQuery(t, query));
+  }
+
+  if (globalSearchInput) {
+    globalSearchInput.addEventListener('input', () => {
+      applySearch();
+      renderTracks();
+      renderAlbumList();
+    });
+  }
+
+  // --- Рендер треков ---
+  function renderTracks() {
+    if (!tracksContainer) return;
+    tracksContainer.innerHTML = '';
+
+    let toRender = filteredTracks;
+
+    const selectedAlbumId = albumSelect ? albumSelect.value : '';
+    const selectedSubalbumId = subalbumSelect ? subalbumSelect.value : '';
+
+    if (selectedAlbumId || selectedSubalbumId) {
+      const targetAlbumId = selectedSubalbumId || selectedAlbumId;
+      toRender = toRender.filter(t => String(t.albumId || '') === targetAlbumId);
+
+      if (selectedAlbumId && !selectedSubalbumId) {
+        const subIds = albums.filter(a => String(a.parentId || '') === selectedAlbumId).map(a => a.id);
+        toRender = filteredTracks.filter(t => String(t.albumId || '') === selectedAlbumId || subIds.includes(t.albumId));
+      }
+    }
+
+    if (!toRender.length) {
+      tracksContainer.innerHTML = '<div class="muted">ტრეკები არ მოიძებნა</div>';
+      return;
+    }
+
+    toRender.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.setAttribute('data-track-id', t.id || '');
+
+      const img = document.createElement('img');
+      img.className = 'track-cover';
+      img.src = getCoverUrl(t);
+      img.alt = safeStr(t.title) + ' cover';
+      card.appendChild(img);
+
+      const info = document.createElement('div');
+      info.className = 'track-info';
+
+      const title = document.createElement('h4');
+      title.textContent = safeStr(t.title);
+      info.appendChild(title);
+
+      const artist = document.createElement('div');
+      artist.textContent = safeStr(t.artist);
+      info.appendChild(artist);
+
+      const actions = document.createElement('div');
+      actions.className = 'track-actions';
+
+      if (t.lyrics) {
+        const lyricsBtn = document.createElement('button');
+        lyricsBtn.type = 'button';
+        lyricsBtn.className = 'btn-has-lyrics';
+        lyricsBtn.textContent = 'ტექსტი';
+        lyricsBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          modalTitle.textContent = t.title || 'Lyrics';
+          modalLyrics.textContent = t.lyrics;
+          lyricsModal.classList.remove('hidden');
+          lyricsModal.setAttribute('aria-hidden', 'false');
+        });
+        actions.appendChild(lyricsBtn);
+      }
+
+      const stream = getStreamUrl(t);
+      const downloadBtnCard = document.createElement('button');
+      downloadBtnCard.type = 'button';
+      downloadBtnCard.className = 'download-button';
+      downloadBtnCard.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
+      if (stream) {
+        downloadBtnCard.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          let suggested = '';
+          try {
+            const u = new URL(stream);
+            suggested = u.pathname.split('/').pop() || '';
+          } catch {}
+          triggerDownload(stream, suggested);
+        });
+      } else {
+        downloadBtnCard.disabled = true;
+        downloadBtnCard.style.opacity = '0.5';
+      }
+      actions.appendChild(downloadBtnCard);
+
+      const shareBtn = document.createElement('button');
+      shareBtn.type = 'button';
+      shareBtn.className = 'share-button';
+      shareBtn.textContent = 'Share';
+      shareBtn.addEventListener('click', async (ev) => {
+        ev.stopPropagation();
+        const url = buildShareUrlForTrack(t.id);
+        const title = t.title || 'Cube Cubic';
+        const text = `${t.title || ''} — ${t.artist || ''}`;
+        await doShare({ title, text, url });
+      });
+      actions.appendChild(shareBtn);
+
+      card.appendChild(img);
+      card.appendChild(info);
+      card.appendChild(actions);
+
+      card.addEventListener('click', () => {
+        const idx = tracks.findIndex(tr => String(tr.id) === String(t.id));
+        if (idx >= 0) playTrackByIndex(idx);
+      });
+
+      tracksContainer.appendChild(card);
+    });
+
+    if (pendingTrackToOpen) {
+      const id = String(pendingTrackToOpen);
+      const el = tracksContainer.querySelector(`[data-track-id="${id}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const idx = tracks.findIndex(t => String(t.id) === id);
+        if (idx >= 0) playTrackByIndex(idx);
+      }
+      pendingTrackToOpen = null;
+    }
+  }
+
+  // --- Загрузка данных ---
+  async function loadData() {
+    try {
+      const res = await fetch('tracks.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      tracks = data.tracks || [];
+      albums = data.albums || [];
+      buildAlbumSelectors();
+      applySearch();
+      renderTracks();
+    } catch (err) {
+      console.error('Ошибка загрузки tracks.json:', err);
+      if (tracksContainer) tracksContainer.innerHTML = '<div class="muted">Не удалось загрузить треки</div>';
+    }
+  }
+
+  if (refreshBtn) refreshBtn.addEventListener('click', loadData);
 
   // --- Плеер ---
   function updateSidebarPlayer(t = null) {
@@ -319,6 +479,7 @@
     playTrackByIndex(prev);
   }
 
+  // Обработчики аудио
   audio.addEventListener('playing', () => playBtnSidebar.textContent = '❚❚');
   audio.addEventListener('pause', () => playBtnSidebar.textContent = '▶');
   audio.addEventListener('ended', playNext);
@@ -334,7 +495,12 @@
     progressSidebar.max = audio.duration || 0;
   });
   audio.addEventListener('volumechange', () => volumeSidebar.value = audio.volume);
+  audio.addEventListener('error', (e) => {
+    console.error('Audio error:', e);
+    updateSidebarPlayer(null);
+  });
 
+  // Управление плеером
   playBtnSidebar.addEventListener('click', togglePlayPause);
   prevBtnSidebar.addEventListener('click', playPrev);
   nextBtnSidebar.addEventListener('click', playNext);
@@ -351,27 +517,34 @@
     }
   });
 
+  // --- Модалки ---
+  if (modalClose) modalClose.addEventListener('click', () => {
+    lyricsModal.classList.add('hidden');
+    lyricsModal.setAttribute('aria-hidden', 'true');
+  });
+
+  if (contactClose) contactClose.addEventListener('click', () => {
+    contactModal.classList.add('hidden');
+    contactModal.setAttribute('aria-hidden', 'true');
+  });
+
+  if (shareModalClose) shareModalClose.addEventListener('click', () => {
+    shareModal.classList.add('hidden');
+    shareModal.setAttribute('aria-hidden', 'true');
+  });
+
+  if (shareCopyBtn) {
+    shareCopyBtn.addEventListener('click', async () => {
+      const ok = await copyToClipboard(shareUrlInput.value);
+      if (ok) showToast('Ссылка скопирована');
+    });
+  }
+
   // --- Инициализация ---
   function parseDeepLink() {
     const params = new URLSearchParams(location.search);
     const track = params.get('track');
     if (track) pendingTrackToOpen = track;
-  }
-
-  async function loadData() {
-    try {
-      const res = await fetch('tracks.json', { cache: 'no-store' });
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      tracks = data.tracks || [];
-      albums = data.albums || [];
-      buildAlbumSelectors();
-      applySearch();
-      renderTracks();
-    } catch (err) {
-      console.error(err);
-      tracksContainer.innerHTML = '<div class="muted">Ошибка загрузки</div>';
-    }
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -381,25 +554,9 @@
     audio.volume = parseFloat(volumeSidebar?.value || 1);
     updateSidebarPlayer(null);
 
-    // Contact
     contactBtn.addEventListener('click', () => {
       contactModal.classList.remove('hidden');
       contactModal.setAttribute('aria-hidden', 'false');
     });
-
-    // Закрытие модалок
-    [modalClose, contactClose, shareModalClose].forEach(btn => {
-      if (btn) btn.addEventListener('click', () => {
-        btn.closest('.hidden')?.classList.add('hidden');
-        btn.closest('[aria-hidden]')?.setAttribute('aria-hidden', 'true');
-      });
-    });
-
-    shareCopyBtn.addEventListener('click', async () => {
-      const ok = await copyToClipboard(shareUrlInput.value);
-      if (ok) showToast('Ссылка скопирована');
-    });
-
-    if (refreshBtn) refreshBtn.addEventListener('click', loadData);
   });
 })();
