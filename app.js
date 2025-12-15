@@ -75,7 +75,6 @@
     setTimeout(() => toast.classList.remove('visible'), 3000);
   }
 
-  // Надёжное скачивание через fetch + Blob (работает даже с archive.org)
   async function triggerDownload(url, filename = 'track.mp3') {
     if (!url || url.trim() === '') {
       showToast('ფაილი არ არის ხელმისაწვდომი');
@@ -97,11 +96,26 @@
       a.click();
       document.body.removeChild(a);
 
-      // Очистка памяти
       setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
     } catch (err) {
       console.error('Download error:', err);
       showToast('შეცდომა ჩამოტვირთვისას');
+    }
+  }
+
+  // --- Подсветка и автоскролл текущего трека ---
+  function highlightCurrentTrack() {
+    // Убираем подсветку со всех карточек
+    const allCards = tracksContainer.querySelectorAll('.card');
+    allCards.forEach(card => card.classList.remove('playing-track'));
+
+    if (currentTrackIndex >= 0 && currentTrackIndex < filteredTracks.length) {
+      const currentTrack = filteredTracks[currentTrackIndex];
+      const currentCard = tracksContainer.querySelector(`[data-track-id="${currentTrack.id}"]`);
+      if (currentCard) {
+        currentCard.classList.add('playing-track');
+        currentCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   }
 
@@ -306,7 +320,7 @@
         actions.appendChild(lyricsBtn);
       }
 
-      // Скачивание — через fetch + Blob
+      // Скачивание
       const stream = getStreamUrl(t);
       const downloadBtnCard = document.createElement('button');
       downloadBtnCard.type = 'button';
@@ -344,6 +358,9 @@
 
       tracksContainer.appendChild(card);
     });
+
+    // Подсветка текущего трека после рендера
+    highlightCurrentTrack();
 
     if (pendingTrackToOpen) {
       const id = String(pendingTrackToOpen);
@@ -416,6 +433,7 @@
       updateSidebarPlayer(null);
       audio.pause();
       currentTrackIndex = -1;
+      highlightCurrentTrack();
       return;
     }
 
@@ -434,6 +452,9 @@
         console.error('Play error:', e);
       }
     });
+
+    // Подсветка и скролл к текущему треку
+    highlightCurrentTrack();
   }
 
   function togglePlayPause() {

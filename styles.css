@@ -193,6 +193,15 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   background: rgba(255,255,255,0.15);
 }
 
+/* Подсветка текущего играющего трека */
+.tracks-list-vertical .card.playing-track {
+  background: rgba(255, 204, 0, 0.2);
+  border: 2px solid #ffcc00;
+  box-shadow: 0 0 12px rgba(255, 204, 0, 0.4);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
 .tracks-list-vertical .track-cover {
   width: 70px;
   height: 70px;
