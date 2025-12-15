@@ -75,20 +75,34 @@
     setTimeout(() => toast.classList.remove('visible'), 3000);
   }
 
-  // Надёжная функция скачивания без перехода
-  function triggerDownload(url, filename = 'track.mp3') {
+  // Надёжное скачивание через fetch + Blob (работает даже с archive.org)
+  async function triggerDownload(url, filename = 'track.mp3') {
     if (!url || url.trim() === '') {
       showToast('ფაილი არ არის ხელმისაწვდომი');
       return;
     }
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network error');
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // Очистка памяти
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    } catch (err) {
+      console.error('Download error:', err);
+      showToast('შეცდომა ჩამოტვირთვისას');
+    }
   }
 
   // --- Рендер списка альбомов ---
@@ -292,7 +306,7 @@
         actions.appendChild(lyricsBtn);
       }
 
-      // Скачивание — без перехода
+      // Скачивание — через fetch + Blob
       const stream = getStreamUrl(t);
       const downloadBtnCard = document.createElement('button');
       downloadBtnCard.type = 'button';
@@ -300,7 +314,7 @@
       downloadBtnCard.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
 
       if (stream && stream.trim() !== '') {
-        downloadBtnCard.addEventListener('click', (ev) => {
+        downloadBtnCard.addEventListener('click', async (ev) => {
           ev.preventDefault();
           ev.stopPropagation();
 
@@ -310,7 +324,7 @@
             filename = decodeURIComponent(u.pathname.split('/').pop() || 'track.mp3');
           } catch {}
 
-          triggerDownload(stream, filename);
+          await triggerDownload(stream, filename);
         });
       } else {
         downloadBtnCard.disabled = true;
