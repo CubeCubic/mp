@@ -40,6 +40,7 @@
   let currentTrackIndex = -1;
   let filteredTracks = [];
   let pendingTrackToOpen = null;
+  let userHasInteracted = false; // флаг: был ли клик по треку
 
   // --- Утилиты ---
   function formatTime(sec) {
@@ -181,7 +182,6 @@
     renderTracks();
     renderAlbumList();
 
-    // Сброс текущего трека при смене альбома — начнём с первого
     currentTrackIndex = -1;
     updateSidebarPlayer(null);
   }
@@ -233,7 +233,6 @@
       }
     }
 
-    // На стартовой странице (нет выбранного альбома) — все треки
     if (!selectedAlbumId && !selectedSubalbumId && globalSearchInput.value.trim() === '') {
       toRender = tracks;
     }
@@ -309,14 +308,14 @@
       card.appendChild(actions);
 
       card.addEventListener('click', () => {
-        const idx = toRender.indexOf(t); // индекс в текущем списке
+        userHasInteracted = true; // пользователь кликнул — теперь toast может показываться
+        const idx = toRender.indexOf(t);
         playTrackByIndex(idx);
       });
 
       tracksContainer.appendChild(card);
     });
 
-    // Deep-link или автоплей первого трека на старте
     if (pendingTrackToOpen) {
       const id = String(pendingTrackToOpen);
       const idx = toRender.findIndex(t => String(t.id) === id);
@@ -324,9 +323,6 @@
         playTrackByIndex(idx);
       }
       pendingTrackToOpen = null;
-    } else if (currentTrackIndex === -1 && toRender.length > 0) {
-      // На старте или при смене альбома — начинаем с первого трека
-      playTrackByIndex(0);
     }
   }
 
@@ -399,17 +395,19 @@
     audio.src = getStreamUrl(t) || '';
     audio.load();
 
+    // Показываем toast ТОЛЬКО если был клик по треку и автоплей заблокирован
     audio.play().catch(e => {
-      if (e.name === 'NotAllowedError') {
+      if (e.name === 'NotAllowedError' && userHasInteracted) {
         playBtnSidebar.textContent = '▶';
         showToast('Нажмите ▶ для воспроизведения');
-      } else {
+      } else if (e.name !== 'NotAllowedError') {
         console.error('Play error:', e);
       }
     });
   }
 
   function togglePlayPause() {
+    userHasInteracted = true; // любое нажатие на кнопку плеера — взаимодействие
     if (audio.paused || audio.ended) {
       audio.play().catch(console.error);
     } else {
@@ -420,14 +418,14 @@
   function playNext() {
     if (filteredTracks.length === 0) return;
     let next = currentTrackIndex + 1;
-    if (next >= filteredTracks.length) next = 0; // зацикливание
+    if (next >= filteredTracks.length) next = 0;
     playTrackByIndex(next);
   }
 
   function playPrev() {
     if (filteredTracks.length === 0) return;
     let prev = currentTrackIndex - 1;
-    if (prev < 0) prev = filteredTracks.length - 1; // зацикливание
+    if (prev < 0) prev = filteredTracks.length - 1;
     playTrackByIndex(prev);
   }
 
