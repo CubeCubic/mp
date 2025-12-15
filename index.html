@@ -18,21 +18,20 @@
       <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
       <nav>
         <a href="index.html">მთავარი</a>
-        <!-- <button id="site-share-btn" type="button" aria-label="Share site">Share</button>  -->
         <button id="contact-btn" type="button">Contact</button>
         <a href="admin.html">Admin</a>
       </nav>
     </header>
 
-    <main>
-      <section>
+    <main class="new-main-layout">
+      <aside class="albums-sidebar">
         <div class="controls">
           <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
-          
+
           <label for="album-select" style="display:none;">ალბომები</label>
           <input type="hidden" id="album-select" value="">
-          <div id="album-list" class="album-list"></div>
-          
+          <div id="album-list" class="album-list-vertical"></div>
+
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
           <select id="subalbum-select" style="display:none;">
             <option value="">— —</option>
@@ -40,13 +39,13 @@
 
           <button id="refresh-btn" type="button">Refresh</button>
         </div>
-      </section>
+      </aside>
 
-      <section>
+      <section class="tracks-section">
         <div class="tracks-header">
           <h2>ტრეკები</h2>
         </div>
-        <div id="tracks"></div>
+        <div id="tracks" class="tracks-list-vertical"></div>
       </section>
     </main>
   </div>
@@ -126,4 +125,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-

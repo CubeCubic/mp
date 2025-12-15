@@ -74,16 +74,6 @@ header nav a, header nav button {
 }
 header nav a:hover, header nav button:hover { text-decoration: underline; }
 
-/* Site-wide share button */
-#site-share-btn {
-  background: #2b8cff;
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-}
-
 /* Поисковик */
 #global-search {
   margin-top: 12px;
@@ -101,207 +91,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   border-bottom: 2px solid #ffcc00;
   padding-bottom: 8px;
   margin-bottom: 18px;
-}
-
-.controls > label[for="album-select"] {
-  display: block;
-  margin-top: 16px;
-  margin-bottom: 8px;
-  color: #ffcc00;
-  font-size: 21px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.album-thumbs {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
-}
-.album-thumb {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  width: 132px;
-  cursor: pointer;
-  text-align: center;
-  color: #fff;
-  text-decoration: none;
-}
-.album-thumb img {
-  width: 100%;
-  height: 108px;
-  object-fit: contain;
-  background-color: transparent;
-  border-radius: 8px;
-  border: 2px solid transparent;
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
-  display: block;
-}
-.album-thumb .album-name {
-  margin-top: 8px;
-  font-size: 13px;
-  color: #ffcc00;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-}
-.album-thumb.selected img {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
-  border-color: #ffcc00;
-}
-
-.tracks-header {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 10px;
-}
-.tracks-header h2 {
-  margin: 0;
-}
-
-#tracks {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 14px;
-  align-items: start;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-section > #tracks {
-  margin-left: -6px;
-  margin-right: -6px;
-  padding-left: 6px;
-  padding-right: 6px;
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 8px;
-  padding: 8px;
-  color: #fff;
-  min-height: 136px;
-  box-sizing: border-box;
-}
-
-.card img.track-cover {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: 6px;
-  cursor: pointer;
-  display: block;
-}
-
-.track-info {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.track-info h4 {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.08;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.track-info div {
-  font-size: 11px;
-  color: #cfcfcf;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Действия */
-.track-actions {
-  margin-top: 8px;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-}
-.track-actions button,
-.track-actions a {
-  font-size: 11px;
-  padding: 4px 6px;
-  background: #444;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.track-actions a.disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-/* Share button on card */
-.track-actions .share-button {
-  background: #2b8cff;
-  color: #fff;
-}
-
-/* Дополнительный класс для кнопки текста */
-.track-actions button.btn-has-lyrics {
-  background: #ffcc00;
-  color: #000;
-  font-weight: bold;
-}
-
-/* Скрытие кнопки лайка (код остаётся, но визуально спрятан) */
-.track-actions .like-button {
-  display: none !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  width: 0 !important;
-  margin-left: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  background: transparent !important;
-}
-
-/* Стили для кнопки скачивания-иконки */
-.track-actions .download-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 6px;
-  background: #2ecc71;
-  color: #fff;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
-}
-.track-actions .download-button svg {
-  width: 16px;
-  height: 16px;
-  display: block;
-  fill: currentColor;
-}
-.track-actions .download-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(46,204,113,0.14);
 }
 
 /* Плеер — компактный */
@@ -449,57 +238,47 @@ section > #tracks {
   cursor: pointer; font-weight: bold;
 }
 
-/* Адаптивность */
-@media (min-width: 1600px) {
-  .site-wrapper { max-width: 1600px; padding-left: 22px; padding-right: 22px; }
-  #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
-}
-@media (min-width: 1400px) and (max-width: 1599px) {
-  .site-wrapper { max-width: 1480px; }
-  #tracks { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 14px; }
-}
-@media (min-width: 1200px) and (max-width: 1399px) {
-  .site-wrapper { max-width: 1320px; }
-  #tracks { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; }
-}
-@media (min-width: 1000px) and (max-width: 1199px) {
-  .site-wrapper { max-width: 1120px; padding-left: 16px; padding-right: 16px; }
-  #tracks { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
-  .card { min-height: 132px; padding: 8px; }
-}
-@media (min-width: 700px) and (max-width: 999px) {
-  .site-wrapper { max-width: 860px; padding-left: 14px; padding-right: 14px; }
-  #tracks { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-  .card { min-height: 128px; padding: 8px; }
-}
-@media (min-width: 420px) and (max-width: 699px) {
-  .site-wrapper { max-width: 560px; padding-left: 12px; padding-right: 12px; }
-  #tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-}
-@media (max-width: 419px) {
-  .site-wrapper { max-width: 360px; padding-left: 10px; padding-right: 10px; }
-  #tracks { grid-template-columns: 1fr; gap: 8px; }
-  .card img.track-cover { aspect-ratio: 16/9; }
-  .card { min-height: auto; padding: 8px; }
+/* === НОВЫЙ LAYOUT === */
+.new-main-layout {
+  display: flex;
+  gap: 24px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
-/* Новый текстовый список альбомов */
-.album-list {
+.albums-sidebar {
+  flex: 0 0 280px;
+  position: sticky;
+  top: 20px;
+  align-self: flex-start;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.albums-sidebar .controls {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+/* Вертикальный список альбомов */
+.album-list-vertical {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 16px 0 14px 0;
-  padding: 0;
-  list-style: none;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
 }
 
 .album-list-button {
   background: rgba(255, 255, 0, 0.15);
   color: #ffcc00;
   border: 1px solid #ffcc00;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 15px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  text-align: left;
   cursor: pointer;
   transition: all 160ms ease;
 }
@@ -518,4 +297,102 @@ section > #tracks {
 /* Georgian всегда сверху */
 .album-list-button[data-album-name="Georgian"] {
   order: -1;
+}
+
+/* Секция треков */
+.tracks-section {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Вертикальный список треков */
+#tracks.tracks-list-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Горизонтальная карточка трека */
+.tracks-list-vertical .card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  min-height: auto;
+}
+
+.tracks-list-vertical .track-cover {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.tracks-list-vertical .track-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tracks-list-vertical .track-info h4 {
+  font-size: 15px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tracks-list-vertical .track-info div {
+  font-size: 13px;
+  color: #cfcfcf;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tracks-list-vertical .track-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.tracks-list-vertical .track-actions button,
+.tracks-list-vertical .track-actions a {
+  font-size: 12px;
+  padding: 6px 10px;
+  min-width: 44px;
+}
+
+.tracks-list-vertical .download-button {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+}
+
+/* Адаптивность */
+@media (max-width: 900px) {
+  .new-main-layout {
+    flex-direction: column;
+  }
+  .albums-sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+  .albums-sidebar .controls {
+    padding-bottom: 16px;
+    border-bottom: 2px solid #ffcc00;
+  }
+}
+
+@media (min-width: 1600px) {
+  .site-wrapper { max-width: 1600px; padding-left: 22px; padding-right: 22px; }
 }
