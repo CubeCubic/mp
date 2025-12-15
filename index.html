@@ -33,13 +33,15 @@
           </select>
           <button id="refresh-btn" type="button">Refresh</button>
         </div>
-        <!-- Вертикальный плеер -->
+        <!-- Вертикальный плеер с waveform -->
         <div id="player-sidebar" class="player-sidebar">
           <div id="player-cover">
             <img id="player-cover-img" src="images/midcube.png" alt="Cover">
           </div>
+          <!-- Waveform контейнер -->
+          <div id="waveform"></div>
           <div id="player-info-sidebar">
-            <div id="player-title-sidebar">Выберите трек</div>
+            <div id="player-title-sidebar">აირჩიეთ ტრეკი</div>
             <div id="player-artist-sidebar"></div>
           </div>
           <div id="player-controls-sidebar">
@@ -85,6 +87,8 @@
   <!-- Toast -->
   <div id="toast" class="hidden" role="status" aria-live="polite"></div>
 
+  <!-- Подключаем wavesurfer.js -->
+  <script src="https://unpkg.com/wavesurfer.js@7"></script>
   <script src="app.js"></script>
 </body>
 </html>

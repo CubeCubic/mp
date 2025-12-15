@@ -73,7 +73,7 @@ header nav a, header nav button {
 }
 header nav a:hover, header nav button:hover { text-decoration: underline; }
 
-/* Поисковик — теперь ширина как у боковой панели */
+/* Поисковик */
 #global-search {
   margin-top: 12px;
   margin-bottom: 20px;
@@ -110,10 +110,10 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   align-self: flex-start;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
-  width: 280px; /* фиксированная ширина */
+  width: 280px;
 }
 
-/* Вертикальный список альбомов — кнопки на всю ширину */
+/* Вертикальный список альбомов */
 .album-list-vertical {
   display: flex;
   flex-direction: column;
@@ -131,7 +131,7 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   text-align: left;
   cursor: pointer;
   transition: all 160ms ease;
-  width: 100%; /* на всю ширину боковой панели */
+  width: 100%;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -191,15 +191,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 
 .tracks-list-vertical .card:hover {
   background: rgba(255,255,255,0.15);
-}
-
-/* Подсветка текущего играющего трека */
-.tracks-list-vertical .card.playing-track {
-  background: rgba(255, 204, 0, 0.2);
-  border: 2px solid #ffcc00;
-  box-shadow: 0 0 12px rgba(255, 204, 0, 0.4);
-  transform: scale(1.02);
-  transition: all 0.3s ease;
 }
 
 .tracks-list-vertical .track-cover {
@@ -267,7 +258,7 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   fill: white;
 }
 
-/* Вертикальный плеер — адаптивный, ширина как у боковой панели */
+/* Вертикальный плеер — адаптивный */
 .player-sidebar {
   background: rgba(0, 0, 0, 0.6);
   border-radius: 12px;
@@ -302,6 +293,16 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 
 .player-sidebar.playing #player-cover-img {
   transform: scale(1.05);
+}
+
+/* Waveform */
+#waveform {
+  width: 100%;
+  height: 80px;
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* Информация */
@@ -429,7 +430,7 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   fill: currentColor;
 }
 
-/* === Адаптивность плеера и боковой панели === */
+/* === Адаптивность плеера === */
 @media (max-width: 900px) {
   .albums-sidebar {
     flex: none;
@@ -444,6 +445,10 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 
   #player-cover {
     max-height: 220px;
+  }
+
+  #waveform {
+    height: 60px;
   }
 
   #player-title-sidebar {
@@ -485,6 +490,10 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 
   #player-cover {
     max-height: 180px;
+  }
+
+  #waveform {
+    height: 50px;
   }
 
   #player-title-sidebar {
