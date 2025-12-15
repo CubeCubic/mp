@@ -30,12 +30,13 @@
   const modalClose = document.getElementById('modal-close');
   const modalTitle = document.getElementById('modal-title');
   const modalLyrics = document.getElementById('modal-lyrics');
-
+  /* 
   const contactBtn = document.getElementById('contact-btn');
   const contactModal = document.getElementById('contact-modal');
   const contactClose = document.getElementById('contact-close');
   const contactForm = document.getElementById('contact-form');
   const contactStatus = document.getElementById('contact-status');
+  */
 
   const shareModal = document.getElementById('share-modal');
   const shareModalClose = document.getElementById('share-modal-close');
@@ -594,4 +595,5 @@
       }
     });
   });
+
 })();
