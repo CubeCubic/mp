@@ -180,6 +180,10 @@
 
     renderTracks();
     renderAlbumList();
+
+    // Сброс текущего трека при смене альбома — начнём с первого
+    currentTrackIndex = -1;
+    updateSidebarPlayer(null);
   }
 
   // --- Поиск ---
@@ -204,10 +208,12 @@
       applySearch();
       renderTracks();
       renderAlbumList();
+      currentTrackIndex = -1;
+      updateSidebarPlayer(null);
     });
   }
 
-  // --- Рендер треков (без кнопки Share) ---
+  // --- Рендер треков ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -225,6 +231,11 @@
         const subIds = albums.filter(a => String(a.parentId || '') === selectedAlbumId).map(a => a.id);
         toRender = filteredTracks.filter(t => String(t.albumId || '') === selectedAlbumId || subIds.includes(t.albumId));
       }
+    }
+
+    // На стартовой странице (нет выбранного альбома) — все треки
+    if (!selectedAlbumId && !selectedSubalbumId && globalSearchInput.value.trim() === '') {
+      toRender = tracks;
     }
 
     if (!toRender.length) {
@@ -257,7 +268,6 @@
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
-      // Текст песни
       if (t.lyrics) {
         const lyricsBtn = document.createElement('button');
         lyricsBtn.type = 'button';
@@ -273,7 +283,6 @@
         actions.appendChild(lyricsBtn);
       }
 
-      // Скачивание
       const stream = getStreamUrl(t);
       const downloadBtnCard = document.createElement('button');
       downloadBtnCard.type = 'button';
@@ -300,22 +309,24 @@
       card.appendChild(actions);
 
       card.addEventListener('click', () => {
-        const idx = tracks.findIndex(tr => String(tr.id) === String(t.id));
-        if (idx >= 0) playTrackByIndex(idx);
+        const idx = toRender.indexOf(t); // индекс в текущем списке
+        playTrackByIndex(idx);
       });
 
       tracksContainer.appendChild(card);
     });
 
+    // Deep-link или автоплей первого трека на старте
     if (pendingTrackToOpen) {
       const id = String(pendingTrackToOpen);
-      const el = tracksContainer.querySelector(`[data-track-id="${id}"]`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        const idx = tracks.findIndex(t => String(t.id) === id);
-        if (idx >= 0) playTrackByIndex(idx);
+      const idx = toRender.findIndex(t => String(t.id) === id);
+      if (idx >= 0) {
+        playTrackByIndex(idx);
       }
       pendingTrackToOpen = null;
+    } else if (currentTrackIndex === -1 && toRender.length > 0) {
+      // На старте или при смене альбома — начинаем с первого трека
+      playTrackByIndex(0);
     }
   }
 
@@ -407,16 +418,16 @@
   }
 
   function playNext() {
-    if (filteredTracks.length <= 1) return;
+    if (filteredTracks.length === 0) return;
     let next = currentTrackIndex + 1;
-    if (next >= filteredTracks.length) next = 0;
+    if (next >= filteredTracks.length) next = 0; // зацикливание
     playTrackByIndex(next);
   }
 
   function playPrev() {
-    if (filteredTracks.length <= 1) return;
+    if (filteredTracks.length === 0) return;
     let prev = currentTrackIndex - 1;
-    if (prev < 0) prev = filteredTracks.length - 1;
+    if (prev < 0) prev = filteredTracks.length - 1; // зацикливание
     playTrackByIndex(prev);
   }
 
