@@ -9,6 +9,7 @@ body {
   background-attachment: fixed;
 }
 
+/* Контейнер сайта */
 .site-wrapper {
   max-width: 1440px;
   margin: 0 auto;
@@ -31,7 +32,9 @@ header h1 {
   color: #ffcc00;
   margin: 12px 0;
   letter-spacing: 1px;
-  text-shadow: 2px 2px 0 #000, 4px 4px 6px rgba(0,0,0,0.6);
+  text-shadow:
+    2px 2px 0 #000,
+    4px 4px 6px rgba(0,0,0,0.6);
 }
 
 #header-badge {
@@ -41,13 +44,18 @@ header h1 {
   top: 22px;
   left: 30px;
   z-index: 10;
+  display: block;
 }
 #header-badge img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  display: block;
   border-radius: 6px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.4), 0 0 12px rgba(255,255,0,0.4);
+  box-shadow:
+    0 4px 6px rgba(0,0,0,0.6),
+    0 8px 16px rgba(0,0,0,0.4),
+    0 0 12px rgba(255,255,0,0.4);
 }
 
 header nav {
@@ -88,6 +96,7 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 .new-main-layout {
   display: flex;
   gap: 24px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 0 20px;
   box-sizing: border-box;
@@ -234,10 +243,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   font-weight: bold;
 }
 
-.tracks-list-vertical .share-button {
-  background: #2b8cff;
-}
-
 .tracks-list-vertical .download-button {
   width: 40px;
   height: 40px;
@@ -251,7 +256,7 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   fill: white;
 }
 
-/* Вертикальный плеер в боковой панели */
+/* Вертикальный плеер — адаптивный */
 .player-sidebar {
   background: rgba(0, 0, 0, 0.6);
   border-radius: 12px;
@@ -260,15 +265,19 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   color: #fff;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 0, 0.2);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  box-sizing: border-box;
 }
 
+/* Обложка — адаптивная */
 #player-cover {
   width: 100%;
   aspect-ratio: 1 / 1;
+  max-height: 280px;
   overflow: hidden;
   border-radius: 10px;
 }
@@ -277,19 +286,30 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.5s ease; /* плавный старт/стоп */
 }
 
+/* Анимация вращения при воспроизведении */
 .player-sidebar.playing #player-cover-img {
-  transform: scale(1.05);
+  animation: rotateCover 20s linear infinite;
 }
 
+@keyframes rotateCover {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Информация */
 #player-info-sidebar {
   text-align: center;
 }
 
 #player-title-sidebar {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: bold;
   white-space: nowrap;
   overflow: hidden;
@@ -300,8 +320,12 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   font-size: 14px;
   color: #ccc;
   margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* Кнопки управления */
 #player-controls-sidebar {
   display: flex;
   justify-content: center;
@@ -312,10 +336,10 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   background: rgba(255, 255, 0, 0.15);
   color: #ffcc00;
   border: none;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -327,80 +351,171 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 }
 
 #play-sidebar {
-  font-size: 24px;
-  width: 56px;
-  height: 56px;
+  font-size: 28px;
+  width: 64px;
+  height: 64px;
 }
 
+/* Прогресс */
 #player-progress-sidebar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: 10px;
+  font-size: 13px;
 }
 
 #progress-sidebar {
   flex: 1;
-  height: 6px;
-  border-radius: 3px;
+  height: 8px;
+  border-radius: 4px;
   background: rgba(255, 255, 0, 0.2);
   appearance: none;
 }
 
 #progress-sidebar::-webkit-slider-thumb {
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: #ffcc00;
   cursor: pointer;
 }
 
+/* Громкость */
 #player-volume-sidebar {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 #volume-sidebar {
   width: 100%;
-  height: 6px;
+  height: 8px;
   appearance: none;
   background: rgba(255, 255, 0, 0.2);
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 #volume-sidebar::-webkit-slider-thumb {
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: #ffcc00;
   cursor: pointer;
 }
 
+/* Кнопки текста и скачивания */
 #show-lyrics-sidebar, #download-sidebar {
   align-self: center;
   margin-top: 8px;
-  padding: 8px 16px;
+  padding: 10px 20px;
   background: #ffcc00;
   color: #000;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  text-decoration: none;
+  font-size: 15px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 #download-sidebar svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   fill: currentColor;
 }
 
-/* Модалки (оставлены без изменений) */
+/* === Адаптивность плеера === */
+@media (max-width: 900px) {
+  .albums-sidebar {
+    flex: none;
+  }
+
+  .player-sidebar {
+    margin-top: 20px;
+    padding: 14px;
+    gap: 12px;
+  }
+
+  #player-cover {
+    max-height: 220px;
+  }
+
+  #player-title-sidebar {
+    font-size: 16px;
+  }
+
+  #player-controls-sidebar button {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  #play-sidebar {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+  }
+
+  #player-progress-sidebar {
+    font-size: 12px;
+  }
+
+  #progress-sidebar, #volume-sidebar {
+    height: 6px;
+  }
+
+  #progress-sidebar::-webkit-slider-thumb,
+  #volume-sidebar::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-sidebar {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  #player-cover {
+    max-height: 180px;
+  }
+
+  #player-title-sidebar {
+    font-size: 15px;
+  }
+
+  #player-artist-sidebar {
+    font-size: 13px;
+  }
+
+  #player-controls-sidebar {
+    gap: 12px;
+  }
+
+  #player-controls-sidebar button {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  #play-sidebar {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+  }
+
+  #show-lyrics-sidebar, #download-sidebar {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Модалки */
 #lyrics-modal.hidden { display: none !important; }
 #lyrics-modal {
   position: fixed; inset: 0;
@@ -434,7 +549,7 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 }
 #toast.visible { opacity: 1; }
 
-/* Адаптивность */
+/* Адаптивность общая */
 @media (max-width: 900px) {
   .new-main-layout {
     flex-direction: column;
@@ -443,8 +558,5 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
     position: static;
     max-height: none;
     overflow: visible;
-  }
-  .player-sidebar {
-    margin-top: 16px;
   }
 }
