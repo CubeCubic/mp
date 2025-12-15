@@ -286,21 +286,11 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease; /* плавный старт/стоп */
+  transition: transform 0.3s ease;
 }
 
-/* Анимация вращения при воспроизведении */
 .player-sidebar.playing #player-cover-img {
-  animation: rotateCover 20s linear infinite;
-}
-
-@keyframes rotateCover {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  transform: scale(1.05);
 }
 
 /* Информация */
