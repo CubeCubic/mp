@@ -281,6 +281,13 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   text-align: left;
   cursor: pointer;
   transition: all 160ms ease;
+
+  /* Новая фиксированная ширина + выравнивание содержимого */
+  width: 200px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .album-list-button:hover {
@@ -292,6 +299,13 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   background: #ffcc00;
   color: #000;
   font-weight: bold;
+}
+
+/* Счётчик внутри кнопки */
+.album-list-button .track-count {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-left: 8px;
 }
 
 /* Georgian всегда сверху */
@@ -397,3 +411,4 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   .site-wrapper { max-width: 1600px; padding-left: 22px; padding-right: 22px; }
 
 }
+
