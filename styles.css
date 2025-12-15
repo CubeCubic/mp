@@ -1,4 +1,255 @@
-/* === Предыдущие стили остаются без изменений до этого места === */
+/* Общие */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background-image: url("images/bigcube.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.site-wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
+}
+
+header {
+  background-color: rgba(0,0,0,0.6);
+  color: #ffcc00;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+}
+
+header h1 {
+  font-size: 48px;
+  font-weight: 800;
+  color: #ffcc00;
+  margin: 12px 0;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0 #000, 4px 4px 6px rgba(0,0,0,0.6);
+}
+
+#header-badge {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  top: 22px;
+  left: 30px;
+  z-index: 10;
+}
+#header-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.4), 0 0 12px rgba(255,255,0,0.4);
+}
+
+header nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+header nav a, header nav button {
+  color: #fff;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+header nav a:hover, header nav button:hover { text-decoration: underline; }
+
+/* Поисковик */
+#global-search {
+  margin-top: 12px;
+  margin-bottom: 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #111;
+  color: #fff;
+  font-size: 14px;
+  width: 200px;
+}
+
+.controls {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+/* Новый layout */
+.new-main-layout {
+  display: flex;
+  gap: 24px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.albums-sidebar {
+  flex: 0 0 280px;
+  position: sticky;
+  top: 20px;
+  align-self: flex-start;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+/* Вертикальный список альбомов */
+.album-list-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.album-list-button {
+  background: rgba(255, 255, 0, 0.15);
+  color: #ffcc00;
+  border: 1px solid #ffcc00;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 160ms ease;
+  width: 200px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.album-list-button:hover {
+  background: #ffcc00;
+  color: #000;
+}
+
+.album-list-button.selected {
+  background: #ffcc00;
+  color: #000;
+  font-weight: bold;
+}
+
+.album-list-button .track-count {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* Georgian сверху */
+.album-list-button[data-album-name="Georgian"] {
+  order: -1;
+}
+
+/* Секция треков */
+.tracks-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.tracks-header {
+  margin-bottom: 16px;
+}
+
+/* Вертикальный список треков */
+#tracks.tracks-list-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Горизонтальная карточка трека */
+.tracks-list-vertical .card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.tracks-list-vertical .card:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.tracks-list-vertical .track-cover {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.tracks-list-vertical .track-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tracks-list-vertical .track-info h4 {
+  margin: 0;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tracks-list-vertical .track-info div {
+  font-size: 13px;
+  color: #cfcfcf;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tracks-list-vertical .track-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.tracks-list-vertical .track-actions button {
+  font-size: 12px;
+  padding: 6px 10px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tracks-list-vertical .btn-has-lyrics {
+  background: #ffcc00;
+  color: #000;
+  font-weight: bold;
+}
+
+.tracks-list-vertical .share-button {
+  background: #2b8cff;
+}
+
+.tracks-list-vertical .download-button {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  background: #2ecc71;
+}
+
+.tracks-list-vertical .download-button svg {
+  width: 16px;
+  height: 16px;
+  fill: white;
+}
 
 /* Вертикальный плеер в боковой панели */
 .player-sidebar {
@@ -149,8 +400,50 @@
   fill: currentColor;
 }
 
-/* Адаптивность для плеера */
+/* Модалки (оставлены без изменений) */
+#lyrics-modal.hidden { display: none !important; }
+#lyrics-modal {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 2000;
+}
+.modal-box {
+  background: white; color: #000;
+  padding: 16px; border-radius: 6px;
+  max-width: 420px; width: 92%;
+  max-height: 70vh; overflow-y: auto;
+}
+.modal-box h3 { margin-top: 0; font-size: 16px; }
+.modal-box pre { white-space: pre-wrap; font-size: 13px; }
+
+/* Toast */
+#toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 90px;
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  z-index: 3000;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+#toast.visible { opacity: 1; }
+
+/* Адаптивность */
 @media (max-width: 900px) {
+  .new-main-layout {
+    flex-direction: column;
+  }
+  .albums-sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
   .player-sidebar {
     margin-top: 16px;
   }
