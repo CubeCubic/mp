@@ -97,57 +97,61 @@
   }
 
   // --- Рендер списка альбомов с счётчиком ---
-  function renderAlbumList() {
-    if (!albumListContainer) return;
-    albumListContainer.innerHTML = '';
+function renderAlbumList() {
+  if (!albumListContainer) return;
+  albumListContainer.innerHTML = '';
 
-    if (!albums || !albums.length) return;
+  if (!albums || !albums.length) return;
 
-    let mains = albums.filter(a => !a.parentId);
+  let mains = albums.filter(a => !a.parentId);
 
-    mains.sort((a, b) => {
-      if (a.name === 'Georgian') return -1;
-      if (b.name === 'Georgian') return 1;
-      return (a.name || '').localeCompare(b.name || '');
+  mains.sort((a, b) => {
+    if (a.name === 'Georgian') return -1;
+    if (b.name === 'Georgian') return 1;
+    return (a.name || '').localeCompare(b.name || '');
+  });
+
+  mains.forEach(a => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'album-list-button';
+    btn.setAttribute('data-album-id', a.id || '');
+
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = a.name || 'Unnamed';
+    btn.appendChild(nameSpan);
+
+    const subIds = albums
+      .filter(sub => String(sub.parentId || '') === String(a.id))
+      .map(sub => sub.id);
+
+    const trackCount = tracks.filter(t => {
+      const albumId = String(t.albumId || '');
+      return albumId === String(a.id) || subIds.includes(albumId);
+    }).length;
+
+    const countSpan = document.createElement('span');
+    countSpan.className = 'track-count';
+    countSpan.textContent = `(${trackCount})`;
+    btn.appendChild(countSpan);
+
+    if (String(albumSelect.value || '') === String(a.id || '')) {
+      btn.classList.add('selected');
+    }
+
+    // ИСПРАВЛЕННЫЙ ОБРАБОТЧИК
+    btn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      albumSelect.value = String(a.id || '');
+      renderAlbumList();
+      onAlbumChange();
     });
 
-    mains.forEach(a => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'album-list-button';
-      btn.setAttribute('data-album-id', a.id || '');
-
-      const nameSpan = document.createElement('span');
-      nameSpan.textContent = a.name || 'Unnamed';
-      btn.appendChild(nameSpan);
-
-      const subIds = albums
-        .filter(sub => String(sub.parentId || '') === String(a.id))
-        .map(sub => sub.id);
-
-      const trackCount = tracks.filter(t => {
-        const albumId = String(t.albumId || '');
-        return albumId === String(a.id) || subIds.includes(albumId);
-      }).length;
-
-      const countSpan = document.createElement('span');
-      countSpan.className = 'track-count';
-      countSpan.textContent = `(${trackCount})`;
-      btn.appendChild(countSpan);
-
-      if (String(albumSelect.value || '') === String(a.id || '')) {
-        btn.classList.add('selected');
-      }
-
-      btn.addEventListener('click', () => {
-        albumSelect.value = String(a.id || '');
-        renderAlbumList();
-        onAlbumChange();
-      });
-
-      albumListContainer.appendChild(btn);
-    });
-  }
+    albumListContainer.appendChild(btn);
+  });
+}
 
   // --- Альбомы и субальбомы ---
   function buildAlbumSelectors() {
@@ -581,3 +585,4 @@
     updateSidebarPlayer(null);
   });
 })();
+
