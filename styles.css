@@ -482,3 +482,40 @@ section > #tracks {
   .card img.track-cover { aspect-ratio: 16/9; }
   .card { min-height: auto; padding: 8px; }
 }
+
+/* Новый текстовый список альбомов */
+.album-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0 14px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.album-list-button {
+  background: rgba(255, 255, 0, 0.15);
+  color: #ffcc00;
+  border: 1px solid #ffcc00;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.album-list-button:hover {
+  background: #ffcc00;
+  color: #000;
+}
+
+.album-list-button.selected {
+  background: #ffcc00;
+  color: #000;
+  font-weight: bold;
+}
+
+/* Georgian всегда сверху */
+.album-list-button[data-album-name="Georgian"] {
+  order: -1;
+}
