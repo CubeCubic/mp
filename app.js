@@ -2,6 +2,7 @@
   // --- Настройки ---
   const HIDE_PLAYER_ON_PAUSE = true; // опция: скрывать плеер при паузе
 
+  // Элементы управления
   const albumSelect = document.getElementById('album-select');
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
@@ -44,6 +45,15 @@
   const shareMail = document.getElementById('share-mail');
   const toast = document.getElementById('toast');
 
+  // Download modal elements
+  const downloadModal = document.getElementById('download-modal');
+  const downloadModalClose = document.getElementById('download-modal-close');
+  const downloadModalTitle = document.getElementById('download-modal-title');
+  const downloadModalFilename = document.getElementById('download-modal-filename');
+  const downloadProgress = document.getElementById('download-progress');
+  const downloadProgressText = document.getElementById('download-progress-text');
+  const downloadModalStatus = document.getElementById('download-modal-status');
+
   // Контакты
   const contactBtn = document.getElementById('contact-btn');
   const contactModal = document.getElementById('contact-modal');
@@ -51,6 +61,7 @@
   const contactForm = document.getElementById('contact-form');
   const contactStatus = document.getElementById('contact-status');
 
+  // Данные
   let albums = [];
   let tracks = [];
   let currentTrackIndex = -1;
@@ -59,10 +70,10 @@
   let searchQuery = '';
   let filteredTracks = [];
 
-  // Для deep-link: если при загрузке есть trackId, сохраняем и применим после рендера
+  // Для deep-link
   let pendingTrackToOpen = null;
 
-  // Лайки (localStorage)
+  // Лайки (localStorage) — код остаётся, кнопки скрыты через CSS
   const LIKES_KEY = 'trackLikes';
   const LIKED_KEY = 'likedTracks';
 
@@ -119,10 +130,10 @@
   }
   function safeStr(v) { return (v == null) ? '' : String(v); }
 
-  // --- Album thumbs ---
+  // --- Миниатюры альбомов ---
   function albumImageForName(name) {
     if (!name) return 'images/default-album.jpeg';
-    const n = name.toLowerCase();
+    const n = String(name).toLowerCase();
     if (n.includes('instrumental')) return 'images/instrumental.jpeg';
     if (n.includes('georgian')) return 'images/georgian.jpeg';
     if (n.includes('jazz')) return 'images/jazz.jpeg';
@@ -188,7 +199,7 @@
     });
   }
 
-  // Album selectors
+  // Селекторы альбомов
   function buildAlbumSelectors() {
     if (albumSelect) {
       albumSelect.value = '';
@@ -215,11 +226,11 @@
         subs.forEach(s => subalbumSelect.appendChild(optionEl(s.id, s.name)));
         subalbumSelect.disabled = false;
         subalbumSelect.style.display = '';
-        subalbumLabel.style.display = '';
+        if (subalbumLabel) subalbumLabel.style.display = '';
       } else {
         subalbumSelect.disabled = true;
         subalbumSelect.style.display = 'none';
-        subalbumLabel.style.display = 'none';
+        if (subalbumLabel) subalbumLabel.style.display = 'none';
       }
       subalbumSelect.value = '';
     }
@@ -248,7 +259,7 @@
     filteredTracks = query ? tracks.filter(t => matchesQuery(t, query)) : [];
   }
 
-  // Global search
+  // Глобальный поиск
   function applyGlobalSearch(query) {
     const q = (query || '').trim().toLowerCase();
     searchQuery = q;
@@ -280,9 +291,7 @@
   // --- Динамический отступ для .site-wrapper ---
   const siteWrapper = document.querySelector('.site-wrapper');
   let resizeTimer = null;
-  function getSafeAreaInsetBottom() {
-    return 0;
-  }
+  function getSafeAreaInsetBottom() { return 0; }
   function updatePlayerPadding() {
     if (!siteWrapper) return;
     const isVisible = playerEl && playerEl.classList.contains('visible');
@@ -359,9 +368,9 @@
 
     const encodedUrl = encodeURIComponent(url);
     const encodedText = encodeURIComponent((text || title || '') + ' ' + url);
-    shareTwitter.href = `https://twitter.com/intent/tweet?text=${encodedText}`;
-    shareTelegram.href = `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(text || title || '')}`;
-    shareMail.href = `mailto:?subject=${encodeURIComponent(title || 'Share')}&body=${encodeURIComponent((text || '') + '\n\n' + url)}`;
+    if (shareTwitter) shareTwitter.href = `https://twitter.com/intent/tweet?text=${encodedText}`;
+    if (shareTelegram) shareTelegram.href = `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(text || title || '')}`;
+    if (shareMail) shareMail.href = `mailto:?subject=${encodeURIComponent(title || 'Share')}&body=${encodeURIComponent((text || '') + '\n\n' + url)}`;
   }
 
   async function doShare({ title, text, url }) {
@@ -370,6 +379,7 @@
         await navigator.share({ title: title || document.title, text: text || '', url });
         return;
       } catch (err) {
+        // отмена или ошибка — идём в fallback
       }
     }
     const copied = await copyToClipboard(url);
@@ -382,7 +392,7 @@
     }
   }
 
-  // Toast
+  // --- Toast ---
   let toastTimer = null;
   function showToast(msg, ms = 1600) {
     if (!toast) return;
@@ -397,30 +407,153 @@
     }, ms);
   }
 
-  // --- Download helper (used by card download icon) ---
-  // Создаёт временный <a> и инициирует скачивание.
-  function triggerDownload(url, suggestedName) {
+  // --- Download modal helpers ---
+  function showDownloadModal(filename, statusText) {
+    if (!downloadModal) return;
+    if (downloadModalTitle) downloadModalTitle.textContent = 'Скачивание';
+    if (downloadModalFilename) downloadModalFilename.textContent = filename || 'Файл';
+    if (downloadModalStatus) downloadModalStatus.textContent = statusText || '';
+    if (downloadProgress) downloadProgress.value = 0;
+    if (downloadProgressText) downloadProgressText.textContent = '0%';
+    downloadModal.classList.remove('hidden');
+    downloadModal.setAttribute('aria-hidden', 'false');
+  }
+  function hideDownloadModal() {
+    if (!downloadModal) return;
+    downloadModal.classList.add('hidden');
+    downloadModal.setAttribute('aria-hidden', 'true');
+  }
+  if (downloadModalClose) {
+    downloadModalClose.addEventListener('click', () => {
+      hideDownloadModal();
+    });
+  }
+
+  // --- Download logic with File System Access API fallback ---
+  async function downloadWithPickerOrFallback(url, suggestedName) {
     if (!url) {
       showToast('Файл не найден');
       return;
     }
+
+    showDownloadModal(suggestedName || 'Файл', 'Подготовка...');
+
+    // Попытка использовать File System Access API (Chromium)
+    if (window.showSaveFilePicker) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network error');
+        const contentLength = response.headers.get('Content-Length');
+        const total = contentLength ? parseInt(contentLength, 10) : NaN;
+
+        const opts = {
+          suggestedName: suggestedName || (new URL(url)).pathname.split('/').pop() || 'file',
+          types: [{
+            description: 'Audio',
+            accept: { 'audio/*': ['.mp3', '.wav', '.ogg', '.m4a'] }
+          }]
+        };
+        const handle = await window.showSaveFilePicker(opts);
+        const writable = await handle.createWritable();
+
+        const reader = response.body.getReader();
+        let received = 0;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          await writable.write(value);
+          received += value.length;
+          if (!isNaN(total)) {
+            const pct = Math.round((received / total) * 100);
+            if (downloadProgress) downloadProgress.value = pct;
+            if (downloadProgressText) downloadProgressText.textContent = pct + '%';
+            if (downloadModalStatus) downloadModalStatus.textContent = `Скачано ${Math.round(received / 1024)} KB`;
+          } else {
+            if (downloadProgressText) downloadProgressText.textContent = `${Math.round(received / 1024)} KB`;
+            if (downloadModalStatus) downloadModalStatus.textContent = 'Скачивание...';
+          }
+        }
+        await writable.close();
+        if (downloadProgress) downloadProgress.value = 100;
+        if (downloadProgressText) downloadProgressText.textContent = '100%';
+        if (downloadModalStatus) downloadModalStatus.textContent = 'Сохранено';
+        showToast('Сохранено в выбранном месте');
+        setTimeout(hideDownloadModal, 900);
+        return;
+      } catch (err) {
+        console.warn('FS API download failed, fallback to anchor download', err);
+        // Переходим к фолбеку ниже
+      }
+    }
+
+    // Фолбек: fetch → blob → временный <a download>
     try {
-      const a = document.createElement('a');
-      a.href = url;
-      if (suggestedName) a.download = suggestedName;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast('Скачивание началось');
-    } catch (e) {
-      // fallback: открыть в новой вкладке
-      window.open(url, '_blank', 'noopener');
-      showToast('Открылось в новой вкладке');
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network error');
+      const contentLength = response.headers.get('Content-Length');
+      const total = contentLength ? parseInt(contentLength, 10) : NaN;
+
+      if (response.body && response.body.getReader) {
+        const reader = response.body.getReader();
+        const chunks = [];
+        let received = 0;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.length;
+          if (!isNaN(total)) {
+            const pct = Math.round((received / total) * 100);
+            if (downloadProgress) downloadProgress.value = pct;
+            if (downloadProgressText) downloadProgressText.textContent = pct + '%';
+            if (downloadModalStatus) downloadModalStatus.textContent = `Скачано ${Math.round(received / 1024)} KB`;
+          } else {
+            if (downloadProgressText) downloadProgressText.textContent = `${Math.round(received / 1024)} KB`;
+            if (downloadModalStatus) downloadModalStatus.textContent = 'Скачивание...';
+          }
+        }
+        const blob = new Blob(chunks);
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        if (suggestedName) a.download = suggestedName;
+        else {
+          try {
+            a.download = (new URL(url)).pathname.split('/').pop() || 'file';
+          } catch (e) { a.download = 'file'; }
+        }
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+        if (downloadProgress) downloadProgress.value = 100;
+        if (downloadProgressText) downloadProgressText.textContent = '100%';
+        if (downloadModalStatus) downloadModalStatus.textContent = 'Скачивание началось';
+        showToast('Скачивание началось');
+        setTimeout(hideDownloadModal, 900);
+        return;
+      } else {
+        // Без потокового API — просто инициируем скачивание
+        const a = document.createElement('a');
+        a.href = url;
+        if (suggestedName) a.download = suggestedName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        if (downloadModalStatus) downloadModalStatus.textContent = 'Скачивание началось';
+        showToast('Скачивание началось');
+        setTimeout(hideDownloadModal, 900);
+        return;
+      }
+    } catch (err) {
+      console.error('Download failed', err);
+      if (downloadModalStatus) downloadModalStatus.textContent = 'Ошибка скачивания';
+      showToast('Ошибка скачивания');
     }
   }
 
-  // --- Player functions ---
+  // --- Плеер ---
   function playTrackByIndex(index) {
     if (index < 0 || index >= tracks.length) return;
     currentTrackIndex = index;
@@ -445,6 +578,7 @@
       isPlaying = true;
       setPlayerVisible(true);
       updatePlayButton();
+      // Обновляем URL под текущий трек (без перезагрузки)
       const newUrl = buildShareUrlForTrack(t.id);
       try {
         history.replaceState(null, '', newUrl);
@@ -531,7 +665,7 @@
     });
   }
 
-  // --- Render tracks (adds download icon button per card) ---
+  // --- Рендер треков (включая share и download-иконку) ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -619,7 +753,6 @@
       downloadBtnCard.type = 'button';
       downloadBtnCard.className = 'download-button';
       downloadBtnCard.setAttribute('aria-label', `Download ${t.title || ''}`);
-      // SVG иконка стрелки вниз
       downloadBtnCard.innerHTML = `
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/>
@@ -628,14 +761,13 @@
       if (stream) {
         downloadBtnCard.addEventListener('click', (ev) => {
           ev.stopPropagation();
-          // Попытка предложить имя файла из URL
           let suggested = '';
           try {
             const u = new URL(stream);
             const parts = u.pathname.split('/');
             suggested = parts[parts.length - 1] || '';
-          } catch (e) { suggested = ''; }
-          triggerDownload(stream, suggested);
+          } catch (e) { suggested = (t.title || 'track') + '.mp3'; }
+          downloadWithPickerOrFallback(stream, suggested);
         });
       } else {
         downloadBtnCard.disabled = true;
@@ -659,7 +791,7 @@
       });
       actions.appendChild(shareBtn);
 
-      // Like (код остаётся, но кнопка скрыта через CSS)
+      // Like (код остаётся, кнопка скрыта через CSS)
       const likeBtn = document.createElement('button');
       likeBtn.type = 'button';
       likeBtn.className = 'like-button';
@@ -703,7 +835,7 @@
       tracksContainer.appendChild(card);
     });
 
-    // После рендера — если есть pendingTrackToOpen, прокрутить и/или воспроизвести
+    // После рендера — deep-link (если есть)
     if (pendingTrackToOpen) {
       const id = String(pendingTrackToOpen);
       const el = tracksContainer.querySelector(`[data-track-id="${id}"]`);
@@ -718,7 +850,7 @@
     }
   }
 
-  // --- Load data ---
+  // --- Загрузка данных ---
   async function loadData() {
     try {
       const res = await fetch('tracks.json', { cache: 'no-store' });
@@ -846,6 +978,7 @@
     }
   }
 
+  // Инициализация
   document.addEventListener('DOMContentLoaded', () => {
     parseDeepLink();
     loadData();
