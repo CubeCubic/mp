@@ -28,11 +28,11 @@
       <section>
         <div class="controls">
           <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
-
-          <label for="album-select">ალბომები</label>
+          
+          <label for="album-select" style="display:none;">ალბომები</label>
           <input type="hidden" id="album-select" value="">
-          <div id="album-thumbs" class="album-thumbs" aria-hidden="false"></div>
-
+          <div id="album-list" class="album-list"></div>
+          
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
           <select id="subalbum-select" style="display:none;">
             <option value="">— —</option>
