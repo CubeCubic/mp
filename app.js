@@ -119,7 +119,7 @@
   }
   function safeStr(v) { return (v == null) ? '' : String(v); }
 
-  // --- Новый рендер списка альбомов ---
+  // --- Обновлённый рендер списка альбомов с счётчиком треков ---
   function renderAlbumList() {
     if (!albumListContainer) return;
     albumListContainer.innerHTML = '';
@@ -140,8 +140,28 @@
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'album-list-button';
-      btn.textContent = a.name || 'Unnamed';
       btn.setAttribute('data-album-id', a.id || '');
+
+      // Название альбома
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = a.name || 'Unnamed';
+      btn.appendChild(nameSpan);
+
+      // Подсчёт треков в альбоме (включая все субальбомы)
+      const subIds = albums
+        .filter(sub => String(sub.parentId || '') === String(a.id))
+        .map(sub => sub.id);
+
+      const trackCount = tracks.filter(t => {
+        const albumId = String(t.albumId || '');
+        return albumId === String(a.id) || subIds.includes(albumId);
+      }).length;
+
+      // Счётчик
+      const countSpan = document.createElement('span');
+      countSpan.className = 'track-count';
+      countSpan.textContent = `(${trackCount})`;
+      btn.appendChild(countSpan);
 
       // Подсветка выбранного
       if (String(albumSelect.value || '') === String(a.id || '')) {
@@ -150,7 +170,7 @@
 
       btn.addEventListener('click', () => {
         albumSelect.value = String(a.id || '');
-        renderAlbumList(); // обновляем подсветку
+        renderAlbumList(); // обновляем подсветку и счётчики
         onAlbumChange();
       });
 
@@ -194,7 +214,7 @@
       subalbumSelect.value = '';
     }
     renderTracks();
-    renderAlbumList(); // обновляем подсветку после смены
+    renderAlbumList(); // обновляем подсветку и счётчики после смены
   }
   function onSubalbumChange() { renderTracks(); }
 
@@ -225,6 +245,7 @@
     globalSearchInput.addEventListener('input', () => {
       applySearch();
       renderTracks();
+      renderAlbumList(); // обновляем счётчики после поиска
     });
   }
 
@@ -309,7 +330,6 @@
       downloadBtnCard.type = 'button';
       downloadBtnCard.className = 'download-button';
       downloadBtnCard.setAttribute('aria-label', `ჩამოტვირთვა: ${t.title || ''}`);
-      // SVG иконка стрелки вниз
       downloadBtnCard.innerHTML = `
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/>
@@ -444,8 +464,7 @@
   const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) refreshBtn.addEventListener('click', () => loadData());
 
-  // --- Плеер логика (остаётся без изменений) ---
-
+  // --- Плеер логика ---
   function playTrackByIndex(idx) {
     if (idx < 0 || idx >= filteredTracks.length) return;
     currentTrackIndex = idx;
@@ -615,9 +634,7 @@
     }
   }
 
-  // --- Остальные модалки и шаринг (без изменений) ---
-  // Contact modal, share modal, toast, etc. — оставляем как было
-
+  // --- Остальные модалки и функции ---
   if (contactBtn && contactModal && contactClose) {
     contactBtn.addEventListener('click', () => {
       contactModal.classList.remove('hidden');
@@ -699,7 +716,6 @@
     });
   }
 
-  // Вспомогательные функции шаринга
   function buildShareUrlForTrack(trackId) {
     const base = location.origin + location.pathname;
     return `${base}?track=${encodeURIComponent(trackId)}`;
@@ -716,7 +732,6 @@
         return;
       } catch (e) {}
     }
-    // fallback — модалка
     shareUrlInput.value = url;
     shareTwitter.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
     shareTelegram.href = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
