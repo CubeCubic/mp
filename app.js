@@ -518,20 +518,26 @@
   });
 
   // --- Модалки ---
-  if (modalClose) modalClose.addEventListener('click', () => {
-    lyricsModal.classList.add('hidden');
-    lyricsModal.setAttribute('aria-hidden', 'true');
-  });
+  if (modalClose) {
+    modalClose.addEventListener('click', () => {
+      lyricsModal.classList.add('hidden');
+      lyricsModal.setAttribute('aria-hidden', 'true');
+    });
+  }
 
-  if (contactClose) contactClose.addEventListener('click', () => {
-    contactModal.classList.add('hidden');
-    contactModal.setAttribute('aria-hidden', 'true');
-  });
+  if (contactClose) {
+    contactClose.addEventListener('click', () => {
+      contactModal.classList.add('hidden');
+      contactModal.setAttribute('aria-hidden', 'true');
+    });
+  }
 
-  if (shareModalClose) shareModalClose.addEventListener('click', () => {
-    shareModal.classList.add('hidden');
-    shareModal.setAttribute('aria-hidden', 'true');
-  });
+  if (shareModalClose) {
+    shareModalClose.addEventListener('click', () => {
+      shareModal.classList.add('hidden');
+      shareModal.setAttribute('aria-hidden', 'true');
+    });
+  }
 
   if (shareCopyBtn) {
     shareCopyBtn.addEventListener('click', async () => {
@@ -554,9 +560,38 @@
     audio.volume = parseFloat(volumeSidebar?.value || 1);
     updateSidebarPlayer(null);
 
-    contactBtn.addEventListener('click', () => {
-      contactModal.classList.remove('hidden');
-      contactModal.setAttribute('aria-hidden', 'false');
+    // Кнопка Contact в меню
+    if (contactBtn) {
+      contactBtn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        contactModal.classList.remove('hidden');
+        contactModal.setAttribute('aria-hidden', 'false');
+      });
+    }
+
+    // Закрытие модалок по клику на overlay
+    [lyricsModal, contactModal, shareModal].forEach(modal => {
+      if (modal) {
+        modal.addEventListener('click', (ev) => {
+          if (ev.target === modal) {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+          }
+        });
+      }
+    });
+
+    // Escape для всех модалок
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape') {
+        [lyricsModal, contactModal, shareModal].forEach(m => {
+          if (m && !m.classList.contains('hidden')) {
+            m.classList.add('hidden');
+            m.setAttribute('aria-hidden', 'true');
+          }
+        });
+      }
     });
   });
 })();
