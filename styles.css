@@ -193,6 +193,14 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   background: rgba(255,255,255,0.15);
 }
 
+.tracks-list-vertical .card.playing-track {
+  background: rgba(255, 204, 0, 0.2);
+  border: 2px solid #ffcc00;
+  box-shadow: 0 0 12px rgba(255, 204, 0, 0.4);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
 .tracks-list-vertical .track-cover {
   width: 70px;
   height: 70px;
@@ -293,16 +301,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 
 .player-sidebar.playing #player-cover-img {
   transform: scale(1.05);
-}
-
-/* Waveform */
-#waveform {
-  width: 100%;
-  height: 80px;
-  margin-top: 10px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
 }
 
 /* Информация */
@@ -447,10 +445,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
     max-height: 220px;
   }
 
-  #waveform {
-    height: 60px;
-  }
-
   #player-title-sidebar {
     font-size: 16px;
   }
@@ -490,10 +484,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 
   #player-cover {
     max-height: 180px;
-  }
-
-  #waveform {
-    height: 50px;
   }
 
   #player-title-sidebar {

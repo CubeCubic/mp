@@ -25,9 +25,6 @@
 
   const audio = document.getElementById('audio');
 
-  // Waveform
-  const waveformContainer = document.getElementById('waveform');
-
   // Модалки
   const lyricsModal = document.getElementById('lyrics-modal');
   const modalClose = document.getElementById('modal-close');
@@ -44,7 +41,6 @@
   let filteredTracks = [];
   let pendingTrackToOpen = null;
   let userHasInteracted = false;
-  let wavesurfer = null; // объект wavesurfer.js
 
   // --- Утилиты ---
   function formatTime(sec) {
@@ -395,7 +391,7 @@
 
   if (refreshBtn) refreshBtn.addEventListener('click', loadData);
 
-  // --- Плеер с waveform ---
+  // --- Плеер ---
   function updateSidebarPlayer(t = null) {
     if (!t) {
       playerTitleSidebar.textContent = 'აირჩიეთ ტრეკი';
@@ -405,11 +401,6 @@
       playerSidebar.classList.remove('playing');
       showLyricsSidebar.style.display = 'none';
       downloadSidebar.style.display = 'none';
-
-      if (wavesurfer) {
-        wavesurfer.destroy();
-        wavesurfer = null;
-      }
       return;
     }
 
@@ -433,37 +424,6 @@
     } else {
       downloadSidebar.style.display = 'none';
     }
-
-    // Waveform инициализация или обновление
-    if (!wavesurfer) {
-      wavesurfer = WaveSurfer.create({
-        container: waveformContainer,
-        waveColor: '#aaa',
-        progressColor: '#ffcc00',
-        cursorColor: '#ffcc00',
-        barWidth: 3,
-        barRadius: 3,
-        cursorWidth: 2,
-        height: 80,
-        barGap: 2,
-        responsive: true,
-        normalize: true,
-        backend: 'WebAudio', // лучше для визуализации
-      });
-
-      // Синхронизация с основным аудио
-      audio.addEventListener('timeupdate', () => {
-        if (audio.duration) {
-          const percent = audio.currentTime / audio.duration;
-          if (wavesurfer) wavesurfer.seekTo(percent);
-        }
-      });
-
-      audio.addEventListener('play', () => wavesurfer && wavesurfer.play());
-      audio.addEventListener('pause', () => wavesurfer && wavesurfer.pause());
-    }
-
-    wavesurfer.load(stream || '');
   }
 
   function playTrackByIndex(idx) {
