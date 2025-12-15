@@ -30,21 +30,6 @@
   const modalClose = document.getElementById('modal-close');
   const modalTitle = document.getElementById('modal-title');
   const modalLyrics = document.getElementById('modal-lyrics');
-  /* 
-  const contactBtn = document.getElementById('contact-btn');
-  const contactModal = document.getElementById('contact-modal');*/
-  const contactClose = document.getElementById('contact-close');
-  const contactForm = document.getElementById('contact-form');
-  const contactStatus = document.getElementById('contact-status');
-  
-
-  const shareModal = document.getElementById('share-modal');
-  const shareModalClose = document.getElementById('share-modal-close');
-  const shareUrlInput = document.getElementById('share-url-input');
-  const shareCopyBtn = document.getElementById('share-copy-btn');
-  const shareTwitter = document.getElementById('share-twitter');
-  const shareTelegram = document.getElementById('share-telegram');
-  const shareMail = document.getElementById('share-mail');
 
   const toast = document.getElementById('toast');
   const refreshBtn = document.getElementById('refresh-btn');
@@ -94,36 +79,6 @@
     a.href = url;
     if (filename) a.download = filename;
     a.click();
-  }
-
-  function buildShareUrlForTrack(trackId) {
-    const base = location.origin + location.pathname;
-    return `${base}?track=${encodeURIComponent(trackId)}`;
-  }
-
-  async function doShare({ title, text, url }) {
-    if (navigator.share && navigator.canShare && navigator.canShare({ url })) {
-      try {
-        await navigator.share({ title, text, url });
-        return;
-      } catch {}
-    }
-
-    shareUrlInput.value = url;
-    shareTwitter.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-    shareTelegram.href = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-    shareMail.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(text + '\n\n' + url)}`;
-    shareModal.classList.remove('hidden');
-    shareModal.setAttribute('aria-hidden', 'false');
-  }
-
-  async function copyToClipboard(text) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch {
-      return false;
-    }
   }
 
   // --- Рендер списка альбомов ---
@@ -227,10 +182,6 @@
     renderAlbumList();
   }
 
-  function onSubalbumChange() {
-    renderTracks();
-  }
-
   // --- Поиск ---
   function matchesQuery(track, query) {
     if (!query) return true;
@@ -256,7 +207,7 @@
     });
   }
 
-  // --- Рендер треков ---
+  // --- Рендер треков (без кнопки Share) ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -306,6 +257,7 @@
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
+      // Текст песни
       if (t.lyrics) {
         const lyricsBtn = document.createElement('button');
         lyricsBtn.type = 'button';
@@ -321,6 +273,7 @@
         actions.appendChild(lyricsBtn);
       }
 
+      // Скачивание
       const stream = getStreamUrl(t);
       const downloadBtnCard = document.createElement('button');
       downloadBtnCard.type = 'button';
@@ -341,19 +294,6 @@
         downloadBtnCard.style.opacity = '0.5';
       }
       actions.appendChild(downloadBtnCard);
-
-      const shareBtn = document.createElement('button');
-      shareBtn.type = 'button';
-      shareBtn.className = 'share-button';
-      shareBtn.textContent = 'Share';
-      shareBtn.addEventListener('click', async (ev) => {
-        ev.stopPropagation();
-        const url = buildShareUrlForTrack(t.id);
-        const title = t.title || 'Cube Cubic';
-        const text = `${t.title || ''} — ${t.artist || ''}`;
-        await doShare({ title, text, url });
-      });
-      actions.appendChild(shareBtn);
 
       card.appendChild(img);
       card.appendChild(info);
@@ -518,7 +458,7 @@
     }
   });
 
-  // --- Модалки ---
+  // Закрытие модалки текстов
   if (modalClose) {
     modalClose.addEventListener('click', () => {
       lyricsModal.classList.add('hidden');
@@ -526,26 +466,21 @@
     });
   }
 
-  if (contactClose) {
-    contactClose.addEventListener('click', () => {
-      contactModal.classList.add('hidden');
-      contactModal.setAttribute('aria-hidden', 'true');
+  if (lyricsModal) {
+    lyricsModal.addEventListener('click', (ev) => {
+      if (ev.target === lyricsModal) {
+        lyricsModal.classList.add('hidden');
+        lyricsModal.setAttribute('aria-hidden', 'true');
+      }
     });
   }
 
-  if (shareModalClose) {
-    shareModalClose.addEventListener('click', () => {
-      shareModal.classList.add('hidden');
-      shareModal.setAttribute('aria-hidden', 'true');
-    });
-  }
-
-  if (shareCopyBtn) {
-    shareCopyBtn.addEventListener('click', async () => {
-      const ok = await copyToClipboard(shareUrlInput.value);
-      if (ok) showToast('Ссылка скопирована');
-    });
-  }
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape' && lyricsModal && !lyricsModal.classList.contains('hidden')) {
+      lyricsModal.classList.add('hidden');
+      lyricsModal.setAttribute('aria-hidden', 'true');
+    }
+  });
 
   // --- Инициализация ---
   function parseDeepLink() {
@@ -560,41 +495,5 @@
 
     audio.volume = parseFloat(volumeSidebar?.value || 1);
     updateSidebarPlayer(null);
-
-    // Кнопка Contact в меню
-    if (contactBtn) {
-      contactBtn.addEventListener('click', (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        contactModal.classList.remove('hidden');
-        contactModal.setAttribute('aria-hidden', 'false');
-      });
-    }
-
-    // Закрытие модалок по клику на overlay
-    [lyricsModal, contactModal, shareModal].forEach(modal => {
-      if (modal) {
-        modal.addEventListener('click', (ev) => {
-          if (ev.target === modal) {
-            modal.classList.add('hidden');
-            modal.setAttribute('aria-hidden', 'true');
-          }
-        });
-      }
-    });
-
-    // Escape для всех модалок
-    document.addEventListener('keydown', (ev) => {
-      if (ev.key === 'Escape') {
-        [lyricsModal, contactModal, shareModal].forEach(m => {
-          if (m && !m.classList.contains('hidden')) {
-            m.classList.add('hidden');
-            m.setAttribute('aria-hidden', 'true');
-          }
-        });
-      }
-    });
   });
-
 })();
-
