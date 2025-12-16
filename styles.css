@@ -589,4 +589,12 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
     max-height: none;
     overflow: visible;
   }
+  /* Стили для надписи "ალბომები" */
+.controls label[for="album-select"] {
+  display: block;
+  margin: 16px 0 8px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffcc00;
+}
 }
