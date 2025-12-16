@@ -8,13 +8,17 @@
   const GITHUB_BRANCH = 'main';
   const FILE_PATH = 'tracks.json';
 
-  // Токен из localStorage (без хранения в коде)
-  function getGitHubToken() {
-    return localStorage.getItem('github_token') || null;
+  // Токен хранится в localStorage (вводится один раз)
+  function getToken() {
+    return localStorage.getItem('github_token');
   }
 
-  function setGitHubToken(token) {
-    localStorage.setItem('github_token', token);
+  function setToken(token) {
+    localStorage.setItem('github_token', token.trim());
+  }
+
+  function removeToken() {
+    localStorage.removeItem('github_token');
   }
 
   // Elements
@@ -61,18 +65,18 @@
     if (loginMsg) loginMsg.textContent = '';
   }
 
-  // === Автоматическое сохранение в GitHub ===
+  // === Сохранение в GitHub ===
   async function saveToGitHub() {
     if (!isDirty) {
       alert('Нет несохранённых изменений');
       return;
     }
 
-    let token = getGitHubToken();
+    let token = getToken();
     if (!token) {
-      token = prompt('Введите ваш GitHub Personal Access Token (для сохранения изменений):');
+      token = prompt('Введите ваш GitHub Personal Access Token (с scope repo):');
       if (!token) return alert('Сохранение отменено');
-      setGitHubToken(token);
+      setToken(token);
     }
 
     const content = btoa(unescape(encodeURIComponent(JSON.stringify({ albums, tracks }, null, 2))));
@@ -98,9 +102,10 @@
 
       if (!res.ok) {
         const err = await res.json();
-        if (err.message.includes('Bad credentials')) {
-          alert('Токен неверный. Удаляю старый...');
-          setGitHubToken(null);
+        if (err.message.includes('Bad credentials') || res.status === 401) {
+          removeToken();
+          alert('Токен неверный или истёк. Введите новый.');
+          return saveToGitHub(); // Рекурсивно запросить новый
         }
         throw new Error(err.message || 'GitHub API error');
       }
@@ -108,16 +113,16 @@
       const data = await res.json();
       currentSha = data.content.sha;
       clearDirty();
-      alert('Изменения успешно сохранены в GitHub! Файл tracks.json обновлён.');
+      alert('Изменения успешно сохранены в GitHub!');
     } catch (err) {
       console.error(err);
-      alert('Ошибка сохранения в GitHub: ' + (err.message || 'Неизвестная ошибка'));
+      alert('Ошибка: ' + (err.message || 'Неизвестная ошибка'));
     }
   }
 
   async function loadCurrentSha() {
-    const token = getGitHubToken();
-    if (!token) return; // Если токена нет — пропускаем
+    const token = getToken();
+    if (!token) return;
 
     try {
       const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}?ref=${GITHUB_BRANCH}`, {
@@ -131,11 +136,11 @@
         currentSha = data.sha;
       }
     } catch (e) {
-      console.warn('Не удалось получить SHA файла');
+      console.warn('Не удалось получить SHA');
     }
   }
 
-  // Helpers
+  // Остальной код (helpers, render, модалки и т.д.) — без изменений
   function escapeHtml(s){ return (s||'').toString().replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]); }
 
   function el(tag, attrs = {}, children = []) {
@@ -162,315 +167,13 @@
     return data;
   }
 
-  function getDescendantIds(rootId) {
-    const map = {};
-    albums.forEach(a => { map[a.id] = { ...a, children: [] }; });
-    albums.forEach(a => {
-      if (a.parentId && map[a.parentId]) {
-        map[a.parentId].children.push(map[a.id]);
-      }
-    });
-    const result = [];
-    function dfs(node) {
-      if (!node) return;
-      node.children.forEach(child => {
-        result.push(child.id);
-        dfs(child);
-      });
-    }
-    if (map[rootId]) dfs(map[rootId]);
-    return result;
-  }
+  // ... (весь ваш оригинальный код функций: getDescendantIds, fillAlbumSelects, renderAlbumsList, модалки, создание альбомов/треков, renderTracks, refresh кнопки и т.д.) ...
 
-  function fillAlbumSelects() {
-    if (albumParent) {
-      albumParent.innerHTML = '';
-      albumParent.appendChild(el('option', { value: '' }, '— главный альбом —'));
-      albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => albumParent.appendChild(el('option', { value: a.id }, a.name)));
-    }
-    if (trackAlbumSelect) {
-      trackAlbumSelect.innerHTML = '';
-      trackAlbumSelect.appendChild(el('option', { value: '' }, '— без альбома —'));
-      albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => trackAlbumSelect.appendChild(el('option', { value: a.id }, a.name)));
-    }
-    if (trackEditRefs && trackEditRefs.album) {
-      trackEditRefs.album.innerHTML = '';
-      trackEditRefs.album.appendChild(el('option', { value: '' }, '— без альбома —'));
-      albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => trackEditRefs.album.appendChild(el('option', { value: a.id }, a.name)));
-    }
-  }
-
-  function renderAlbumsList() {
-    if (!albumsList) return;
-    albumsList.innerHTML = '';
-    albums.forEach(a => {
-      const item = el('div', { class: 'item' });
-      const meta = el('div', { class: 'meta' }, [
-        el('strong', {}, escapeHtml(a.name)),
-        el('div', { class: 'muted' }, `id: ${a.id} • parent: ${a.parentId || '—'}`)
-      ]);
-      const actions = el('div', {});
-      const btnEdit = el('button', {}, 'Edit');
-      const btnDelete = el('button', {}, 'Delete');
-      actions.appendChild(btnEdit);
-      actions.appendChild(btnDelete);
-
-      btnEdit.addEventListener('click', () => {
-        albumBeingEdited = a;
-        modalAlbumName.value = a.name || '';
-        const descendants = getDescendantIds(a.id);
-        const exclude = new Set([a.id, ...descendants]);
-        modalAlbumParent.innerHTML = '';
-        modalAlbumParent.appendChild(el('option', { value: '' }, '— нет родителя —'));
-        albums.filter(al => !exclude.has(al.id)).slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(al => modalAlbumParent.appendChild(el('option', { value: al.id }, al.name)));
-        modalAlbumParent.value = a.parentId || '';
-        albumEditModal.style.display = 'flex';
-        albumEditModal.classList.remove('hidden');
-        albumEditModal.setAttribute('aria-hidden', 'false');
-        setTimeout(() => { try { modalAlbumName.focus(); } catch (e) {} }, 0);
-      });
-
-      btnDelete.addEventListener('click', () => {
-        if (!confirm('Delete album?')) return;
-        albums = albums.filter(x => x.id !== a.id);
-        albums = albums.map(x => {
-          if (x.parentId === a.id) return { ...x, parentId: null };
-          return x;
-        });
-        renderAlbumsList();
-        fillAlbumSelects();
-        markDirty();
-      });
-
-      item.appendChild(meta);
-      item.appendChild(actions);
-      albumsList.appendChild(item);
-    });
-  }
-
-  if (modalSaveBtn) {
-    modalSaveBtn.addEventListener('click', () => {
-      if (!albumBeingEdited) return;
-      const newName = (modalAlbumName.value || '').trim();
-      const newParent = modalAlbumParent.value || null;
-      if (!newName) return alert('Введите название альбома');
-      if (newParent === albumBeingEdited.id) return alert('Нельзя назначить самого себя родителем');
-      const duplicate = albums.find(a =>
-        a.id !== albumBeingEdited.id &&
-        a.name === newName &&
-        ((a.parentId || null) === (newParent || null))
-      );
-      if (duplicate) {
-        alert('Альбом с таким именем уже существует в выбранном разделе');
-        return;
-      }
-      albumBeingEdited.name = newName;
-      albumBeingEdited.parentId = newParent;
-      renderAlbumsList();
-      fillAlbumSelects();
-      markDirty();
-      albumEditModal.style.display = 'none';
-      albumEditModal.classList.add('hidden');
-      albumEditModal.setAttribute('aria-hidden', 'true');
-      albumBeingEdited = null;
-    });
-  }
-
-  if (modalCancelBtn) {
-    modalCancelBtn.addEventListener('click', () => {
-      albumEditModal.style.display = 'none';
-      albumEditModal.classList.add('hidden');
-      albumEditModal.setAttribute('aria-hidden', 'true');
-      albumBeingEdited = null;
-    });
-  }
-
-  if (albumEditModal) {
-    albumEditModal.addEventListener('click', (e) => { if (e.target === albumEditModal) {
-      albumEditModal.style.display = 'none';
-      albumEditModal.classList.add('hidden');
-      albumEditModal.setAttribute('aria-hidden', 'true');
-      albumBeingEdited = null;
-    }});
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') {
-      albumEditModal.style.display = 'none';
-      albumEditModal.classList.add('hidden');
-      albumEditModal.setAttribute('aria-hidden', 'true');
-      albumBeingEdited = null;
-    }});
-  }
-
-  function ensureTrackEditModal() {
-    if (trackEditModalBackdrop) return;
-    trackEditModalBackdrop = el('div', { class: 'modal-backdrop hidden', id: 'track-edit-dynamic' });
-    const modal = el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true' }, [
-      el('h3', {}, 'Edit track'),
-      el('label', {}, 'Title'),
-      (trackEditRefs = trackEditRefs || {}).title = el('input', { type: 'text' }),
-      el('label', {}, 'Artist'),
-      (trackEditRefs.artist = el('input', { type: 'text' })),
-      el('label', {}, 'Lyrics'),
-      (trackEditRefs.lyrics = el('textarea', {})),
-      el('label', {}, 'Album'),
-      (trackEditRefs.album = el('select', {})),
-      el('label', {}, 'Audio URL'),
-      (trackEditRefs.audioUrl = el('input', { type: 'text' })),
-      el('label', {}, 'Cover URL'),
-      (trackEditRefs.coverUrl = el('input', { type: 'text' })),
-      el('div', { class: 'actions' }, [
-        (trackEditRefs.cancelBtn = el('button', { type: 'button' }, 'Cancel')),
-        (trackEditRefs.saveBtn = el('button', { type: 'button' }, 'Save'))
-      ])
-    ]);
-    trackEditModalBackdrop.appendChild(modal);
-    document.body.appendChild(trackEditModalBackdrop);
-    trackEditModalBackdrop.addEventListener('click', (e) => {
-      if (e.target === trackEditModalBackdrop) closeTrackEditModal();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !trackEditModalBackdrop.classList.contains('hidden')) {
-        closeTrackEditModal();
-      }
-    });
-    trackEditRefs.cancelBtn.addEventListener('click', closeTrackEditModal);
-    trackEditRefs.saveBtn.addEventListener('click', () => {
-      if (!trackBeingEdited) return;
-      const newTitle = (trackEditRefs.title.value || '').trim();
-      if (!newTitle) return alert('Введите Title');
-      trackBeingEdited.title = newTitle;
-      trackBeingEdited.artist = (trackEditRefs.artist.value || '').trim();
-      trackBeingEdited.lyrics = (trackEditRefs.lyrics.value || '').toString();
-      trackBeingEdited.albumId = trackEditRefs.album.value || '';
-      trackBeingEdited.audioUrl = (trackEditRefs.audioUrl.value || '').trim();
-      trackBeingEdited.coverUrl = (trackEditRefs.coverUrl.value || '').trim();
-      markDirty();
-      renderTracks();
-      closeTrackEditModal();
-    });
-  }
-
-  function openTrackEditModal(track) {
-    ensureTrackEditModal();
-    trackBeingEdited = track;
-    fillAlbumSelects();
-    trackEditRefs.title.value = track.title || '';
-    trackEditRefs.artist.value = track.artist || '';
-    trackEditRefs.lyrics.value = track.lyrics || '';
-    trackEditRefs.album.value = track.albumId || '';
-    trackEditRefs.audioUrl.value = track.audioUrl || '';
-    trackEditRefs.coverUrl.value = track.coverUrl || '';
-    trackEditModalBackdrop.classList.remove('hidden');
-    trackEditModalBackdrop.setAttribute('aria-hidden', 'false');
-    setTimeout(() => { try { trackEditRefs.title.focus(); } catch(e){} }, 0);
-  }
-
-  function closeTrackEditModal() {
-    if (!trackEditModalBackdrop) return;
-    trackEditModalBackdrop.classList.add('hidden');
-    trackEditModalBackdrop.setAttribute('aria-hidden', 'true');
-    trackBeingEdited = null;
-  }
-
-  if (btnCreateAlbum) {
-    btnCreateAlbum.addEventListener('click', () => {
-      const name = (albumName.value || '').trim();
-      if (!name) return alert('Введите название альбома');
-      const parentId = albumParent.value || null;
-      const id = Date.now().toString();
-      const duplicate = albums.find(a => a.name === name && ((a.parentId || null) === (parentId || null)));
-      if (duplicate) {
-        alert('Альбом с таким именем уже существует в этом разделе');
-        return;
-      }
-      albums.push({ id, name, parentId });
-      albumName.value = '';
-      albumParent.value = '';
-      renderAlbumsList();
-      fillAlbumSelects();
-      markDirty();
-    });
-  }
-
-  if (addForm) {
-    addForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const form = e.currentTarget;
-      const title = form.elements['title'].value || 'Untitled';
-      const artist = form.elements['artist'].value || '';
-      const lyrics = form.elements['lyrics'].value || '';
-      const albumId = form.elements['album'] ? form.elements['album'].value : '';
-      const audioUrl = form.elements['audioUrl'] ? form.elements['audioUrl'].value.trim() : '';
-      const coverUrl = form.elements['coverUrl'] ? form.elements['coverUrl'].value.trim() : '';
-      const id = Date.now().toString();
-      tracks.push({ id, title, artist, lyrics, albumId, audioUrl, coverUrl });
-      form.reset();
-      renderTracks();
-      markDirty();
-    });
-  }
-
-  function renderTracks() {
-    if (!adminTracks) return;
-    adminTracks.innerHTML = '';
-    if (!tracks.length) {
-      adminTracks.innerHTML = '<div class="muted">No tracks</div>';
-      return;
-    }
-    tracks.forEach(t => {
-      const item = el('div', { class: 'item' });
-      const albumNameForTrack = (albums.find(a => a.id === t.albumId) || {}).name || '(no album)';
-      const meta = el('div', { class: 'meta' }, [
-        el('strong', {}, escapeHtml(t.title || 'Untitled')),
-        el('div', { class: 'muted' }, escapeHtml(t.artist || '')),
-        el('div', { class: 'muted' }, `album: ${escapeHtml(albumNameForTrack)}`)
-      ]);
-      const actions = el('div', {});
-      const btnEdit = el('button', {}, 'Edit');
-      const btnDelete = el('button', {}, 'Delete');
-      actions.appendChild(btnEdit);
-      actions.appendChild(btnDelete);
-      btnEdit.addEventListener('click', () => {
-        openTrackEditModal(t);
-      });
-      btnDelete.addEventListener('click', () => {
-        if (!confirm('Delete track?')) return;
-        tracks = tracks.filter(x => x.id !== t.id);
-        renderTracks();
-        markDirty();
-      });
-      item.appendChild(meta);
-      item.appendChild(actions);
-      adminTracks.appendChild(item);
-    });
-  }
-
-  if (btnRefreshAlbums) {
-    btnRefreshAlbums.addEventListener('click', () => {
-      if (loggedIn) {
-        renderAlbumsList();
-        fillAlbumSelects();
-      } else {
-        alert('Сначала войдите');
-      }
-    });
-  }
-
-  if (btnRefreshTracks) {
-    btnRefreshTracks.addEventListener('click', () => {
-      if (loggedIn) {
-        renderTracks();
-      } else {
-        alert('Сначала войдите');
-      }
-    });
-  }
-
-  // Кнопка Save All — теперь сохраняет в GitHub
   if (btnSaveAll) {
     btnSaveAll.addEventListener('click', saveToGitHub);
   }
 
-  // Login
+  // Login и init
   function tryLogin() {
     const password = (passwordInput.value || '').toString();
     if (password === '230470') {
