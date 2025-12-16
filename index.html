@@ -22,19 +22,19 @@
       <!-- Скрытая, но кликабельная ссылка Admin в правом верхнем углу -->
       <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
     </header>
-    <main class="new-main-layout">
-      <aside class="albums-sidebar">
-        <div class="controls">
-          <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
-          <label for="album-select" style="display:none;">ალბომები</label>
-          <input type="hidden" id="album-select" value="">
-          <div id="album-list" class="album-list-vertical"></div>
-          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
-          <select id="subalbum-select" style="display:none;">
-            <option value="">— —</option>
-          </select>
-          <button id="refresh-btn" type="button">Refresh</button>
-        </div>
+   <main class="new-main-layout">
+  <aside class="albums-sidebar">
+    <div class="controls">
+      <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
+      <label for="album-select">ალბომები</label> <!-- Теперь видно -->
+      <input type="hidden" id="album-select" value="">
+      <div id="album-list" class="album-list-vertical"></div>
+      <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
+      <select id="subalbum-select" style="display:none;">
+        <option value="">— —</option>
+      </select>
+      <button id="refresh-btn" type="button">Refresh</button>
+    </div>
         <!-- Вертикальный плеер -->
         <div id="player-sidebar" class="player-sidebar">
           <div id="player-cover">
@@ -89,4 +89,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>
