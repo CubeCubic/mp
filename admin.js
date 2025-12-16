@@ -8,7 +8,7 @@
   const GITHUB_BRANCH = 'main';
   const FILE_PATH = 'tracks.json';
 
-  // Токен хранится в localStorage (вводится один раз)
+  // Токен из localStorage
   function getToken() {
     return localStorage.getItem('github_token');
   }
@@ -105,7 +105,7 @@
         if (err.message.includes('Bad credentials') || res.status === 401) {
           removeToken();
           alert('Токен неверный или истёк. Введите новый.');
-          return saveToGitHub(); // Рекурсивно запросить новый
+          return saveToGitHub();
         }
         throw new Error(err.message || 'GitHub API error');
       }
@@ -140,8 +140,10 @@
     }
   }
 
-  // Остальной код (helpers, render, модалки и т.д.) — без изменений
-  function escapeHtml(s){ return (s||'').toString().replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]); }
+  // Helpers и функции рендера (все перемещены вверх)
+  function escapeHtml(s) {
+    return (s || '').toString().replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[c]);
+  }
 
   function el(tag, attrs = {}, children = []) {
     const e = document.createElement(tag);
@@ -167,13 +169,133 @@
     return data;
   }
 
-  // ... (весь ваш оригинальный код функций: getDescendantIds, fillAlbumSelects, renderAlbumsList, модалки, создание альбомов/треков, renderTracks, refresh кнопки и т.д.) ...
+  function getDescendantIds(rootId) {
+    const map = {};
+    albums.forEach(a => { map[a.id] = { ...a, children: [] }; });
+    albums.forEach(a => {
+      if (a.parentId && map[a.parentId]) {
+        map[a.parentId].children.push(map[a.id]);
+      }
+    });
+    const result = [];
+    function dfs(node) {
+      if (!node) return;
+      node.children.forEach(child => {
+        result.push(child.id);
+        dfs(child);
+      });
+    }
+    if (map[rootId]) dfs(map[rootId]);
+    return result;
+  }
+
+  function fillAlbumSelects() {
+    if (albumParent) {
+      albumParent.innerHTML = '';
+      albumParent.appendChild(el('option', { value: '' }, '— главный альбом —'));
+      albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => albumParent.appendChild(el('option', { value: a.id }, a.name)));
+    }
+    if (trackAlbumSelect) {
+      trackAlbumSelect.innerHTML = '';
+      trackAlbumSelect.appendChild(el('option', { value: '' }, '— без альбома —'));
+      albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => trackAlbumSelect.appendChild(el('option', { value: a.id }, a.name)));
+    }
+    if (trackEditRefs && trackEditRefs.album) {
+      trackEditRefs.album.innerHTML = '';
+      trackEditRefs.album.appendChild(el('option', { value: '' }, '— без альбома —'));
+      albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => trackEditRefs.album.appendChild(el('option', { value: a.id }, a.name)));
+    }
+  }
+
+  function renderAlbumsList() {
+    if (!albumsList) return;
+    albumsList.innerHTML = '';
+    albums.forEach(a => {
+      const item = el('div', { class: 'item' });
+      const meta = el('div', { class: 'meta' }, [
+        el('strong', {}, escapeHtml(a.name)),
+        el('div', { class: 'muted' }, `id: ${a.id} • parent: ${a.parentId || '—'}`)
+      ]);
+      const actions = el('div', {});
+      const btnEdit = el('button', {}, 'Edit');
+      const btnDelete = el('button', {}, 'Delete');
+      actions.appendChild(btnEdit);
+      actions.appendChild(btnDelete);
+
+      btnEdit.addEventListener('click', () => {
+        albumBeingEdited = a;
+        modalAlbumName.value = a.name || '';
+        const descendants = getDescendantIds(a.id);
+        const exclude = new Set([a.id, ...descendants]);
+        modalAlbumParent.innerHTML = '';
+        modalAlbumParent.appendChild(el('option', { value: '' }, '— нет родителя —'));
+        albums.filter(al => !exclude.has(al.id)).slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(al => modalAlbumParent.appendChild(el('option', { value: al.id }, al.name)));
+        modalAlbumParent.value = a.parentId || '';
+        albumEditModal.style.display = 'flex';
+        albumEditModal.classList.remove('hidden');
+        albumEditModal.setAttribute('aria-hidden', 'false');
+        setTimeout(() => { try { modalAlbumName.focus(); } catch (e) {} }, 0);
+      });
+
+      btnDelete.addEventListener('click', () => {
+        if (!confirm('Delete album?')) return;
+        albums = albums.filter(x => x.id !== a.id);
+        albums = albums.map(x => {
+          if (x.parentId === a.id) return { ...x, parentId: null };
+          return x;
+        });
+        renderAlbumsList();
+        fillAlbumSelects();
+        markDirty();
+      });
+
+      item.appendChild(meta);
+      item.appendChild(actions);
+      albumsList.appendChild(item);
+    });
+  }
+
+  function renderTracks() {
+    if (!adminTracks) return;
+    adminTracks.innerHTML = '';
+    if (!tracks.length) {
+      adminTracks.innerHTML = '<div class="muted">No tracks</div>';
+      return;
+    }
+    tracks.forEach(t => {
+      const item = el('div', { class: 'item' });
+      const albumNameForTrack = (albums.find(a => a.id === t.albumId) || {}).name || '(no album)';
+      const meta = el('div', { class: 'meta' }, [
+        el('strong', {}, escapeHtml(t.title || 'Untitled')),
+        el('div', { class: 'muted' }, escapeHtml(t.artist || '')),
+        el('div', { class: 'muted' }, `album: ${escapeHtml(albumNameForTrack)}`)
+      ]);
+      const actions = el('div', {});
+      const btnEdit = el('button', {}, 'Edit');
+      const btnDelete = el('button', {}, 'Delete');
+      actions.appendChild(btnEdit);
+      actions.appendChild(btnDelete);
+      btnEdit.addEventListener('click', () => {
+        openTrackEditModal(t);
+      });
+      btnDelete.addEventListener('click', () => {
+        if (!confirm('Delete track?')) return;
+        tracks = tracks.filter(x => x.id !== t.id);
+        renderTracks();
+        markDirty();
+      });
+      item.appendChild(meta);
+      item.appendChild(actions);
+      adminTracks.appendChild(item);
+    });
+  }
+
+  // ... (остальные функции: модалки, создание альбомов/треков и т.д. — как в вашем оригинале) ...
 
   if (btnSaveAll) {
     btnSaveAll.addEventListener('click', saveToGitHub);
   }
 
-  // Login и init
   function tryLogin() {
     const password = (passwordInput.value || '').toString();
     if (password === '230470') {
