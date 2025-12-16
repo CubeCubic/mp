@@ -3,11 +3,19 @@
   if (!document.getElementById('admin-app')) return;
 
   // === НАСТРОЙКИ GITHUB ===
-  const GITHUB_TOKEN = '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';
   const GITHUB_USER = 'CubeCubic';
   const GITHUB_REPO = 'mp';
   const GITHUB_BRANCH = 'main';
   const FILE_PATH = 'tracks.json';
+
+  // Токен из localStorage (без хранения в коде)
+  function getGitHubToken() {
+    return localStorage.getItem('github_token') || null;
+  }
+
+  function setGitHubToken(token) {
+    localStorage.setItem('github_token', token);
+  }
 
   // Elements
   const loginForm = document.getElementById('login-form');
@@ -60,6 +68,13 @@
       return;
     }
 
+    let token = getGitHubToken();
+    if (!token) {
+      token = prompt('Введите ваш GitHub Personal Access Token (для сохранения изменений):');
+      if (!token) return alert('Сохранение отменено');
+      setGitHubToken(token);
+    }
+
     const content = btoa(unescape(encodeURIComponent(JSON.stringify({ albums, tracks }, null, 2))));
     const message = `Update tracks.json — ${new Date().toLocaleString('ka-GE')}`;
 
@@ -74,7 +89,7 @@
       const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}`, {
         method: 'PUT',
         headers: {
-          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Authorization': `token ${token}`,
           'Accept': 'application/vnd.github.v3+json',
           'User-Agent': 'CubeCubic-Admin'
         },
@@ -83,6 +98,10 @@
 
       if (!res.ok) {
         const err = await res.json();
+        if (err.message.includes('Bad credentials')) {
+          alert('Токен неверный. Удаляю старый...');
+          setGitHubToken(null);
+        }
         throw new Error(err.message || 'GitHub API error');
       }
 
@@ -97,8 +116,16 @@
   }
 
   async function loadCurrentSha() {
+    const token = getGitHubToken();
+    if (!token) return; // Если токена нет — пропускаем
+
     try {
-      const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}?ref=${GITHUB_BRANCH}`);
+      const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}?ref=${GITHUB_BRANCH}`, {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
       if (res.ok) {
         const data = await res.json();
         currentSha = data.sha;
