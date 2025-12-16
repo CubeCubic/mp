@@ -3,7 +3,7 @@
   if (!document.getElementById('admin-app')) return;
 
   // === НАСТРОЙКИ GITHUB ===
-  const GITHUB_TOKEN = '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';
+  const GITHUB_TOKEN = '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';
   const GITHUB_USER = 'CubeCubic';
   const GITHUB_REPO = 'mp';
   const GITHUB_BRANCH = 'main';
