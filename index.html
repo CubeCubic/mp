@@ -15,11 +15,12 @@
       </div>
       <h1>Cube Cubic</h1>
       <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
+      <!-- Навигация без "მთავარი" -->
       <nav>
-        <a href="index.html">მთავარი</a>
-        <a href="admin.html">Admin</a>
-        <p class="muted">მომწერე: ikakoba@gmail.com</p>
+        <!-- "Admin" перемещён в правый угол отдельно -->
       </nav>
+      <!-- Скрытая, но кликабельная ссылка Admin в правом верхнем углу -->
+      <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
     </header>
     <main class="new-main-layout">
       <aside class="albums-sidebar">
@@ -88,5 +89,4 @@
 
   <script src="app.js"></script>
 </body>
-
 </html>

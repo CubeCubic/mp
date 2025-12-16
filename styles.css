@@ -26,6 +26,35 @@ header {
   position: relative;
 }
 
+/* Скрытая ссылка Admin в правом верхнем углу */
+#hidden-admin-link {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 80px;        /* область клика */
+  height: 40px;
+  z-index: 20;
+  /* Текст полностью скрыт */
+  color: transparent;
+  font-size: 0;
+  text-indent: -9999px;
+  overflow: hidden;
+}
+
+/* Опционально: подсказка при наведении (для удобства) */
+#hidden-admin-link:hover::after {
+  content: "Admin";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(0,0,0,0.8);
+  color: #ffcc00;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
 header h1 {
   font-size: 48px;
   font-weight: 800;
