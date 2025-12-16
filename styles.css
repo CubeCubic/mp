@@ -93,6 +93,15 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   margin-bottom: 0;
 }
 
+/* Стили для надписи "ალბომები" */
+.controls label[for="album-select"] {
+  display: block;
+  margin: 16px 0 8px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffcc00;
+}
+
 /* Новый layout */
 .new-main-layout {
   display: flex;
@@ -104,13 +113,13 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 }
 
 .albums-sidebar {
-  flex: 0 0 240px; /* Уменьшено с 280px до 240px */
+  flex: 0 0 240px;
   position: sticky;
   top: 20px;
   align-self: flex-start;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
-  width: 240px; /* Уменьшено */
+  width: 240px;
 }
 
 /* Вертикальный список альбомов */
@@ -287,7 +296,7 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 #player-cover {
   width: 100%;
   aspect-ratio: 1 / 1;
-  max-height: 240px; /* Уменьшено под новую ширину */
+  max-height: 240px;
   overflow: hidden;
   border-radius: 10px;
 }
@@ -562,11 +571,29 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   }
 }
 
-/* Стили для надписи "ალბომები" */
-.controls label[for="album-select"] {
-  display: block;
-  margin: 16px 0 8px 0;
-  font-size: 16px;
-  font-weight: bold;
+/* Скрытая ссылка Admin в правом верхнем углу */
+#hidden-admin-link {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 80px;
+  height: 40px;
+  z-index: 20;
+  color: transparent;
+  font-size: 0;
+  text-indent: -9999px;
+  overflow: hidden;
+}
+
+#hidden-admin-link:hover::after {
+  content: "Admin";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(0,0,0,0.8);
   color: #ffcc00;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
 }
