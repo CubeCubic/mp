@@ -26,35 +26,6 @@ header {
   position: relative;
 }
 
-/* Скрытая ссылка Admin в правом верхнем углу */
-#hidden-admin-link {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 80px;        /* область клика */
-  height: 40px;
-  z-index: 20;
-  /* Текст полностью скрыт */
-  color: transparent;
-  font-size: 0;
-  text-indent: -9999px;
-  overflow: hidden;
-}
-
-/* Опционально: подсказка при наведении (для удобства) */
-#hidden-admin-link:hover::after {
-  content: "Admin";
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: rgba(0,0,0,0.8);
-  color: #ffcc00;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
 header h1 {
   font-size: 48px;
   font-weight: 800;
@@ -133,13 +104,13 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 }
 
 .albums-sidebar {
-  flex: 0 0 280px;
+  flex: 0 0 240px; /* Уменьшено с 280px до 240px */
   position: sticky;
   top: 20px;
   align-self: flex-start;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
-  width: 280px;
+  width: 240px; /* Уменьшено */
 }
 
 /* Вертикальный список альбомов */
@@ -316,7 +287,7 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 #player-cover {
   width: 100%;
   aspect-ratio: 1 / 1;
-  max-height: 280px;
+  max-height: 240px; /* Уменьшено под новую ширину */
   overflow: hidden;
   border-radius: 10px;
 }
