@@ -360,6 +360,7 @@
 
     highlightCurrentTrack();
 
+    // Убрано автозапускание первого трека при загрузке
     if (pendingTrackToOpen) {
       const id = String(pendingTrackToOpen);
       const idx = toRender.findIndex(t => String(t.id) === id);
@@ -367,9 +368,8 @@
         playTrackByIndex(idx);
       }
       pendingTrackToOpen = null;
-    } else if (currentTrackIndex === -1 && toRender.length > 0) {
-      playTrackByIndex(0);
     }
+    // Больше нет else if с playTrackByIndex(0)
   }
 
   // --- Загрузка данных ---
@@ -551,6 +551,6 @@
     loadData();
 
     audio.volume = parseFloat(volumeSidebar?.value || 1);
-    updateSidebarPlayer(null);
+    updateSidebarPlayer(null); // плеер пустой при загрузке
   });
 })();
