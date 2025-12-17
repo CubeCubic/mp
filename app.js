@@ -358,18 +358,19 @@
       tracksContainer.appendChild(card);
     });
 
+    // Исправление: обновляем filteredTracks до текущего toRender (для правильного индекса в альбоме)
+    filteredTracks = toRender;
+
     highlightCurrentTrack();
 
-    // Убрано автозапускание первого трека при загрузке
     if (pendingTrackToOpen) {
       const id = String(pendingTrackToOpen);
-      const idx = toRender.findIndex(t => String(t.id) === id);
+      const idx = filteredTracks.findIndex(t => String(t.id) === id);
       if (idx >= 0) {
         playTrackByIndex(idx);
       }
       pendingTrackToOpen = null;
     }
-    // Больше нет else if с playTrackByIndex(0)
   }
 
   // --- Загрузка данных ---
@@ -551,6 +552,6 @@
     loadData();
 
     audio.volume = parseFloat(volumeSidebar?.value || 1);
-    updateSidebarPlayer(null); // плеер пустой при загрузке
+    updateSidebarPlayer(null);
   });
 })();
