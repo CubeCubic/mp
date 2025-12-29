@@ -98,7 +98,7 @@ header h1 {
 }
 
 .albums-sidebar {
-  flex: 0 0 260px; /* Чуть шире для плеера */
+  flex: 0 0 260px;
   position: sticky;
   top: 20px;
   align-self: flex-start;
@@ -115,10 +115,10 @@ header h1 {
   margin-bottom: 16px;
 }
 
-/* === Треки в две колонки (grid) === */
+/* === Треки в три колонки === */
 #tracks.tracks-list-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   padding: 0 10px;
 }
@@ -149,7 +149,7 @@ header h1 {
 
 .tracks-list-grid .track-cover {
   width: 100%;
-  height: 200px;
+  height: 180px;
   object-fit: cover;
 }
 
@@ -205,7 +205,13 @@ header h1 {
   fill: white;
 }
 
-/* Адаптивность: на маленьких экранах — одна колонка */
+/* Адаптивность */
+@media (max-width: 1200px) {
+  #tracks.tracks-list-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 900px) {
   #tracks.tracks-list-grid {
     grid-template-columns: 1fr;
@@ -222,25 +228,7 @@ header h1 {
   }
 }
 
-/* Плеер и остальное — без изменений */
-.player-sidebar {
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 24px;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 0, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* ... остальные стили плеера, альбомов, модалок, toast и скрытой ссылки Admin остаются без изменений ... */
-
+/* Остальные стили без изменений */
 .album-list-vertical {
   display: flex;
   flex-direction: column;
@@ -284,6 +272,24 @@ header h1 {
 .album-list-button[data-album-name="Georgian"] {
   order: -1;
 }
+
+.player-sidebar {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 24px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ... остальные стили плеера, модалок, toast и скрытой ссылки Admin остаются без изменений ... */
 
 #hidden-admin-link {
   position: absolute;
