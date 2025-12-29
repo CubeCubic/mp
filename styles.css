@@ -3,8 +3,10 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   color: #fff;
-  background: linear-gradient(to bottom right, #000000 0%, #2d1b3a 100%);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1f1f1f 50%, #2a2a1a 100%);
   background-attachment: fixed;
+  /* Лёгкое жёлтое свечение для гармонии с #ffcc00 */
+  box-shadow: inset 0 0 200px rgba(255, 204, 0, 0.05);
 }
 
 /* Контейнер сайта */
@@ -595,5 +597,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   font-size: 14px;
   white-space: nowrap;
 }
+
 
 
