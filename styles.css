@@ -46,7 +46,6 @@ header h1 {
   z-index: 10;
   display: block;
 }
-
 #header-badge img {
   width: 100%;
   height: 100%;
@@ -58,6 +57,21 @@ header h1 {
     0 8px 16px rgba(0,0,0,0.4),
     0 0 12px rgba(255,255,0,0.4);
 }
+
+header nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+header nav a, header nav button {
+  color: #fff;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+header nav a:hover, header nav button:hover { text-decoration: underline; }
 
 /* Поисковик */
 #global-search {
@@ -88,7 +102,7 @@ header h1 {
   color: #ffcc00;
 }
 
-/* Новый layout — альбомы слева, треки + плеер справа */
+/* Новый layout */
 .new-main-layout {
   display: flex;
   gap: 24px;
@@ -98,7 +112,6 @@ header h1 {
   box-sizing: border-box;
 }
 
-/* Левая колонка — альбомы */
 .albums-sidebar {
   flex: 0 0 240px;
   position: sticky;
@@ -106,31 +119,7 @@ header h1 {
   align-self: flex-start;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
-}
-
-/* Правая колонка — треки + плеер */
-.tracks-section {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Заголовок треков с сортировкой */
-.tracks-header {
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-#sort-select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  background: #111;
-  color: #fff;
-  border: 1px solid #333;
-  font-size: 14px;
+  width: 240px;
 }
 
 /* Вертикальный список альбомов */
@@ -179,6 +168,16 @@ header h1 {
   order: -1;
 }
 
+/* Секция треков */
+.tracks-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.tracks-header {
+  margin-bottom: 16px;
+}
+
 /* Вертикальный список треков */
 #tracks.tracks-list-vertical {
   display: flex;
@@ -186,7 +185,7 @@ header h1 {
   gap: 12px;
 }
 
-/* Горизонтальная карточка трека — уменьшена */
+/* Горизонтальная карточка трека */
 .tracks-list-vertical .card {
   display: flex;
   align-items: center;
@@ -197,8 +196,6 @@ header h1 {
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.2s;
-  max-width: 720px;
-  margin: 0 auto;
 }
 
 .tracks-list-vertical .card:hover {
@@ -278,12 +275,12 @@ header h1 {
   fill: white;
 }
 
-/* Вертикальный плеер — в левой колонке под треками */
+/* Вертикальный плеер — адаптивный */
 .player-sidebar {
   background: rgba(0, 0, 0, 0.6);
   border-radius: 12px;
   padding: 16px;
-  margin-top: 32px;
+  margin-top: 24px;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -292,12 +289,10 @@ header h1 {
   border: 1px solid rgba(255, 255, 0, 0.2);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   width: 100%;
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
   box-sizing: border-box;
 }
 
+/* Обложка — адаптивная */
 #player-cover {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -317,6 +312,7 @@ header h1 {
   transform: scale(1.05);
 }
 
+/* Информация */
 #player-info-sidebar {
   text-align: center;
 }
@@ -338,6 +334,7 @@ header h1 {
   text-overflow: ellipsis;
 }
 
+/* Кнопки управления */
 #player-controls-sidebar {
   display: flex;
   justify-content: center;
@@ -368,6 +365,7 @@ header h1 {
   height: 64px;
 }
 
+/* Прогресс */
 #player-progress-sidebar {
   display: flex;
   align-items: center;
@@ -392,6 +390,7 @@ header h1 {
   cursor: pointer;
 }
 
+/* Громкость */
 #player-volume-sidebar {
   display: flex;
   align-items: center;
@@ -415,6 +414,7 @@ header h1 {
   cursor: pointer;
 }
 
+/* Кнопки текста и скачивания */
 #show-lyrics-sidebar, #download-sidebar {
   align-self: center;
   margin-top: 8px;
@@ -437,50 +437,92 @@ header h1 {
   fill: currentColor;
 }
 
-/* Адаптивность */
+/* === Адаптивность плеера === */
 @media (max-width: 900px) {
-  .new-main-layout {
-    flex-direction: column;
-  }
   .albums-sidebar {
-    position: static;
-    max-height: none;
-    overflow: visible;
+    flex: none;
+    width: 100%;
   }
-  .tracks-list-vertical .card {
-    max-width: none;
+
+  .player-sidebar {
+    margin-top: 20px;
+    padding: 14px;
+    gap: 12px;
   }
-  #player-sidebar {
-    max-width: none;
-    margin-top: 24px;
+
+  #player-cover {
+    max-height: 220px;
+  }
+
+  #player-title-sidebar {
+    font-size: 16px;
+  }
+
+  #player-controls-sidebar button {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  #play-sidebar {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+  }
+
+  #player-progress-sidebar {
+    font-size: 12px;
+  }
+
+  #progress-sidebar, #volume-sidebar {
+    height: 6px;
+  }
+
+  #progress-sidebar::-webkit-slider-thumb,
+  #volume-sidebar::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
   }
 }
 
-/* Скрытая ссылка Admin */
-#hidden-admin-link {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 80px;
-  height: 40px;
-  z-index: 20;
-  color: transparent;
-  font-size: 0;
-  text-indent: -9999px;
-  overflow: hidden;
-}
+@media (max-width: 480px) {
+  .player-sidebar {
+    padding: 12px;
+    gap: 10px;
+  }
 
-#hidden-admin-link:hover::after {
-  content: "Admin";
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: rgba(0,0,0,0.8);
-  color: #ffcc00;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  white-space: nowrap;
+  #player-cover {
+    max-height: 180px;
+  }
+
+  #player-title-sidebar {
+    font-size: 15px;
+  }
+
+  #player-artist-sidebar {
+    font-size: 13px;
+  }
+
+  #player-controls-sidebar {
+    gap: 12px;
+  }
+
+  #player-controls-sidebar button {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  #play-sidebar {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+  }
+
+  #show-lyrics-sidebar, #download-sidebar {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
 }
 
 /* Модалки */
@@ -516,3 +558,42 @@ header h1 {
   transition: opacity 180ms ease;
 }
 #toast.visible { opacity: 1; }
+
+/* Адаптивность общая */
+@media (max-width: 900px) {
+  .new-main-layout {
+    flex-direction: column;
+  }
+  .albums-sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+/* Скрытая ссылка Admin в правом верхнем углу */
+#hidden-admin-link {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 80px;
+  height: 40px;
+  z-index: 20;
+  color: transparent;
+  font-size: 0;
+  text-indent: -9999px;
+  overflow: hidden;
+}
+
+#hidden-admin-link:hover::after {
+  content: "Admin";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(0,0,0,0.8);
+  color: #ffcc00;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+}
