@@ -93,15 +93,6 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   margin-bottom: 0;
 }
 
-/* Стили для надписи "ალბომები" */
-.controls label[for="album-select"] {
-  display: block;
-  margin: 16px 0 8px 0;
-  font-size: 16px;
-  font-weight: bold;
-  color: #ffcc00;
-}
-
 /* Новый layout */
 .new-main-layout {
   display: flex;
@@ -176,6 +167,17 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
 
 .tracks-header {
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#sort-select {
+  padding: 8px;
+  border-radius: 6px;
+  background: #111;
+  color: #fff;
+  border: 1px solid #333;
 }
 
 /* Вертикальный список треков */
@@ -196,6 +198,8 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.2s;
+  max-width: 800px; /* Уменьшено для баланса */
+  margin: 0 auto; /* Центрировано */
 }
 
 .tracks-list-vertical .card:hover {
@@ -569,6 +573,15 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
     max-height: none;
     overflow: visible;
   }
+}
+
+/* Стили для надписи "ალბომები" */
+.controls label[for="album-select"] {
+  display: block;
+  margin: 16px 0 8px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffcc00;
 }
 
 /* Скрытая ссылка Admin в правом верхнем углу */
