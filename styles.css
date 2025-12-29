@@ -46,7 +46,6 @@ header h1 {
   z-index: 10;
   display: block;
 }
-
 #header-badge img {
   width: 100%;
   height: 100%;
@@ -58,6 +57,21 @@ header h1 {
     0 8px 16px rgba(0,0,0,0.4),
     0 0 12px rgba(255,255,0,0.4);
 }
+
+header nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+header nav a, header nav button {
+  color: #fff;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+header nav a:hover, header nav button:hover { text-decoration: underline; }
 
 /* Поисковик */
 #global-search {
@@ -88,7 +102,7 @@ header h1 {
   color: #ffcc00;
 }
 
-/* Новый layout — треки + плеер слева, альбомы справа */
+/* Новый layout */
 .new-main-layout {
   display: flex;
   gap: 24px;
@@ -98,32 +112,6 @@ header h1 {
   box-sizing: border-box;
 }
 
-/* Левая колонка — треки + плеер */
-.tracks-section {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Заголовок треков с сортировкой */
-.tracks-header {
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-#sort-select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  background: #111;
-  color: #fff;
-  border: 1px solid #333;
-  font-size: 14px;
-}
-
-/* Правая колонка — альбомы */
 .albums-sidebar {
   flex: 0 0 240px;
   position: sticky;
@@ -131,254 +119,10 @@ header h1 {
   align-self: flex-start;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
+  width: 240px;
 }
 
-/* Карточки треков — уменьшены для баланса */
-.tracks-list-vertical .card {
-  max-width: 720px;
-  margin: 0 auto;
-}
-
-/* Плеер теперь в левой колонке, под треками */
-#player-sidebar {
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 32px;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 0, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  width: 100%;
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
-  box-sizing: border-box;
-}
-
-/* Остальные стили плеера без изменений */
-#player-cover {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  max-height: 240px;
-  overflow: hidden;
-  border-radius: 10px;
-}
-
-#player-cover-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.player-sidebar.playing #player-cover-img {
-  transform: scale(1.05);
-}
-
-#player-info-sidebar {
-  text-align: center;
-}
-
-#player-title-sidebar {
-  font-size: 17px;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#player-artist-sidebar {
-  font-size: 14px;
-  color: #ccc;
-  margin-top: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#player-controls-sidebar {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
-#player-controls-sidebar button {
-  background: rgba(255, 255, 0, 0.15);
-  color: #ffcc00;
-  border: none;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-#player-controls-sidebar button:hover {
-  background: #ffcc00;
-  color: #000;
-  transform: scale(1.1);
-}
-
-#play-sidebar {
-  font-size: 28px;
-  width: 64px;
-  height: 64px;
-}
-
-#player-progress-sidebar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-}
-
-#progress-sidebar {
-  flex: 1;
-  height: 8px;
-  border-radius: 4px;
-  background: rgba(255, 255, 0, 0.2);
-  appearance: none;
-}
-
-#progress-sidebar::-webkit-slider-thumb {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #ffcc00;
-  cursor: pointer;
-}
-
-#player-volume-sidebar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#volume-sidebar {
-  width: 100%;
-  height: 8px;
-  appearance: none;
-  background: rgba(255, 255, 0, 0.2);
-  border-radius: 4px;
-}
-
-#volume-sidebar::-webkit-slider-thumb {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #ffcc00;
-  cursor: pointer;
-}
-
-#show-lyrics-sidebar, #download-sidebar {
-  align-self: center;
-  margin-top: 8px;
-  padding: 10px 20px;
-  background: #ffcc00;
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 15px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#download-sidebar svg {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
-}
-
-/* Адаптивность */
-@media (max-width: 900px) {
-  .new-main-layout {
-    flex-direction: column;
-  }
-  .albums-sidebar {
-    position: static;
-    max-height: none;
-    overflow: visible;
-  }
-  .tracks-list-vertical .card {
-    max-width: none;
-  }
-  #player-sidebar {
-    max-width: none;
-    margin-top: 24px;
-  }
-}
-
-/* Скрытая ссылка Admin */
-#hidden-admin-link {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 80px;
-  height: 40px;
-  z-index: 20;
-  color: transparent;
-  font-size: 0;
-  text-indent: -9999px;
-  overflow: hidden;
-}
-
-#hidden-admin-link:hover::after {
-  content: "Admin";
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: rgba(0,0,0,0.8);
-  color: #ffcc00;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-/* Модалки и toast */
-#lyrics-modal.hidden { display: none !important; }
-#lyrics-modal {
-  position: fixed; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.7);
-  z-index: 2000;
-}
-.modal-box {
-  background: white; color: #000;
-  padding: 16px; border-radius: 6px;
-  max-width: 420px; width: 92%;
-  max-height: 70vh; overflow-y: auto;
-}
-.modal-box h3 { margin-top: 0; font-size: 16px; }
-.modal-box pre { white-space: pre-wrap; font-size: 13px; }
-
-#toast {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 90px;
-  background: rgba(0,0,0,0.85);
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 6px;
-  z-index: 3000;
-  font-size: 13px;
-  opacity: 0;
-  transition: opacity 180ms ease;
-}
-#toast.visible { opacity: 1; }
-
-/* Остальные стили (альбомы, карточки треков и т.д.) — без изменений */
+/* Вертикальный список альбомов */
 .album-list-vertical {
   display: flex;
   flex-direction: column;
@@ -419,16 +163,29 @@ header h1 {
   opacity: 0.8;
 }
 
+/* Georgian сверху */
 .album-list-button[data-album-name="Georgian"] {
   order: -1;
 }
 
+/* Секция треков */
+.tracks-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.tracks-header {
+  margin-bottom: 16px;
+}
+
+/* Вертикальный список треков */
 #tracks.tracks-list-vertical {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+/* Горизонтальная карточка трека */
 .tracks-list-vertical .card {
   display: flex;
   align-items: center;
@@ -516,4 +273,327 @@ header h1 {
   width: 16px;
   height: 16px;
   fill: white;
+}
+
+/* Вертикальный плеер — адаптивный */
+.player-sidebar {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 24px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Обложка — адаптивная */
+#player-cover {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 240px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+#player-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.player-sidebar.playing #player-cover-img {
+  transform: scale(1.05);
+}
+
+/* Информация */
+#player-info-sidebar {
+  text-align: center;
+}
+
+#player-title-sidebar {
+  font-size: 17px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#player-artist-sidebar {
+  font-size: 14px;
+  color: #ccc;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Кнопки управления */
+#player-controls-sidebar {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+#player-controls-sidebar button {
+  background: rgba(255, 255, 0, 0.15);
+  color: #ffcc00;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#player-controls-sidebar button:hover {
+  background: #ffcc00;
+  color: #000;
+  transform: scale(1.1);
+}
+
+#play-sidebar {
+  font-size: 28px;
+  width: 64px;
+  height: 64px;
+}
+
+/* Прогресс */
+#player-progress-sidebar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+#progress-sidebar {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 0, 0.2);
+  appearance: none;
+}
+
+#progress-sidebar::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffcc00;
+  cursor: pointer;
+}
+
+/* Громкость */
+#player-volume-sidebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#volume-sidebar {
+  width: 100%;
+  height: 8px;
+  appearance: none;
+  background: rgba(255, 255, 0, 0.2);
+  border-radius: 4px;
+}
+
+#volume-sidebar::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffcc00;
+  cursor: pointer;
+}
+
+/* Кнопки текста и скачивания */
+#show-lyrics-sidebar, #download-sidebar {
+  align-self: center;
+  margin-top: 8px;
+  padding: 10px 20px;
+  background: #ffcc00;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#download-sidebar svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* === Адаптивность плеера === */
+@media (max-width: 900px) {
+  .albums-sidebar {
+    flex: none;
+    width: 100%;
+  }
+
+  .player-sidebar {
+    margin-top: 20px;
+    padding: 14px;
+    gap: 12px;
+  }
+
+  #player-cover {
+    max-height: 220px;
+  }
+
+  #player-title-sidebar {
+    font-size: 16px;
+  }
+
+  #player-controls-sidebar button {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  #play-sidebar {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+  }
+
+  #player-progress-sidebar {
+    font-size: 12px;
+  }
+
+  #progress-sidebar, #volume-sidebar {
+    height: 6px;
+  }
+
+  #progress-sidebar::-webkit-slider-thumb,
+  #volume-sidebar::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-sidebar {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  #player-cover {
+    max-height: 180px;
+  }
+
+  #player-title-sidebar {
+    font-size: 15px;
+  }
+
+  #player-artist-sidebar {
+    font-size: 13px;
+  }
+
+  #player-controls-sidebar {
+    gap: 12px;
+  }
+
+  #player-controls-sidebar button {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  #play-sidebar {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+  }
+
+  #show-lyrics-sidebar, #download-sidebar {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Модалки */
+#lyrics-modal.hidden { display: none !important; }
+#lyrics-modal {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 2000;
+}
+.modal-box {
+  background: white; color: #000;
+  padding: 16px; border-radius: 6px;
+  max-width: 420px; width: 92%;
+  max-height: 70vh; overflow-y: auto;
+}
+.modal-box h3 { margin-top: 0; font-size: 16px; }
+.modal-box pre { white-space: pre-wrap; font-size: 13px; }
+
+/* Toast */
+#toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 90px;
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  z-index: 3000;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+#toast.visible { opacity: 1; }
+
+/* Адаптивность общая */
+@media (max-width: 900px) {
+  .new-main-layout {
+    flex-direction: column;
+  }
+  .albums-sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+/* Скрытая ссылка Admin в правом верхнем углу */
+#hidden-admin-link {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 80px;
+  height: 40px;
+  z-index: 20;
+  color: transparent;
+  font-size: 0;
+  text-indent: -9999px;
+  overflow: hidden;
+}
+
+#hidden-admin-link:hover::after {
+  content: "Admin";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(0,0,0,0.8);
+  color: #ffcc00;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
 }
