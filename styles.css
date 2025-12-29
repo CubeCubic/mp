@@ -98,7 +98,7 @@ header h1 {
 }
 
 .albums-sidebar {
-  flex: 0 0 240px;
+  flex: 0 0 260px; /* Чуть шире для плеера */
   position: sticky;
   top: 20px;
   align-self: flex-start;
@@ -115,7 +115,7 @@ header h1 {
   margin-bottom: 16px;
 }
 
-/* === НОВОЕ: Треки в две колонки === */
+/* === Треки в две колонки (grid) === */
 #tracks.tracks-list-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -123,7 +123,7 @@ header h1 {
   padding: 0 10px;
 }
 
-/* Карточка трека в grid */
+/* Карточка в grid */
 .tracks-list-grid .card {
   display: flex;
   flex-direction: column;
@@ -205,16 +205,16 @@ header h1 {
   fill: white;
 }
 
-/* Адаптивность: на мобильных — одна колонка */
+/* Адаптивность: на маленьких экранах — одна колонка */
 @media (max-width: 900px) {
   #tracks.tracks-list-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .new-main-layout {
     flex-direction: column;
   }
-  
+
   .albums-sidebar {
     position: static;
     max-height: none;
@@ -222,7 +222,25 @@ header h1 {
   }
 }
 
-/* Остальные стили (альбомы, плеер, модалки) — без изменений */
+/* Плеер и остальное — без изменений */
+.player-sidebar {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 24px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ... остальные стили плеера, альбомов, модалок, toast и скрытой ссылки Admin остаются без изменений ... */
+
 .album-list-vertical {
   display: flex;
   flex-direction: column;
@@ -267,26 +285,6 @@ header h1 {
   order: -1;
 }
 
-/* Плеер и остальное — без изменений (оставлено как было) */
-.player-sidebar {
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 24px;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 0, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* ... остальной код плеера, модалок, toast и т.д. остаётся без изменений ... */
-
-/* Скрытая ссылка Admin */
 #hidden-admin-link {
   position: absolute;
   top: 20px;
