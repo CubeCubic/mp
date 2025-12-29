@@ -4,7 +4,6 @@
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
   const tracksContainer = document.getElementById('tracks');
-
   const globalSearchInput = document.getElementById('global-search');
   const albumListContainer = document.getElementById('album-list');
 
@@ -278,6 +277,9 @@
       return;
     }
 
+    // === Обновление: новые треки всегда сверху (по убыванию id) ===
+    toRender = toRender.slice().sort((a, b) => (b.id || 0) - (a.id || 0));
+
     toRender.forEach(t => {
       const card = document.createElement('div');
       card.className = 'card';
@@ -303,7 +305,6 @@
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
-      // Текст песни
       if (t.lyrics) {
         const lyricsBtn = document.createElement('button');
         lyricsBtn.type = 'button';
@@ -319,7 +320,6 @@
         actions.appendChild(lyricsBtn);
       }
 
-      // Скачивание
       const stream = getStreamUrl(t);
       const downloadBtnCard = document.createElement('button');
       downloadBtnCard.type = 'button';
@@ -358,7 +358,6 @@
       tracksContainer.appendChild(card);
     });
 
-    // Исправление: обновляем filteredTracks до текущего toRender (для правильного индекса в альбоме)
     filteredTracks = toRender;
 
     highlightCurrentTrack();
