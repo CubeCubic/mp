@@ -134,7 +134,7 @@
     return list;
   }
 
-  sortSelect.addEventListener('change', renderTracks);
+  if (sortSelect) sortSelect.addEventListener('change', renderTracks);
 
   // --- Рендер списка альбомов ---
   function renderAlbumList() {
@@ -296,7 +296,7 @@
       return;
     }
 
-    toRender = sortTracks(toRender); // Применяем сортировку
+    toRender = sortTracks(toRender);
 
     toRender.forEach(t => {
       const card = document.createElement('div');
