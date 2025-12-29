@@ -88,7 +88,7 @@ header h1 {
   color: #ffcc00;
 }
 
-/* Новый layout — треки слева, плеер и альбомы справа */
+/* Новый layout — треки + плеер слева, альбомы справа */
 .new-main-layout {
   display: flex;
   gap: 24px;
@@ -98,10 +98,12 @@ header h1 {
   box-sizing: border-box;
 }
 
-/* Левая колонка — треки */
+/* Левая колонка — треки + плеер */
 .tracks-section {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Заголовок треков с сортировкой */
@@ -121,9 +123,9 @@ header h1 {
   font-size: 14px;
 }
 
-/* Правая колонка — альбомы + плеер */
+/* Правая колонка — альбомы */
 .albums-sidebar {
-  flex: 0 0 260px; /* Немного шире для плеера */
+  flex: 0 0 240px;
   position: sticky;
   top: 20px;
   align-self: flex-start;
@@ -131,158 +133,18 @@ header h1 {
   overflow-y: auto;
 }
 
-/* Карточки треков — уменьшены */
+/* Карточки треков — уменьшены для баланса */
 .tracks-list-vertical .card {
   max-width: 720px;
   margin: 0 auto;
 }
 
-/* Остальные стили без изменений (оставлены как были) */
-.album-list-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 20px 0;
-}
-
-.album-list-button {
-  background: rgba(255, 255, 0, 0.15);
-  color: #ffcc00;
-  border: 1px solid #ffcc00;
-  padding: 14px 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  text-align: left;
-  cursor: pointer;
-  transition: all 160ms ease;
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.album-list-button:hover {
-  background: #ffcc00;
-  color: #000;
-}
-
-.album-list-button.selected {
-  background: #ffcc00;
-  color: #000;
-  font-weight: bold;
-}
-
-.album-list-button .track-count {
-  font-size: 13px;
-  opacity: 0.8;
-}
-
-.album-list-button[data-album-name="Georgian"] {
-  order: -1;
-}
-
-#tracks.tracks-list-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.tracks-list-vertical .card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.tracks-list-vertical .card:hover {
-  background: rgba(255,255,255,0.15);
-}
-
-.tracks-list-vertical .card.playing-track {
-  background: rgba(255, 204, 0, 0.2);
-  border: 2px solid #ffcc00;
-  box-shadow: 0 0 12px rgba(255, 204, 0, 0.4);
-  transform: scale(1.02);
-  transition: all 0.3s ease;
-}
-
-.tracks-list-vertical .track-cover {
-  width: 70px;
-  height: 70px;
-  object-fit: cover;
-  border-radius: 6px;
-  flex-shrink: 0;
-}
-
-.tracks-list-vertical .track-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.tracks-list-vertical .track-info h4 {
-  margin: 0;
-  font-size: 15px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.tracks-list-vertical .track-info div {
-  font-size: 13px;
-  color: #cfcfcf;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.tracks-list-vertical .track-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.tracks-list-vertical .track-actions button {
-  font-size: 12px;
-  padding: 6px 10px;
-  background: #444;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.tracks-list-vertical .btn-has-lyrics {
-  background: #ffcc00;
-  color: #000;
-  font-weight: bold;
-}
-
-.tracks-list-vertical .download-button {
-  width: 40px;
-  height: 40px;
-  padding: 8px;
-  background: #2ecc71;
-}
-
-.tracks-list-vertical .download-button svg {
-  width: 16px;
-  height: 16px;
-  fill: white;
-}
-
-/* Плеер */
-.player-sidebar {
+/* Плеер теперь в левой колонке, под треками */
+#player-sidebar {
   background: rgba(0, 0, 0, 0.6);
   border-radius: 12px;
   padding: 16px;
-  margin-top: 24px;
+  margin-top: 32px;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -291,9 +153,13 @@ header h1 {
   border: 1px solid rgba(255, 255, 0, 0.2);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   width: 100%;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
   box-sizing: border-box;
 }
 
+/* Остальные стили плеера без изменений */
 #player-cover {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -446,6 +312,10 @@ header h1 {
   .tracks-list-vertical .card {
     max-width: none;
   }
+  #player-sidebar {
+    max-width: none;
+    margin-top: 24px;
+  }
 }
 
 /* Скрытая ссылка Admin */
@@ -475,7 +345,7 @@ header h1 {
   white-space: nowrap;
 }
 
-/* Модалки и toast — без изменений */
+/* Модалки и toast */
 #lyrics-modal.hidden { display: none !important; }
 #lyrics-modal {
   position: fixed; inset: 0;
@@ -507,3 +377,143 @@ header h1 {
   transition: opacity 180ms ease;
 }
 #toast.visible { opacity: 1; }
+
+/* Остальные стили (альбомы, карточки треков и т.д.) — без изменений */
+.album-list-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.album-list-button {
+  background: rgba(255, 255, 0, 0.15);
+  color: #ffcc00;
+  border: 1px solid #ffcc00;
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 160ms ease;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.album-list-button:hover {
+  background: #ffcc00;
+  color: #000;
+}
+
+.album-list-button.selected {
+  background: #ffcc00;
+  color: #000;
+  font-weight: bold;
+}
+
+.album-list-button .track-count {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.album-list-button[data-album-name="Georgian"] {
+  order: -1;
+}
+
+#tracks.tracks-list-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tracks-list-vertical .card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.tracks-list-vertical .card:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.tracks-list-vertical .card.playing-track {
+  background: rgba(255, 204, 0, 0.2);
+  border: 2px solid #ffcc00;
+  box-shadow: 0 0 12px rgba(255, 204, 0, 0.4);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+.tracks-list-vertical .track-cover {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.tracks-list-vertical .track-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tracks-list-vertical .track-info h4 {
+  margin: 0;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tracks-list-vertical .track-info div {
+  font-size: 13px;
+  color: #cfcfcf;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tracks-list-vertical .track-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.tracks-list-vertical .track-actions button {
+  font-size: 12px;
+  padding: 6px 10px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tracks-list-vertical .btn-has-lyrics {
+  background: #ffcc00;
+  color: #000;
+  font-weight: bold;
+}
+
+.tracks-list-vertical .download-button {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  background: #2ecc71;
+}
+
+.tracks-list-vertical .download-button svg {
+  width: 16px;
+  height: 16px;
+  fill: white;
+}

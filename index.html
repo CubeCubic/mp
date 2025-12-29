@@ -20,7 +20,7 @@
       <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
     </header>
     <main class="new-main-layout">
-      <!-- Левая колонка: треки -->
+      <!-- Левая колонка: треки + плеер под ними -->
       <section class="tracks-section">
         <div class="tracks-header">
           <h2>ტრეკები</h2>
@@ -32,20 +32,7 @@
           </select>
         </div>
         <div id="tracks" class="tracks-list-vertical"></div>
-      </section>
-      <!-- Правая колонка: альбомы + плеер -->
-      <aside class="albums-sidebar">
-        <div class="controls">
-          <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
-          <label for="album-select">ალბომები</label>
-          <input type="hidden" id="album-select" value="">
-          <div id="album-list" class="album-list-vertical"></div>
-          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
-          <select id="subalbum-select" style="display:none;">
-            <option value="">— —</option>
-          </select>
-          <button id="refresh-btn" type="button">Refresh</button>
-        </div>
+        <!-- Проигрыватель перенесён сюда (левая сторона, под треками) -->
         <div id="player-sidebar" class="player-sidebar">
           <div id="player-cover">
             <img id="player-cover-img" src="images/midcube.png" alt="Cover">
@@ -71,6 +58,20 @@
           <a id="download-sidebar" href="#" download style="display:none;" aria-label="Download">
             <svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>
           </a>
+        </div>
+      </section>
+      <!-- Правая колонка: поисковик и альбомы -->
+      <aside class="albums-sidebar">
+        <div class="controls">
+          <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
+          <label for="album-select">ალბომები</label>
+          <input type="hidden" id="album-select" value="">
+          <div id="album-list" class="album-list-vertical"></div>
+          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
+          <select id="subalbum-select" style="display:none;">
+            <option value="">— —</option>
+          </select>
+          <button id="refresh-btn" type="button">Refresh</button>
         </div>
       </aside>
     </main>
