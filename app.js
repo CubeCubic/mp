@@ -1,4 +1,5 @@
 (function () {
+  // --- Элементы DOM ---
   const albumSelect = document.getElementById('album-select');
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
@@ -29,8 +30,9 @@
 
   const toast = document.getElementById('toast');
   const refreshBtn = document.getElementById('refresh-btn');
-  const sortSelect = document.getElementById('sort-select'); // Новый элемент
+  const sortSelect = document.getElementById('sort-select'); // Добавлен
 
+  // --- Состояние ---
   let albums = [];
   let tracks = [];
   let currentTrackIndex = -1;
@@ -38,6 +40,7 @@
   let pendingTrackToOpen = null;
   let userHasInteracted = false;
 
+  // --- Утилиты ---
   function formatTime(sec) {
     if (!isFinite(sec)) return '0:00';
     const m = Math.floor(sec / 60);
@@ -112,7 +115,7 @@
     }
   }
 
-  // Сортировка — по умолчанию новые сверху
+  // --- Сортировка треков (новые сверху по умолчанию) ---
   function sortTracks(list) {
     const value = sortSelect ? sortSelect.value : 'newest';
     const sorted = list.slice();
@@ -132,6 +135,7 @@
     sortSelect.addEventListener('change', renderTracks);
   }
 
+  // --- Рендер списка альбомов ---
   function renderAlbumList() {
     if (!albumListContainer) return;
     albumListContainer.innerHTML = '';
@@ -235,6 +239,7 @@
     updateSidebarPlayer(null);
   }
 
+  // --- Поиск ---
   function matchesQuery(track, query) {
     if (!query) return true;
     const q = query.toLowerCase();
@@ -261,6 +266,7 @@
     });
   }
 
+  // --- Рендер треков ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -289,6 +295,7 @@
       return;
     }
 
+    // Применяем сортировку
     toRender = sortTracks(toRender);
 
     toRender.forEach(t => {
@@ -383,6 +390,7 @@
     }
   }
 
+  // --- Загрузка данных ---
   async function loadData() {
     try {
       const res = await fetch('tracks.json', { cache: 'no-store' });
@@ -401,6 +409,7 @@
 
   if (refreshBtn) refreshBtn.addEventListener('click', loadData);
 
+  // --- Плеер (без изменений) ---
   function updateSidebarPlayer(t = null) {
     if (!t) {
       playerTitleSidebar.textContent = 'აირჩიეთ ტრეკი';
