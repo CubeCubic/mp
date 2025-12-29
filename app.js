@@ -33,7 +33,6 @@
 
   const toast = document.getElementById('toast');
   const refreshBtn = document.getElementById('refresh-btn');
-  const sortSelect = document.getElementById('sort-select');
 
   // --- Состояние ---
   let albums = [];
@@ -118,23 +117,6 @@
       }
     }
   }
-
-  // --- Сортировка треков ---
-  function sortTracks(list) {
-    const sortValue = sortSelect.value;
-    if (sortValue === 'newest') {
-      return list.slice().sort((a, b) => b.id - a.id); // Новые сверху (по id descending)
-    } else if (sortValue === 'oldest') {
-      return list.slice().sort((a, b) => a.id - b.id); // Старые сверху (id ascending)
-    } else if (sortValue === 'title-asc') {
-      return list.slice().sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-    } else if (sortValue === 'title-desc') {
-      return list.slice().sort((a, b) => (b.title || '').localeCompare(a.title || ''));
-    }
-    return list;
-  }
-
-  if (sortSelect) sortSelect.addEventListener('change', renderTracks);
 
   // --- Рендер списка альбомов ---
   function renderAlbumList() {
@@ -296,8 +278,6 @@
       return;
     }
 
-    toRender = sortTracks(toRender);
-
     toRender.forEach(t => {
       const card = document.createElement('div');
       card.className = 'card';
@@ -378,11 +358,14 @@
       tracksContainer.appendChild(card);
     });
 
+    // Исправление: обновляем filteredTracks до текущего toRender (для правильного индекса в альбоме)
+    filteredTracks = toRender;
+
     highlightCurrentTrack();
 
     if (pendingTrackToOpen) {
       const id = String(pendingTrackToOpen);
-      const idx = toRender.findIndex(t => String(t.id) === id);
+      const idx = filteredTracks.findIndex(t => String(t.id) === id);
       if (idx >= 0) {
         playTrackByIndex(idx);
       }

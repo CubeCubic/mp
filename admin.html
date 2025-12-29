@@ -1,95 +1,129 @@
 <!doctype html>
 <html lang="ka">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cube Cubic</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" type="image/png" href="images/smallcube.png">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — Cube Cubic</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { font-family: Arial, sans-serif; color: #fff; background: #111; padding: 18px; }
+    header { margin-bottom: 12px; }
+    h1 { color: #ffcc00; margin: 0 0 8px 0; }
+    .hidden { display: none; }
+    .panel { background: rgba(0,0,0,0.6); padding: 12px; border-radius: 8px; margin-bottom: 12px; }
+    label { display:block; margin:8px 0 4px; color:#ffd; font-weight:600; }
+    input[type="text"], input[type="password"], select, textarea { width:90%; padding:8px; border-radius:6px; border:1px solid #333; background:#111; color:#fff; }
+    .row { display:flex; gap:12px; align-items:flex-start; }
+    .col { flex:1; }
+    .small { width:220px; flex:0 0 220px; }
+    button { background:#444; color:#fff; padding:8px 12px; border-radius:6px; border:none; cursor:pointer; }
+    button:hover { background:#666; }
+    .list { margin-top:12px; max-height:320px; overflow:auto; border-top:1px dashed rgba(255,255,255,0.06); padding-top:8px; }
+    .item { padding:8px; border-radius:6px; display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.02); margin-bottom:8px; }
+    .meta { flex:1; color:#ddd; }
+    .muted { color:#999; font-size:13px; }
+    .note { color:#ccc; font-size:13px; margin-top:6px; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-backdrop.hidden { display: none !important; }
+    .modal {
+      background: #fff; color: #000;
+      border-radius: 8px; width: 420px; max-width: 95%;
+      padding: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    }
+    .modal h3 { margin-top: 0; }
+    .modal .actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+  </style>
 </head>
 <body>
-  <div class="site-wrapper">
-    <header>
-      <div id="header-badge" aria-hidden="false">
-        <img src="images/midcube.png" alt="midcube">
+  <header>
+    <h1>ადმინისტრატორი</h1>
+    <a href="index.html" style="color:#fff">მთავარი გვერდი</a>
+  </header>
+  <main id="admin-app">
+    <div id="login-form" class="panel">
+      <h2>შესვლა</h2>
+      <form id="login-form-wrapper" style="margin:0">
+        <input id="admin-password" type="password" placeholder="პაროლი" />
+        <div style="margin-top:8px">
+          <button id="login-btn" type="button">შესვლა</button>
+          <span id="login-msg" class="muted" style="margin-left:10px"></span>
+        </div>
+      </form>
+    </div>
+    <div id="admin-panel" class="hidden">
+      <div class="panel">
+        <h2>ალბომები</h2>
+        <div class="row">
+          <div class="col">
+            <label for="album-name">სახელი</label>
+            <input id="album-name" type="text">
+          </div>
+          <div class="small">
+            <label for="album-parent">Parent</label>
+            <select id="album-parent"><option value="">— მთავარი ალბომი —</option></select>
+          </div>
+          <div class="small" style="display:flex;flex-direction:column;gap:8px;">
+            <button id="btn-create-album">Create album</button>
+            <button id="btn-refresh-albums">Refresh</button>
+            <button id="btn-save-all" type="button">Сохранить изменения</button>
+          </div>
+        </div>
+        <div class="list" id="albums-list"></div>
       </div>
-      <h1>Cube Cubic</h1>
-      <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
-      <nav>
-        <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
-      </nav>
-    </header>
-    <main class="new-main-layout">
-      <section class="tracks-section">
-        <div class="tracks-header">
-          <h2>ტრეკები</h2>
-          <select id="sort-select">
-            <option value="newest">ახალი ტრეკები ზემოთ</option>
-            <option value="oldest">ძველი ტრეკები ზემოთ</option>
-            <option value="title-asc">სახელწოდებით A-Z</option>
-            <option value="title-desc">სახელწოდებით Z-A</option>
-          </select>
-        </div>
-        <div id="tracks" class="tracks-list-vertical"></div>
-      </section>
-      <aside class="albums-sidebar">
-        <div class="controls">
-          <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
-          <label for="album-select">ალბომები</label>
-          <input type="hidden" id="album-select" value="">
-          <div id="album-list" class="album-list-vertical"></div>
-          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
-          <select id="subalbum-select" style="display:none;">
-            <option value="">— —</option>
-          </select>
-          <button id="refresh-btn" type="button">Refresh</button>
-        </div>
-        <!-- Вертикальный плеер -->
-        <div id="player-sidebar" class="player-sidebar">
-          <div id="player-cover">
-            <img id="player-cover-img" src="images/midcube.png" alt="Cover">
+      <div class="panel">
+        <h2>ტრეკის დამატება</h2>
+        <form id="add-track-form">
+          <div class="row">
+            <div class="col">
+              <label>Title</label>
+              <input name="title" required>
+              <label>Artist</label>
+              <input name="artist">
+              <label>Lyrics</label>
+              <textarea name="lyrics"></textarea>
+            </div>
+            <div class="small">
+              <label>Album</label>
+              <select id="track-album-select" name="album"></select>
+              <label>Audio URL</label>
+              <input name="audioUrl">
+              <label>Cover URL</label>
+              <input name="coverUrl">
+              <button type="submit">დამატება</button>
+            </div>
           </div>
-          <div id="player-info-sidebar">
-            <div id="player-title-sidebar">აირჩიეთ ტრეკი</div>
-            <div id="player-artist-sidebar"></div>
-          </div>
-          <div id="player-controls-sidebar">
-            <button id="prev-sidebar" type="button" aria-label="Previous">⏮</button>
-            <button id="play-sidebar" type="button" aria-label="Play/Pause">▶</button>
-            <button id="next-sidebar" type="button" aria-label="Next">⏭</button>
-          </div>
-          <div id="player-progress-sidebar">
-            <span id="time-current-sidebar">0:00</span>
-            <input id="progress-sidebar" type="range" min="0" max="100" value="0" aria-label="Progress">
-            <span id="time-duration-sidebar">0:00</span>
-          </div>
-          <div id="player-volume-sidebar">
-            <input id="volume-sidebar" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
-          </div>
-          <button id="show-lyrics-sidebar" type="button" style="display:none;">ტექსტი</button>
-          <a id="download-sidebar" href="#" download style="display:none;" aria-label="Download">
-            <svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>
-          </a>
-        </div>
-      </aside>
-    </main>
-  </div>
-
-  <!-- Аудио элемент -->
-  <audio id="audio" preload="none"></audio>
-
-  <!-- Модалка текстов -->
-  <div id="lyrics-modal" class="hidden" aria-hidden="true">
-    <div class="modal-box">
-      <button id="modal-close" type="button">Close</button>
-      <h3 id="modal-title">Lyrics</h3>
-      <pre id="modal-lyrics"></pre>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>არსებული ტრეკები</h2>
+        <button id="btn-refresh-tracks">Refresh tracks</button>
+        <div id="admin-tracks" class="list"></div>
+      </div>
+      <button id="logout-btn">გასვლა</button>
+    </div>
+  </main>
+  <!-- Modal for editing album -->
+  <div id="album-edit-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Edit album</h3>
+      <label>Name</label>
+      <input id="modal-album-name">
+      <label>Parent album</label>
+      <select id="modal-album-parent"></select>
+      <div class="actions">
+        <button id="modal-cancel">Cancel</button>
+        <button id="modal-save">Save</button>
+      </div>
     </div>
   </div>
-
-  <!-- Toast -->
-  <div id="toast" class="hidden" role="status" aria-live="polite"></div>
-
-  <script src="app.js"></script>
+  <script src="admin.js"></script>
 </body>
 </html>
