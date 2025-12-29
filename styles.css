@@ -141,7 +141,6 @@ header h1 {
   box-shadow: 0 12px 30px rgba(0,0,0,0.4);
 }
 
-/* Анимация свечения при наведении на карточку */
 .tracks-list-grid .card:hover .track-cover {
   box-shadow: 0 0 20px rgba(255, 204, 0, 0.4);
   transform: scale(1.05);
@@ -153,7 +152,6 @@ header h1 {
   box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
 }
 
-/* Кавер в карточке — полностью виден + анимация */
 .tracks-list-grid .track-cover {
   width: 100%;
   height: 180px;
@@ -191,16 +189,33 @@ header h1 {
   gap: 8px;
 }
 
+/* === АНИМАЦИЯ КНОПОК В ТРЕКАХ === */
 .tracks-list-grid .track-actions button {
   flex: 1;
   padding: 8px;
   font-size: 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tracks-list-grid .track-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
 }
 
 .tracks-list-grid .btn-has-lyrics {
   background: #ffcc00;
   color: #000;
   font-weight: bold;
+}
+
+.tracks-list-grid .btn-has-lyrics:hover {
+  background: #ffd633;
+  transform: translateY(-3px);
 }
 
 .tracks-list-grid .download-button {
@@ -210,10 +225,9 @@ header h1 {
   background: #2ecc71;
 }
 
-.tracks-list-grid .download-button svg {
-  width: 18px;
-  height: 18px;
-  fill: white;
+.tracks-list-grid .download-button:hover {
+  background: #3ddc84;
+  transform: translateY(-3px);
 }
 
 /* Адаптивность */
@@ -256,7 +270,6 @@ header h1 {
   box-sizing: border-box;
 }
 
-/* Контейнер обложки */
 #player-cover {
   width: 100%;
   height: 260px;
@@ -269,7 +282,6 @@ header h1 {
   justify-content: center;
 }
 
-/* Обложка в плеере */
 #player-cover-img {
   max-width: 95%;
   max-height: 95%;
@@ -277,7 +289,6 @@ header h1 {
   transition: transform 0.6s ease;
 }
 
-/* Анимация при проигрывании: лёгкое покачивание + пульсирующее свечение */
 .player-sidebar.playing #player-cover-img {
   animation: playing-cover 8s ease-in-out infinite;
 }
@@ -319,13 +330,7 @@ header h1 {
   text-overflow: ellipsis;
 }
 
-/* Кнопки управления */
-#player-controls-sidebar {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
+/* === АНИМАЦИЯ КНОПОК ПЛЕЕРА === */
 #player-controls-sidebar button {
   background: rgba(255, 255, 0, 0.15);
   color: #ffcc00;
@@ -335,13 +340,20 @@ header h1 {
   border-radius: 50%;
   font-size: 20px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 #player-controls-sidebar button:hover {
   background: #ffcc00;
   color: #000;
-  transform: scale(1.1);
+  transform: scale(1.15) rotate(5deg);
+  box-shadow: 0 0 20px rgba(255, 204, 0, 0.6);
+}
+
+#player-controls-sidebar button:active {
+  transform: scale(0.95);
 }
 
 #play-sidebar {
@@ -350,7 +362,11 @@ header h1 {
   height: 64px;
 }
 
-/* Прогресс */
+#play-sidebar:hover {
+  transform: scale(1.2) rotate(5deg);
+}
+
+/* Прогресс и громкость */
 #player-progress-sidebar {
   display: flex;
   align-items: center;
@@ -364,6 +380,11 @@ header h1 {
   border-radius: 4px;
   background: rgba(255, 255, 0, 0.2);
   appearance: none;
+  transition: background 0.3s ease;
+}
+
+#progress-sidebar:hover {
+  background: rgba(255, 255, 0, 0.4);
 }
 
 #progress-sidebar::-webkit-slider-thumb {
@@ -373,9 +394,13 @@ header h1 {
   border-radius: 50%;
   background: #ffcc00;
   cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-/* Громкость */
+#progress-sidebar::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+}
+
 #player-volume-sidebar {
   display: flex;
   align-items: center;
@@ -388,6 +413,11 @@ header h1 {
   appearance: none;
   background: rgba(255, 255, 0, 0.2);
   border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+#volume-sidebar:hover {
+  background: rgba(255, 255, 0, 0.4);
 }
 
 #volume-sidebar::-webkit-slider-thumb {
@@ -397,8 +427,14 @@ header h1 {
   border-radius: 50%;
   background: #ffcc00;
   cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
+#volume-sidebar::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+}
+
+/* Кнопки текста и скачивания в плеере */
 #show-lyrics-sidebar, #download-sidebar {
   align-self: center;
   margin-top: 8px;
@@ -413,22 +449,35 @@ header h1 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  transition: all 0.3s ease;
 }
 
-#download-sidebar svg {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
+#show-lyrics-sidebar:hover, #download-sidebar:hover {
+  background: #ffd633;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 204, 0, 0.4);
 }
 
-/* Список альбомов */
-.album-list-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 20px 0;
+/* Кнопка Refresh */
+#refresh-btn {
+  padding: 10px 20px;
+  background: rgba(255, 255, 0, 0.15);
+  color: #ffcc00;
+  border: 1px solid #ffcc00;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.3s ease;
 }
 
+#refresh-btn:hover {
+  background: #ffcc00;
+  color: #000;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 204, 0, 0.4);
+}
+
+/* Кнопки альбомов — анимация */
 .album-list-button {
   background: rgba(255, 255, 0, 0.15);
   color: #ffcc00;
@@ -438,23 +487,28 @@ header h1 {
   font-size: 16px;
   text-align: left;
   cursor: pointer;
-  transition: all 160ms ease;
+  transition: all 0.3s ease;
   width: 100%;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .album-list-button:hover {
   background: #ffcc00;
   color: #000;
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(255, 204, 0, 0.4);
 }
 
 .album-list-button.selected {
   background: #ffcc00;
   color: #000;
   font-weight: bold;
+  box-shadow: 0 8px 20px rgba(255, 204, 0, 0.5);
 }
 
 .album-list-button .track-count {
