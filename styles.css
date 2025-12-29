@@ -3,9 +3,7 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   color: #fff;
-  background-image: url("images/bigcube.jpg");
-  background-size: cover;
-  background-position: center;
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
   background-attachment: fixed;
 }
 
@@ -597,3 +595,4 @@ header nav a:hover, header nav button:hover { text-decoration: underline; }
   font-size: 14px;
   white-space: nowrap;
 }
+
