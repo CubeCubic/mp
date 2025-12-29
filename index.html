@@ -15,28 +15,35 @@
       </div>
       <h1>Cube Cubic</h1>
       <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
-      <p class="muted">მომწერეთ: ikakoba@gmail.com</p>
-      <a href="index.html" aria-label="index.html">მთავარი</a>
-      <!-- Навигация без "მთავარი" -->
       <nav>
-        <!-- "Admin" перемещён в правый угол отдельно -->
+        <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
       </nav>
-      <!-- Скрытая, но кликабельная ссылка Admin в правом верхнем углу -->
-      <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
     </header>
-   <main class="new-main-layout">
-  <aside class="albums-sidebar">
-    <div class="controls">
-      <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
-      <label for="album-select">ალბომები</label> <!-- Теперь видно -->
-      <input type="hidden" id="album-select" value="">
-      <div id="album-list" class="album-list-vertical"></div>
-      <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
-      <select id="subalbum-select" style="display:none;">
-        <option value="">— —</option>
-      </select>
-      <button id="refresh-btn" type="button">Refresh</button>
-    </div>
+    <main class="new-main-layout">
+      <section class="tracks-section">
+        <div class="tracks-header">
+          <h2>ტრეკები</h2>
+          <select id="sort-select">
+            <option value="newest">ახალი ტრეკები ზემოთ</option>
+            <option value="oldest">ძველი ტრეკები ზემოთ</option>
+            <option value="title-asc">სახელწოდებით A-Z</option>
+            <option value="title-desc">სახელწოდებით Z-A</option>
+          </select>
+        </div>
+        <div id="tracks" class="tracks-list-vertical"></div>
+      </section>
+      <aside class="albums-sidebar">
+        <div class="controls">
+          <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
+          <label for="album-select">ალბომები</label>
+          <input type="hidden" id="album-select" value="">
+          <div id="album-list" class="album-list-vertical"></div>
+          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
+          <select id="subalbum-select" style="display:none;">
+            <option value="">— —</option>
+          </select>
+          <button id="refresh-btn" type="button">Refresh</button>
+        </div>
         <!-- Вертикальный плеер -->
         <div id="player-sidebar" class="player-sidebar">
           <div id="player-cover">
@@ -65,12 +72,6 @@
           </a>
         </div>
       </aside>
-      <section class="tracks-section">
-        <div class="tracks-header">
-          <h2>ტრეკები</h2>
-        </div>
-        <div id="tracks" class="tracks-list-vertical"></div>
-      </section>
     </main>
   </div>
 
@@ -91,8 +92,4 @@
 
   <script src="app.js"></script>
 </body>
-
 </html>
-
-
-
