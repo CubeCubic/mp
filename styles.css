@@ -1,15 +1,75 @@
-/* Общие */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  color: #fff;
-  background: linear-gradient(135deg, #0d0b1e 0%, #1a1428 50%, #241133 100%);
-  background-attachment: fixed;
-  box-shadow: inset 0 0 180px rgba(255, 204, 0, 0.08);
+/* styles.css
+   Полный файл стилей — Deep ocean variant с тонким бирюзовым кантом по нижнему краю шапки.
+   Функциональность не изменялась — изменены только визуальные цвета и акценты.
+*/
+
+/* Переменные палитры и визуальные переменные */
+:root{
+  /* Deep ocean palette */
+  --ocean-deep: #071428;
+  --ocean-navy: #0f2b45;
+  --ocean-teal: #0fb3a6;
+  --ocean-sea:  #2bb7a4;
+  --ocean-coral: #ff7a66;
+  --muted-ice:  #dbeff0;
+
+  --accent-color: var(--ocean-coral);
+  --accent-2: var(--ocean-teal);
+
+  --header-height: 64px;
+  --header-padding-vertical: 6px;
+  --badge-size: calc(var(--header-height) - 18px);
+  --title-font-size: calc(var(--header-height) * 0.36);
+  --header-player-controls-size: 36px;
+  --header-player-cover-size: calc(var(--header-height) - 18px);
+
+  --card-radius: 12px;
+  --soft-shadow-neutral: 0 12px 36px rgba(2,8,14,0.55);
+  --warm-accent-glow: 0 8px 28px rgba(255,122,102,0.14);
+  --cover-border: 1px solid rgba(255,255,255,0.04);
 }
 
-/* Контейнер сайта */
+/* Базовый фон страницы — глубокий морской градиент */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--ocean-deep); /* fallback */
+}
+
+/* BACKGROUND (Deep ocean gradient) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean-navy) 35%, var(--ocean-teal) 70%, var(--ocean-sea) 100%);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  filter: saturate(1.06) contrast(1.04) brightness(0.96);
+  will-change: filter;
+}
+
+/* Overlay для читаемости */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(180deg, rgba(3,6,10,0.40), rgba(6,10,14,0.46));
+  pointer-events: none;
+}
+
+/* Контейнер контента */
 .site-wrapper {
+  position: relative;
+  z-index: 0;
+  padding-top: calc(var(--header-height) + 12px);
   max-width: 1440px;
   margin: 0 auto;
   padding-left: 20px;
@@ -17,74 +77,272 @@ body {
   box-sizing: border-box;
 }
 
+/* Header
+   Приведена к палитре Deep ocean: градиент и акценты из палитры,
+   чуть ярче фона, чтобы шапка визуально выделялась.
+   Добавлен тонкий бирюзовый кант по нижнему краю через header::after.
+*/
 header {
-  background-color: rgba(0,0,0,0.6);
-  color: #ffcc00;
-  padding: 20px;
-  text-align: center;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  padding: var(--header-padding-vertical) 16px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+
+  /* Градиент шапки в палитре Deep ocean — чуть ярче фона */
+  background: linear-gradient(180deg, rgba(11,43,69,0.86), rgba(15,47,74,0.78));
+  color: var(--accent-color);
+  z-index: 1001;
+  box-sizing: border-box;
+
+  /* Выраженный backdrop для чёткости элементов в шапке */
+  backdrop-filter: blur(6px) saturate(1.04);
+  -webkit-backdrop-filter: blur(6px) saturate(1.04);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  overflow: visible; /* чтобы псевдоэлемент канта был видим */
 }
 
-header h1 {
-  font-size: 48px;
-  font-weight: 800;
-  color: #ffcc00;
-  margin: 12px 0;
-  letter-spacing: 1px;
-  text-shadow:
-    2px 2px 0 #000,
-    4px 4px 6px rgba(0,0,0,0.6);
-}
-
-#header-badge {
+/* Тонкий бирюзовый кант по нижнему краю шапки */
+header::after {
+  content: "";
   position: absolute;
-  width: 140px;
-  height: 140px;
-  top: 22px;
-  left: 30px;
-  z-index: 10;
-  display: block;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px; /* тонкий кант; можно уменьшить до 2px при желании */
+  z-index: 1002;
+  /* мягкий градиент канта: бирюзовый → морской */
+  background: linear-gradient(90deg, rgba(15,179,166,1) 0%, rgba(43,183,164,0.95) 50%, rgba(11,43,69,0.0) 100%);
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(15,179,166,0.12); /* лёгкое свечение под кант */
 }
 
+/* Левый блок */
+#header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  grid-column: 1;
+}
+#header-badge {
+  width: var(--badge-size);
+  height: var(--badge-size);
+}
 #header-badge img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  display: block;
   border-radius: 6px;
-  box-shadow:
-    0 4px 6px rgba(0,0,0,0.6),
-    0 8px 16px rgba(0,0,0,0.4),
-    0 0 12px rgba(255,255,0,0.4);
+  box-shadow: 0 12px 34px rgba(2,8,14,0.6), 0 6px 18px rgba(15,179,166,0.06);
 }
 
-/* Поисковик */
+/* Бренд: логотипный коралл для выделения */
+header h1 {
+  margin: 0;
+  font-size: var(--title-font-size);
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: var(--accent-color);
+  -webkit-text-stroke: 0.4px rgba(0,0,0,0.18);
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.14),
+    0 3px 8px rgba(0,0,0,0.12),
+    0 0 8px rgba(255,122,102,0.06);
+  filter: drop-shadow(0 6px 12px rgba(255,122,102,0.05));
+  transition: text-shadow 160ms ease, transform 160ms ease;
+}
+header h1 a#brand-link {
+  color: var(--accent-color) !important;
+  text-decoration: none;
+  display: inline-block;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+/* Плеер (в header) */
+#header-player {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  min-width: 320px;
+  max-width: 70%;
+  box-sizing: border-box;
+}
+
+/* Обложка в шапке */
+.header-player-cover {
+  width: var(--header-player-cover-size);
+  height: var(--header-player-cover-size);
+  border-radius: 6px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(15,179,166,0.10), rgba(11,43,69,0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 34px rgba(2,8,14,0.6), 0 6px 18px rgba(15,179,166,0.05);
+}
+.header-player-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Инфо плеера */
+.player-info-header {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 260px;
+}
+.player-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.player-artist {
+  font-size: 12px;
+  color: var(--muted-ice);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Кнопки плеера */
+.player-controls-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.player-controls-header button {
+  width: var(--header-player-controls-size);
+  height: var(--header-player-controls-size);
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  color: var(--accent-2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
+}
+.player-controls-header button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(2,8,14,0.44), 0 3px 10px rgba(15,179,166,0.04);
+}
+
+/* Поиск и контейнеры */
 #global-search {
   margin-top: 12px;
   margin-bottom: 20px;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #333;
-  background: #111;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   color: #fff;
   font-size: 15px;
   width: 100%;
   box-sizing: border-box;
 }
-
 .controls {
   border-bottom: none;
   padding-bottom: 0;
   margin-bottom: 0;
 }
 
-/* Стили для надписи "ალბომები" */
-.controls label[for="album-select"] {
-  display: block;
-  margin: 16px 0 8px 0;
+/* album header: label и кнопка в одну строку */
+.album-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 12px 0;
+}
+.album-header label {
+  margin: 0;
   font-size: 16px;
   font-weight: bold;
-  color: #ffcc00;
+  color: var(--accent-2);
+}
+
+/* Refresh button — коралловый акцент */
+#refresh-btn {
+  background: var(--accent-color);
+  color: #000;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(255,122,102,0.12);
+  transition: transform 140ms ease, filter 140ms ease;
+}
+#refresh-btn:hover {
+  transform: translateY(-3px);
+  filter: brightness(0.98);
+}
+
+/* Скрываем старую метку (если есть) */
+.controls label[for="album-select"] {
+  display: none;
+}
+
+/* Список альбомов контейнер */
+.album-list-vertical {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Большие кнопки альбомов (scoped) */
+.album-list-vertical .album-list-button {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #f2f9f8;
+  border: 1px solid rgba(15,179,166,0.06);
+  padding: 14px 16px;
+  border-radius: calc(var(--card-radius) - 2px);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
+}
+.album-list-vertical .album-list-button:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
+  color: #000;
+}
+.album-list-vertical .album-list-button .track-count {
+  background: rgba(0,0,0,0.10);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #fff;
+  min-width: 44px;
+  text-align: center;
 }
 
 /* Новый layout */
@@ -96,23 +354,24 @@ header h1 {
   padding: 0 20px;
   box-sizing: border-box;
 }
-
 .albums-sidebar {
   flex: 0 0 260px;
   position: sticky;
-  top: 20px;
+  top: calc(var(--header-height) + 12px);
   align-self: flex-start;
-  max-height: calc(100vh - 40px);
+  max-height: calc(100vh - (var(--header-height) + 40px));
   overflow-y: auto;
 }
-
 .tracks-section {
   flex: 1;
   min-width: 0;
 }
-
 .tracks-header {
   margin-bottom: 16px;
+}
+.tracks-header h2 {
+  color: var(--accent-2);
+  margin: 0 0 8px 0;
 }
 
 /* === Треки в три колонки === */
@@ -121,41 +380,103 @@ header h1 {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   padding: 0 10px;
+  box-sizing: border-box;
 }
 
-/* Карточка в grid */
+/* Карточки треков */
 .tracks-list-grid .card {
   display: flex;
   flex-direction: column;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: var(--card-radius);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  box-shadow: var(--soft-shadow-neutral);
 }
-
 .tracks-list-grid .card:hover {
-  background: rgba(255,255,255,0.15);
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 22px 52px rgba(2,8,14,0.28), var(--warm-accent-glow);
 }
 
+/* Усиленный эффект для проигрываемой карточки (Deep ocean bright) */
 .tracks-list-grid .card.playing-track {
-  background: rgba(255, 204, 0, 0.2);
-  border: 2px solid #ffcc00;
-  box-shadow: 0 0 20px rgba(255, 204, 0, 0.4);
+  background: linear-gradient(180deg, rgba(15,179,166,0.22), rgba(11,43,69,0.16));
+  border: 2.5px solid rgba(255,122,102,0.30);
+  box-shadow:
+    0 36px 96px rgba(2,8,14,0.62),
+    0 16px 48px rgba(255,140,120,0.26),
+    0 10px 30px rgba(15,179,166,0.16);
+  transform: translateY(-10px) scale(1.05);
+  transition: background 260ms cubic-bezier(.2,.9,.2,1),
+              box-shadow 260ms cubic-bezier(.2,.9,.2,1),
+              border 260ms cubic-bezier(.2,.9,.2,1),
+              transform 260ms cubic-bezier(.2,.9,.2,1);
+  position: relative;
+  z-index: 6;
+  filter: drop-shadow(0 20px 60px rgba(255,140,120,0.18));
 }
 
+/* Яркая пульсация — включается классом .animate-deepocean */
+@keyframes deepOceanPulseBright {
+  0% {
+    box-shadow:
+      0 36px 96px rgba(2,8,14,0.62),
+      0 16px 48px rgba(255,140,120,0.26),
+      0 10px 30px rgba(15,179,166,0.16);
+    transform: translateY(-10px) scale(1.05);
+    filter: drop-shadow(0 20px 60px rgba(255,140,120,0.18));
+  }
+  50% {
+    box-shadow:
+      0 48px 120px rgba(2,8,14,0.68),
+      0 24px 64px rgba(255,160,140,0.34),
+      0 14px 40px rgba(15,179,166,0.22);
+    transform: translateY(-12px) scale(1.06);
+    filter: drop-shadow(0 28px 80px rgba(255,160,140,0.22));
+  }
+  100% {
+    box-shadow:
+      0 36px 96px rgba(2,8,14,0.62),
+      0 16px 48px rgba(255,140,120,0.26),
+      0 10px 30px rgba(15,179,166,0.16);
+    transform: translateY(-10px) scale(1.05);
+    filter: drop-shadow(0 20px 60px rgba(255,140,120,0.18));
+  }
+}
+.tracks-list-grid .card.playing-track.animate-deepocean {
+  animation: deepOceanPulseBright 1800ms ease-in-out infinite;
+}
+
+/* Обложка трека */
 .tracks-list-grid .track-cover {
   width: 100%;
   height: 180px;
   object-fit: contain;
-  background-color: #111;
-  padding: 10px;
+  object-position: center;
+  background-color: rgba(255,255,255,0.02);
+  display: block;
+  padding: 0;
   box-sizing: border-box;
+  border-radius: 8px;
+  border: var(--cover-border);
+  box-shadow: 0 12px 36px rgba(2,8,14,0.22), 0 6px 20px rgba(255,122,102,0.08), 0 4px 14px rgba(15,179,166,0.06);
+}
+.tracks-list-grid img.track-cover {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: var(--cover-border);
+  box-shadow: 0 12px 36px rgba(2,8,14,0.22), 0 6px 20px rgba(255,122,102,0.08), 0 4px 14px rgba(15,179,166,0.06);
 }
 
+/* Track info */
 .tracks-list-grid .track-info {
   padding: 12px;
   flex: 1;
@@ -163,45 +484,47 @@ header h1 {
   flex-direction: column;
   justify-content: space-between;
 }
-
 .tracks-list-grid .track-info h4 {
   margin: 0 0 6px 0;
   font-size: 15px;
-  white-space: normal;
   line-height: 1.3;
 }
-
 .tracks-list-grid .track-info div {
   font-size: 13px;
-  color: #cfcfcf;
+  color: var(--muted-ice);
   margin-bottom: 8px;
 }
 
+/* Track actions */
 .tracks-list-grid .track-actions {
   display: flex;
   justify-content: space-between;
   gap: 8px;
 }
-
 .tracks-list-grid .track-actions button {
   flex: 1;
   padding: 8px;
   font-size: 13px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
 }
-
+.tracks-list-grid .track-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(2,8,14,0.16), 0 3px 10px rgba(15,179,166,0.05);
+}
 .tracks-list-grid .btn-has-lyrics {
-  background: #ffcc00;
+  background: linear-gradient(90deg, var(--ocean-coral, #ff7a66), #ff8f78);
   color: #000;
-  font-weight: bold;
+  font-weight: 700;
 }
-
 .tracks-list-grid .download-button {
   width: auto;
   height: auto;
   padding: 8px;
   background: #2ecc71;
 }
-
 .tracks-list-grid .download-button svg {
   width: 18px;
   height: 18px;
@@ -213,277 +536,60 @@ header h1 {
   #tracks.tracks-list-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  #header-player {
+    max-width: 70%;
+    min-width: 260px;
+  }
 }
-
 @media (max-width: 900px) {
   #tracks.tracks-list-grid {
     grid-template-columns: 1fr;
   }
-
   .new-main-layout {
     flex-direction: column;
   }
-
   .albums-sidebar {
     position: static;
     max-height: none;
     overflow: visible;
   }
+  :root {
+    --header-height: 56px;
+    --badge-size: 40px;
+    --header-player-controls-size: 32px;
+    --header-player-cover-size: 36px;
+  }
+  #header-player {
+    max-width: 60%;
+    min-width: 180px;
+  }
 }
 
-/* Список альбомов */
-.album-list-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 20px 0 0 0;
-}
-
-/* Кнопки альбомов */
-.album-list-button {
-  background: rgba(255, 255, 0, 0.15);
-  color: #ffcc00;
-  border: 1px solid #ffcc00;
-  padding: 14px 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  text-align: left;
-  cursor: pointer;
-  transition: all 160ms ease;
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.album-list-button:hover {
-  background: #ffcc00;
-  color: #000;
-}
-
-.album-list-button.selected {
-  background: #ffcc00;
-  color: #000;
-  font-weight: bold;
-}
-
-.album-list-button .track-count {
-  font-size: 13px;
-  opacity: 0.8;
-}
-
-.album-list-button[data-album-name="Georgian"] {
-  order: -1;
-}
-
-/* Блок подальбомов */
-.subalbum-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-#subalbum-label {
-  font-size: 16px;
-  font-weight: bold;
-  color: #ffcc00;
-  margin: 0;
-}
-
-#subalbum-select {
-  background: rgba(255, 255, 0, 0.15);
-  color: #ffcc00;
-  border: 1px solid #ffcc00;
-  padding: 14px 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  width: 100%;
-  box-sizing: border-box;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23ffcc00' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  padding-right: 40px;
-  transition: all 160ms ease;
-}
-
-#subalbum-select:hover {
-  background: #ffcc00;
-  color: #000;
-}
-
-#subalbum-select option {
-  background: #111;
-  color: #fff;
-  padding: 10px;
-}
-
-/* Плеер */
-.player-sidebar {
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 24px;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 0, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-#player-cover {
-  width: 100%;
-  height: 260px;
-  background-color: #111;
-  overflow: hidden;
-  border-radius: 10px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#player-cover-img {
-  max-width: 95%;
-  max-height: 95%;
-  object-fit: contain;
-  transition: transform 0.6s ease;
-}
-
-.player-sidebar.playing #player-cover-img {
-  transform: scale(1.02);
-}
-
-/* Информация о треке */
-#player-info-sidebar {
-  text-align: center;
-}
-
-#player-title-sidebar {
-  font-size: 17px;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#player-artist-sidebar {
-  font-size: 14px;
-  color: #ccc;
-  margin-top: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Кнопки управления */
-#player-controls-sidebar {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
-#player-controls-sidebar button {
-  background: rgba(255, 255, 0, 0.15);
-  color: #ffcc00;
-  border: none;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-#player-controls-sidebar button:hover {
-  background: #ffcc00;
-  color: #000;
-  transform: scale(1.1);
-}
-
-#play-sidebar {
-  font-size: 28px;
-  width: 64px;
-  height: 64px;
-}
-
-/* Прогресс */
-#player-progress-sidebar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-}
-
-#progress-sidebar {
-  flex: 1;
-  height: 8px;
-  border-radius: 4px;
-  background: rgba(255, 255, 0, 0.2);
-  appearance: none;
-}
-
-#progress-sidebar::-webkit-slider-thumb {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #ffcc00;
-  cursor: pointer;
-}
-
-/* Громкость */
-#player-volume-sidebar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#volume-sidebar {
-  width: 100%;
-  height: 8px;
-  appearance: none;
-  background: rgba(255, 255, 0, 0.2);
-  border-radius: 4px;
-}
-
-#volume-sidebar::-webkit-slider-thumb {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #ffcc00;
-  cursor: pointer;
-}
-
-/* Скрытая ссылка Admin */
+/* Admin: правый угол, невидимая ссылка с подсказкой */
 #hidden-admin-link {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 80px;
-  height: 40px;
-  z-index: 20;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 32px;
+  z-index: 1202;
   color: transparent;
   font-size: 0;
   text-indent: -9999px;
   overflow: hidden;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  pointer-events: auto;
 }
-
 #hidden-admin-link:hover::after {
   content: "Admin";
   position: absolute;
   top: 100%;
   right: 0;
   background: rgba(0,0,0,0.8);
-  color: #ffcc00;
+  color: var(--accent-color);
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 14px;
@@ -491,21 +597,36 @@ header h1 {
 }
 
 /* Модалки */
-#lyrics-modal.hidden { display: none !important; }
+#lyrics-modal.hidden {
+  display: none !important;
+}
 #lyrics-modal {
-  position: fixed; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.7);
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.36);
   z-index: 2000;
 }
 .modal-box {
-  background: white; color: #000;
-  padding: 16px; border-radius: 6px;
-  max-width: 420px; width: 92%;
-  max-height: 70vh; overflow-y: auto;
+  background: white;
+  color: #000;
+  padding: 16px;
+  border-radius: 6px;
+  max-width: 420px;
+  width: 92%;
+  max-height: 70vh;
+  overflow-y: auto;
 }
-.modal-box h3 { margin-top: 0; font-size: 16px; }
-.modal-box pre { white-space: pre-wrap; font-size: 13px; }
+.modal-box h3 {
+  margin-top: 0;
+  font-size: 16px;
+}
+.modal-box pre {
+  white-space: pre-wrap;
+  font-size: 13px;
+}
 
 /* Toast */
 #toast {
@@ -513,7 +634,7 @@ header h1 {
   left: 50%;
   transform: translateX(-50%);
   bottom: 90px;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.72);
   color: #fff;
   padding: 8px 12px;
   border-radius: 6px;
@@ -522,4 +643,6 @@ header h1 {
   opacity: 0;
   transition: opacity 180ms ease;
 }
-#toast.visible { opacity: 1; }
+#toast.visible {
+  opacity: 1;
+}
