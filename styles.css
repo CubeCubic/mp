@@ -399,28 +399,6 @@ header h1 {
   cursor: pointer;
 }
 
-#show-lyrics-sidebar, #download-sidebar {
-  align-self: center;
-  margin-top: 8px;
-  padding: 10px 20px;
-  background: #ffcc00;
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 15px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#download-sidebar svg {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
-}
-
 /* Список альбомов */
 .album-list-vertical {
   display: flex;

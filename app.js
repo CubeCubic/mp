@@ -7,7 +7,7 @@
   const globalSearchInput = document.getElementById('global-search');
   const albumListContainer = document.getElementById('album-list');
 
-  // Вертикальный плеер
+  // Вертикальный плеер (обновлено: без кнопок "ტექსტი" и "ჩამოტვირთვა")
   const playerSidebar = document.getElementById('player-sidebar');
   const playerCoverImg = document.getElementById('player-cover-img');
   const playerTitleSidebar = document.getElementById('player-title-sidebar');
@@ -19,8 +19,6 @@
   const timeCurrentSidebar = document.getElementById('time-current-sidebar');
   const timeDurationSidebar = document.getElementById('time-duration-sidebar');
   const volumeSidebar = document.getElementById('volume-sidebar');
-  const showLyricsSidebar = document.getElementById('show-lyrics-sidebar');
-  const downloadSidebar = document.getElementById('download-sidebar');
 
   const audio = document.getElementById('audio');
 
@@ -153,14 +151,14 @@
       countSpan.textContent = `(${trackCount})`;
       btn.appendChild(countSpan);
 
-      if (String(albumSelect.value || '') === String(a.id || '')) {
+      if (String(albumSelect?.value || '') === String(a.id || '')) {
         btn.classList.add('selected');
       }
 
       btn.addEventListener('click', (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
-        albumSelect.value = String(a.id || '');
+        if (albumSelect) albumSelect.value = String(a.id || '');
         renderAlbumList();
         onAlbumChange();
       });
@@ -253,7 +251,7 @@
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
 
-    let toRender = filteredTracks;
+    let toRender = filteredTracks.slice();
 
     const selectedAlbumId = albumSelect ? albumSelect.value : '';
     const selectedSubalbumId = subalbumSelect ? subalbumSelect.value : '';
@@ -269,7 +267,7 @@
     }
 
     if (!selectedAlbumId && !selectedSubalbumId && (!globalSearchInput || globalSearchInput.value.trim() === '')) {
-      toRender = tracks;
+      toRender = tracks.slice();
     }
 
     if (!toRender.length) {
@@ -277,86 +275,116 @@
       return;
     }
 
-    // === Обновление: новые треки всегда сверху (по убыванию id) ===
+    // новые треки сверху
     toRender = toRender.slice().sort((a, b) => (b.id || 0) - (a.id || 0));
 
-    toRender.forEach(t => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.setAttribute('data-track-id', t.id || '');
+    // Построим таблицу с колонками: #, Covers, Title, Action
+    const table = document.createElement('table');
+    table.className = 'table';
+    const thead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+    ['#','Covers','Title','Action'].forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
 
-      const img = document.createElement('img');
-      img.className = 'track-cover';
-      img.src = getCoverUrl(t);
-      img.alt = safeStr(t.title) + ' cover';
-      card.appendChild(img);
+    const tbody = document.createElement('tbody');
 
-      const info = document.createElement('div');
-      info.className = 'track-info';
+    toRender.forEach((t, idx) => {
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-track-id', t.id || '');
 
-      const title = document.createElement('h4');
-      title.textContent = safeStr(t.title);
-      info.appendChild(title);
+      // Index
+      const tdIndex = document.createElement('td');
+      tdIndex.textContent = (idx + 1).toString();
+      tr.appendChild(tdIndex);
 
-      const artist = document.createElement('div');
-      artist.textContent = safeStr(t.artist);
-      info.appendChild(artist);
+      // Covers column: show one small thumbnail (keeps design compact)
+      const tdCovers = document.createElement('td');
+      tdCovers.className = 'covers-cell';
+      const coverImgEl = document.createElement('img');
+      coverImgEl.className = 'cover-thumb';
+      coverImgEl.src = getCoverUrl(t);
+      coverImgEl.alt = safeStr(t.title) + ' cover';
+      coverImgEl.onerror = () => { coverImgEl.src = 'images/midcube.png'; };
+      tdCovers.appendChild(coverImgEl);
+      tr.appendChild(tdCovers);
 
-      const actions = document.createElement('div');
-      actions.className = 'track-actions';
+      // Title column (title + album meta)
+      const tdTitle = document.createElement('td');
+      const titleWrap = document.createElement('div');
+      titleWrap.className = 'track-title';
+      titleWrap.textContent = safeStr(t.title);
+      const albumName = (albums.find(a => a.id === t.albumId) || {}).name || '';
+      const meta = document.createElement('div');
+      meta.className = 'track-artist';
+      meta.textContent = albumName ? albumName : '';
+      tdTitle.appendChild(titleWrap);
+      tdTitle.appendChild(meta);
+      tr.appendChild(tdTitle);
 
-      if (t.lyrics) {
-        const lyricsBtn = document.createElement('button');
-        lyricsBtn.type = 'button';
-        lyricsBtn.className = 'btn-has-lyrics';
-        lyricsBtn.textContent = 'ტექსტი';
-        lyricsBtn.addEventListener('click', (ev) => {
+      // Action column: lyrics (if any), download, like
+      const tdAction = document.createElement('td');
+
+      if (t.lyrics && t.lyrics.trim()) {
+        const btnLyrics = document.createElement('button');
+        btnLyrics.className = 'action-btn lyrics';
+        btnLyrics.type = 'button';
+        btnLyrics.textContent = 'ტექსტი';
+        btnLyrics.addEventListener('click', (ev) => {
           ev.stopPropagation();
           modalTitle.textContent = t.title || 'Lyrics';
-          modalLyrics.textContent = t.lyrics;
+          modalLyrics.textContent = t.lyrics || '';
           lyricsModal.classList.remove('hidden');
           lyricsModal.setAttribute('aria-hidden', 'false');
         });
-        actions.appendChild(lyricsBtn);
+        tdAction.appendChild(btnLyrics);
       }
 
       const stream = getStreamUrl(t);
-      const downloadBtnCard = document.createElement('button');
-      downloadBtnCard.type = 'button';
-      downloadBtnCard.className = 'download-button';
-      downloadBtnCard.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
-
+      const aDownload = document.createElement('a');
+      aDownload.className = 'action-btn download';
+      aDownload.textContent = 'Download';
       if (stream && stream.trim() !== '') {
-        downloadBtnCard.addEventListener('click', async (ev) => {
-          ev.preventDefault();
-          ev.stopPropagation();
-
-          let filename = 'track.mp3';
-          try {
-            const u = new URL(stream);
-            filename = decodeURIComponent(u.pathname.split('/').pop() || 'track.mp3');
-          } catch {}
-
-          await triggerDownload(stream, filename);
-        });
+        aDownload.href = stream;
+        aDownload.setAttribute('download', '');
+        aDownload.setAttribute('rel', 'noopener noreferrer');
+        aDownload.setAttribute('target', '_blank');
       } else {
-        downloadBtnCard.disabled = true;
-        downloadBtnCard.style.opacity = '0.5';
+        aDownload.href = '#';
+        aDownload.classList.add('disabled');
       }
-      actions.appendChild(downloadBtnCard);
+      tdAction.appendChild(aDownload);
 
-      card.appendChild(img);
-      card.appendChild(info);
-      card.appendChild(actions);
+      // Like button (compact)
+      const likeBtn = document.createElement('button');
+      likeBtn.type = 'button';
+      likeBtn.className = 'like-button';
+      likeBtn.setAttribute('aria-label', 'Like track');
+      likeBtn.textContent = '❤';
+      likeBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        showToast('Liked');
+      });
+      tdAction.appendChild(likeBtn);
 
-      card.addEventListener('click', () => {
+      tr.appendChild(tdAction);
+
+      // Row click: play track
+      tr.addEventListener('click', () => {
         userHasInteracted = true;
-        const idx = toRender.indexOf(t);
-        playTrackByIndex(idx);
+        const idxGlobal = toRender.indexOf(t);
+        playTrackByIndex(idxGlobal);
       });
 
-      tracksContainer.appendChild(card);
+      tbody.appendChild(tr);
     });
+
+    table.appendChild(tbody);
+    tracksContainer.appendChild(table);
 
     filteredTracks = toRender;
 
@@ -399,8 +427,6 @@
       playerCoverImg.src = 'images/midcube.png';
       playBtnSidebar.textContent = '▶';
       playerSidebar.classList.remove('playing');
-      showLyricsSidebar.style.display = 'none';
-      downloadSidebar.style.display = 'none';
       return;
     }
 
@@ -408,22 +434,6 @@
     playerArtistSidebar.textContent = safeStr(t.artist);
     playerCoverImg.src = getCoverUrl(t);
     playerSidebar.classList.add('playing');
-
-    showLyricsSidebar.style.display = t.lyrics ? 'block' : 'none';
-
-    const stream = getStreamUrl(t);
-    if (stream && stream.trim() !== '') {
-      downloadSidebar.href = stream;
-      downloadSidebar.style.display = 'inline-flex';
-      let suggested = 'track.mp3';
-      try {
-        const u = new URL(stream);
-        suggested = decodeURIComponent(u.pathname.split('/').pop() || 'track.mp3');
-      } catch {}
-      downloadSidebar.download = suggested;
-    } else {
-      downloadSidebar.style.display = 'none';
-    }
   }
 
   function playTrackByIndex(idx) {
@@ -478,42 +488,34 @@
   }
 
   // Обработчики аудио
-  audio.addEventListener('playing', () => playBtnSidebar.textContent = '❚❚');
-  audio.addEventListener('pause', () => playBtnSidebar.textContent = '▶');
+  audio.addEventListener('playing', () => { if (playBtnSidebar) playBtnSidebar.textContent = '❚❚'; });
+  audio.addEventListener('pause', () => { if (playBtnSidebar) playBtnSidebar.textContent = '▶'; });
   audio.addEventListener('ended', playNext);
   audio.addEventListener('timeupdate', () => {
     if (audio.duration) {
-      progressSidebar.value = audio.currentTime;
-      progressSidebar.max = audio.duration;
-      timeCurrentSidebar.textContent = formatTime(audio.currentTime);
+      if (progressSidebar) {
+        progressSidebar.value = audio.currentTime;
+        progressSidebar.max = audio.duration;
+      }
+      if (timeCurrentSidebar) timeCurrentSidebar.textContent = formatTime(audio.currentTime);
     }
   });
   audio.addEventListener('loadedmetadata', () => {
-    timeDurationSidebar.textContent = formatTime(audio.duration);
-    progressSidebar.max = audio.duration || 0;
+    if (timeDurationSidebar) timeDurationSidebar.textContent = formatTime(audio.duration);
+    if (progressSidebar) progressSidebar.max = audio.duration || 0;
   });
-  audio.addEventListener('volumechange', () => volumeSidebar.value = audio.volume);
+  audio.addEventListener('volumechange', () => { if (volumeSidebar) volumeSidebar.value = audio.volume; });
   audio.addEventListener('error', (e) => {
     console.error('Audio error:', e);
     updateSidebarPlayer(null);
   });
 
   // Управление плеером
-  playBtnSidebar.addEventListener('click', togglePlayPause);
-  prevBtnSidebar.addEventListener('click', playPrev);
-  nextBtnSidebar.addEventListener('click', playNext);
-  progressSidebar.addEventListener('input', () => audio.currentTime = progressSidebar.value);
-  volumeSidebar.addEventListener('input', () => audio.volume = parseFloat(volumeSidebar.value));
-
-  showLyricsSidebar.addEventListener('click', () => {
-    const t = filteredTracks[currentTrackIndex];
-    if (t && t.lyrics) {
-      modalTitle.textContent = t.title || 'Lyrics';
-      modalLyrics.textContent = t.lyrics;
-      lyricsModal.classList.remove('hidden');
-      lyricsModal.setAttribute('aria-hidden', 'false');
-    }
-  });
+  if (playBtnSidebar) playBtnSidebar.addEventListener('click', togglePlayPause);
+  if (prevBtnSidebar) prevBtnSidebar.addEventListener('click', playPrev);
+  if (nextBtnSidebar) nextBtnSidebar.addEventListener('click', playNext);
+  if (progressSidebar) progressSidebar.addEventListener('input', () => { audio.currentTime = progressSidebar.value; });
+  if (volumeSidebar) volumeSidebar.addEventListener('input', () => { audio.volume = parseFloat(volumeSidebar.value); });
 
   // Закрытие модалки текстов
   if (modalClose) {
