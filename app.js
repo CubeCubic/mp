@@ -277,6 +277,7 @@
       return;
     }
 
+    // === Обновление: новые треки всегда сверху (по убыванию id) ===
     toRender = toRender.slice().sort((a, b) => (b.id || 0) - (a.id || 0));
 
     toRender.forEach(t => {
@@ -398,6 +399,8 @@
       playerCoverImg.src = 'images/midcube.png';
       playBtnSidebar.textContent = '▶';
       playerSidebar.classList.remove('playing');
+      showLyricsSidebar.style.display = 'none';
+      downloadSidebar.style.display = 'none';
       return;
     }
 
@@ -405,6 +408,22 @@
     playerArtistSidebar.textContent = safeStr(t.artist);
     playerCoverImg.src = getCoverUrl(t);
     playerSidebar.classList.add('playing');
+
+    showLyricsSidebar.style.display = t.lyrics ? 'block' : 'none';
+
+    const stream = getStreamUrl(t);
+    if (stream && stream.trim() !== '') {
+      downloadSidebar.href = stream;
+      downloadSidebar.style.display = 'inline-flex';
+      let suggested = 'track.mp3';
+      try {
+        const u = new URL(stream);
+        suggested = decodeURIComponent(u.pathname.split('/').pop() || 'track.mp3');
+      } catch {}
+      downloadSidebar.download = suggested;
+    } else {
+      downloadSidebar.style.display = 'none';
+    }
   }
 
   function playTrackByIndex(idx) {
@@ -485,6 +504,16 @@
   nextBtnSidebar.addEventListener('click', playNext);
   progressSidebar.addEventListener('input', () => audio.currentTime = progressSidebar.value);
   volumeSidebar.addEventListener('input', () => audio.volume = parseFloat(volumeSidebar.value));
+
+  showLyricsSidebar.addEventListener('click', () => {
+    const t = filteredTracks[currentTrackIndex];
+    if (t && t.lyrics) {
+      modalTitle.textContent = t.title || 'Lyrics';
+      modalLyrics.textContent = t.lyrics;
+      lyricsModal.classList.remove('hidden');
+      lyricsModal.setAttribute('aria-hidden', 'false');
+    }
+  });
 
   // Закрытие модалки текстов
   if (modalClose) {
