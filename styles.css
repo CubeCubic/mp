@@ -1,5 +1,6 @@
 /* styles.css
    Полный файл стилей с размытым hero-фоном + overlay.
+   Путь к фоновому изображению заменён на webp-версию: images/bigcube.webp
    Функциональность не изменялась — только визуальные правки.
 */
 
@@ -25,7 +26,7 @@
   --cover-border: 1px solid rgba(255,255,255,0.04);
 }
 
-/* Базовый фон страницы — теперь пустой, фон рисуется псевдоэлементом body::before */
+/* Базовый фон страницы — теперь фон рисуется псевдоэлементом body::before */
 html,body {
   height: 100%;
   margin: 0;
@@ -38,17 +39,16 @@ html,body {
 }
 
 /* ===== HERO BACKGROUND (blur + overlay) =====
-   Использует изображение images/bigcube.jpg как фон.
+   Использует изображение images/bigcube.webp как фон.
    Реализовано через body::before (изображение + blur + scale)
    и body::after (цветной overlay для читаемости).
-   Псевдоэлементы фиксированы и не влияют на поток документа.
 */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -3;
-  background-image: url('images/bigcube.jpg');
+  background-image: url('images/bigcube.webp');
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -66,7 +66,6 @@ body::after {
   inset: 0;
   z-index: -2;
   background: linear-gradient(180deg, rgba(10,8,14,0.55), rgba(20,16,26,0.65));
-  /* добавим тонкое цветовое свечение логотипа по диагонали */
   background-blend-mode: overlay;
   pointer-events: none;
 }
