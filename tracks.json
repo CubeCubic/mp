@@ -12,22 +12,22 @@
     },
     {
       "id": "1767101002065",
-      "name": "-Funk",
+      "name": "Funk",
       "parentId": "1767100972913"
     },
     {
       "id": "1767101022145",
-      "name": "-Blues-Rock",
+      "name": "Blues-Rock",
       "parentId": "1767100972913"
     },
     {
       "id": "1767101030017",
-      "name": "-Jazz",
+      "name": "Jazz",
       "parentId": "1767100972913"
     },
     {
       "id": "1767101048345",
-      "name": "-Funk Fusion",
+      "name": "Funk Fusion",
       "parentId": "1767100972913"
     }
   ],
@@ -208,7 +208,7 @@
       "title": "Rise Up",
       "artist": "Cube Cubic",
       "lyrics": "",
-      "albumId": "1767099437898",
+      "albumId": "1767101022145",
       "audioUrl": "https://archive.org/download/rise-up_202512/Rise_Up.wav",
       "coverUrl": "https://archive.org/download/rise-up_202512/Rise%20Up.png"
     },
@@ -262,7 +262,7 @@
       "title": "Evening Groove",
       "artist": "Cube Cubic",
       "lyrics": "",
-      "albumId": "1767099799250",
+      "albumId": "Funk Fusion",
       "audioUrl": "https://archive.org/download/rise-up_202512/Evening%20Groove.wav",
       "coverUrl": "https://archive.org/download/rise-up_202512/Evening%20Groove.png"
     }
