@@ -10,15 +10,22 @@
 <body>
   <div class="site-wrapper">
     <header>
-      <div id="header-badge" aria-hidden="false">
-        <img src="images/midcube.png" alt="midcube">
-      </div>
-      <h1>Cube Cubic</h1>
-      <p class="muted">კეთილი იყოს თქვენი მობრძანება</p>
-      <p class="muted">მომწერეთ: ikakoba@gmail.com</p>
-      <a href="index.html" aria-label="index.html">მთავარი</a>
-      <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
-    </header>
+  <div id="header-badge" aria-hidden="false">
+    <img src="images/midcube.png" alt="midcube">
+  </div>
+
+  <!-- Бренд: теперь ссылка на главную -->
+  <h1>
+    <a id="brand-link" href="index.html" aria-label="Home">Cube Cubic</a>
+  </h1>
+
+  <!-- Статичная приветственная надпись вместо кнопки "მთავარი" -->
+  <div class="header-welcome">კეთილი იყოს თქვენი მობრძანება</div>
+
+  <p class="muted">მომწერეთ: ikakoba@gmail.com</p>
+
+  <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
+</header>
     <main class="new-main-layout">
       <aside class="albums-sidebar">
         <div class="controls">
