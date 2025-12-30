@@ -197,15 +197,23 @@ header h1 a#brand-link { color: var(--accent-color) !important; text-decoration:
 .tracks-list-grid .card.playing-track { background: rgba(255, 204, 0, 0.2); border: 2px solid var(--accent-color); box-shadow: 0 0 25px rgba(255, 204, 0, 0.5); }
 
 /* Обложка трека — показываем полностью без обрезки, но сохраняем отведённую область */
+/* Мягкая тень и аккуратная рамка для обложек треков */
 .tracks-list-grid .track-cover {
   width: 100%;
-  height: 180px;            /* сохраняем прежнюю высоту карточки */
-  object-fit: contain;      /* показываем весь квадрат целиком (letterbox при необходимости) */
+  height: 180px;           /* сохраняем прежнюю высоту карточки */
+  object-fit: contain;     /* показываем весь квадрат целиком */
   object-position: center;
-  background-color: #111;   /* фон для "поля" вокруг изображения */
+  background-color: #111;  /* фон для "поля" вокруг изображения */
   display: block;
-  padding: 0;               /* убираем внутренние отступы, чтобы изображение занимало отведённую область */
+  padding: 0;
   box-sizing: border-box;
+
+  /* Тень и лёгкая рамка */
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.6),        /* основная мягкая тень */
+    0 2px 8px rgba(255,204,0,0.04);    /* лёгкое тёплое свечение акцента */
 }
 
 /* Если где-то используется img внутри контейнера, обеспечим тот же эффект */
