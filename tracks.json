@@ -262,9 +262,18 @@
       "title": "Evening Groove",
       "artist": "Cube Cubic",
       "lyrics": "",
-      "albumId": "1767101048345",
+      "albumId": "Funk Fusion",
       "audioUrl": "https://archive.org/download/rise-up_202512/Evening%20Groove.wav",
       "coverUrl": "https://archive.org/download/rise-up_202512/Evening%20Groove.png"
+    },
+    {
+      "id": "1767101766851",
+      "title": "Mystery",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767101048345",
+      "audioUrl": "https://archive.org/download/rise-up_202512/Mystery.wav",
+      "coverUrl": "https://archive.org/download/rise-up_202512/Mystery.png"
     }
   ]
 }
