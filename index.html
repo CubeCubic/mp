@@ -9,8 +9,18 @@
 </head>
 <body>
   <div class="site-wrapper">
-    კეთილი იყოს თქვენი მობრძანება
-მომწერეთ: ikakoba@gmail.com
+    <header>
+      <div id="header-badge" aria-hidden="false">
+        <img src="images/midcube.png" alt="midcube">
+      </div>
+
+      <h1>
+        <a id="brand-link" href="index.html" aria-label="Home">Cube Cubic</a>
+      </h1>
+
+      <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
+    </header>
+
     <main class="new-main-layout">
       <aside class="albums-sidebar">
         <div class="controls">
@@ -25,8 +35,7 @@
           <button id="refresh-btn" type="button">Refresh</button>
         </div>
 
-        <!-- Плеер в сайдбаре: УБРАНЫ кнопки "ტექსტი" и "ჩამოტვირთვა" -->
-        <div id="player-sidebar" class="player-sidebar">
+        <div id="player-sidebar" class="player-sidebar" aria-label="Player">
           <div id="player-cover">
             <img id="player-cover-img" src="images/midcube.png" alt="Cover">
           </div>
@@ -54,7 +63,7 @@
         <div class="tracks-header">
           <h2>ტრეკები</h2>
         </div>
-        <div id="tracks" class="tracks-list-grid"></div> <!-- Grid карточек -->
+        <div id="tracks" class="tracks-list-grid"></div>
       </section>
     </main>
   </div>
