@@ -36,7 +36,7 @@
   let albums = [];
   let tracks = [];
   let currentTrackIndex = -1;
-  let filteredTracks = [];
+  let filteredTracks = []; // Только для поиска
   let pendingTrackToOpen = null;
   let userHasInteracted = false;
 
@@ -84,7 +84,7 @@
       if (!response.ok) throw new Error('Network error');
 
       const blob = await response.blob();
-      const blobUrl = URL.createObjectObjectURL(blob);
+      const blobUrl = URL.createObjectURL(blob);
 
       const a = document.createElement('a');
       a.href = blobUrl;
@@ -247,33 +247,36 @@
     });
   }
 
-  // --- Рендер треков ---
+  // --- РЕНДЕР ТРЕКОВ (ИСПРАВЛЕНО) ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
 
-    let toRender = filteredTracks;
+    // Начинаем с полного списка треков
+    let toRender = tracks.slice();
 
     const selectedAlbumId = albumSelect ? albumSelect.value : '';
     const selectedSubalbumId = subalbumSelect ? subalbumSelect.value : '';
 
-    // Если выбран подальбом — показываем только его треки
-    if (selectedSubalbumId) {
-      toRender = toRender.filter(t => String(t.albumId || '') === selectedSubalbumId);
+    // Применяем поиск (если есть)
+    const searchQuery = globalSearchInput ? globalSearchInput.value.trim() : '';
+    if (searchQuery) {
+      toRender = toRender.filter(t => matchesQuery(t, searchQuery));
     }
-    // Если выбран основной альбом, но не подальбом — показываем треки альбома + всех его подальбомов
-    else if (selectedAlbumId) {
+
+    // Фильтрация по альбомам
+    if (selectedSubalbumId) {
+      // Только треки из выбранного подальбома
+      toRender = toRender.filter(t => String(t.albumId || '') === selectedSubalbumId);
+    } else if (selectedAlbumId) {
+      // Треки из основного альбома + всех его подальбомов
       const subIds = albums.filter(a => String(a.parentId || '') === selectedAlbumId).map(a => a.id);
       toRender = toRender.filter(t => {
         const tid = String(t.albumId || '');
         return tid === selectedAlbumId || subIds.includes(tid);
       });
     }
-
-    // Если ничего не выбрано и нет поиска — показываем все треки
-    if (!selectedAlbumId && !selectedSubalbumId && (!globalSearchInput || globalSearchInput.value.trim() === '')) {
-      toRender = tracks;
-    }
+    // Если ничего не выбрано и нет поиска — все треки (уже в toRender)
 
     if (!toRender.length) {
       tracksContainer.innerHTML = '<div class="muted">ტრეკები არ მოიძებნა</div>';
@@ -281,7 +284,7 @@
     }
 
     // Новые треки сверху
-    toRender = toRender.slice().sort((a, b) => (b.id || 0) - (a.id || 0));
+    toRender = toRender.sort((a, b) => (b.id || 0) - (a.id || 0));
 
     toRender.forEach(t => {
       const card = document.createElement('div');
@@ -361,6 +364,7 @@
       tracksContainer.appendChild(card);
     });
 
+    // Сохраняем отфильтрованный список для плеера и подсветки
     filteredTracks = toRender;
 
     highlightCurrentTrack();
@@ -520,7 +524,7 @@
     }
   });
 
-  // --- НОВОЕ: обработчик выбора подальбома ---
+  // Обработчик смены подальбома
   if (subalbumSelect) {
     subalbumSelect.addEventListener('change', () => {
       renderTracks();
