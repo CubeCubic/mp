@@ -15,14 +15,16 @@
       --compact-padding: 10px;
       --compact-font-size: 13px;
       --panel-radius: 8px;
-      --admin-max-width: 980px;
+      --admin-max-width: 980px; /* narrowed admin area */
     }
 
+    /* Ensure header doesn't cover content */
     html { scroll-padding-top: var(--site-header-total); }
     body {
       font-family: Arial, sans-serif;
       color: #fff;
       background: #111;
+      /* top padding accounts for the fixed site header */
       padding: calc(var(--site-header-total)) 12px 12px 12px;
       margin: 0;
       font-size: 14px;
@@ -30,12 +32,20 @@
     }
     input, textarea, select, button { scroll-margin-top: var(--site-header-total); }
 
-    main#admin-app { max-width: var(--admin-max-width); margin: 0 auto; width: 100%; box-sizing: border-box; }
+    /* Centered, narrower admin area */
+    main#admin-app {
+      max-width: var(--admin-max-width);
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
+    /* Header */
     header { margin: 0 0 8px 0; padding: 6px 0; }
     h1 { color: #ffcc00; margin: 0 0 6px 0; font-size: 18px; line-height: 1.1; }
     .hidden { display: none; }
 
+    /* Panels — compact */
     .panel {
       background: rgba(0,0,0,0.6);
       padding: var(--compact-padding);
@@ -119,15 +129,22 @@
     #albums-list .item, #admin-tracks .item { padding: 6px; }
     .small button { width:100%; box-sizing:border-box; }
 
+    /* Lower the login block so it sits clearly below the header */
+    /* You can adjust the value below if you need it lower/higher */
+    #login-form {
+      margin-top: 48px; /* increased margin to ensure the whole block is below header */
+    }
+
     @media (max-width: 720px) {
       :root { --site-header-height: 56px; --site-header-safety: 12px; }
       .row { gap:8px; }
       .small { width: 100%; flex: 1 1 100%; }
       .col { min-width: 100%; }
       body { padding-left: 10px; padding-right: 10px; }
+      #login-form { margin-top: 56px; } /* slightly larger on mobile */
     }
 
-    /* --- Search input specific styling --- */
+    /* Search input styling for tracks */
     .track-search-wrap { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
     #track-search { flex:1; padding:8px; border-radius:6px; border:1px solid #333; background:#0f0f0f; color:#fff; }
     #track-search-clear { background: transparent; border: 1px solid rgba(255,255,255,0.06); color:#fff; padding:6px 8px; border-radius:6px; cursor:pointer; }
@@ -201,7 +218,7 @@
       <div class="panel">
         <h2 style="margin:0 0 8px 0; font-size:15px">არსებული ტრეკები</h2>
 
-        <!-- Поиск треков -->
+        <!-- Search tracks -->
         <div class="track-search-wrap">
           <input id="track-search" type="text" placeholder="Поиск по названию, исполнителю или альбому..." aria-label="Search tracks">
           <button id="track-search-clear" type="button" title="Очистить поиск">✕</button>
