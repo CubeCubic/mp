@@ -10,13 +10,13 @@ body {
 
 /* Переменные для шапки */
 :root {
-  /* Настройте высоту шапки здесь (меньше = компактнее) */
-  --header-height: 64px; /* увеличил немного, чтобы поместился компактный плеер */
+  --header-height: 64px;
   --header-padding-vertical: 6px;
   --badge-size: calc(var(--header-height) - 18px);
   --title-font-size: calc(var(--header-height) * 0.36);
   --accent-color: #ffcc00;
-  --header-player-controls-size: 36px; /* размер круглых кнопок в шапке */
+  --header-player-controls-size: 36px;
+  --header-player-cover-size: calc(var(--header-height) - 18px);
 }
 
 /* Отступ сверху для контента, чтобы шапка не перекрывала содержимое */
@@ -56,7 +56,7 @@ header {
   min-width: 0;
 }
 
-/* Логотип слева, уменьшённый и выровненный по центру шапки */
+/* Логотип слева */
 #header-badge {
   width: var(--badge-size);
   height: var(--badge-size);
@@ -72,7 +72,7 @@ header {
   box-shadow: 0 4px 8px rgba(0,0,0,0.5);
 }
 
-/* Бренд как ссылка — сохраняем стиль заголовка, но делаем кликабельным */
+/* Бренд как ссылка */
 header h1 {
   margin: 0;
   font-size: var(--title-font-size);
@@ -92,25 +92,55 @@ header h1 a#brand-link {
   line-height: inherit;
 }
 
-/* Компактный плеер в шапке (по центру/право) */
+/* Центр: плеер по центру шапки */
+header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+/* Помещаем левый блок в первый столбец */
+#header-left { grid-column: 1; }
+
+/* Центрируем плеер в середине */
 #header-player {
+  grid-column: 2;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
   min-width: 320px;
-  max-width: 60%;
+  max-width: 70%;
   box-sizing: border-box;
 }
 
-/* Скрытая обложка (оставлена для совместимости с JS, но скрыта) */
-.header-player-cover { display: none; }
+/* Правый элемент (admin) */
+#hidden-admin-link { grid-column: 3; }
+
+/* Обложка трека в шапке (видна) */
+.header-player-cover {
+  width: var(--header-player-cover-size);
+  height: var(--header-player-cover-size);
+  border-radius: 6px;
+  overflow: hidden;
+  flex: 0 0 auto;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-player-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 /* Инфо о треке в шапке — компактно */
 .player-info-header {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  max-width: 220px;
+  max-width: 260px;
 }
 .player-title {
   font-size: 13px;
@@ -187,9 +217,9 @@ header h1 a#brand-link {
 
 /* Скрытая ссылка Admin остаётся доступной, но не влияет на высоту */
 #hidden-admin-link {
-  position: absolute;
-  top: 8px;
-  right: 12px;
+  position: relative;
+  top: 0;
+  right: 0;
   width: 48px;
   height: 32px;
   z-index: 1010;
@@ -398,8 +428,7 @@ header h1 a#brand-link {
     overflow: visible;
   }
 
-  /* На узких экранах делаем плеер компактнее */
-  :root { --header-height: 56px; --badge-size: 40px; --header-player-controls-size: 32px; }
+  :root { --header-height: 56px; --badge-size: 40px; --header-player-controls-size: 32px; --header-player-cover-size: 36px; }
   #header-player { max-width: 60%; min-width: 180px; }
 }
 

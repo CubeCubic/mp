@@ -408,7 +408,6 @@
       if (playerCoverImg) playerCoverImg.src = 'images/midcube.png';
       if (playBtnSidebar) playBtnSidebar.textContent = '▶';
       if (playerSidebar && playerSidebar.classList) playerSidebar.classList.remove('playing');
-      // hide optional controls if present
       if (showLyricsSidebar) showLyricsSidebar.style.display = 'none';
       if (downloadSidebar) downloadSidebar.style.display = 'none';
       return;
@@ -419,7 +418,6 @@
     if (playerCoverImg) playerCoverImg.src = getCoverUrl(t);
     if (playerSidebar && playerSidebar.classList) playerSidebar.classList.add('playing');
 
-    // optional lyrics/download in header may not exist
     if (showLyricsSidebar) showLyricsSidebar.style.display = t.lyrics ? 'block' : 'none';
 
     const stream = getStreamUrl(t);
