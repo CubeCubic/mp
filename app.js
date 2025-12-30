@@ -21,10 +21,6 @@
   const timeDurationSidebar = document.getElementById('time-duration-sidebar') || null;
   const volumeSidebar = document.getElementById('volume-sidebar') || null;
 
-  // Optional controls that may not exist in header
-  const showLyricsSidebar = document.getElementById('show-lyrics-sidebar') || null;
-  const downloadSidebar = document.getElementById('download-sidebar') || null;
-
   const audio = document.getElementById('audio');
 
   // Модалки
@@ -88,7 +84,7 @@
       if (!response.ok) throw new Error('Network error');
 
       const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      const blobUrl = URL.createObjectObjectURL(blob);
 
       const a = document.createElement('a');
       a.href = blobUrl;
@@ -103,37 +99,6 @@
       console.error('Download error:', err);
       showToast('შეცდომა ჩამოტვირთვისას');
     }
-  }
-
-  // --- Позиционирование плеера над секцией треков ---
-  function positionHeaderPlayer() {
-    if (!headerPlayer || !tracksSection) return;
-
-    // Сбрасываем временно позиционирование, чтобы корректно измерить ширину
-    headerPlayer.style.position = 'fixed';
-    headerPlayer.style.transform = 'none';
-    headerPlayer.style.top = '';
-    headerPlayer.style.left = '';
-
-    // Получаем bounding rect секции треков
-    const tracksRect = tracksSection.getBoundingClientRect();
-    const playerRect = headerPlayer.getBoundingClientRect();
-
-    // Вычисляем центр секции треков и центр плеера, ставим плеер так, чтобы он был по центру секции
-    const centerX = tracksRect.left + tracksRect.width / 2;
-    const left = Math.max(8, Math.round(centerX - playerRect.width / 2)); // не уезжать в отрицательные координаты
-
-    // Вертикальная позиция: центрируем плеер по высоте шапки
-    const rootStyles = getComputedStyle(document.documentElement);
-    const headerHeightRaw = rootStyles.getPropertyValue('--header-height') || '';
-    const headerHeight = parseFloat(headerHeightRaw) || 64;
-    const top = Math.round((headerHeight - playerRect.height) / 2);
-
-    headerPlayer.style.position = 'fixed';
-    headerPlayer.style.left = `${left}px`;
-    headerPlayer.style.top = `${top}px`;
-    headerPlayer.style.zIndex = 1100;
-    headerPlayer.style.pointerEvents = 'auto';
   }
 
   // --- Подсветка и автоскролл текущего трека ---
@@ -187,14 +152,14 @@
       countSpan.textContent = `(${trackCount})`;
       btn.appendChild(countSpan);
 
-      if (String(albumSelect?.value || '') === String(a.id || '')) {
+      if (String(albumSelect.value || '') === String(a.id || '')) {
         btn.classList.add('selected');
       }
 
       btn.addEventListener('click', (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
-        if (albumSelect) albumSelect.value = String(a.id || '');
+        albumSelect.value = String(a.id || '');
         renderAlbumList();
         onAlbumChange();
       });
@@ -282,42 +247,43 @@
     });
   }
 
-  // --- Рендер треков (карточки в grid) ---
+  // --- Рендер треков ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
 
-    let toRender = filteredTracks.slice();
+    let toRender = filteredTracks;
 
     const selectedAlbumId = albumSelect ? albumSelect.value : '';
     const selectedSubalbumId = subalbumSelect ? subalbumSelect.value : '';
 
-    if (selectedAlbumId || selectedSubalbumId) {
-      const targetAlbumId = selectedSubalbumId || selectedAlbumId;
-      toRender = toRender.filter(t => String(t.albumId || '') === targetAlbumId);
-
-      if (selectedAlbumId && !selectedSubalbumId) {
-        const subIds = albums.filter(a => String(a.parentId || '') === selectedAlbumId).map(a => a.id);
-        toRender = filteredTracks.filter(t => String(t.albumId || '') === selectedAlbumId || subIds.includes(t.albumId));
-      }
+    // Если выбран подальбом — показываем только его треки
+    if (selectedSubalbumId) {
+      toRender = toRender.filter(t => String(t.albumId || '') === selectedSubalbumId);
+    }
+    // Если выбран основной альбом, но не подальбом — показываем треки альбома + всех его подальбомов
+    else if (selectedAlbumId) {
+      const subIds = albums.filter(a => String(a.parentId || '') === selectedAlbumId).map(a => a.id);
+      toRender = toRender.filter(t => {
+        const tid = String(t.albumId || '');
+        return tid === selectedAlbumId || subIds.includes(tid);
+      });
     }
 
+    // Если ничего не выбрано и нет поиска — показываем все треки
     if (!selectedAlbumId && !selectedSubalbumId && (!globalSearchInput || globalSearchInput.value.trim() === '')) {
-      toRender = tracks.slice();
+      toRender = tracks;
     }
 
     if (!toRender.length) {
       tracksContainer.innerHTML = '<div class="muted">ტრეკები არ მოიძებნა</div>';
-      // reposition player because layout changed
-      setTimeout(positionHeaderPlayer, 0);
       return;
     }
 
-    // новые треки сверху
+    // Новые треки сверху
     toRender = toRender.slice().sort((a, b) => (b.id || 0) - (a.id || 0));
 
-    // Построение карточек (grid) — компактный вид
-    toRender.forEach((t) => {
+    toRender.forEach(t => {
       const card = document.createElement('div');
       card.className = 'card';
       card.setAttribute('data-track-id', t.id || '');
@@ -326,22 +292,23 @@
       img.className = 'track-cover';
       img.src = getCoverUrl(t);
       img.alt = safeStr(t.title) + ' cover';
-      img.onerror = () => { img.src = 'images/midcube.png'; };
+      card.appendChild(img);
 
       const info = document.createElement('div');
       info.className = 'track-info';
 
       const title = document.createElement('h4');
       title.textContent = safeStr(t.title);
+      info.appendChild(title);
 
       const artist = document.createElement('div');
       artist.textContent = safeStr(t.artist);
+      info.appendChild(artist);
 
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
-      // Lyrics button (in card)
-      if (t.lyrics && t.lyrics.trim()) {
+      if (t.lyrics) {
         const lyricsBtn = document.createElement('button');
         lyricsBtn.type = 'button';
         lyricsBtn.className = 'btn-has-lyrics';
@@ -349,63 +316,54 @@
         lyricsBtn.addEventListener('click', (ev) => {
           ev.stopPropagation();
           modalTitle.textContent = t.title || 'Lyrics';
-          modalLyrics.textContent = t.lyrics || '';
+          modalLyrics.textContent = t.lyrics;
           lyricsModal.classList.remove('hidden');
           lyricsModal.setAttribute('aria-hidden', 'false');
         });
         actions.appendChild(lyricsBtn);
       }
 
-      // Download button (in card)
       const stream = getStreamUrl(t);
-      const downloadBtn = document.createElement('button');
-      downloadBtn.type = 'button';
-      downloadBtn.className = 'download-button';
-      downloadBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
+      const downloadBtnCard = document.createElement('button');
+      downloadBtnCard.type = 'button';
+      downloadBtnCard.className = 'download-button';
+      downloadBtnCard.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
+
       if (stream && stream.trim() !== '') {
-        downloadBtn.addEventListener('click', async (ev) => {
-          ev.stopPropagation();
+        downloadBtnCard.addEventListener('click', async (ev) => {
           ev.preventDefault();
+          ev.stopPropagation();
+
           let filename = 'track.mp3';
           try {
             const u = new URL(stream);
-            filename = decodeURIComponent(u.pathname.split('/').pop() || filename);
+            filename = decodeURIComponent(u.pathname.split('/').pop() || 'track.mp3');
           } catch {}
+
           await triggerDownload(stream, filename);
         });
       } else {
-        downloadBtn.disabled = true;
-        downloadBtn.style.opacity = '0.5';
+        downloadBtnCard.disabled = true;
+        downloadBtnCard.style.opacity = '0.5';
       }
-      actions.appendChild(downloadBtn);
-
-      // Assemble card
-      info.appendChild(title);
-      info.appendChild(artist);
-      info.appendChild(actions);
+      actions.appendChild(downloadBtnCard);
 
       card.appendChild(img);
       card.appendChild(info);
+      card.appendChild(actions);
 
-      // Click on card -> play
       card.addEventListener('click', () => {
         userHasInteracted = true;
         const idx = toRender.indexOf(t);
-        // set filteredTracks to toRender so indices match
-        filteredTracks = toRender;
         playTrackByIndex(idx);
       });
 
       tracksContainer.appendChild(card);
     });
 
-    // ensure filteredTracks references current toRender
     filteredTracks = toRender;
 
     highlightCurrentTrack();
-
-    // reposition player after tracks rendered
-    setTimeout(positionHeaderPlayer, 0);
 
     if (pendingTrackToOpen) {
       const id = String(pendingTrackToOpen);
@@ -431,8 +389,6 @@
     } catch (err) {
       console.error('Ошибка загрузки tracks.json:', err);
       if (tracksContainer) tracksContainer.innerHTML = '<div class="muted">Не удалось загрузить треки</div>';
-      // reposition player in case layout changed
-      setTimeout(positionHeaderPlayer, 0);
     }
   }
 
@@ -440,46 +396,25 @@
 
   // --- Плеер ---
   function updateSidebarPlayer(t = null) {
-    // Safely update UI only if elements exist
     if (!t) {
       if (playerTitleSidebar) playerTitleSidebar.textContent = 'აირჩიეთ ტრეკი';
       if (playerArtistSidebar) playerArtistSidebar.textContent = '';
       if (playerCoverImg) playerCoverImg.src = 'images/midcube.png';
       if (playBtnSidebar) playBtnSidebar.textContent = '▶';
-      if (headerPlayer && headerPlayer.classList) headerPlayer.classList.remove('playing');
-      if (showLyricsSidebar) showLyricsSidebar.style.display = 'none';
-      if (downloadSidebar) downloadSidebar.style.display = 'none';
+      if (headerPlayer) headerPlayer.classList.remove('playing');
       return;
     }
 
     if (playerTitleSidebar) playerTitleSidebar.textContent = safeStr(t.title);
     if (playerArtistSidebar) playerArtistSidebar.textContent = safeStr(t.artist);
     if (playerCoverImg) playerCoverImg.src = getCoverUrl(t);
-    if (headerPlayer && headerPlayer.classList) headerPlayer.classList.add('playing');
-
-    if (showLyricsSidebar) showLyricsSidebar.style.display = t.lyrics ? 'block' : 'none';
-
-    const stream = getStreamUrl(t);
-    if (downloadSidebar) {
-      if (stream && stream.trim() !== '') {
-        downloadSidebar.href = stream;
-        downloadSidebar.style.display = 'inline-flex';
-        let suggested = 'track.mp3';
-        try {
-          const u = new URL(stream);
-          suggested = decodeURIComponent(u.pathname.split('/').pop() || 'track.mp3');
-        } catch {}
-        downloadSidebar.download = suggested;
-      } else {
-        downloadSidebar.style.display = 'none';
-      }
-    }
+    if (headerPlayer) headerPlayer.classList.add('playing');
   }
 
   function playTrackByIndex(idx) {
     if (idx < 0 || idx >= filteredTracks.length) {
       updateSidebarPlayer(null);
-      if (audio) audio.pause();
+      audio.pause();
       currentTrackIndex = -1;
       highlightCurrentTrack();
       return;
@@ -489,28 +424,23 @@
     const t = filteredTracks[idx];
     updateSidebarPlayer(t);
 
-    if (!audio) return;
     audio.src = getStreamUrl(t) || '';
     audio.load();
 
     audio.play().catch(e => {
-      if (e && e.name === 'NotAllowedError' && userHasInteracted) {
+      if (e.name === 'NotAllowedError' && userHasInteracted) {
         if (playBtnSidebar) playBtnSidebar.textContent = '▶';
         showToast('დააჭირეთ ▶ დაკვრისთვის');
-      } else if (e) {
+      } else if (e.name !== 'NotAllowedError') {
         console.error('Play error:', e);
       }
     });
-
-    // reposition player because cover/title changed width possibly
-    setTimeout(positionHeaderPlayer, 0);
 
     highlightCurrentTrack();
   }
 
   function togglePlayPause() {
     userHasInteracted = true;
-    if (!audio) return;
     if (audio.paused || audio.ended) {
       audio.play().catch(console.error);
     } else {
@@ -533,49 +463,38 @@
   }
 
   // Обработчики аудио
-  if (audio) {
-    audio.addEventListener('playing', () => { if (playBtnSidebar) playBtnSidebar.textContent = '❚❚'; });
-    audio.addEventListener('pause', () => { if (playBtnSidebar) playBtnSidebar.textContent = '▶'; });
-    audio.addEventListener('ended', playNext);
-    audio.addEventListener('timeupdate', () => {
-      if (audio.duration) {
-        if (progressSidebar) {
-          progressSidebar.value = audio.currentTime;
-          progressSidebar.max = audio.duration;
-        }
-        if (timeCurrentSidebar) timeCurrentSidebar.textContent = formatTime(audio.currentTime);
-      }
-    });
-    audio.addEventListener('loadedmetadata', () => {
-      if (timeDurationSidebar) timeDurationSidebar.textContent = formatTime(audio.duration);
-      if (progressSidebar) progressSidebar.max = audio.duration || 0;
-    });
-    audio.addEventListener('volumechange', () => { if (volumeSidebar) volumeSidebar.value = audio.volume; });
-    audio.addEventListener('error', (e) => {
-      console.error('Audio error:', e);
-      updateSidebarPlayer(null);
-    });
-  }
+  audio.addEventListener('playing', () => {
+    if (playBtnSidebar) playBtnSidebar.textContent = '❚❚';
+  });
+  audio.addEventListener('pause', () => {
+    if (playBtnSidebar) playBtnSidebar.textContent = '▶';
+  });
+  audio.addEventListener('ended', playNext);
+  audio.addEventListener('timeupdate', () => {
+    if (audio.duration && progressSidebar) {
+      progressSidebar.value = audio.currentTime;
+      progressSidebar.max = audio.duration;
+      if (timeCurrentSidebar) timeCurrentSidebar.textContent = formatTime(audio.currentTime);
+    }
+  });
+  audio.addEventListener('loadedmetadata', () => {
+    if (timeDurationSidebar) timeDurationSidebar.textContent = formatTime(audio.duration);
+    if (progressSidebar) progressSidebar.max = audio.duration || 0;
+  });
+  audio.addEventListener('volumechange', () => {
+    if (volumeSidebar) volumeSidebar.value = audio.volume;
+  });
+  audio.addEventListener('error', (e) => {
+    console.error('Audio error:', e);
+    updateSidebarPlayer(null);
+  });
 
   // Управление плеером
   if (playBtnSidebar) playBtnSidebar.addEventListener('click', togglePlayPause);
   if (prevBtnSidebar) prevBtnSidebar.addEventListener('click', playPrev);
   if (nextBtnSidebar) nextBtnSidebar.addEventListener('click', playNext);
-  if (progressSidebar) progressSidebar.addEventListener('input', () => { if (audio) audio.currentTime = progressSidebar.value; });
-  if (volumeSidebar) volumeSidebar.addEventListener('input', () => { if (audio) audio.volume = parseFloat(volumeSidebar.value); });
-
-  // show lyrics in modal if header control exists
-  if (showLyricsSidebar) {
-    showLyricsSidebar.addEventListener('click', () => {
-      const t = filteredTracks[currentTrackIndex];
-      if (t && t.lyrics) {
-        modalTitle.textContent = t.title || 'Lyrics';
-        modalLyrics.textContent = t.lyrics;
-        lyricsModal.classList.remove('hidden');
-        lyricsModal.setAttribute('aria-hidden', 'false');
-      }
-    });
-  }
+  if (progressSidebar) progressSidebar.addEventListener('input', () => audio.currentTime = progressSidebar.value);
+  if (volumeSidebar) volumeSidebar.addEventListener('input', () => audio.volume = parseFloat(volumeSidebar.value));
 
   // Закрытие модалки текстов
   if (modalClose) {
@@ -601,9 +520,17 @@
     }
   });
 
+  // --- НОВОЕ: обработчик выбора подальбома ---
+  if (subalbumSelect) {
+    subalbumSelect.addEventListener('change', () => {
+      renderTracks();
+      currentTrackIndex = -1;
+      updateSidebarPlayer(null);
+    });
+  }
+
   // Перепозиционирование при изменении размера окна
   window.addEventListener('resize', () => {
-    // небольшая задержка, чтобы избежать лишних пересчётов при быстром ресайзе
     if (window._positionHeaderPlayerTimeout) clearTimeout(window._positionHeaderPlayerTimeout);
     window._positionHeaderPlayerTimeout = setTimeout(() => {
       positionHeaderPlayer();
@@ -624,7 +551,6 @@
     if (audio && volumeSidebar) audio.volume = parseFloat(volumeSidebar.value || 1);
     updateSidebarPlayer(null);
 
-    // initial positioning (after a tick to allow layout)
     setTimeout(positionHeaderPlayer, 50);
   });
 })();
