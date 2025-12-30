@@ -14,6 +14,11 @@
       "id": "1765388179450",
       "name": "Georgian",
       "parentId": null
+    },
+    {
+      "id": "1767097616083",
+      "name": "Blues",
+      "parentId": "1765384187417"
     }
   ],
   "tracks": [
@@ -193,7 +198,7 @@
       "title": "Rise Up",
       "artist": "Cube Cubic",
       "lyrics": "",
-      "albumId": "1765384187417",
+      "albumId": "1767097616083",
       "audioUrl": "https://archive.org/download/rise-up_202512/Rise_Up.wav",
       "coverUrl": "https://archive.org/download/rise-up_202512/Rise%20Up.png"
     },
