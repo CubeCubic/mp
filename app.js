@@ -31,10 +31,10 @@
 
   // --- Состояние ---
   let albums = [], tracks = [], currentTrackIndex = -1, pendingTrackToOpen = null, userHasInteracted = false;
+  let list = []; // текущий отфильтрованный список для плеера
 
   // --- Утилиты ---
   const formatTime = sec => isFinite(sec) ? `${Math.floor(sec / 60)}:${Math.floor(sec % 60).toString().padStart(2, '0')}` : '0:00';
-
   const getStreamUrl = t => t?.audioUrl || t?.downloadUrl || (t?.filename ? 'media/' + t.filename : null);
   const getCoverUrl = t => t?.coverUrl || (t?.cover ? 'uploads/' + t.cover : 'images/midcube.png');
   const safeStr = v => v == null ? '' : String(v);
@@ -64,11 +64,13 @@
       btn.className = 'album-list-button';
       btn.dataset.albumId = a.id || '';
 
-      btn.innerHTML = `<span>${a.name || 'Unnamed'}</span><span class="track-count">(${tracks.filter(t => {
+      const subIds = albums.filter(s => String(s.parentId || '') === String(a.id)).map(s => s.id);
+      const count = tracks.filter(t => {
         const tid = String(t.albumId || '');
-        const subIds = albums.filter(s => String(s.parentId || '') === String(a.id)).map(s => s.id);
         return tid === String(a.id) || subIds.includes(tid);
-      }).length})</span>`;
+      }).length;
+
+      btn.innerHTML = `<span>${a.name || 'Unnamed'}</span><span class="track-count">(${count})</span>`;
 
       if (els.albumSelect?.value === String(a.id)) btn.classList.add('selected');
 
@@ -116,7 +118,7 @@
   };
 
   if (els.globalSearch) {
-    els.globalSearch.addEventListener('input', () => renderTracks());
+    els.globalSearch.addEventListener('input', renderTracks);
   }
 
   // --- Рендер треков ---
@@ -124,7 +126,7 @@
     if (!els.tracksContainer) return;
     els.tracksContainer.innerHTML = '';
 
-    let list = tracks.slice();
+    list = tracks.slice();
 
     const searchQuery = els.globalSearch?.value.trim() || '';
     if (searchQuery) list = list.filter(t => matchesQuery(t, searchQuery));
@@ -147,7 +149,6 @@
       return;
     }
 
-    // Новые сверху
     list.sort((a, b) => (b.id || 0) - (a.id || 0));
 
     list.forEach(t => {
@@ -320,7 +321,8 @@
     }
   };
 
-  els.refreshBtn && els.refreshBtn.addEventListener('click', loadData);
+  // ВОССТАНОВЛЕНО: обработчик кнопки Refresh
+  if (els.refreshBtn) els.refreshBtn.addEventListener('click', loadData);
 
   // --- Инициализация ---
   document.addEventListener('DOMContentLoaded', () => {
