@@ -32,7 +32,7 @@
           </select>
           <button id="refresh-btn" type="button">Refresh</button>
         </div>
-        <!-- Плеер в правой колонке -->
+        <!-- Плеер без кнопок "ტექსტი" и скачивания -->
         <div id="player-sidebar" class="player-sidebar">
           <div id="player-cover">
             <img id="player-cover-img" src="images/midcube.png" alt="Cover">
@@ -54,17 +54,13 @@
           <div id="player-volume-sidebar">
             <input id="volume-sidebar" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
           </div>
-          <button id="show-lyrics-sidebar" type="button" style="display:none;">ტექსტი</button>
-          <a id="download-sidebar" href="#" download style="display:none;" aria-label="Download">
-            <svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>
-          </a>
         </div>
       </aside>
       <section class="tracks-section">
         <div class="tracks-header">
           <h2>ტრეკები</h2>
         </div>
-        <div id="tracks" class="tracks-list-grid"></div> <!-- Три колонки -->
+        <div id="tracks" class="tracks-list-grid"></div>
       </section>
     </main>
   </div>
