@@ -8,7 +8,7 @@ body {
   box-shadow: inset 0 0 180px rgba(255, 204, 0, 0.08);
 }
 
-/* Переменные для шапки */
+/* Переменные */
 :root {
   --header-height: 64px;
   --header-padding-vertical: 6px;
@@ -19,7 +19,7 @@ body {
   --header-player-cover-size: calc(var(--header-height) - 18px);
 }
 
-/* Отступ сверху для контента, чтобы шапка не перекрывала содержимое */
+/* Отступ сверху для контента */
 .site-wrapper {
   padding-top: calc(var(--header-height) + 12px);
   max-width: 1440px;
@@ -29,7 +29,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Фиксированная шапка */
+/* Header */
 header {
   position: fixed;
   top: 0;
@@ -44,11 +44,10 @@ header {
   background-color: rgba(0,0,0,0.78);
   color: var(--accent-color);
   z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
   box-sizing: border-box;
 }
 
-/* Левый блок: логотип + бренд */
+/* Левый блок */
 #header-left {
   display: flex;
   align-items: center;
@@ -56,44 +55,13 @@ header {
   min-width: 0;
   grid-column: 1;
 }
+#header-badge { width: var(--badge-size); height: var(--badge-size); }
+#header-badge img { width: 100%; height: 100%; object-fit: contain; border-radius: 6px; }
 
-/* Логотип слева */
-#header-badge {
-  width: var(--badge-size);
-  height: var(--badge-size);
-  display: block;
-  z-index: 1010;
-}
+/* Бренд */
+header h1 { margin: 0; font-size: var(--title-font-size); font-weight: 700; color: var(--accent-color); }
 
-#header-badge img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 6px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-}
-
-/* Бренд как ссылка */
-header h1 {
-  margin: 0;
-  font-size: var(--title-font-size);
-  font-weight: 700;
-  color: var(--accent-color);
-  line-height: 1;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-header h1 a#brand-link {
-  color: inherit;
-  text-decoration: none;
-  display: inline-block;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-}
-
-/* Плеер: по умолчанию внутри header, JS может ставить fixed и left/top */
+/* Плеер (в header, JS может фиксировать позицию) */
 #header-player {
   grid-column: 2;
   display: flex;
@@ -105,55 +73,26 @@ header h1 a#brand-link {
   box-sizing: border-box;
 }
 
-/* Обложка трека в шапке */
+/* Обложка в шапке */
 .header-player-cover {
   width: var(--header-player-cover-size);
   height: var(--header-player-cover-size);
   border-radius: 6px;
   overflow: hidden;
-  flex: 0 0 auto;
   background: #111;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.header-player-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.header-player-cover img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Инфо о треке в шапке — компактно */
-.player-info-header {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  max-width: 260px;
-}
-.player-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.player-artist {
-  font-size: 12px;
-  color: #cfcfcf;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+/* Инфо плеера */
+.player-info-header { display: flex; flex-direction: column; min-width: 0; max-width: 260px; }
+.player-title { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-artist { font-size: 12px; color: #cfcfcf; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Контейнер кнопок управления в шапке */
-.player-controls-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Кнопки управления — компактные круглые */
+/* Кнопки плеера */
+.player-controls-header { display: flex; align-items: center; gap: 8px; }
 .player-controls-header button {
   width: var(--header-player-controls-size);
   height: var(--header-player-controls-size);
@@ -166,89 +105,11 @@ header h1 a#brand-link {
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  transition: transform 120ms ease, background 120ms ease;
-}
-.player-controls-header button:hover {
-  transform: scale(1.06);
-  background: rgba(255,255,255,0.12);
 }
 
-/* Прогресс в шапке — компактный */
-.player-progress-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 160px;
-  max-width: 320px;
-}
-.player-progress-header span { font-size: 12px; color: #ddd; width: 36px; text-align: center; }
-#progress-sidebar {
-  flex: 1;
-  height: 6px;
-  border-radius: 4px;
-  background: rgba(255,255,255,0.08);
-  appearance: none;
-}
-#progress-sidebar::-webkit-slider-thumb {
-  appearance: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--accent-color);
-  cursor: pointer;
-}
-
-/* Громкость — компактно */
-.player-volume-header { width: 80px; }
-#volume-sidebar { width: 100%; height: 6px; appearance: none; background: rgba(255,255,255,0.08); border-radius: 4px; }
-#volume-sidebar::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-color); cursor: pointer; }
-
-/* Правый элемент (admin) */
-#hidden-admin-link {
-  grid-column: 3;
-  position: relative;
-  top: 0;
-  right: 0;
-  width: 48px;
-  height: 32px;
-  z-index: 1010;
-  color: transparent;
-  font-size: 0;
-  text-indent: -9999px;
-  overflow: hidden;
-}
-#hidden-admin-link:hover::after {
-  content: "Admin";
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: rgba(0,0,0,0.8);
-  color: var(--accent-color);
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-/* Поисковик */
-#global-search {
-  margin-top: 12px;
-  margin-bottom: 20px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #333;
-  background: #111;
-  color: #fff;
-  font-size: 15px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.controls {
-  border-bottom: none;
-  padding-bottom: 0;
-  margin-bottom: 0;
-}
+/* Поиск и контейнеры */
+#global-search { margin-top: 12px; margin-bottom: 20px; padding: 10px 12px; border-radius: 8px; border: 1px solid #333; background: #111; color: #fff; font-size: 15px; width: 100%; box-sizing: border-box; }
+.controls { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
 
 /* album header: label и кнопка в одну строку */
 .album-header {
@@ -264,7 +125,7 @@ header h1 a#brand-link {
   color: var(--accent-color);
 }
 
-/* Стили для кнопки Refresh — жёлтая */
+/* Refresh button — жёлтая, но scoped */
 #refresh-btn {
   background: var(--accent-color);
   color: #000;
@@ -274,25 +135,19 @@ header h1 a#brand-link {
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 6px 14px rgba(255,204,0,0.12);
-  transition: transform 140ms ease, filter 140ms ease;
 }
-#refresh-btn:hover {
-  transform: translateY(-3px);
-  filter: brightness(0.95);
-}
+#refresh-btn:hover { transform: translateY(-2px); }
 
-/* Скрываем старую метку, т.к. используем .album-header */
-.controls label[for="album-select"] {
-  display: none;
-}
+/* Скрываем старую метку (если есть) */
+.controls label[for="album-select"] { display: none; }
 
-/* Стили для списка альбомов */
-.album-list-vertical {
-  margin-top: 6px;
-}
+/* Список альбомов контейнер */
+.album-list-vertical { margin-top: 6px; display: flex; flex-direction: column; gap: 10px; }
 
-/* === ВОССТАНОВЛЕНИЕ ПРЕЖНЕГО БОЛЬШОГО ВИЗУАЛА КНОПОК АЛЬБОМОВ === */
-.album-list-button {
+/* === ВОССТАНОВЛЕНИЕ ПРЕЖНЕГО БОЛЬШОГО ВИЗУАЛА КНОПОК АЛЬБОМОВ ===
+   Scoped selector: применяется только к кнопкам внутри .album-list-vertical,
+   чтобы не затронуть другие кнопки на странице. */
+.album-list-vertical .album-list-button {
   background: rgba(255, 204, 0, 0.12);
   color: #ffcc00;
   border: 2px solid rgba(255, 204, 0, 0.25);
@@ -311,15 +166,13 @@ header h1 a#brand-link {
   gap: 12px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.45);
 }
-
-.album-list-button:hover {
+.album-list-vertical .album-list-button:hover {
   transform: translateY(-6px);
   background: linear-gradient(180deg, rgba(255,204,0,0.18), rgba(255,204,0,0.08));
   box-shadow: 0 12px 30px rgba(0,0,0,0.55);
   color: #000;
 }
-
-.album-list-button .track-count {
+.album-list-vertical .album-list-button .track-count {
   background: rgba(0,0,0,0.12);
   padding: 6px 10px;
   border-radius: 999px;
@@ -329,115 +182,63 @@ header h1 a#brand-link {
   text-align: center;
 }
 
-/* Карточки треков — сохраняем прежние размеры и поведение */
+/* Новый layout */
+.new-main-layout { display: flex; gap: 24px; max-width: 1440px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; }
+.albums-sidebar { flex: 0 0 260px; position: sticky; top: calc(var(--header-height) + 12px); align-self: flex-start; max-height: calc(100vh - (var(--header-height) + 40px)); overflow-y: auto; }
+.tracks-section { flex: 1; min-width: 0; }
+.tracks-header { margin-bottom: 16px; }
+.tracks-header h2 { color: var(--accent-color); margin: 0 0 8px 0; }
+
+/* === Треки в три колонки === */
+#tracks.tracks-list-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 0 10px; box-sizing: border-box; }
+
+/* Карточки треков — фиксированные размеры обложек, чтобы не было "огромных" картинок */
+.tracks-list-grid .card { display: flex; flex-direction: column; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.3s ease; }
+.tracks-list-grid .card:hover { background: rgba(255,255,255,0.15); transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
+.tracks-list-grid .card.playing-track { background: rgba(255, 204, 0, 0.2); border: 2px solid var(--accent-color); box-shadow: 0 0 25px rgba(255, 204, 0, 0.5); }
+
+/* Обложка трека — фиксированная высота и max-width, чтобы не растягивалась */
 .tracks-list-grid .track-cover {
   width: 100%;
-  height: 180px; /* фиксированная высота — возвращена */
-  object-fit: contain;
+  max-width: 100%;
+  height: 180px; /* фиксированная высота */
+  object-fit: cover; /* cover для аккуратного кадрирования */
   background-color: #111;
-  padding: 10px;
-  box-sizing: border-box;
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  display: block;
 }
 
-/* Остальные правила для треков */
-.tracks-list-grid .card {
-  display: flex;
-  flex-direction: column;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.tracks-list-grid .card:hover {
-  background: rgba(255,255,255,0.15);
-  transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
-}
-.tracks-list-grid .card.playing-track {
-  background: rgba(255, 204, 0, 0.2);
-  border: 2px solid var(--accent-color);
-  box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
-}
+/* Информация и действия */
+.tracks-list-grid .track-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+.tracks-list-grid .track-info h4 { margin: 0 0 6px 0; font-size: 15px; line-height: 1.3; }
+.tracks-list-grid .track-info div { font-size: 13px; color: #cfcfcf; margin-bottom: 8px; }
 
-.tracks-list-grid .track-info {
-  padding: 12px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.tracks-list-grid .track-info h4 {
-  margin: 0 0 6px 0;
-  font-size: 15px;
-  white-space: normal;
-  line-height: 1.3;
-}
-.tracks-list-grid .track-info div {
-  font-size: 13px;
-  color: #cfcfcf;
-  margin-bottom: 8px;
-}
+/* Кнопки внутри карточек треков — scoped */
+.tracks-list-grid .track-actions { display: flex; justify-content: space-between; gap: 8px; }
+.tracks-list-grid .track-actions button { flex: 1; padding: 8px; font-size: 13px; }
+.tracks-list-grid .btn-has-lyrics { background: var(--accent-color); color: #000; font-weight: bold; }
+.tracks-list-grid .download-button { width: auto; height: auto; padding: 8px; background: #2ecc71; }
+.tracks-list-grid .download-button svg { width: 18px; height: 18px; fill: white; }
 
 /* Адаптивность */
 @media (max-width: 1200px) {
-  #tracks.tracks-list-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  #tracks.tracks-list-grid { grid-template-columns: repeat(2, 1fr); }
   #header-player { max-width: 70%; min-width: 260px; }
 }
-
 @media (max-width: 900px) {
-  #tracks.tracks-list-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .new-main-layout {
-    flex-direction: column;
-  }
-
-  .albums-sidebar {
-    position: static;
-    max-height: none;
-    overflow: visible;
-  }
-
+  #tracks.tracks-list-grid { grid-template-columns: 1fr; }
+  .new-main-layout { flex-direction: column; }
+  .albums-sidebar { position: static; max-height: none; overflow: visible; }
   :root { --header-height: 56px; --badge-size: 40px; --header-player-controls-size: 32px; --header-player-cover-size: 36px; }
   #header-player { max-width: 60%; min-width: 180px; }
 }
 
 /* Модалки */
 #lyrics-modal.hidden { display: none !important; }
-#lyrics-modal {
-  position: fixed; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.7);
-  z-index: 2000;
-}
-.modal-box {
-  background: white; color: #000;
-  padding: 16px; border-radius: 6px;
-  max-width: 420px; width: 92%;
-  max-height: 70vh; overflow-y: auto;
-}
+#lyrics-modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); z-index: 2000; }
+.modal-box { background: white; color: #000; padding: 16px; border-radius: 6px; max-width: 420px; width: 92%; max-height: 70vh; overflow-y: auto; }
 .modal-box h3 { margin-top: 0; font-size: 16px; }
 .modal-box pre { white-space: pre-wrap; font-size: 13px; }
 
 /* Toast */
-#toast {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 90px;
-  background: rgba(0,0,0,0.85);
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 6px;
-  z-index: 3000;
-  font-size: 13px;
-  opacity: 0;
-  transition: opacity 180ms ease;
-}
+#toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 90px; background: rgba(0,0,0,0.85); color: #fff; padding: 8px 12px; border-radius: 6px; z-index: 3000; font-size: 13px; opacity: 0; transition: opacity 180ms ease; }
 #toast.visible { opacity: 1; }
