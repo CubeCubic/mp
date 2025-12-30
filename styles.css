@@ -231,7 +231,6 @@ header h1 a#brand-link {
   white-space: nowrap;
 }
 
-/* Остальные стили (по-прежнему как раньше) */
 /* Поисковик */
 #global-search {
   margin-top: 12px;
@@ -365,6 +364,55 @@ header h1 a#brand-link {
   margin-bottom: 8px;
 }
 
+/* === ВОССТАНОВЛЕНИЕ ПРЕЖНЕГО БОЛЬШОГО ВИЗУАЛА КНОПОК АЛЬБОМОВ === */
+.album-list-button {
+  background: rgba(255, 204, 0, 0.12);
+  color: #ffcc00;
+  border: 2px solid rgba(255, 204, 0, 0.25);
+  padding: 16px 18px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}
+
+.album-list-button:hover {
+  transform: translateY(-6px);
+  background: linear-gradient(180deg, rgba(255,204,0,0.18), rgba(255,204,0,0.08));
+  box-shadow: 0 12px 30px rgba(0,0,0,0.55);
+  color: #000;
+}
+
+.album-list-button .track-count {
+  background: rgba(0,0,0,0.12);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #fff;
+  min-width: 44px;
+  text-align: center;
+}
+
+/* Остальные элементы списка альбомов */
+.album-list-button .track-count {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.album-list-button[data-album-name="Georgian"] {
+  order: -1;
+}
+
+/* Карточки действий и кнопки внутри треков */
 .tracks-list-grid .track-actions {
   display: flex;
   justify-content: space-between;
