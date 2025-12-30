@@ -11,11 +11,12 @@ body {
 /* Переменные для шапки */
 :root {
   /* Настройте высоту шапки здесь (меньше = компактнее) */
-  --header-height: 56px; /* рекомендованное значение: 48–72px; уменьшите при желании */
+  --header-height: 64px; /* увеличил немного, чтобы поместился компактный плеер */
   --header-padding-vertical: 6px;
-  --badge-size: calc(var(--header-height) - 16px);
+  --badge-size: calc(var(--header-height) - 18px);
   --title-font-size: calc(var(--header-height) * 0.36);
   --accent-color: #ffcc00;
+  --header-player-controls-size: 36px; /* размер круглых кнопок в шапке */
 }
 
 /* Отступ сверху для контента, чтобы шапка не перекрывала содержимое */
@@ -38,7 +39,7 @@ header {
   padding: var(--header-padding-vertical) 16px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 12px;
   background-color: rgba(0,0,0,0.78);
   color: var(--accent-color);
@@ -47,12 +48,16 @@ header {
   box-sizing: border-box;
 }
 
+/* Левый блок: логотип + бренд */
+#header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
 /* Логотип слева, уменьшённый и выровненный по центру шапки */
 #header-badge {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
   width: var(--badge-size);
   height: var(--badge-size);
   display: block;
@@ -87,14 +92,98 @@ header h1 a#brand-link {
   line-height: inherit;
 }
 
-/* Приветственная надпись вместо кнопки "მთავარი" */
-.header-welcome {
-  color: #fff;
-  font-size: 13px;
-  margin-left: 12px;
-  white-space: nowrap;
-  opacity: 0.95;
+/* Компактный плеер в шапке (по центру/право) */
+#header-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 320px;
+  max-width: 60%;
+  box-sizing: border-box;
 }
+
+/* Скрытая обложка (оставлена для совместимости с JS, но скрыта) */
+.header-player-cover { display: none; }
+
+/* Инфо о треке в шапке — компактно */
+.player-info-header {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 220px;
+}
+.player-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.player-artist {
+  font-size: 12px;
+  color: #cfcfcf;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Контейнер кнопок управления в шапке */
+.player-controls-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Кнопки управления — компактные круглые */
+.player-controls-header button {
+  width: var(--header-player-controls-size);
+  height: var(--header-player-controls-size);
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.06);
+  color: var(--accent-color);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: transform 120ms ease, background 120ms ease;
+}
+.player-controls-header button:hover {
+  transform: scale(1.06);
+  background: rgba(255,255,255,0.12);
+}
+
+/* Прогресс в шапке — компактный */
+.player-progress-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+  max-width: 320px;
+}
+.player-progress-header span { font-size: 12px; color: #ddd; width: 36px; text-align: center; }
+#progress-sidebar {
+  flex: 1;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.08);
+  appearance: none;
+}
+#progress-sidebar::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  cursor: pointer;
+}
+
+/* Громкость — компактно */
+.player-volume-header { width: 80px; }
+#volume-sidebar { width: 100%; height: 6px; appearance: none; background: rgba(255,255,255,0.08); border-radius: 4px; }
+#volume-sidebar::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-color); cursor: pointer; }
 
 /* Скрытая ссылка Admin остаётся доступной, но не влияет на высоту */
 #hidden-admin-link {
@@ -109,7 +198,6 @@ header h1 a#brand-link {
   text-indent: -9999px;
   overflow: hidden;
 }
-
 #hidden-admin-link:hover::after {
   content: "Admin";
   position: absolute;
@@ -292,6 +380,7 @@ header h1 a#brand-link {
   #tracks.tracks-list-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  #header-player { max-width: 70%; min-width: 260px; }
 }
 
 @media (max-width: 900px) {
@@ -308,211 +397,10 @@ header h1 a#brand-link {
     max-height: none;
     overflow: visible;
   }
-}
 
-/* Плеер — анимация обложки при проигрывании */
-.player-sidebar {
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 24px;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 0, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* Контейнер обложки */
-#player-cover {
-  width: 100%;
-  height: 260px;
-  background-color: #111;
-  overflow: hidden;
-  border-radius: 10px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Обложка в плеере */
-#player-cover-img {
-  max-width: 95%;
-  max-height: 95%;
-  object-fit: contain;
-  transition: transform 0.6s ease;
-}
-
-/* Анимация при проигрывании: лёгкое покачивание + пульсирующее свечение */
-.player-sidebar.playing #player-cover-img {
-  animation: playing-cover 8s ease-in-out infinite;
-}
-
-@keyframes playing-cover {
-  0% {
-    transform: rotate(-1deg) scale(1.02);
-    box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
-  }
-  50% {
-    transform: rotate(1deg) scale(1.04);
-    box-shadow: 0 0 40px rgba(255, 204, 0, 0.6);
-  }
-  100% {
-    transform: rotate(-1deg) scale(1.02);
-    box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
-  }
-}
-
-/* Информация о треке */
-#player-info-sidebar {
-  text-align: center;
-}
-
-#player-title-sidebar {
-  font-size: 17px;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#player-artist-sidebar {
-  font-size: 14px;
-  color: #ccc;
-  margin-top: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Кнопки управления */
-#player-controls-sidebar {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
-#player-controls-sidebar button {
-  background: rgba(255, 255, 0, 0.15);
-  color: var(--accent-color);
-  border: none;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-#player-controls-sidebar button:hover {
-  background: var(--accent-color);
-  color: #000;
-  transform: scale(1.1);
-}
-
-#play-sidebar {
-  font-size: 28px;
-  width: 64px;
-  height: 64px;
-}
-
-/* Прогресс */
-#player-progress-sidebar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-}
-
-#progress-sidebar {
-  flex: 1;
-  height: 8px;
-  border-radius: 4px;
-  background: rgba(255, 255, 0, 0.2);
-  appearance: none;
-}
-
-#progress-sidebar::-webkit-slider-thumb {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--accent-color);
-  cursor: pointer;
-}
-
-/* Громкость */
-#player-volume-sidebar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#volume-sidebar {
-  width: 100%;
-  height: 8px;
-  appearance: none;
-  background: rgba(255, 255, 0, 0.2);
-  border-radius: 4px;
-}
-
-#volume-sidebar::-webkit-slider-thumb {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--accent-color);
-  cursor: pointer;
-}
-
-/* Список альбомов */
-.album-list-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 20px 0;
-}
-
-.album-list-button {
-  background: rgba(255, 255, 0, 0.15);
-  color: var(--accent-color);
-  border: 1px solid var(--accent-color);
-  padding: 14px 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  text-align: left;
-  cursor: pointer;
-  transition: all 160ms ease;
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.album-list-button:hover {
-  background: var(--accent-color);
-  color: #000;
-}
-
-.album-list-button.selected {
-  background: var(--accent-color);
-  color: #000;
-  font-weight: bold;
-}
-
-.album-list-button .track-count {
-  font-size: 13px;
-  opacity: 0.8;
-}
-
-.album-list-button[data-album-name="Georgian"] {
-  order: -1;
+  /* На узких экранах делаем плеер компактнее */
+  :root { --header-height: 56px; --badge-size: 40px; --header-player-controls-size: 32px; }
+  #header-player { max-width: 60%; min-width: 180px; }
 }
 
 /* Модалки */
