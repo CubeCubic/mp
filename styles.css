@@ -93,7 +93,7 @@ header h1 a#brand-link {
   line-height: inherit;
 }
 
-/* Плеер: по умолчанию внутри header, но JS установит position:fixed и left/top */
+/* Плеер: по умолчанию внутри header, JS может ставить fixed и left/top */
 #header-player {
   grid-column: 2;
   display: flex;
@@ -103,7 +103,6 @@ header h1 a#brand-link {
   min-width: 320px;
   max-width: 70%;
   box-sizing: border-box;
-  /* не задаём position здесь — JS будет ставить fixed и left/top */
 }
 
 /* Обложка трека в шапке */
@@ -282,9 +281,9 @@ header h1 a#brand-link {
   filter: brightness(0.95);
 }
 
-/* Стили для надписи "ალბომები" (если нужны дополнительные правила) */
+/* Скрываем старую метку, т.к. используем .album-header */
 .controls label[for="album-select"] {
-  display: none; /* скрываем старую метку, т.к. используем .album-header */
+  display: none;
 }
 
 /* Стили для списка альбомов */
@@ -330,46 +329,56 @@ header h1 a#brand-link {
   text-align: center;
 }
 
-/* Остальные элементы списка альбомов */
-.album-list-button .track-count {
-  font-size: 13px;
-  opacity: 0.8;
+/* Карточки треков — сохраняем прежние размеры и поведение */
+.tracks-list-grid .track-cover {
+  width: 100%;
+  height: 180px; /* фиксированная высота — возвращена */
+  object-fit: contain;
+  background-color: #111;
+  padding: 10px;
+  box-sizing: border-box;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-.album-list-button[data-album-name="Georgian"] {
-  order: -1;
-}
-
-/* Карточки действий и кнопки внутри треков */
-.tracks-list-grid .track-actions {
+/* Остальные правила для треков */
+.tracks-list-grid .card {
   display: flex;
-  justify-content: space-between;
-  gap: 8px;
+  flex-direction: column;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.tracks-list-grid .card:hover {
+  background: rgba(255,255,255,0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+.tracks-list-grid .card.playing-track {
+  background: rgba(255, 204, 0, 0.2);
+  border: 2px solid var(--accent-color);
+  box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
 }
 
-.tracks-list-grid .track-actions button {
+.tracks-list-grid .track-info {
+  padding: 12px;
   flex: 1;
-  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.tracks-list-grid .track-info h4 {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  white-space: normal;
+  line-height: 1.3;
+}
+.tracks-list-grid .track-info div {
   font-size: 13px;
-}
-
-.tracks-list-grid .btn-has-lyrics {
-  background: var(--accent-color);
-  color: #000;
-  font-weight: bold;
-}
-
-.tracks-list-grid .download-button {
-  width: auto;
-  height: auto;
-  padding: 8px;
-  background: #2ecc71;
-}
-
-.tracks-list-grid .download-button svg {
-  width: 18px;
-  height: 18px;
-  fill: white;
+  color: #cfcfcf;
+  margin-bottom: 8px;
 }
 
 /* Адаптивность */
