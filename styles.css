@@ -1,10 +1,10 @@
 /* styles.css
-   Полный файл стилей с размытым hero-фоном + overlay.
-   Путь к фоновому изображению заменён на webp-версию: images/bigcube.webp
+   Полный файл стилей с размытым hero-фоном + overlay, палитрой логотипа,
+   тёплыми тенями и визуальным выделением проигрываемой карточки.
    Функциональность не изменялась — только визуальные правки.
 */
 
-/* Общие */
+/* Переменные палитры и визуальные переменные */
 :root{
   --logo-blue: #4A6BFF;
   --logo-purple: #8A4CFF;
@@ -26,15 +26,15 @@
   --cover-border: 1px solid rgba(255,255,255,0.04);
 }
 
-/* Базовый фон страницы — теперь фон рисуется псевдоэлементом body::before */
-html,body {
+/* Базовый фон страницы — фон рисуется псевдоэлементом body::before */
+html, body {
   height: 100%;
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
   color: #fff;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   background-color: #121217; /* fallback */
 }
 
@@ -70,7 +70,7 @@ body::after {
   pointer-events: none;
 }
 
-/* Небольшой контейнер-обёртка для контента */
+/* Контейнер контента */
 .site-wrapper {
   position: relative;
   z-index: 0; /* над фоном */
@@ -378,22 +378,55 @@ header h1 a#brand-link {
   transform: translateY(-6px);
   box-shadow: 0 20px 48px rgba(0,0,0,0.46), var(--warm-accent-glow);
 }
+
+/* Визуал для проигрываемой карточки трека */
 .tracks-list-grid .card.playing-track {
-  background: linear-gradient(180deg, rgba(138,76,255,0.02), rgba(255,106,61,0.01));
-  border: 1px solid rgba(255,160,110,0.06);
-  box-shadow: 0 22px 56px rgba(0,0,0,0.50), 0 6px 24px rgba(255,106,61,0.05);
+  /* Плавный градиентный фон, сочетающийся с палитрой логотипа */
+  background: linear-gradient(180deg, rgba(255,106,61,0.12), rgba(138,76,255,0.06));
+  /* Более заметная тёплая рамка */
+  border: 1.5px solid rgba(255,160,110,0.18);
+  /* Усиленная тёплая тень + лёгкое холодное свечение */
+  box-shadow:
+    0 22px 56px rgba(0,0,0,0.52),
+    0 6px 24px rgba(255,106,61,0.08),
+    0 2px 10px rgba(74,107,255,0.03);
+  /* Небольшое масштабирование для акцента (плавно) */
+  transform: translateY(-6px) scale(1.01);
+  /* Плавный переход при включении/выключении состояния */
+  transition: background 260ms cubic-bezier(.2,.9,.2,1),
+              box-shadow 260ms cubic-bezier(.2,.9,.2,1),
+              border 260ms cubic-bezier(.2,.9,.2,1),
+              transform 260ms cubic-bezier(.2,.9,.2,1);
+  /* Слегка увеличиваем z-index, чтобы карточка выглядела "над" соседями */
+  position: relative;
+  z-index: 2;
+}
+
+/* Дополнительный мягкий пульс свечения (опционально, можно убрать) */
+@keyframes playingGlow {
+  0%   { box-shadow: 0 22px 56px rgba(0,0,0,0.52), 0 6px 24px rgba(255,106,61,0.06), 0 2px 8px rgba(74,107,255,0.02); }
+  50%  { box-shadow: 0 28px 68px rgba(0,0,0,0.54), 0 10px 30px rgba(255,106,61,0.10), 0 4px 12px rgba(74,107,255,0.03); }
+  100% { box-shadow: 0 22px 56px rgba(0,0,0,0.52), 0 6px 24px rgba(255,106,61,0.06), 0 2px 8px rgba(74,107,255,0.02); }
+}
+
+/* Включите анимацию, если хотите лёгкую пульсацию.
+   JS может добавлять класс .animate-glow вместе с .playing-track */
+.tracks-list-grid .card.playing-track.animate-glow {
+  animation: playingGlow 2200ms ease-in-out infinite;
 }
 
 /* Обложка трека — показываем полностью без обрезки, с акцентной тёплой/холодной тенью */
 .tracks-list-grid .track-cover {
   width: 100%;
-  height: 180px;
-  object-fit: contain;
+  height: 180px;            /* сохраняем прежнюю высоту карточки */
+  object-fit: contain;      /* показываем весь квадрат целиком */
   object-position: center;
-  background-color: #121217;
+  background-color: #121217; /* фон для "поля" вокруг изображения */
   display: block;
   padding: 0;
   box-sizing: border-box;
+
+  /* Рамка и комбинированная тень (тёплая + холодная) */
   border-radius: 8px;
   border: var(--cover-border);
   box-shadow:
