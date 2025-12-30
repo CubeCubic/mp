@@ -1,6 +1,5 @@
 /* styles.css
-   Полный файл стилей с тёплыми мягкими тенями и аккуратными скруглениями.
-   Функциональность не изменялась — только визуальные правки (тени, свечение, радиусы).
+   Полный файл стилей — фон осветлён, сохранены тёплые тени, радиусы и функциональность.
 */
 
 /* Общие */
@@ -8,9 +7,11 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   color: #fff;
-  background: linear-gradient(135deg, #0f0e14 0%, #1a1428 50%, #241133 100%);
+  /* Осветлённый, но всё ещё тёмный фон — мягкий градиент с тёплым подтоном */
+  background: linear-gradient(135deg, #17161b 0%, #26202a 45%, #332b36 100%);
   background-attachment: fixed;
-  box-shadow: inset 0 0 180px rgba(255, 204, 0, 0.06);
+  /* Меньше интенсивности внутренней тени, чтобы фон выглядел мягче */
+  box-shadow: inset 0 0 140px rgba(255, 204, 0, 0.04);
 }
 
 /* Переменные */
@@ -25,8 +26,8 @@ body {
 
   /* Визуальные переменные для теней и радиусов (тёплые) */
   --card-radius: 12px;
-  --soft-shadow-warm: 0 10px 30px rgba(0,0,0,0.45);
-  --warm-accent-glow: 0 4px 18px rgba(255,180,60,0.08);
+  --soft-shadow-warm: 0 10px 30px rgba(0,0,0,0.40);
+  --warm-accent-glow: 0 4px 18px rgba(255,180,60,0.07);
   --cover-border: 1px solid rgba(255,255,255,0.04);
 }
 
@@ -52,7 +53,8 @@ header {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 12px;
-  background-color: rgba(6,6,10,0.86);
+  /* Сделаем шапку чуть светлее, но контрастной */
+  background-color: rgba(12,12,14,0.88);
   color: var(--accent-color);
   z-index: 1000;
   box-sizing: border-box;
@@ -75,7 +77,7 @@ header {
   height: 100%;
   object-fit: contain;
   border-radius: 6px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
 }
 
 /* Бренд: Cube Cubic — всегда жёлтый, с объёмом и лёгким сиянием */
@@ -90,10 +92,10 @@ header h1 {
   color: var(--accent-color);
   -webkit-text-stroke: 0.5px rgba(0,0,0,0.55);
   text-shadow:
-    0 1px 0 rgba(0,0,0,0.6),
-    0 3px 10px rgba(0,0,0,0.45),
-    0 0 10px rgba(255,200,80,0.06);
-  filter: drop-shadow(0 6px 14px rgba(255,180,60,0.05));
+    0 1px 0 rgba(0,0,0,0.55),
+    0 3px 8px rgba(0,0,0,0.35),
+    0 0 8px rgba(255,200,80,0.05);
+  filter: drop-shadow(0 6px 12px rgba(255,180,60,0.04));
   transition: text-shadow 160ms ease, transform 160ms ease;
 }
 header h1 a#brand-link {
@@ -127,7 +129,7 @@ header h1 a#brand-link {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.5), 0 3px 12px rgba(255,180,60,0.03);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.45), 0 3px 10px rgba(255,170,50,0.03);
 }
 .header-player-cover img {
   width: 100%;
@@ -180,7 +182,7 @@ header h1 a#brand-link {
 }
 .player-controls-header button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.45), 0 2px 8px rgba(255,180,60,0.04);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.42), 0 2px 8px rgba(255,170,50,0.03);
 }
 
 /* Поиск и контейнеры */
@@ -190,7 +192,7 @@ header h1 a#brand-link {
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.04);
-  background: linear-gradient(180deg, #0b0b0d, #0f0f12);
+  background: linear-gradient(180deg, #0d0d10, #121217);
   color: #fff;
   font-size: 15px;
   width: 100%;
@@ -264,11 +266,11 @@ header h1 a#brand-link {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.42);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.38);
 }
 .album-list-vertical .album-list-button:hover {
   transform: translateY(-6px);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.48), 0 4px 18px rgba(255,170,50,0.06);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.46), 0 4px 18px rgba(255,170,50,0.06);
   color: #000;
 }
 .album-list-vertical .album-list-button .track-count {
@@ -333,12 +335,12 @@ header h1 a#brand-link {
 }
 .tracks-list-grid .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 48px rgba(0,0,0,0.52), var(--warm-accent-glow);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.48), var(--warm-accent-glow);
 }
 .tracks-list-grid .card.playing-track {
   background: linear-gradient(180deg, rgba(255,240,200,0.03), rgba(255,240,200,0.01));
   border: 1px solid rgba(255,200,80,0.08);
-  box-shadow: 0 22px 56px rgba(0,0,0,0.55), 0 6px 24px rgba(255,180,60,0.06);
+  box-shadow: 0 22px 56px rgba(0,0,0,0.50), 0 6px 24px rgba(255,180,60,0.05);
 }
 
 /* Обложка трека — показываем полностью без обрезки, с тёплой тенью и аккуратной рамкой */
@@ -347,7 +349,7 @@ header h1 a#brand-link {
   height: 180px;            /* сохраняем прежнюю высоту карточки */
   object-fit: contain;      /* показываем весь квадрат целиком */
   object-position: center;
-  background-color: #0f0f10; /* фон для "поля" вокруг изображения */
+  background-color: #121214; /* фон для "поля" вокруг изображения */
   display: block;
   padding: 0;
   box-sizing: border-box;
@@ -356,7 +358,7 @@ header h1 a#brand-link {
   border-radius: 8px;
   border: var(--cover-border);
   box-shadow:
-    0 8px 22px rgba(0,0,0,0.55),         /* основная мягкая тень */
+    0 8px 22px rgba(0,0,0,0.50),         /* основная мягкая тень */
     0 3px 12px rgba(255,170,50,0.04);    /* лёгкое тёплое свечение акцента */
 }
 
@@ -371,7 +373,7 @@ header h1 a#brand-link {
   box-sizing: border-box;
   border-radius: 8px;
   border: var(--cover-border);
-  box-shadow: 0 8px 22px rgba(0,0,0,0.55), 0 3px 12px rgba(255,170,50,0.04);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.50), 0 3px 12px rgba(255,170,50,0.04);
 }
 
 /* Информация и действия */
@@ -410,7 +412,7 @@ header h1 a#brand-link {
 }
 .tracks-list-grid .track-actions button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.45), 0 2px 8px rgba(255,170,50,0.03);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.42), 0 2px 8px rgba(255,170,50,0.03);
 }
 .tracks-list-grid .btn-has-lyrics {
   background: var(--accent-color);
@@ -504,7 +506,7 @@ header h1 a#brand-link {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.6);
   z-index: 2000;
 }
 .modal-box {
@@ -532,7 +534,7 @@ header h1 a#brand-link {
   left: 50%;
   transform: translateX(-50%);
   bottom: 90px;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.82);
   color: #fff;
   padding: 8px 12px;
   border-radius: 6px;
