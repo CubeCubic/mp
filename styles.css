@@ -1,27 +1,16 @@
 /* styles.css
-   Полный файл стилей — палитра сайта адаптирована под цвета логотипа.
-   Функциональность не изменялась — только визуальные правки (цвета, акценты, тени).
+   Полный файл стилей с размытым hero-фоном + overlay.
+   Функциональность не изменялась — только визуальные правки.
 */
 
 /* Общие */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  color: #fff;
-  /* Фон оставлен тёмным, но с более нейтральным тоном, чтобы акценты логотипа выделялись */
-  background: linear-gradient(135deg, #15141a 0%, #221b2b 45%, #2b1f2f 100%);
-  background-attachment: fixed;
-  box-shadow: inset 0 0 140px rgba(0,0,0,0.18);
-}
-
-/* Переменные палитры (взяты из логотипа: синий → фиолетовый → оранжево-красный) */
-:root {
-  --logo-blue: #4A6BFF;      /* холодный синий */
-  --logo-purple: #8A4CFF;    /* фиолетовый */
-  --logo-orange: #FF6A3D;    /* основной тёплый акцент */
-  --logo-red: #FF3B30;       /* дополнительный акцент */
-  --accent-color: var(--logo-orange); /* основной акцент интерфейса */
-  --accent-2: var(--logo-blue);       /* вторичный акцент (холодный) */
+:root{
+  --logo-blue: #4A6BFF;
+  --logo-purple: #8A4CFF;
+  --logo-orange: #FF6A3D;
+  --logo-red: #FF3B30;
+  --accent-color: var(--logo-orange);
+  --accent-2: var(--logo-blue);
 
   --header-height: 64px;
   --header-padding-vertical: 6px;
@@ -30,16 +19,62 @@ body {
   --header-player-controls-size: 36px;
   --header-player-cover-size: calc(var(--header-height) - 18px);
 
-  /* Визуальные переменные для теней и радиусов */
   --card-radius: 12px;
   --soft-shadow-neutral: 0 10px 30px rgba(0,0,0,0.40);
-  --warm-accent-glow: 0 4px 18px rgba(255,106,61,0.07); /* оранжевое свечение */
-  --cool-accent-glow: 0 4px 18px rgba(74,107,255,0.06); /* синее свечение */
+  --warm-accent-glow: 0 4px 18px rgba(255,180,60,0.07);
   --cover-border: 1px solid rgba(255,255,255,0.04);
 }
 
-/* Отступ сверху для контента */
+/* Базовый фон страницы — теперь пустой, фон рисуется псевдоэлементом body::before */
+html,body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  background-color: #121217; /* fallback */
+}
+
+/* ===== HERO BACKGROUND (blur + overlay) =====
+   Использует изображение images/bigcube.jpg как фон.
+   Реализовано через body::before (изображение + blur + scale)
+   и body::after (цветной overlay для читаемости).
+   Псевдоэлементы фиксированы и не влияют на поток документа.
+*/
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background-image: url('images/bigcube.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+
+  /* Немного увеличиваем и размываем, чтобы края не были видны */
+  transform: scale(1.06);
+  filter: blur(14px) brightness(0.62) saturate(1.05);
+  will-change: transform, filter;
+}
+
+/* Цветной overlay для улучшения контраста (тёмный + лёгкий градиент) */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(180deg, rgba(10,8,14,0.55), rgba(20,16,26,0.65));
+  /* добавим тонкое цветовое свечение логотипа по диагонали */
+  background-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Небольшой контейнер-обёртка для контента */
 .site-wrapper {
+  position: relative;
+  z-index: 0; /* над фоном */
   padding-top: calc(var(--header-height) + 12px);
   max-width: 1440px;
   margin: 0 auto;
@@ -60,10 +95,11 @@ header {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 12px;
-  background-color: rgba(10,10,12,0.90);
+  background-color: rgba(8,8,10,0.64); /* полупрозрачная шапка, чтобы фон просвечивал */
   color: var(--accent-color);
-  z-index: 1000;
+  z-index: 1001;
   box-sizing: border-box;
+  backdrop-filter: blur(4px) saturate(1.02);
 }
 
 /* Левый блок */
@@ -86,7 +122,7 @@ header {
   box-shadow: 0 8px 22px rgba(0,0,0,0.5), 0 3px 12px rgba(138,76,255,0.03);
 }
 
-/* Бренд: Cube Cubic — всегда цвет логотипа (оранжево-красный), с объёмом и сиянием */
+/* Бренд: Cube Cubic — всегда цвет логотипа (оранжевый), с объёмом и сиянием */
 header h1 {
   margin: 0;
   font-size: var(--title-font-size);
@@ -198,7 +234,7 @@ header h1 a#brand-link {
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.04);
-  background: linear-gradient(180deg, #0f0f14, #14121a);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   color: #fff;
   font-size: 15px;
   width: 100%;
@@ -352,15 +388,13 @@ header h1 a#brand-link {
 /* Обложка трека — показываем полностью без обрезки, с акцентной тёплой/холодной тенью */
 .tracks-list-grid .track-cover {
   width: 100%;
-  height: 180px;            /* сохраняем прежнюю высоту карточки */
-  object-fit: contain;      /* показываем весь квадрат целиком */
+  height: 180px;
+  object-fit: contain;
   object-position: center;
-  background-color: #121217; /* фон для "поля" вокруг изображения */
+  background-color: #121217;
   display: block;
   padding: 0;
   box-sizing: border-box;
-
-  /* Рамка и комбинированная тень (тёплая + холодная) */
   border-radius: 8px;
   border: var(--cover-border);
   box-shadow:
@@ -480,7 +514,7 @@ header h1 a#brand-link {
   transform: translateY(-50%);
   width: 48px;
   height: 32px;
-  z-index: 1200;
+  z-index: 1202;
   color: transparent;
   font-size: 0;
   text-indent: -9999px;
