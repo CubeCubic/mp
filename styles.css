@@ -1,6 +1,6 @@
 /* styles.css
-   Полный файл стилей — Deep ocean variant с шапкой, чуть ярче фона.
-   Функциональность не изменялась — только визуальные правки (фон, шапка, акценты).
+   Полный файл стилей — Deep ocean variant, шапка приведена к палитре "Deep ocean".
+   Функциональность не изменялась — изменены только визуальные цвета и акценты.
 */
 
 /* Переменные палитры и визуальные переменные */
@@ -38,7 +38,7 @@ html, body {
   color: #fff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--ocean-deep);
+  background-color: var(--ocean-deep); /* fallback */
 }
 
 /* BACKGROUND (Deep ocean gradient) */
@@ -78,8 +78,8 @@ body::after {
 }
 
 /* Header
-   Сделан чуть ярче, чем фон: более плотный полупрозрачный градиент,
-   чтобы шапка визуально выделялась над фоном, но оставалась полупрозрачной.
+   Приведена к палитре Deep ocean: градиент и акценты из палитры,
+   чуть ярче фона, чтобы шапка визуально выделялась.
 */
 header {
   position: fixed;
@@ -93,15 +93,16 @@ header {
   align-items: center;
   gap: 12px;
 
-  /* Ярче, чем фон: плотный полупрозрачный градиент */
-  background: linear-gradient(180deg, rgba(12,18,26,0.78), rgba(8,12,18,0.70));
+  /* Градиент шапки в палитре Deep ocean — чуть ярче фона */
+  background: linear-gradient(180deg, rgba(11,43,69,0.86), rgba(15,47,74,0.78));
   color: var(--accent-color);
   z-index: 1001;
   box-sizing: border-box;
 
-  /* чуть более выраженный backdrop, чтобы элементы в шапке были чётче */
+  /* Выраженный backdrop для чёткости элементов в шапке */
   backdrop-filter: blur(6px) saturate(1.04);
   -webkit-backdrop-filter: blur(6px) saturate(1.04);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
 }
 
 /* Левый блок */
@@ -124,17 +125,21 @@ header {
   box-shadow: 0 12px 34px rgba(2,8,14,0.6), 0 6px 18px rgba(15,179,166,0.06);
 }
 
-/* Бренд */
+/* Бренд: логотипный коралл для выделения */
 header h1 {
   margin: 0;
   font-size: var(--title-font-size);
   font-weight: 800;
   line-height: 1;
   white-space: nowrap;
+  text-overflow: ellipsis;
   overflow: hidden;
   color: var(--accent-color);
   -webkit-text-stroke: 0.4px rgba(0,0,0,0.18);
-  text-shadow: 0 1px 0 rgba(0,0,0,0.14), 0 3px 8px rgba(0,0,0,0.12), 0 0 10px rgba(255,122,102,0.06);
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.14),
+    0 3px 8px rgba(0,0,0,0.12),
+    0 0 8px rgba(255,122,102,0.06);
   filter: drop-shadow(0 6px 12px rgba(255,122,102,0.05));
   transition: text-shadow 160ms ease, transform 160ms ease;
 }
@@ -147,7 +152,7 @@ header h1 a#brand-link {
   line-height: inherit;
 }
 
-/* Header player */
+/* Плеер (в header) */
 #header-player {
   grid-column: 2;
   display: flex;
@@ -158,6 +163,8 @@ header h1 a#brand-link {
   max-width: 70%;
   box-sizing: border-box;
 }
+
+/* Обложка в шапке */
 .header-player-cover {
   width: var(--header-player-cover-size);
   height: var(--header-player-cover-size);
@@ -175,7 +182,7 @@ header h1 a#brand-link {
   object-fit: cover;
 }
 
-/* Player info */
+/* Инфо плеера */
 .player-info-header {
   display: flex;
   flex-direction: column;
@@ -198,7 +205,7 @@ header h1 a#brand-link {
   text-overflow: ellipsis;
 }
 
-/* Player controls */
+/* Кнопки плеера */
 .player-controls-header {
   display: flex;
   align-items: center;
@@ -223,7 +230,7 @@ header h1 a#brand-link {
   box-shadow: 0 10px 26px rgba(2,8,14,0.44), 0 3px 10px rgba(15,179,166,0.04);
 }
 
-/* Search */
+/* Поиск и контейнеры */
 #global-search {
   margin-top: 12px;
   margin-bottom: 20px;
@@ -242,7 +249,7 @@ header h1 a#brand-link {
   margin-bottom: 0;
 }
 
-/* Album header */
+/* album header: label и кнопка в одну строку */
 .album-header {
   display: flex;
   align-items: center;
@@ -256,7 +263,7 @@ header h1 a#brand-link {
   color: var(--accent-2);
 }
 
-/* Refresh button */
+/* Refresh button — коралловый акцент */
 #refresh-btn {
   background: var(--accent-color);
   color: #000;
@@ -273,13 +280,20 @@ header h1 a#brand-link {
   filter: brightness(0.98);
 }
 
-/* Album list */
+/* Скрываем старую метку (если есть) */
+.controls label[for="album-select"] {
+  display: none;
+}
+
+/* Список альбомов контейнер */
 .album-list-vertical {
   margin-top: 6px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
+
+/* Большие кнопки альбомов (scoped) */
 .album-list-vertical .album-list-button {
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   color: #f2f9f8;
@@ -314,7 +328,7 @@ header h1 a#brand-link {
   text-align: center;
 }
 
-/* Layout */
+/* Новый layout */
 .new-main-layout {
   display: flex;
   gap: 24px;
@@ -343,7 +357,7 @@ header h1 a#brand-link {
   margin: 0 0 8px 0;
 }
 
-/* Tracks grid */
+/* === Треки в три колонки === */
 #tracks.tracks-list-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -352,7 +366,7 @@ header h1 a#brand-link {
   box-sizing: border-box;
 }
 
-/* Card base */
+/* Карточки треков */
 .tracks-list-grid .card {
   display: flex;
   flex-direction: column;
@@ -418,7 +432,7 @@ header h1 a#brand-link {
   animation: deepOceanPulseBright 1800ms ease-in-out infinite;
 }
 
-/* Track cover */
+/* Обложка трека */
 .tracks-list-grid .track-cover {
   width: 100%;
   height: 180px;
@@ -534,7 +548,7 @@ header h1 a#brand-link {
   }
 }
 
-/* Admin link */
+/* Admin: правый угол, невидимая ссылка с подсказкой */
 #hidden-admin-link {
   position: absolute;
   right: 12px;
@@ -565,7 +579,7 @@ header h1 a#brand-link {
   white-space: nowrap;
 }
 
-/* Modals */
+/* Модалки */
 #lyrics-modal.hidden {
   display: none !important;
 }
