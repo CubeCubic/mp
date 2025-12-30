@@ -1,24 +1,24 @@
 {
   "albums": [
     {
-      "id": "1765384187417",
-      "name": "Instrumental",
-      "parentId": null
-    },
-    {
-      "id": "1765384197681",
-      "name": "-Jazz",
-      "parentId": "1765384187417"
-    },
-    {
       "id": "1765388179450",
-      "name": "Georgian",
+      "name": "Georgian Songs",
       "parentId": null
     },
     {
-      "id": "1767097616083",
-      "name": "-Blues",
-      "parentId": "1765384187417"
+      "id": "1767099064514",
+      "name": "Funk",
+      "parentId": null
+    },
+    {
+      "id": "1767099437898",
+      "name": "Blues-Rock",
+      "parentId": null
+    },
+    {
+      "id": "1767099473730",
+      "name": "Jazz",
+      "parentId": null
     }
   ],
   "tracks": [
@@ -198,7 +198,7 @@
       "title": "Rise Up",
       "artist": "Cube Cubic",
       "lyrics": "",
-      "albumId": "1767097616083",
+      "albumId": "1767099437898",
       "audioUrl": "https://archive.org/download/rise-up_202512/Rise_Up.wav",
       "coverUrl": "https://archive.org/download/rise-up_202512/Rise%20Up.png"
     },
