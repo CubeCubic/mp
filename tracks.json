@@ -19,6 +19,11 @@
       "id": "1767099473730",
       "name": "Jazz",
       "parentId": null
+    },
+    {
+      "id": "1767099799250",
+      "name": "Smooth Jazz/Funk Fusion",
+      "parentId": null
     }
   ],
   "tracks": [
@@ -246,6 +251,15 @@
       "albumId": "1765388179450",
       "audioUrl": "https://archive.org/download/20251212_20251212_1034/%E1%83%9B%E1%83%96%E1%83%94%E1%83%A0%E1%83%90.wav",
       "coverUrl": "https://archive.org/download/20251212_20251212_1034/%E1%83%9B%E1%83%96%E1%83%94%E1%83%A0%E1%83%90.png"
+    },
+    {
+      "id": "1767099816659",
+      "title": "Evening Groove",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767099799250",
+      "audioUrl": "https://archive.org/download/rise-up_202512/Evening%20Groove.wav",
+      "coverUrl": "https://archive.org/download/rise-up_202512/Evening%20Groove.png"
     }
   ]
 }
