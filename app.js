@@ -167,6 +167,23 @@
     });
   }
 
+  function buildAlbumSelectors() {
+    if (albumSelect) albumSelect.value = '';
+
+    if (subalbumSelect) {
+      subalbumSelect.innerHTML = '';
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = '— ყველა ქვეალბომი —';
+      subalbumSelect.appendChild(opt);
+      subalbumSelect.disabled = true;
+      subalbumSelect.style.display = 'none';
+      if (subalbumLabel) subalbumLabel.style.display = 'none';
+    }
+
+    renderAlbumList();
+  }
+
   function onAlbumChange() {
     const currentAlbumId = albumSelect ? albumSelect.value : '';
 
@@ -214,8 +231,14 @@
     );
   }
 
+  function applySearch() {
+    const query = globalSearchInput ? globalSearchInput.value.trim() : '';
+    filteredTracks = tracks.filter(t => matchesQuery(t, query));
+  }
+
   if (globalSearchInput) {
     globalSearchInput.addEventListener('input', () => {
+      applySearch();
       renderTracks();
       renderAlbumList();
       currentTrackIndex = -1;
@@ -355,7 +378,8 @@
       const data = await res.json();
       tracks = data.tracks || [];
       albums = data.albums || [];
-      renderAlbumList();
+      buildAlbumSelectors();  // ← КРИТИЧНО: было удалено!
+      applySearch();          // ← КРИТИЧНО: было удалено!
       renderTracks();
     } catch (err) {
       console.error('Ошибка загрузки tracks.json:', err);
