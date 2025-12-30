@@ -15,10 +15,9 @@
       --compact-padding: 10px;
       --compact-font-size: 13px;
       --panel-radius: 8px;
-      --admin-max-width: 980px; /* <-- сузил страницу: максимальная ширина админки */
+      --admin-max-width: 980px;
     }
 
-    /* --- Ensure header doesn't cover content --- */
     html { scroll-padding-top: var(--site-header-total); }
     body {
       font-family: Arial, sans-serif;
@@ -31,15 +30,8 @@
     }
     input, textarea, select, button { scroll-margin-top: var(--site-header-total); }
 
-    /* --- Centered, narrower admin area --- */
-    main#admin-app {
-      max-width: var(--admin-max-width);
-      margin: 0 auto;
-      width: 100%;
-      box-sizing: border-box;
-    }
+    main#admin-app { max-width: var(--admin-max-width); margin: 0 auto; width: 100%; box-sizing: border-box; }
 
-    /* --- Compact styles --- */
     header { margin: 0 0 8px 0; padding: 6px 0; }
     h1 { color: #ffcc00; margin: 0 0 6px 0; font-size: 18px; line-height: 1.1; }
     .hidden { display: none; }
@@ -55,7 +47,6 @@
 
     label { display:block; margin:6px 0 4px; color:#ffd; font-weight:600; font-size:13px; }
 
-    /* Inputs full width but compact */
     input[type="text"], input[type="password"], select, textarea {
       width:100%;
       padding:8px;
@@ -67,18 +58,10 @@
       font-size: 13px;
     }
 
-    /* Row/column layout tightened */
-    .row {
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      flex-wrap:wrap;
-    }
+    .row { display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; }
     .col { flex:1; min-width:200px; }
-    /* Сузил "small" блоки, чтобы они не растягивались */
     .small { width:180px; flex:0 0 180px; min-width:140px; }
 
-    /* Buttons compact */
     button {
       background:#444;
       color:#fff;
@@ -90,7 +73,6 @@
     }
     button:hover { background:#666; }
 
-    /* Lists and items — tighter spacing */
     .list {
       margin-top:8px;
       max-height:300px;
@@ -112,7 +94,6 @@
     .muted { color:#999; font-size:12px; }
     .note { color:#ccc; font-size:12px; margin-top:6px; }
 
-    /* Modal compact */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -132,15 +113,12 @@
     .modal h3 { margin-top: 0; font-size: 16px; }
     .modal .actions { display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
 
-    /* Logout button aligned right and compact */
     #logout-btn { margin-top: 8px; padding: 8px 10px; background: #333; border-radius: 6px; }
 
-    /* Small improvements */
     #add-track-form textarea { min-height: 80px; }
     #albums-list .item, #admin-tracks .item { padding: 6px; }
     .small button { width:100%; box-sizing:border-box; }
 
-    /* Mobile adjustments */
     @media (max-width: 720px) {
       :root { --site-header-height: 56px; --site-header-safety: 12px; }
       .row { gap:8px; }
@@ -148,6 +126,12 @@
       .col { min-width: 100%; }
       body { padding-left: 10px; padding-right: 10px; }
     }
+
+    /* --- Search input specific styling --- */
+    .track-search-wrap { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+    #track-search { flex:1; padding:8px; border-radius:6px; border:1px solid #333; background:#0f0f0f; color:#fff; }
+    #track-search-clear { background: transparent; border: 1px solid rgba(255,255,255,0.06); color:#fff; padding:6px 8px; border-radius:6px; cursor:pointer; }
+    #track-search-clear:hover { background: rgba(255,255,255,0.02); }
   </style>
 </head>
 <body>
@@ -216,6 +200,13 @@
 
       <div class="panel">
         <h2 style="margin:0 0 8px 0; font-size:15px">არსებული ტრეკები</h2>
+
+        <!-- Поиск треков -->
+        <div class="track-search-wrap">
+          <input id="track-search" type="text" placeholder="Поиск по названию, исполнителю или альбому..." aria-label="Search tracks">
+          <button id="track-search-clear" type="button" title="Очистить поиск">✕</button>
+        </div>
+
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
           <button id="btn-refresh-tracks" type="button">Refresh tracks</button>
           <span class="muted" style="font-size:12px">(Use Edit to change)</span>

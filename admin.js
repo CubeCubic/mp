@@ -27,6 +27,11 @@
   const modalAlbumParent = document.getElementById('modal-album-parent');
   const modalSaveBtn = document.getElementById('modal-save');
   const modalCancelBtn = document.getElementById('modal-cancel');
+
+  // Search elements (added)
+  const trackSearchInput = document.getElementById('track-search');
+  const trackSearchClear = document.getElementById('track-search-clear');
+
   // Динамическая модалка редактирования трека
   let trackEditModalBackdrop = null;
   let trackEditRefs = null;
@@ -258,7 +263,7 @@
       trackBeingEdited.audioUrl = (trackEditRefs.audioUrl.value || '').trim();
       trackBeingEdited.coverUrl = (trackEditRefs.coverUrl.value || '').trim();
       markDirty();
-      renderTracks();
+      renderTracks(); // render with current search (if any)
       closeTrackEditModal();
     });
   }
@@ -316,21 +321,41 @@
       const id = Date.now().toString();
       tracks.push({ id, title, artist, lyrics, albumId, audioUrl, coverUrl });
       form.reset();
-      renderTracks();
+      renderTracks(); // render with current search (if any)
       markDirty();
     });
   }
-  // Рендер треков
-  function renderTracks() {
+
+  // Рендер треков (добавлен необязательный параметр query для фильтрации)
+  function renderTracks(query = '') {
     if (!adminTracks) return;
     adminTracks.innerHTML = '';
     if (!tracks.length) {
       adminTracks.innerHTML = '<div class="muted">No tracks</div>';
       return;
     }
-    tracks.forEach(t => {
+
+    const q = (query || '').toString().trim().toLowerCase();
+
+    // Helper: get album name by id
+    const albumNameById = id => (albums.find(a => a.id === id) || {}).name || '';
+
+    // Filter tracks if query provided
+    const filtered = q ? tracks.filter(t => {
+      const title = (t.title || '').toString().toLowerCase();
+      const artist = (t.artist || '').toString().toLowerCase();
+      const albumNameStr = albumNameById(t.albumId).toString().toLowerCase();
+      return title.includes(q) || artist.includes(q) || albumNameStr.includes(q);
+    }) : tracks;
+
+    if (!filtered.length) {
+      adminTracks.innerHTML = '<div class="muted">No tracks match your search</div>';
+      return;
+    }
+
+    filtered.forEach(t => {
       const item = el('div', { class: 'item' });
-      const albumNameForTrack = (albums.find(a => a.id === t.albumId) || {}).name || '(no album)';
+      const albumNameForTrack = albumNameById(t.albumId) || '(no album)';
       const meta = el('div', { class: 'meta' }, [
         el('strong', {}, escapeHtml(t.title || 'Untitled')),
         el('div', { class: 'muted' }, escapeHtml(t.artist || '')),
@@ -347,7 +372,7 @@
       btnDelete.addEventListener('click', () => {
         if (!confirm('Delete track?')) return;
         tracks = tracks.filter(x => x.id !== t.id);
-        renderTracks();
+        renderTracks(trackSearchInput ? trackSearchInput.value : '');
         markDirty();
       });
       item.appendChild(meta);
@@ -355,6 +380,7 @@
       adminTracks.appendChild(item);
     });
   }
+
   // Кнопки обновления списков
   if (btnRefreshAlbums) {
     btnRefreshAlbums.addEventListener('click', () => {
@@ -369,7 +395,7 @@
   if (btnRefreshTracks) {
     btnRefreshTracks.addEventListener('click', () => {
       if (loggedIn) {
-        renderTracks();
+        renderTracks(trackSearchInput ? trackSearchInput.value : '');
       } else {
         alert('Сначала войдите');
       }
@@ -397,7 +423,7 @@
       passwordInput.value = '';
       fetchTracksJson().then(() => {
         renderAlbumsList();
-        renderTracks();
+        renderTracks(); // initial render without filter
         fillAlbumSelects();
         clearDirty();
       }).catch(err => {
@@ -428,6 +454,34 @@
       loginForm.classList.remove('hidden');
     });
   }
+
+  // --- Search logic ---
+  // Debounce helper
+  function debounce(fn, wait) {
+    let t = null;
+    return function(...args) {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, args), wait);
+    };
+  }
+
+  if (trackSearchInput) {
+    const onSearch = debounce(() => {
+      const q = trackSearchInput.value || '';
+      renderTracks(q);
+    }, 200);
+    trackSearchInput.addEventListener('input', onSearch);
+
+    // Clear button
+    if (trackSearchClear) {
+      trackSearchClear.addEventListener('click', () => {
+        trackSearchInput.value = '';
+        renderTracks('');
+        trackSearchInput.focus();
+      });
+    }
+  }
+
   // Инициализация
   document.addEventListener('DOMContentLoaded', () => {
     adminPanel.classList.add('hidden');
