@@ -7,7 +7,7 @@
   const globalSearchInput = document.getElementById('global-search');
   const albumListContainer = document.getElementById('album-list');
 
-  // Вертикальный плеер (обновлено: без кнопок "ტექსტი" и "ჩამოტვირთვა")
+  // Плеер (без кнопок "ტექსტი" и "ჩამოტვირთვა" в сайдбаре)
   const playerSidebar = document.getElementById('player-sidebar');
   const playerCoverImg = document.getElementById('player-cover-img');
   const playerTitleSidebar = document.getElementById('player-title-sidebar');
@@ -246,7 +246,7 @@
     });
   }
 
-  // --- Рендер треков ---
+  // --- Рендер треков (карточки в grid) ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -278,114 +278,90 @@
     // новые треки сверху
     toRender = toRender.slice().sort((a, b) => (b.id || 0) - (a.id || 0));
 
-    // Построим таблицу с колонками: #, Covers, Title, Action
-    const table = document.createElement('table');
-    table.className = 'table';
-    const thead = document.createElement('thead');
-    const headRow = document.createElement('tr');
-    ['#','Covers','Title','Action'].forEach(h => {
-      const th = document.createElement('th');
-      th.textContent = h;
-      headRow.appendChild(th);
-    });
-    thead.appendChild(headRow);
-    table.appendChild(thead);
+    // Построение карточек (grid) — компактный вид, как было раньше
+    toRender.forEach((t) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.setAttribute('data-track-id', t.id || '');
 
-    const tbody = document.createElement('tbody');
+      const img = document.createElement('img');
+      img.className = 'track-cover';
+      img.src = getCoverUrl(t);
+      img.alt = safeStr(t.title) + ' cover';
+      img.onerror = () => { img.src = 'images/midcube.png'; };
 
-    toRender.forEach((t, idx) => {
-      const tr = document.createElement('tr');
-      tr.setAttribute('data-track-id', t.id || '');
+      const info = document.createElement('div');
+      info.className = 'track-info';
 
-      // Index
-      const tdIndex = document.createElement('td');
-      tdIndex.textContent = (idx + 1).toString();
-      tr.appendChild(tdIndex);
+      const title = document.createElement('h4');
+      title.textContent = safeStr(t.title);
 
-      // Covers column: show one small thumbnail (keeps design compact)
-      const tdCovers = document.createElement('td');
-      tdCovers.className = 'covers-cell';
-      const coverImgEl = document.createElement('img');
-      coverImgEl.className = 'cover-thumb';
-      coverImgEl.src = getCoverUrl(t);
-      coverImgEl.alt = safeStr(t.title) + ' cover';
-      coverImgEl.onerror = () => { coverImgEl.src = 'images/midcube.png'; };
-      tdCovers.appendChild(coverImgEl);
-      tr.appendChild(tdCovers);
+      const artist = document.createElement('div');
+      artist.textContent = safeStr(t.artist);
 
-      // Title column (title + album meta)
-      const tdTitle = document.createElement('td');
-      const titleWrap = document.createElement('div');
-      titleWrap.className = 'track-title';
-      titleWrap.textContent = safeStr(t.title);
-      const albumName = (albums.find(a => a.id === t.albumId) || {}).name || '';
-      const meta = document.createElement('div');
-      meta.className = 'track-artist';
-      meta.textContent = albumName ? albumName : '';
-      tdTitle.appendChild(titleWrap);
-      tdTitle.appendChild(meta);
-      tr.appendChild(tdTitle);
+      const actions = document.createElement('div');
+      actions.className = 'track-actions';
 
-      // Action column: lyrics (if any), download, like
-      const tdAction = document.createElement('td');
-
+      // Lyrics button (in card)
       if (t.lyrics && t.lyrics.trim()) {
-        const btnLyrics = document.createElement('button');
-        btnLyrics.className = 'action-btn lyrics';
-        btnLyrics.type = 'button';
-        btnLyrics.textContent = 'ტექსტი';
-        btnLyrics.addEventListener('click', (ev) => {
+        const lyricsBtn = document.createElement('button');
+        lyricsBtn.type = 'button';
+        lyricsBtn.className = 'btn-has-lyrics';
+        lyricsBtn.textContent = 'ტექსტი';
+        lyricsBtn.addEventListener('click', (ev) => {
           ev.stopPropagation();
           modalTitle.textContent = t.title || 'Lyrics';
           modalLyrics.textContent = t.lyrics || '';
           lyricsModal.classList.remove('hidden');
           lyricsModal.setAttribute('aria-hidden', 'false');
         });
-        tdAction.appendChild(btnLyrics);
+        actions.appendChild(lyricsBtn);
       }
 
+      // Download button (in card)
       const stream = getStreamUrl(t);
-      const aDownload = document.createElement('a');
-      aDownload.className = 'action-btn download';
-      aDownload.textContent = 'Download';
+      const downloadBtn = document.createElement('button');
+      downloadBtn.type = 'button';
+      downloadBtn.className = 'download-button';
+      downloadBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
       if (stream && stream.trim() !== '') {
-        aDownload.href = stream;
-        aDownload.setAttribute('download', '');
-        aDownload.setAttribute('rel', 'noopener noreferrer');
-        aDownload.setAttribute('target', '_blank');
+        downloadBtn.addEventListener('click', async (ev) => {
+          ev.stopPropagation();
+          ev.preventDefault();
+          let filename = 'track.mp3';
+          try {
+            const u = new URL(stream);
+            filename = decodeURIComponent(u.pathname.split('/').pop() || filename);
+          } catch {}
+          await triggerDownload(stream, filename);
+        });
       } else {
-        aDownload.href = '#';
-        aDownload.classList.add('disabled');
+        downloadBtn.disabled = true;
+        downloadBtn.style.opacity = '0.5';
       }
-      tdAction.appendChild(aDownload);
+      actions.appendChild(downloadBtn);
 
-      // Like button (compact)
-      const likeBtn = document.createElement('button');
-      likeBtn.type = 'button';
-      likeBtn.className = 'like-button';
-      likeBtn.setAttribute('aria-label', 'Like track');
-      likeBtn.textContent = '❤';
-      likeBtn.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        showToast('Liked');
-      });
-      tdAction.appendChild(likeBtn);
+      // Assemble card
+      info.appendChild(title);
+      info.appendChild(artist);
+      info.appendChild(actions);
 
-      tr.appendChild(tdAction);
+      card.appendChild(img);
+      card.appendChild(info);
 
-      // Row click: play track
-      tr.addEventListener('click', () => {
+      // Click on card -> play
+      card.addEventListener('click', () => {
         userHasInteracted = true;
-        const idxGlobal = toRender.indexOf(t);
-        playTrackByIndex(idxGlobal);
+        const idx = toRender.indexOf(t);
+        // set filteredTracks to toRender so indices match
+        filteredTracks = toRender;
+        playTrackByIndex(idx);
       });
 
-      tbody.appendChild(tr);
+      tracksContainer.appendChild(card);
     });
 
-    table.appendChild(tbody);
-    tracksContainer.appendChild(table);
-
+    // ensure filteredTracks references current toRender
     filteredTracks = toRender;
 
     highlightCurrentTrack();
