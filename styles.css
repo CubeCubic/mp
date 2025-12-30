@@ -1,18 +1,20 @@
 /* styles.css
-   Полный файл стилей — цветовой вариант "Aurora" (бирюзово‑магентовый).
-   Функциональность не изменялась — только визуальные правки (фон, акценты, тени).
+   Полный файл стилей — цветовой вариант "Deep ocean".
+   Сохранена вся функциональность; изменены только цвета, тени и визуальные акценты.
 */
 
 /* Переменные палитры и визуальные переменные */
 :root{
-  /* Aurora palette */
-  --aurora-teal: #00D1C1;      /* свежий бирюзовый */
-  --aurora-magenta: #9B4CFF;   /* насыщенная магента */
-  --aurora-gold: #FFB86B;      /* тёплый золотой акцент */
-  --aurora-deep: #0b0f14;      /* глубокий тёмный для контраста */
+  /* Deep ocean palette */
+  --ocean-deep: #071428;      /* очень тёмный морской */
+  --ocean-navy: #0f2b45;      /* глубокий синий */
+  --ocean-teal: #0fb3a6;      /* бирюзовый акцент */
+  --ocean-sea:  #2bb7a4;      /* мягкий морской */
+  --ocean-coral: #ff7a66;     /* коралловый акцент для кнопок */
+  --muted-ice:  #dbeff0;      /* светлый текстовый оттенок */
 
-  --accent-color: var(--aurora-gold);
-  --accent-2: var(--aurora-teal);
+  --accent-color: var(--ocean-coral);
+  --accent-2: var(--ocean-teal);
 
   --header-height: 64px;
   --header-padding-vertical: 6px;
@@ -22,12 +24,12 @@
   --header-player-cover-size: calc(var(--header-height) - 18px);
 
   --card-radius: 12px;
-  --soft-shadow-neutral: 0 12px 36px rgba(0,0,0,0.40);
-  --warm-accent-glow: 0 6px 22px rgba(255,184,110,0.10);
-  --cover-border: 1px solid rgba(255,255,255,0.06);
+  --soft-shadow-neutral: 0 12px 36px rgba(2,8,14,0.55);
+  --warm-accent-glow: 0 6px 22px rgba(255,122,102,0.10);
+  --cover-border: 1px solid rgba(255,255,255,0.04);
 }
 
-/* Базовый фон страницы — яркий Aurora градиент */
+/* Базовый фон страницы — глубокий морской градиент */
 html, body {
   height: 100%;
   margin: 0;
@@ -36,33 +38,33 @@ html, body {
   color: #fff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--aurora-teal); /* fallback */
+  background-color: var(--ocean-deep); /* fallback */
 }
 
-/* ===== BRIGHT BACKGROUND (Aurora gradient) =====
-   Диагональный градиент: бирюзовый → магента → тёплый золотой.
-   Overlay оставлен лёгким для читаемости.
+/* ===== BACKGROUND (Deep ocean gradient) =====
+   Диагональный градиент: глубокий синий → бирюзовый → мягкий морской.
+   Overlay лёгкий для читаемости.
 */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -3;
-  background: linear-gradient(135deg, var(--aurora-teal) 0%, var(--aurora-magenta) 50%, var(--aurora-gold) 100%);
+  background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean-navy) 35%, var(--ocean-teal) 70%, var(--ocean-sea) 100%);
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
-  filter: saturate(1.08) contrast(1.03);
+  filter: saturate(1.05) contrast(1.02) brightness(0.95);
   will-change: filter;
 }
 
-/* Лёгкий полупрозрачный overlay для читаемости текста и карточек */
+/* Тёмный полупрозрачный overlay для читаемости текста и карточек */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -2;
-  background: linear-gradient(180deg, rgba(6,8,10,0.18), rgba(12,10,16,0.22));
+  background: linear-gradient(180deg, rgba(3,6,10,0.36), rgba(6,10,14,0.42));
   pointer-events: none;
 }
 
@@ -90,11 +92,11 @@ header {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 12px;
-  background-color: rgba(255,255,255,0.06);
+  background-color: rgba(6,10,14,0.56); /* полупрозрачная шапка */
   color: var(--accent-color);
   z-index: 1001;
   box-sizing: border-box;
-  backdrop-filter: blur(6px) saturate(1.02);
+  backdrop-filter: blur(4px) saturate(1.02);
 }
 
 /* Левый блок */
@@ -114,10 +116,10 @@ header {
   height: 100%;
   object-fit: contain;
   border-radius: 6px;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.18), 0 4px 14px rgba(155,76,255,0.06);
+  box-shadow: 0 10px 28px rgba(2,8,14,0.6), 0 4px 14px rgba(15,179,166,0.06);
 }
 
-/* Бренд: основной акцент — тёплый золотой */
+/* Бренд: логотипный коралл для выделения */
 header h1 {
   margin: 0;
   font-size: var(--title-font-size);
@@ -127,12 +129,12 @@ header h1 {
   text-overflow: ellipsis;
   overflow: hidden;
   color: var(--accent-color);
-  -webkit-text-stroke: 0.4px rgba(0,0,0,0.12);
+  -webkit-text-stroke: 0.4px rgba(0,0,0,0.18);
   text-shadow:
-    0 1px 0 rgba(0,0,0,0.12),
-    0 3px 8px rgba(0,0,0,0.10),
-    0 0 8px rgba(255,184,110,0.06);
-  filter: drop-shadow(0 6px 12px rgba(255,184,110,0.04));
+    0 1px 0 rgba(0,0,0,0.14),
+    0 3px 8px rgba(0,0,0,0.12),
+    0 0 8px rgba(255,122,102,0.06);
+  filter: drop-shadow(0 6px 12px rgba(255,122,102,0.05));
   transition: text-shadow 160ms ease, transform 160ms ease;
 }
 header h1 a#brand-link {
@@ -162,11 +164,11 @@ header h1 a#brand-link {
   height: var(--header-player-cover-size);
   border-radius: 6px;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(0,209,193,0.10), rgba(155,76,255,0.06));
+  background: linear-gradient(135deg, rgba(15,179,166,0.08), rgba(11,43,69,0.06));
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12px 34px rgba(0,0,0,0.18), 0 6px 18px rgba(155,76,255,0.06);
+  box-shadow: 0 12px 34px rgba(2,8,14,0.6), 0 4px 14px rgba(15,179,166,0.04);
 }
 .header-player-cover img {
   width: 100%;
@@ -191,7 +193,7 @@ header h1 a#brand-link {
 }
 .player-artist {
   font-size: 12px;
-  color: #f7f3f8;
+  color: var(--muted-ice);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -208,7 +210,7 @@ header h1 a#brand-link {
   height: var(--header-player-controls-size);
   border-radius: 50%;
   border: none;
-  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
   color: var(--accent-2);
   cursor: pointer;
   display: inline-flex;
@@ -219,7 +221,7 @@ header h1 a#brand-link {
 }
 .player-controls-header button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(0,0,0,0.16), 0 3px 10px rgba(0,209,193,0.06);
+  box-shadow: 0 10px 26px rgba(2,8,14,0.44), 0 3px 10px rgba(15,179,166,0.04);
 }
 
 /* Поиск и контейнеры */
@@ -228,8 +230,8 @@ header h1 a#brand-link {
   margin-bottom: 20px;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.04);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   color: #fff;
   font-size: 15px;
   width: 100%;
@@ -255,7 +257,7 @@ header h1 a#brand-link {
   color: var(--accent-2);
 }
 
-/* Refresh button — основной акцент (золотой) */
+/* Refresh button — коралловый акцент */
 #refresh-btn {
   background: var(--accent-color);
   color: #000;
@@ -264,7 +266,7 @@ header h1 a#brand-link {
   border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 10px 28px rgba(255,184,110,0.14);
+  box-shadow: 0 10px 28px rgba(255,122,102,0.12);
   transition: transform 140ms ease, filter 140ms ease;
 }
 #refresh-btn:hover {
@@ -288,8 +290,8 @@ header h1 a#brand-link {
 /* Большие кнопки альбомов (scoped) */
 .album-list-vertical .album-list-button {
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  color: #f6f0ff;
-  border: 1px solid rgba(155,76,255,0.07);
+  color: #f2f9f8;
+  border: 1px solid rgba(15,179,166,0.06);
   padding: 14px 16px;
   border-radius: calc(var(--card-radius) - 2px);
   font-size: 16px;
@@ -303,11 +305,11 @@ header h1 a#brand-link {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
 }
 .album-list-vertical .album-list-button:hover {
   transform: translateY(-6px);
-  box-shadow: 0 22px 44px rgba(0,0,0,0.24), 0 6px 20px rgba(155,76,255,0.08);
+  box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
   color: #000;
 }
 .album-list-vertical .album-list-button .track-count {
@@ -372,17 +374,17 @@ header h1 a#brand-link {
 }
 .tracks-list-grid .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 22px 52px rgba(0,0,0,0.20), var(--warm-accent-glow);
+  box-shadow: 0 22px 52px rgba(2,8,14,0.28), var(--warm-accent-glow);
 }
 
-/* Визуал для проигрываемой карточки трека — Aurora variant */
+/* Визуал для проигрываемой карточки трека — Deep ocean variant */
 .tracks-list-grid .card.playing-track {
-  background: linear-gradient(180deg, rgba(0,209,193,0.18), rgba(155,76,255,0.10));
-  border: 2px solid rgba(255,184,110,0.22);
+  background: linear-gradient(180deg, rgba(15,179,166,0.16), rgba(11,43,69,0.10));
+  border: 2px solid rgba(255,122,102,0.20);
   box-shadow:
-    0 28px 72px rgba(0,0,0,0.36),
-    0 10px 36px rgba(255,160,100,0.18),
-    0 6px 20px rgba(0,209,193,0.10);
+    0 28px 72px rgba(2,8,14,0.48),
+    0 10px 36px rgba(255,122,102,0.18),
+    0 6px 20px rgba(15,179,166,0.10);
   transform: translateY(-8px) scale(1.03);
   transition: background 260ms cubic-bezier(.2,.9,.2,1),
               box-shadow 260ms cubic-bezier(.2,.9,.2,1),
@@ -390,17 +392,17 @@ header h1 a#brand-link {
               transform 260ms cubic-bezier(.2,.9,.2,1);
   position: relative;
   z-index: 3;
-  filter: drop-shadow(0 14px 40px rgba(255,160,100,0.12));
+  filter: drop-shadow(0 14px 40px rgba(255,122,102,0.12));
 }
 
 /* Пульсация свечения (опционально) */
-@keyframes auroraPulse {
-  0%   { box-shadow: 0 28px 72px rgba(0,0,0,0.36), 0 10px 36px rgba(255,160,100,0.16), 0 6px 20px rgba(0,209,193,0.08); transform: translateY(-8px) scale(1.03); }
-  50%  { box-shadow: 0 36px 92px rgba(0,0,0,0.40), 0 16px 48px rgba(255,180,110,0.22), 0 10px 28px rgba(0,209,193,0.12); transform: translateY(-10px) scale(1.04); }
-  100% { box-shadow: 0 28px 72px rgba(0,0,0,0.36), 0 10px 36px rgba(255,160,100,0.16), 0 6px 20px rgba(0,209,193,0.08); transform: translateY(-8px) scale(1.03); }
+@keyframes deepOceanPulse {
+  0%   { box-shadow: 0 28px 72px rgba(2,8,14,0.48), 0 10px 36px rgba(255,122,102,0.16), 0 6px 20px rgba(15,179,166,0.08); transform: translateY(-8px) scale(1.03); }
+  50%  { box-shadow: 0 36px 92px rgba(2,8,14,0.52), 0 16px 48px rgba(255,140,120,0.22), 0 10px 28px rgba(15,179,166,0.12); transform: translateY(-10px) scale(1.04); }
+  100% { box-shadow: 0 28px 72px rgba(2,8,14,0.48), 0 10px 36px rgba(255,122,102,0.16), 0 6px 20px rgba(15,179,166,0.08); transform: translateY(-8px) scale(1.03); }
 }
-.tracks-list-grid .card.playing-track.animate-aurora {
-  animation: auroraPulse 2000ms ease-in-out infinite;
+.tracks-list-grid .card.playing-track.animate-deepocean {
+  animation: deepOceanPulse 2000ms ease-in-out infinite;
 }
 
 /* Обложка трека */
@@ -416,9 +418,9 @@ header h1 a#brand-link {
   border-radius: 8px;
   border: var(--cover-border);
   box-shadow:
-    0 10px 28px rgba(0,0,0,0.18),
-    0 4px 16px rgba(255,160,100,0.06),
-    0 3px 10px rgba(0,209,193,0.04);
+    0 10px 28px rgba(2,8,14,0.18),
+    0 4px 16px rgba(255,122,102,0.06),
+    0 3px 10px rgba(15,179,166,0.04);
 }
 
 /* Если изображение задано как <img class="track-cover"> */
@@ -432,7 +434,7 @@ header h1 a#brand-link {
   box-sizing: border-box;
   border-radius: 8px;
   border: var(--cover-border);
-  box-shadow: 0 10px 28px rgba(0,0,0,0.18), 0 4px 16px rgba(255,160,100,0.06), 0 3px 10px rgba(0,209,193,0.04);
+  box-shadow: 0 10px 28px rgba(2,8,14,0.18), 0 4px 16px rgba(255,122,102,0.06), 0 3px 10px rgba(15,179,166,0.04);
 }
 
 /* Информация и действия */
@@ -450,7 +452,7 @@ header h1 a#brand-link {
 }
 .tracks-list-grid .track-info div {
   font-size: 13px;
-  color: #f7f3f8;
+  color: var(--muted-ice);
   margin-bottom: 8px;
 }
 
@@ -471,10 +473,10 @@ header h1 a#brand-link {
 }
 .tracks-list-grid .track-actions button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(0,0,0,0.16), 0 3px 10px rgba(0,209,193,0.05);
+  box-shadow: 0 10px 26px rgba(2,8,14,0.16), 0 3px 10px rgba(15,179,166,0.05);
 }
 .tracks-list-grid .btn-has-lyrics {
-  background: linear-gradient(90deg, var(--aurora-gold), var(--aurora-red, #FF3B30));
+  background: linear-gradient(90deg, var(--ocean-coral, var(--ocean-coral)), var(--ocean-coral, #ff7a66));
   color: #000;
   font-weight: 700;
 }
