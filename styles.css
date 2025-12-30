@@ -251,117 +251,45 @@ header h1 a#brand-link {
   margin-bottom: 0;
 }
 
-/* Стили для надписи "ალბომები" */
-.controls label[for="album-select"] {
-  display: block;
-  margin: 16px 0 8px 0;
+/* album header: label и кнопка в одну строку */
+.album-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 12px 0;
+}
+.album-header label {
+  margin: 0;
   font-size: 16px;
   font-weight: bold;
   color: var(--accent-color);
 }
 
-/* Новый layout */
-.new-main-layout {
-  display: flex;
-  gap: 24px;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 0 20px;
-  box-sizing: border-box;
-}
-
-.albums-sidebar {
-  flex: 0 0 260px;
-  position: sticky;
-  top: calc(var(--header-height) + 12px);
-  align-self: flex-start;
-  max-height: calc(100vh - (var(--header-height) + 40px));
-  overflow-y: auto;
-}
-
-.tracks-section {
-  flex: 1;
-  min-width: 0;
-}
-
-.tracks-header {
-  margin-bottom: 16px;
-}
-
-/* Цвет заголовка секции "ტრეკები" — жёлтый как у "ალბომები" */
-.tracks-header h2 {
-  color: var(--accent-color);
-  margin: 0 0 8px 0;
-}
-
-/* === Треки в три колонки === */
-#tracks.tracks-list-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  padding: 0 10px;
-}
-
-/* Карточка в grid */
-.tracks-list-grid .card {
-  display: flex;
-  flex-direction: column;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  overflow: hidden;
+/* Стили для кнопки Refresh — жёлтая */
+#refresh-btn {
+  background: var(--accent-color);
+  color: #000;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  box-shadow: 0 6px 14px rgba(255,204,0,0.12);
+  transition: transform 140ms ease, filter 140ms ease;
+}
+#refresh-btn:hover {
+  transform: translateY(-3px);
+  filter: brightness(0.95);
 }
 
-.tracks-list-grid .card:hover {
-  background: rgba(255,255,255,0.15);
-  transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+/* Стили для надписи "ალბომები" (если нужны дополнительные правила) */
+.controls label[for="album-select"] {
+  display: none; /* скрываем старую метку, т.к. используем .album-header */
 }
 
-/* Анимация свечения при наведении на карточку */
-.tracks-list-grid .card:hover .track-cover {
-  box-shadow: 0 0 20px rgba(255, 204, 0, 0.4);
-  transform: scale(1.05);
-}
-
-.tracks-list-grid .card.playing-track {
-  background: rgba(255, 204, 0, 0.2);
-  border: 2px solid var(--accent-color);
-  box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
-}
-
-/* Кавер в карточке — полностью виден + анимация */
-.tracks-list-grid .track-cover {
-  width: 100%;
-  height: 180px;
-  object-fit: contain;
-  background-color: #111;
-  padding: 10px;
-  box-sizing: border-box;
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
-}
-
-.tracks-list-grid .track-info {
-  padding: 12px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.tracks-list-grid .track-info h4 {
-  margin: 0 0 6px 0;
-  font-size: 15px;
-  white-space: normal;
-  line-height: 1.3;
-}
-
-.tracks-list-grid .track-info div {
-  font-size: 13px;
-  color: #cfcfcf;
-  margin-bottom: 8px;
+/* Стили для списка альбомов */
+.album-list-vertical {
+  margin-top: 6px;
 }
 
 /* === ВОССТАНОВЛЕНИЕ ПРЕЖНЕГО БОЛЬШОГО ВИЗУАЛА КНОПОК АЛЬБОМОВ === */

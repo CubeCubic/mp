@@ -55,14 +55,19 @@
       <aside class="albums-sidebar">
         <div class="controls">
           <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
-          <label for="album-select">ალბომები</label>
+
+          <!-- album header: label и кнопка Refresh в одну строку -->
+          <div class="album-header">
+            <label for="album-select">ალბომები</label>
+            <button id="refresh-btn" type="button">Refresh</button>
+          </div>
+
           <input type="hidden" id="album-select" value="">
           <div id="album-list" class="album-list-vertical"></div>
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
           <select id="subalbum-select" style="display:none;">
             <option value="">— —</option>
           </select>
-          <button id="refresh-btn" type="button">Refresh</button>
         </div>
 
         <!-- Сайдбар-плеер скрыт, т.к. плеер теперь в шапке -->
