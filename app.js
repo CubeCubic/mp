@@ -65,6 +65,17 @@
 
   function safeStr(v) { return (v == null) ? '' : String(v); }
 
+  // НОВАЯ ФУНКЦИЯ: получить название альбома/подальбома для трека
+  function getAlbumNameForTrack(track) {
+    if (!track || !track.albumId) return '';
+    const album = albums.find(a => String(a.id) === String(track.albumId));
+    if (!album) return '';
+    // Если это подальбом — возвращаем его имя
+    if (album.parentId) return album.name || '';
+    // Если основной альбом — ищем, есть ли у него родитель? Нет — возвращаем его имя
+    return album.name || '';
+  }
+
   function showToast(msg) {
     if (!toast) return;
     toast.textContent = msg;
@@ -231,14 +242,8 @@
     );
   }
 
-  function applySearch() {
-    const query = globalSearchInput ? globalSearchInput.value.trim() : '';
-    filteredTracks = tracks.filter(t => matchesQuery(t, query));
-  }
-
   if (globalSearchInput) {
     globalSearchInput.addEventListener('input', () => {
-      applySearch();
       renderTracks();
       renderAlbumList();
       currentTrackIndex = -1;
@@ -246,7 +251,7 @@
     });
   }
 
-  // --- Рендер треков ---
+  // --- Рендер треков (ИЗМЕНЕНО: вместо artist — название альбома/подальбома) ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -296,9 +301,10 @@
       title.textContent = safeStr(t.title);
       info.appendChild(title);
 
-      const artist = document.createElement('div');
-      artist.textContent = safeStr(t.artist);
-      info.appendChild(artist);
+      // ИЗМЕНЕНО: вместо artist — название альбома/подальбома
+      const albumDiv = document.createElement('div');
+      albumDiv.textContent = getAlbumNameForTrack(t);
+      info.appendChild(albumDiv);
 
       const actions = document.createElement('div');
       actions.className = 'track-actions';
@@ -378,8 +384,7 @@
       const data = await res.json();
       tracks = data.tracks || [];
       albums = data.albums || [];
-      buildAlbumSelectors();  // ← КРИТИЧНО: было удалено!
-      applySearch();          // ← КРИТИЧНО: было удалено!
+      buildAlbumSelectors();
       renderTracks();
     } catch (err) {
       console.error('Ошибка загрузки tracks.json:', err);
