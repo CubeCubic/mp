@@ -58,49 +58,9 @@ header {
 #header-badge { width: var(--badge-size); height: var(--badge-size); }
 #header-badge img { width: 100%; height: 100%; object-fit: contain; border-radius: 6px; }
 
-/* Бренд: Cube Cubic — всегда жёлтый, с объёмом и сиянием */
-header h1 {
-  margin: 0;
-  font-size: var(--title-font-size);
-  font-weight: 800;
-  line-height: 1;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  /* базовый цвет (на случай наследования) */
-  color: var(--accent-color);
-  /* объёмный контур */
-  -webkit-text-stroke: 0.6px rgba(0,0,0,0.6);
-  /* текстовая тень для объёма */
-  text-shadow:
-    0 1px 0 rgba(0,0,0,0.6),
-    0 2px 6px rgba(0,0,0,0.45),
-    0 0 8px rgba(255,204,0,0.08);
-  /* небольшое свечение */
-  filter: drop-shadow(0 6px 12px rgba(255,204,0,0.06));
-  transition: text-shadow 160ms ease, transform 160ms ease;
-}
-
-/* Ссылка бренда — принудительно жёлтая и сохраняет эффект */
-header h1 a#brand-link {
-  color: var(--accent-color) !important;
-  text-decoration: none;
-  display: inline-block;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-  /* сохраняем тень и объём при наведении */
-  transition: color 140ms ease, transform 140ms ease;
-}
-
-/* Небольшой hover-эффект (не меняет цвет) */
-header h1 a#brand-link:hover {
-  transform: translateY(-1px);
-  text-shadow:
-    0 1px 0 rgba(0,0,0,0.6),
-    0 3px 10px rgba(0,0,0,0.5),
-    0 0 12px rgba(255,204,0,0.12);
-}
+/* Бренд */
+header h1 { margin: 0; font-size: var(--title-font-size); font-weight: 800; color: var(--accent-color); -webkit-text-stroke: 0.6px rgba(0,0,0,0.6); text-shadow: 0 1px 0 rgba(0,0,0,0.6), 0 2px 6px rgba(0,0,0,0.45), 0 0 8px rgba(255,204,0,0.08); filter: drop-shadow(0 6px 12px rgba(255,204,0,0.06)); line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+header h1 a#brand-link { color: var(--accent-color) !important; text-decoration: none; display: inline-block; font-size: inherit; font-weight: inherit; line-height: inherit; }
 
 /* Плеер (в header, JS может фиксировать позицию) */
 #header-player {
@@ -236,8 +196,28 @@ header h1 a#brand-link:hover {
 .tracks-list-grid .card:hover { background: rgba(255,255,255,0.15); transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
 .tracks-list-grid .card.playing-track { background: rgba(255, 204, 0, 0.2); border: 2px solid var(--accent-color); box-shadow: 0 0 25px rgba(255, 204, 0, 0.5); }
 
-/* Обложка трека — фиксированная высота и аккуратное кадрирование */
-.tracks-list-grid .track-cover { width: 100%; max-width: 100%; height: 180px; object-fit: cover; background-color: #111; display: block; }
+/* Обложка трека — показываем полностью без обрезки, но сохраняем отведённую область */
+.tracks-list-grid .track-cover {
+  width: 100%;
+  height: 180px;            /* сохраняем прежнюю высоту карточки */
+  object-fit: contain;      /* показываем весь квадрат целиком (letterbox при необходимости) */
+  object-position: center;
+  background-color: #111;   /* фон для "поля" вокруг изображения */
+  display: block;
+  padding: 0;               /* убираем внутренние отступы, чтобы изображение занимало отведённую область */
+  box-sizing: border-box;
+}
+
+/* Если где-то используется img внутри контейнера, обеспечим тот же эффект */
+.tracks-list-grid img.track-cover {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 /* Информация и действия */
 .tracks-list-grid .track-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
@@ -264,11 +244,10 @@ header h1 a#brand-link:hover {
   #header-player { max-width: 60%; min-width: 180px; }
 }
 
-/* Admin: перемещаем в самый правый угол шапки и делаем невидимой,
-   но оставляем hover-подсказку (как раньше) */
+/* Admin: правый угол, невидимая ссылка с подсказкой */
 #hidden-admin-link {
   position: absolute;
-  right: 12px;               /* самый правый угол (отступ 12px) */
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   width: 48px;
@@ -283,8 +262,6 @@ header h1 a#brand-link:hover {
   cursor: pointer;
   pointer-events: auto;
 }
-
-/* При наведении показываем подсказку "Admin" */
 #hidden-admin-link:hover::after {
   content: "Admin";
   position: absolute;
