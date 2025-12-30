@@ -1,5 +1,5 @@
 /* styles.css
-   Полный файл стилей — Deep ocean variant, шапка приведена к палитре "Deep ocean".
+   Полный файл стилей — Deep ocean variant с тонким бирюзовым кантом по нижнему краю шапки.
    Функциональность не изменялась — изменены только визуальные цвета и акценты.
 */
 
@@ -80,6 +80,7 @@ body::after {
 /* Header
    Приведена к палитре Deep ocean: градиент и акценты из палитры,
    чуть ярче фона, чтобы шапка визуально выделялась.
+   Добавлен тонкий бирюзовый кант по нижнему краю через header::after.
 */
 header {
   position: fixed;
@@ -103,6 +104,22 @@ header {
   backdrop-filter: blur(6px) saturate(1.04);
   -webkit-backdrop-filter: blur(6px) saturate(1.04);
   border-bottom: 1px solid rgba(255,255,255,0.03);
+  overflow: visible; /* чтобы псевдоэлемент канта был видим */
+}
+
+/* Тонкий бирюзовый кант по нижнему краю шапки */
+header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px; /* тонкий кант; можно уменьшить до 2px при желании */
+  z-index: 1002;
+  /* мягкий градиент канта: бирюзовый → морской */
+  background: linear-gradient(90deg, rgba(15,179,166,1) 0%, rgba(43,183,164,0.95) 50%, rgba(11,43,69,0.0) 100%);
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(15,179,166,0.12); /* лёгкое свечение под кант */
 }
 
 /* Левый блок */
