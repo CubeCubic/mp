@@ -29,7 +29,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Фиксированная компактная шапка */
+/* Фиксированная шапка */
 header {
   position: fixed;
   top: 0;
@@ -37,9 +37,9 @@ header {
   right: 0;
   height: var(--header-height);
   padding: var(--header-padding-vertical) 16px;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   background-color: rgba(0,0,0,0.78);
   color: var(--accent-color);
@@ -54,6 +54,7 @@ header {
   align-items: center;
   gap: 10px;
   min-width: 0;
+  grid-column: 1;
 }
 
 /* Логотип слева */
@@ -92,32 +93,20 @@ header h1 a#brand-link {
   line-height: inherit;
 }
 
-/* Центр: плеер по центру шапки */
-header {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-}
-
-/* Помещаем левый блок в первый столбец */
-#header-left { grid-column: 1; }
-
-/* Центрируем плеер в середине */
+/* Плеер: по умолчанию внутри header, но JS установит position:fixed и left/top */
 #header-player {
   grid-column: 2;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 12px;
+  justify-content: center;
   min-width: 320px;
   max-width: 70%;
   box-sizing: border-box;
+  /* не задаём position здесь — JS будет ставить fixed и left/top */
 }
 
-/* Правый элемент (admin) */
-#hidden-admin-link { grid-column: 3; }
-
-/* Обложка трека в шапке (видна) */
+/* Обложка трека в шапке */
 .header-player-cover {
   width: var(--header-player-cover-size);
   height: var(--header-player-cover-size);
@@ -215,8 +204,9 @@ header {
 #volume-sidebar { width: 100%; height: 6px; appearance: none; background: rgba(255,255,255,0.08); border-radius: 4px; }
 #volume-sidebar::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-color); cursor: pointer; }
 
-/* Скрытая ссылка Admin остаётся доступной, но не влияет на высоту */
+/* Правый элемент (admin) */
 #hidden-admin-link {
+  grid-column: 3;
   position: relative;
   top: 0;
   right: 0;
@@ -241,6 +231,7 @@ header {
   white-space: nowrap;
 }
 
+/* Остальные стили (по-прежнему как раньше) */
 /* Поисковик */
 #global-search {
   margin-top: 12px;

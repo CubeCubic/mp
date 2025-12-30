@@ -6,9 +6,10 @@
   const tracksContainer = document.getElementById('tracks');
   const globalSearchInput = document.getElementById('global-search');
   const albumListContainer = document.getElementById('album-list');
+  const tracksSection = document.querySelector('.tracks-section');
 
   // Плеер элементы — поддерживаем старые и новые id (fallback)
-  const playerSidebar = document.getElementById('player-sidebar') || document.getElementById('header-player') || null;
+  const headerPlayer = document.getElementById('header-player') || document.getElementById('player-sidebar') || null;
   const playerCoverImg = document.getElementById('player-cover-img') || null;
   const playerTitleSidebar = document.getElementById('player-title-sidebar') || document.getElementById('player-title-header') || null;
   const playerArtistSidebar = document.getElementById('player-artist-sidebar') || document.getElementById('player-artist-header') || null;
@@ -102,6 +103,37 @@
       console.error('Download error:', err);
       showToast('შეცდომა ჩამოტვირთვისას');
     }
+  }
+
+  // --- Позиционирование плеера над секцией треков ---
+  function positionHeaderPlayer() {
+    if (!headerPlayer || !tracksSection) return;
+
+    // Сбрасываем временно позиционирование, чтобы корректно измерить ширину
+    headerPlayer.style.position = 'fixed';
+    headerPlayer.style.transform = 'none';
+    headerPlayer.style.top = '';
+    headerPlayer.style.left = '';
+
+    // Получаем bounding rect секции треков
+    const tracksRect = tracksSection.getBoundingClientRect();
+    const playerRect = headerPlayer.getBoundingClientRect();
+
+    // Вычисляем центр секции треков и центр плеера, ставим плеер так, чтобы он был по центру секции
+    const centerX = tracksRect.left + tracksRect.width / 2;
+    const left = Math.max(8, Math.round(centerX - playerRect.width / 2)); // не уезжать в отрицательные координаты
+
+    // Вертикальная позиция: центрируем плеер по высоте шапки
+    const rootStyles = getComputedStyle(document.documentElement);
+    const headerHeightRaw = rootStyles.getPropertyValue('--header-height') || '';
+    const headerHeight = parseFloat(headerHeightRaw) || 64;
+    const top = Math.round((headerHeight - playerRect.height) / 2);
+
+    headerPlayer.style.position = 'fixed';
+    headerPlayer.style.left = `${left}px`;
+    headerPlayer.style.top = `${top}px`;
+    headerPlayer.style.zIndex = 1100;
+    headerPlayer.style.pointerEvents = 'auto';
   }
 
   // --- Подсветка и автоскролл текущего трека ---
@@ -276,6 +308,8 @@
 
     if (!toRender.length) {
       tracksContainer.innerHTML = '<div class="muted">ტრეკები არ მოიძებნა</div>';
+      // reposition player because layout changed
+      setTimeout(positionHeaderPlayer, 0);
       return;
     }
 
@@ -370,6 +404,9 @@
 
     highlightCurrentTrack();
 
+    // reposition player after tracks rendered
+    setTimeout(positionHeaderPlayer, 0);
+
     if (pendingTrackToOpen) {
       const id = String(pendingTrackToOpen);
       const idx = filteredTracks.findIndex(t => String(t.id) === id);
@@ -394,6 +431,8 @@
     } catch (err) {
       console.error('Ошибка загрузки tracks.json:', err);
       if (tracksContainer) tracksContainer.innerHTML = '<div class="muted">Не удалось загрузить треки</div>';
+      // reposition player in case layout changed
+      setTimeout(positionHeaderPlayer, 0);
     }
   }
 
@@ -407,7 +446,7 @@
       if (playerArtistSidebar) playerArtistSidebar.textContent = '';
       if (playerCoverImg) playerCoverImg.src = 'images/midcube.png';
       if (playBtnSidebar) playBtnSidebar.textContent = '▶';
-      if (playerSidebar && playerSidebar.classList) playerSidebar.classList.remove('playing');
+      if (headerPlayer && headerPlayer.classList) headerPlayer.classList.remove('playing');
       if (showLyricsSidebar) showLyricsSidebar.style.display = 'none';
       if (downloadSidebar) downloadSidebar.style.display = 'none';
       return;
@@ -416,7 +455,7 @@
     if (playerTitleSidebar) playerTitleSidebar.textContent = safeStr(t.title);
     if (playerArtistSidebar) playerArtistSidebar.textContent = safeStr(t.artist);
     if (playerCoverImg) playerCoverImg.src = getCoverUrl(t);
-    if (playerSidebar && playerSidebar.classList) playerSidebar.classList.add('playing');
+    if (headerPlayer && headerPlayer.classList) headerPlayer.classList.add('playing');
 
     if (showLyricsSidebar) showLyricsSidebar.style.display = t.lyrics ? 'block' : 'none';
 
@@ -462,6 +501,9 @@
         console.error('Play error:', e);
       }
     });
+
+    // reposition player because cover/title changed width possibly
+    setTimeout(positionHeaderPlayer, 0);
 
     highlightCurrentTrack();
   }
@@ -559,6 +601,15 @@
     }
   });
 
+  // Перепозиционирование при изменении размера окна
+  window.addEventListener('resize', () => {
+    // небольшая задержка, чтобы избежать лишних пересчётов при быстром ресайзе
+    if (window._positionHeaderPlayerTimeout) clearTimeout(window._positionHeaderPlayerTimeout);
+    window._positionHeaderPlayerTimeout = setTimeout(() => {
+      positionHeaderPlayer();
+    }, 80);
+  });
+
   // --- Инициализация ---
   function parseDeepLink() {
     const params = new URLSearchParams(location.search);
@@ -572,5 +623,8 @@
 
     if (audio && volumeSidebar) audio.volume = parseFloat(volumeSidebar.value || 1);
     updateSidebarPlayer(null);
+
+    // initial positioning (after a tick to allow layout)
+    setTimeout(positionHeaderPlayer, 50);
   });
 })();
