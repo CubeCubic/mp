@@ -58,8 +58,49 @@ header {
 #header-badge { width: var(--badge-size); height: var(--badge-size); }
 #header-badge img { width: 100%; height: 100%; object-fit: contain; border-radius: 6px; }
 
-/* Бренд */
-header h1 { margin: 0; font-size: var(--title-font-size); font-weight: 700; color: var(--accent-color); }
+/* Бренд: Cube Cubic — всегда жёлтый, с объёмом и сиянием */
+header h1 {
+  margin: 0;
+  font-size: var(--title-font-size);
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  /* базовый цвет (на случай наследования) */
+  color: var(--accent-color);
+  /* объёмный контур */
+  -webkit-text-stroke: 0.6px rgba(0,0,0,0.6);
+  /* текстовая тень для объёма */
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.6),
+    0 2px 6px rgba(0,0,0,0.45),
+    0 0 8px rgba(255,204,0,0.08);
+  /* небольшое свечение */
+  filter: drop-shadow(0 6px 12px rgba(255,204,0,0.06));
+  transition: text-shadow 160ms ease, transform 160ms ease;
+}
+
+/* Ссылка бренда — принудительно жёлтая и сохраняет эффект */
+header h1 a#brand-link {
+  color: var(--accent-color) !important;
+  text-decoration: none;
+  display: inline-block;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  /* сохраняем тень и объём при наведении */
+  transition: color 140ms ease, transform 140ms ease;
+}
+
+/* Небольшой hover-эффект (не меняет цвет) */
+header h1 a#brand-link:hover {
+  transform: translateY(-1px);
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.6),
+    0 3px 10px rgba(0,0,0,0.5),
+    0 0 12px rgba(255,204,0,0.12);
+}
 
 /* Плеер (в header, JS может фиксировать позицию) */
 #header-player {
@@ -125,7 +166,7 @@ header h1 { margin: 0; font-size: var(--title-font-size); font-weight: 700; colo
   color: var(--accent-color);
 }
 
-/* Refresh button — жёлтая, но scoped */
+/* Refresh button — жёлтая, scoped */
 #refresh-btn {
   background: var(--accent-color);
   color: #000;
@@ -144,9 +185,7 @@ header h1 { margin: 0; font-size: var(--title-font-size); font-weight: 700; colo
 /* Список альбомов контейнер */
 .album-list-vertical { margin-top: 6px; display: flex; flex-direction: column; gap: 10px; }
 
-/* === ВОССТАНОВЛЕНИЕ ПРЕЖНЕГО БОЛЬШОГО ВИЗУАЛА КНОПОК АЛЬБОМОВ ===
-   Scoped selector: применяется только к кнопкам внутри .album-list-vertical,
-   чтобы не затронуть другие кнопки на странице. */
+/* Большие кнопки альбомов (scoped) */
 .album-list-vertical .album-list-button {
   background: rgba(255, 204, 0, 0.12);
   color: #ffcc00;
@@ -192,27 +231,20 @@ header h1 { margin: 0; font-size: var(--title-font-size); font-weight: 700; colo
 /* === Треки в три колонки === */
 #tracks.tracks-list-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 0 10px; box-sizing: border-box; }
 
-/* Карточки треков — фиксированные размеры обложек, чтобы не было "огромных" картинок */
+/* Карточки треков */
 .tracks-list-grid .card { display: flex; flex-direction: column; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.3s ease; }
 .tracks-list-grid .card:hover { background: rgba(255,255,255,0.15); transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
 .tracks-list-grid .card.playing-track { background: rgba(255, 204, 0, 0.2); border: 2px solid var(--accent-color); box-shadow: 0 0 25px rgba(255, 204, 0, 0.5); }
 
-/* Обложка трека — фиксированная высота и max-width, чтобы не растягивалась */
-.tracks-list-grid .track-cover {
-  width: 100%;
-  max-width: 100%;
-  height: 180px; /* фиксированная высота */
-  object-fit: cover; /* cover для аккуратного кадрирования */
-  background-color: #111;
-  display: block;
-}
+/* Обложка трека — фиксированная высота и аккуратное кадрирование */
+.tracks-list-grid .track-cover { width: 100%; max-width: 100%; height: 180px; object-fit: cover; background-color: #111; display: block; }
 
 /* Информация и действия */
 .tracks-list-grid .track-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
 .tracks-list-grid .track-info h4 { margin: 0 0 6px 0; font-size: 15px; line-height: 1.3; }
 .tracks-list-grid .track-info div { font-size: 13px; color: #cfcfcf; margin-bottom: 8px; }
 
-/* Кнопки внутри карточек треков — scoped */
+/* Кнопки внутри карточек треков */
 .tracks-list-grid .track-actions { display: flex; justify-content: space-between; gap: 8px; }
 .tracks-list-grid .track-actions button { flex: 1; padding: 8px; font-size: 13px; }
 .tracks-list-grid .btn-has-lyrics { background: var(--accent-color); color: #000; font-weight: bold; }
@@ -230,6 +262,40 @@ header h1 { margin: 0; font-size: var(--title-font-size); font-weight: 700; colo
   .albums-sidebar { position: static; max-height: none; overflow: visible; }
   :root { --header-height: 56px; --badge-size: 40px; --header-player-controls-size: 32px; --header-player-cover-size: 36px; }
   #header-player { max-width: 60%; min-width: 180px; }
+}
+
+/* Admin: перемещаем в самый правый угол шапки и делаем невидимой,
+   но оставляем hover-подсказку (как раньше) */
+#hidden-admin-link {
+  position: absolute;
+  right: 12px;               /* самый правый угол (отступ 12px) */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 32px;
+  z-index: 1200;
+  color: transparent;
+  font-size: 0;
+  text-indent: -9999px;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* При наведении показываем подсказку "Admin" */
+#hidden-admin-link:hover::after {
+  content: "Admin";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(0,0,0,0.8);
+  color: var(--accent-color);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 /* Модалки */
