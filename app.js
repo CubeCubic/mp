@@ -7,7 +7,7 @@
   const globalSearchInput = document.getElementById('global-search');
   const albumListContainer = document.getElementById('album-list');
 
-  // Вертикальный плеер (без кнопок lyrics и download)
+  // Вертикальный плеер
   const playerSidebar = document.getElementById('player-sidebar');
   const playerCoverImg = document.getElementById('player-cover-img');
   const playerTitleSidebar = document.getElementById('player-title-sidebar');
@@ -19,6 +19,8 @@
   const timeCurrentSidebar = document.getElementById('time-current-sidebar');
   const timeDurationSidebar = document.getElementById('time-duration-sidebar');
   const volumeSidebar = document.getElementById('volume-sidebar');
+  const showLyricsSidebar = document.getElementById('show-lyrics-sidebar');
+  const downloadSidebar = document.getElementById('download-sidebar');
 
   const audio = document.getElementById('audio');
 
@@ -275,6 +277,8 @@
       return;
     }
 
+    toRender = toRender.slice().sort((a, b) => (b.id || 0) - (a.id || 0));
+
     toRender.forEach(t => {
       const card = document.createElement('div');
       card.className = 'card';
@@ -300,7 +304,6 @@
       const actions = document.createElement('div');
       actions.className = 'track-actions';
 
-      // Текст песни (остался только в карточках, не в плеере)
       if (t.lyrics) {
         const lyricsBtn = document.createElement('button');
         lyricsBtn.type = 'button';
@@ -316,7 +319,6 @@
         actions.appendChild(lyricsBtn);
       }
 
-      // Скачивание (осталось только в карточках, не в плеере)
       const stream = getStreamUrl(t);
       const downloadBtnCard = document.createElement('button');
       downloadBtnCard.type = 'button';
@@ -388,7 +390,7 @@
 
   if (refreshBtn) refreshBtn.addEventListener('click', loadData);
 
-  // --- Плеер (без кнопок lyrics и download) ---
+  // --- Плеер ---
   function updateSidebarPlayer(t = null) {
     if (!t) {
       playerTitleSidebar.textContent = 'აირჩიეთ ტრეკი';
