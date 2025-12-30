@@ -1,7 +1,7 @@
 /* styles.css
    Полный файл стилей с размытым hero-фоном + overlay, палитрой логотипа,
-   тёплыми тенями и визуальным выделением проигрываемой карточки.
-   Функциональность не изменялась — только визуальные правки.
+   тёплыми тенями и усиленным визуальным выделением проигрываемой карточки.
+   Функциональность не изменялась — только визуальные правки (ярче эффект).
 */
 
 /* Переменные палитры и визуальные переменные */
@@ -21,9 +21,9 @@
   --header-player-cover-size: calc(var(--header-height) - 18px);
 
   --card-radius: 12px;
-  --soft-shadow-neutral: 0 10px 30px rgba(0,0,0,0.40);
-  --warm-accent-glow: 0 4px 18px rgba(255,180,60,0.07);
-  --cover-border: 1px solid rgba(255,255,255,0.04);
+  --soft-shadow-neutral: 0 12px 36px rgba(0,0,0,0.42);
+  --warm-accent-glow: 0 6px 22px rgba(255,170,60,0.10);
+  --cover-border: 1px solid rgba(255,255,255,0.05);
 }
 
 /* Базовый фон страницы — фон рисуется псевдоэлементом body::before */
@@ -54,8 +54,8 @@ body::before {
   background-repeat: no-repeat;
 
   /* Немного увеличиваем и размываем, чтобы края не были видны */
-  transform: scale(1.06);
-  filter: blur(14px) brightness(0.62) saturate(1.05);
+  transform: scale(1.08);
+  filter: blur(16px) brightness(0.68) saturate(1.12);
   will-change: transform, filter;
 }
 
@@ -65,7 +65,7 @@ body::after {
   position: fixed;
   inset: 0;
   z-index: -2;
-  background: linear-gradient(180deg, rgba(10,8,14,0.55), rgba(20,16,26,0.65));
+  background: linear-gradient(180deg, rgba(8,6,12,0.56), rgba(22,18,28,0.66));
   background-blend-mode: overlay;
   pointer-events: none;
 }
@@ -94,11 +94,11 @@ header {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 12px;
-  background-color: rgba(8,8,10,0.64); /* полупрозрачная шапка, чтобы фон просвечивал */
+  background-color: rgba(8,8,10,0.66); /* чуть более плотная шапка */
   color: var(--accent-color);
   z-index: 1001;
   box-sizing: border-box;
-  backdrop-filter: blur(4px) saturate(1.02);
+  backdrop-filter: blur(5px) saturate(1.04);
 }
 
 /* Левый блок */
@@ -118,7 +118,7 @@ header {
   height: 100%;
   object-fit: contain;
   border-radius: 6px;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.5), 0 3px 12px rgba(138,76,255,0.03);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 4px 14px rgba(138,76,255,0.05);
 }
 
 /* Бренд: Cube Cubic — всегда цвет логотипа (оранжевый), с объёмом и сиянием */
@@ -131,12 +131,12 @@ header h1 {
   text-overflow: ellipsis;
   overflow: hidden;
   color: var(--accent-color);
-  -webkit-text-stroke: 0.5px rgba(0,0,0,0.55);
+  -webkit-text-stroke: 0.6px rgba(0,0,0,0.55);
   text-shadow:
     0 1px 0 rgba(0,0,0,0.55),
-    0 3px 8px rgba(0,0,0,0.35),
-    0 0 10px rgba(255,106,61,0.06);
-  filter: drop-shadow(0 6px 12px rgba(255,106,61,0.05));
+    0 4px 12px rgba(0,0,0,0.38),
+    0 0 16px rgba(255,120,70,0.12);
+  filter: drop-shadow(0 8px 18px rgba(255,120,70,0.08));
   transition: text-shadow 160ms ease, transform 160ms ease;
 }
 header h1 a#brand-link {
@@ -166,11 +166,11 @@ header h1 a#brand-link {
   height: var(--header-player-cover-size);
   border-radius: 6px;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(74,107,255,0.06), rgba(138,76,255,0.04));
+  background: linear-gradient(135deg, rgba(74,107,255,0.08), rgba(138,76,255,0.06));
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.5), 0 4px 14px rgba(138,76,255,0.03);
+  box-shadow: 0 12px 34px rgba(0,0,0,0.56), 0 6px 18px rgba(138,76,255,0.06);
 }
 .header-player-cover img {
   width: 100%;
@@ -195,7 +195,7 @@ header h1 a#brand-link {
 }
 .player-artist {
   font-size: 12px;
-  color: #dcd6ff;
+  color: #e6e0ff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -212,7 +212,7 @@ header h1 a#brand-link {
   height: var(--header-player-controls-size);
   border-radius: 50%;
   border: none;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
   color: var(--accent-2);
   cursor: pointer;
   display: inline-flex;
@@ -223,7 +223,7 @@ header h1 a#brand-link {
 }
 .player-controls-header button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.42), 0 2px 8px rgba(74,107,255,0.04);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.44), 0 3px 10px rgba(74,107,255,0.06);
 }
 
 /* Поиск и контейнеры */
@@ -232,8 +232,8 @@ header h1 a#brand-link {
   margin-bottom: 20px;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.04);
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.05);
+  background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
   color: #fff;
   font-size: 15px;
   width: 100%;
@@ -268,7 +268,7 @@ header h1 a#brand-link {
   border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(255,106,61,0.10);
+  box-shadow: 0 10px 28px rgba(255,120,70,0.14);
   transition: transform 140ms ease, filter 140ms ease;
 }
 #refresh-btn:hover {
@@ -292,8 +292,8 @@ header h1 a#brand-link {
 /* Большие кнопки альбомов (scoped) — с лёгким фиолетово-синим акцентом */
 .album-list-vertical .album-list-button {
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  color: #e9ddff;
-  border: 1px solid rgba(138,76,255,0.06);
+  color: #efe8ff;
+  border: 1px solid rgba(138,76,255,0.07);
   padding: 14px 16px;
   border-radius: calc(var(--card-radius) - 2px);
   font-size: 16px;
@@ -307,15 +307,15 @@ header h1 a#brand-link {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.36);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.38);
 }
 .album-list-vertical .album-list-button:hover {
   transform: translateY(-6px);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.44), 0 4px 18px rgba(138,76,255,0.06);
+  box-shadow: 0 22px 44px rgba(0,0,0,0.46), 0 6px 20px rgba(138,76,255,0.08);
   color: #000;
 }
 .album-list-vertical .album-list-button .track-count {
-  background: rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.14);
   padding: 6px 10px;
   border-radius: 999px;
   font-size: 13px;
@@ -376,43 +376,44 @@ header h1 a#brand-link {
 }
 .tracks-list-grid .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 48px rgba(0,0,0,0.46), var(--warm-accent-glow);
+  box-shadow: 0 22px 52px rgba(0,0,0,0.48), var(--warm-accent-glow);
 }
 
-/* Визуал для проигрываемой карточки трека */
+/* Визуал для проигрываемой карточки трека — усилённый (ярче) */
 .tracks-list-grid .card.playing-track {
-  /* Плавный градиентный фон, сочетающийся с палитрой логотипа */
-  background: linear-gradient(180deg, rgba(255,106,61,0.12), rgba(138,76,255,0.06));
-  /* Более заметная тёплая рамка */
-  border: 1.5px solid rgba(255,160,110,0.18);
-  /* Усиленная тёплая тень + лёгкое холодное свечение */
+  /* Яркий градиентный фон, более насыщенный */
+  background: linear-gradient(180deg, rgba(255,106,61,0.20), rgba(138,76,255,0.12));
+  /* Более заметная и яркая рамка */
+  border: 2px solid rgba(255,140,90,0.26);
+  /* Сильная тёплая тень + выраженное холодное свечение */
   box-shadow:
-    0 22px 56px rgba(0,0,0,0.52),
-    0 6px 24px rgba(255,106,61,0.08),
-    0 2px 10px rgba(74,107,255,0.03);
-  /* Небольшое масштабирование для акцента (плавно) */
-  transform: translateY(-6px) scale(1.01);
+    0 28px 72px rgba(0,0,0,0.60),
+    0 10px 36px rgba(255,120,70,0.18),
+    0 6px 20px rgba(74,107,255,0.08);
+  /* Более заметное масштабирование для акцента */
+  transform: translateY(-8px) scale(1.03);
   /* Плавный переход при включении/выключении состояния */
   transition: background 260ms cubic-bezier(.2,.9,.2,1),
               box-shadow 260ms cubic-bezier(.2,.9,.2,1),
               border 260ms cubic-bezier(.2,.9,.2,1),
               transform 260ms cubic-bezier(.2,.9,.2,1);
-  /* Слегка увеличиваем z-index, чтобы карточка выглядела "над" соседями */
+  /* Увеличиваем z-index, чтобы карточка выглядела "над" соседями */
   position: relative;
-  z-index: 2;
+  z-index: 3;
+  /* Добавим лёгкий яркий контур через filter для дополнительного свечения */
+  filter: drop-shadow(0 12px 36px rgba(255,120,70,0.12));
 }
 
-/* Дополнительный мягкий пульс свечения (опционально, можно убрать) */
-@keyframes playingGlow {
-  0%   { box-shadow: 0 22px 56px rgba(0,0,0,0.52), 0 6px 24px rgba(255,106,61,0.06), 0 2px 8px rgba(74,107,255,0.02); }
-  50%  { box-shadow: 0 28px 68px rgba(0,0,0,0.54), 0 10px 30px rgba(255,106,61,0.10), 0 4px 12px rgba(74,107,255,0.03); }
-  100% { box-shadow: 0 22px 56px rgba(0,0,0,0.52), 0 6px 24px rgba(255,106,61,0.06), 0 2px 8px rgba(74,107,255,0.02); }
+/* Усиленная анимация пульсации свечения */
+@keyframes playingGlowBright {
+  0%   { box-shadow: 0 28px 72px rgba(0,0,0,0.60), 0 10px 36px rgba(255,120,70,0.16), 0 6px 20px rgba(74,107,255,0.06); transform: translateY(-8px) scale(1.03); filter: drop-shadow(0 12px 36px rgba(255,120,70,0.10)); }
+  50%  { box-shadow: 0 36px 92px rgba(0,0,0,0.64), 0 16px 48px rgba(255,140,80,0.22), 0 10px 28px rgba(74,107,255,0.10); transform: translateY(-10px) scale(1.035); filter: drop-shadow(0 18px 48px rgba(255,140,80,0.14)); }
+  100% { box-shadow: 0 28px 72px rgba(0,0,0,0.60), 0 10px 36px rgba(255,120,70,0.16), 0 6px 20px rgba(74,107,255,0.06); transform: translateY(-8px) scale(1.03); filter: drop-shadow(0 12px 36px rgba(255,120,70,0.10)); }
 }
 
-/* Включите анимацию, если хотите лёгкую пульсацию.
-   JS может добавлять класс .animate-glow вместе с .playing-track */
-.tracks-list-grid .card.playing-track.animate-glow {
-  animation: playingGlow 2200ms ease-in-out infinite;
+/* Включите яркую анимацию пульсации, если хотите — JS может добавлять .animate-bright */
+.tracks-list-grid .card.playing-track.animate-bright {
+  animation: playingGlowBright 2000ms ease-in-out infinite;
 }
 
 /* Обложка трека — показываем полностью без обрезки, с акцентной тёплой/холодной тенью */
@@ -430,9 +431,9 @@ header h1 a#brand-link {
   border-radius: 8px;
   border: var(--cover-border);
   box-shadow:
-    0 8px 22px rgba(0,0,0,0.50),
-    0 3px 12px rgba(255,106,61,0.04),
-    0 2px 8px rgba(74,107,255,0.02);
+    0 10px 28px rgba(0,0,0,0.56),
+    0 4px 16px rgba(255,120,70,0.06),
+    0 3px 10px rgba(74,107,255,0.03);
 }
 
 /* Если изображение задано как <img class="track-cover"> */
@@ -446,7 +447,7 @@ header h1 a#brand-link {
   box-sizing: border-box;
   border-radius: 8px;
   border: var(--cover-border);
-  box-shadow: 0 8px 22px rgba(0,0,0,0.50), 0 3px 12px rgba(255,106,61,0.04), 0 2px 8px rgba(74,107,255,0.02);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.56), 0 4px 16px rgba(255,120,70,0.06), 0 3px 10px rgba(74,107,255,0.03);
 }
 
 /* Информация и действия */
@@ -485,7 +486,7 @@ header h1 a#brand-link {
 }
 .tracks-list-grid .track-actions button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.42), 0 2px 8px rgba(74,107,255,0.03);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.44), 0 3px 10px rgba(74,107,255,0.05);
 }
 .tracks-list-grid .btn-has-lyrics {
   background: linear-gradient(90deg, var(--logo-orange), var(--logo-red));
