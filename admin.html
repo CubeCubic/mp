@@ -6,23 +6,126 @@
   <title>Admin — Cube Cubic</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    body { font-family: Arial, sans-serif; color: #fff; background: #111; padding: 18px; }
-    header { margin-bottom: 12px; }
-    h1 { color: #ffcc00; margin: 0 0 8px 0; }
+    /* --- Layout variables --- */
+    :root{
+      /* Подогнать под фиксированную шапку основного сайта.
+         Если шапка на основном сайте выше/ниже, скорректируйте это значение. */
+      --site-header-height: 64px;
+      --site-header-safety: 12px; /* дополнительный запас */
+      --site-header-total: calc(var(--site-header-height) + var(--site-header-safety));
+      --compact-gap: 8px;
+      --compact-padding: 10px;
+      --compact-font-size: 13px;
+      --panel-radius: 8px;
+    }
+
+    /* --- Основные правки: шапка не должна закрывать контент --- */
+    html {
+      /* при переходе по якорю браузер будет учитывать высоту шапки */
+      scroll-padding-top: var(--site-header-total);
+    }
+    body {
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background: #111;
+      /* верхний отступ учитывает фиксированную шапку сайта */
+      padding: calc(var(--site-header-total)) 12px 12px 12px;
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+    /* Для фокусируемых элементов (мобильные клавиатуры, якоря) */
+    input, textarea, select, button {
+      scroll-margin-top: var(--site-header-total);
+    }
+
+    /* --- Компактный стиль страницы администратора --- */
+    header {
+      margin: 0 0 8px 0;
+      padding: 6px 0;
+    }
+    h1 {
+      color: #ffcc00;
+      margin: 0 0 6px 0;
+      font-size: 18px;
+      line-height: 1.1;
+    }
+
     .hidden { display: none; }
-    .panel { background: rgba(0,0,0,0.6); padding: 12px; border-radius: 8px; margin-bottom: 12px; }
-    label { display:block; margin:8px 0 4px; color:#ffd; font-weight:600; }
-    input[type="text"], input[type="password"], select, textarea { width:90%; padding:8px; border-radius:6px; border:1px solid #333; background:#111; color:#fff; }
-    .row { display:flex; gap:12px; align-items:flex-start; }
-    .col { flex:1; }
-    .small { width:220px; flex:0 0 220px; }
-    button { background:#444; color:#fff; padding:8px 12px; border-radius:6px; border:none; cursor:pointer; }
+
+    .panel {
+      background: rgba(0,0,0,0.6);
+      padding: var(--compact-padding);
+      border-radius: var(--panel-radius);
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      font-size: var(--compact-font-size);
+    }
+
+    label {
+      display:block;
+      margin:6px 0 4px;
+      color:#ffd;
+      font-weight:600;
+      font-size: 13px;
+    }
+
+    /* Поля ввода — компактнее */
+    input[type="text"], input[type="password"], select, textarea {
+      width:100%;
+      padding:8px;
+      border-radius:6px;
+      border:1px solid #333;
+      background:#111;
+      color:#fff;
+      box-sizing: border-box;
+      font-size: 13px;
+    }
+
+    .row {
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .col { flex:1; min-width:180px; }
+    .small { width:200px; flex:0 0 200px; }
+
+    /* Кнопки — компактнее */
+    button {
+      background:#444;
+      color:#fff;
+      padding:8px 10px;
+      border-radius:6px;
+      border:none;
+      cursor:pointer;
+      font-size: 13px;
+    }
     button:hover { background:#666; }
-    .list { margin-top:12px; max-height:320px; overflow:auto; border-top:1px dashed rgba(255,255,255,0.06); padding-top:8px; }
-    .item { padding:8px; border-radius:6px; display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.02); margin-bottom:8px; }
-    .meta { flex:1; color:#ddd; }
-    .muted { color:#999; font-size:13px; }
-    .note { color:#ccc; font-size:13px; margin-top:6px; }
+
+    /* Списки и элементы — уменьшенные отступы */
+    .list {
+      margin-top:8px;
+      max-height:300px;
+      overflow:auto;
+      border-top:1px dashed rgba(255,255,255,0.06);
+      padding-top:8px;
+    }
+    .item {
+      padding:8px;
+      border-radius:6px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      background:rgba(255,255,255,0.02);
+      margin-bottom:8px;
+      font-size: 13px;
+    }
+    .meta { flex:1; color:#ddd; font-size: 13px; }
+    .muted { color:#999; font-size:12px; }
+    .note { color:#ccc; font-size:12px; margin-top:6px; }
+
+    /* Модалки — компактнее и центрированы */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -36,50 +139,75 @@
     .modal {
       background: #fff; color: #000;
       border-radius: 8px; width: 420px; max-width: 95%;
-      padding: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      padding: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      font-size: 13px;
     }
-    .modal h3 { margin-top: 0; }
-    .modal .actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+    .modal h3 { margin-top: 0; font-size: 16px; }
+    .modal .actions { display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
+
+    /* Кнопка выхода — компактнее и справа */
+    #logout-btn {
+      margin-top: 8px;
+      padding: 8px 10px;
+      background: #333;
+      border-radius: 6px;
+    }
+
+    /* Мелкие улучшения для компактности форм */
+    #add-track-form textarea { min-height: 80px; }
+    #albums-list .item, #admin-tracks .item { padding: 6px; }
+    .small button { width:100%; box-sizing:border-box; }
+
+    /* Мобильные корректировки */
+    @media (max-width: 720px) {
+      :root { --site-header-height: 56px; --site-header-safety: 12px; }
+      .row { gap:8px; }
+      .small { width: 100%; flex: 1 1 100%; }
+      .col { min-width: 100%; }
+      body { padding-left: 10px; padding-right: 10px; }
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>ადმინისტრატორი</h1>
-    <a href="index.html" style="color:#fff">მთავარი გვერდი</a>
+    <a href="index.html" style="color:#fff; font-size:13px">მთავარი გვერდი</a>
   </header>
   <main id="admin-app">
     <div id="login-form" class="panel">
-      <h2>შესვლა</h2>
+      <h2 style="margin:0 0 8px 0; font-size:16px">შესვლა</h2>
       <form id="login-form-wrapper" style="margin:0">
         <input id="admin-password" type="password" placeholder="პაროლი" />
-        <div style="margin-top:8px">
+        <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
           <button id="login-btn" type="button">შესვლა</button>
-          <span id="login-msg" class="muted" style="margin-left:10px"></span>
+          <span id="login-msg" class="muted" style="margin-left:6px"></span>
         </div>
       </form>
     </div>
+
     <div id="admin-panel" class="hidden">
       <div class="panel">
-        <h2>ალბომები</h2>
+        <h2 style="margin:0 0 8px 0; font-size:15px">ალბომები</h2>
         <div class="row">
           <div class="col">
             <label for="album-name">სახელი</label>
-            <input id="album-name" type="text">
+            <input id="album-name" type="text" />
           </div>
           <div class="small">
             <label for="album-parent">Parent</label>
             <select id="album-parent"><option value="">— მთავარი ალბომი —</option></select>
           </div>
           <div class="small" style="display:flex;flex-direction:column;gap:8px;">
-            <button id="btn-create-album">Create album</button>
-            <button id="btn-refresh-albums">Refresh</button>
+            <button id="btn-create-album" type="button">Create album</button>
+            <button id="btn-refresh-albums" type="button">Refresh</button>
             <button id="btn-save-all" type="button">Сохранить изменения</button>
           </div>
         </div>
         <div class="list" id="albums-list"></div>
       </div>
+
       <div class="panel">
-        <h2>ტრეკის დამატება</h2>
+        <h2 style="margin:0 0 8px 0; font-size:15px">ტრეკის დამატება</h2>
         <form id="add-track-form">
           <div class="row">
             <div class="col">
@@ -102,28 +230,37 @@
           </div>
         </form>
       </div>
+
       <div class="panel">
-        <h2>არსებული ტრეკები</h2>
-        <button id="btn-refresh-tracks">Refresh tracks</button>
+        <h2 style="margin:0 0 8px 0; font-size:15px">არსებული ტრეკები</h2>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+          <button id="btn-refresh-tracks" type="button">Refresh tracks</button>
+          <span class="muted" style="font-size:12px">(Use Edit to change)</span>
+        </div>
         <div id="admin-tracks" class="list"></div>
       </div>
-      <button id="logout-btn">გასვლა</button>
+
+      <div style="display:flex; justify-content:flex-end;">
+        <button id="logout-btn" type="button">გასვლა</button>
+      </div>
     </div>
   </main>
+
   <!-- Modal for editing album -->
-  <div id="album-edit-modal" class="modal-backdrop hidden">
-    <div class="modal">
-      <h3>Edit album</h3>
+  <div id="album-edit-modal" class="modal-backdrop hidden" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h3 id="modal-title">Edit album</h3>
       <label>Name</label>
       <input id="modal-album-name">
       <label>Parent album</label>
       <select id="modal-album-parent"></select>
       <div class="actions">
-        <button id="modal-cancel">Cancel</button>
-        <button id="modal-save">Save</button>
+        <button id="modal-cancel" type="button">Cancel</button>
+        <button id="modal-save" type="button">Save</button>
       </div>
     </div>
   </div>
+
   <script src="admin.js"></script>
 </body>
 </html>
