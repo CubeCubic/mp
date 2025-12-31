@@ -1,99 +1,138 @@
 <!doctype html>
-<html lang="ka">
+<html lang="ru">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cube Cubic</title>
+  <title>Cube Cubic — Demo</title>
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" type="image/png" href="images/smallcube.png">
 </head>
 <body>
-  <div class="site-wrapper">
-    <header>
-      <div id="header-left">
-        <div id="header-badge" aria-hidden="false">
-          <img src="images/midcube.png" alt="midcube">
-        </div>
-
-        <h1>
-          <a id="brand-link" href="index.html" aria-label="Home">Cube Cubic</a>
-        </h1>
+  <header>
+    <div id="header-left">
+      <div id="header-badge">
+        <img src="images/badge.png" alt="Badge" />
       </div>
-
-      <!-- Плеер: остаётся в DOM шапки, JS позиционирует его фиксированно над секцией треков -->
-      <div id="header-player" aria-label="Header player">
-        <div id="player-cover" class="header-player-cover" aria-hidden="false">
-          <img id="player-cover-img" src="images/midcube.png" alt="Cover">
-        </div>
-
-        <div id="player-info-header" class="player-info-header" aria-hidden="false">
-          <div id="player-title-header" class="player-title">აირჩიეთ ტრეკი</div>
-          <div id="player-artist-header" class="player-artist"></div>
-        </div>
-
-        <div id="player-controls-header" class="player-controls-header" aria-hidden="false">
-          <button id="prev-sidebar" type="button" aria-label="Previous">⏮</button>
-          <button id="play-sidebar" type="button" aria-label="Play/Pause">▶</button>
-          <button id="next-sidebar" type="button" aria-label="Next">⏭</button>
-        </div>
-
-        <div id="player-progress-header" class="player-progress-header" aria-hidden="false">
-          <span id="time-current-sidebar">0:00</span>
-          <input id="progress-sidebar" type="range" min="0" max="100" value="0" aria-label="Progress">
-          <span id="time-duration-sidebar">0:00</span>
-        </div>
-
-        <div id="player-volume-header" class="player-volume-header" aria-hidden="false">
-          <input id="volume-sidebar" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume">
-        </div>
-      </div>
-
-      <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
-    </header>
-
-    <main class="new-main-layout">
-      <aside class="albums-sidebar">
-        <div class="controls">
-          <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
-
-          <!-- album header: label и кнопка Refresh в одну строку -->
-          <div class="album-header">
-            <label for="album-select">ალბომები</label>
-            <button id="refresh-btn" type="button">Refresh</button>
-          </div>
-
-          <input type="hidden" id="album-select" value="">
-          <div id="album-list" class="album-list-vertical"></div>
-          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
-          <select id="subalbum-select" style="display:none;">
-            <option value="">— —</option>
-          </select>
-        </div>
-
-        <!-- Сайдбар-плеер скрыт, т.к. плеер теперь в шапке -->
-        <div id="player-sidebar" class="player-sidebar" style="display:none;" aria-hidden="true"></div>
-      </aside>
-
-      <section class="tracks-section">
-        <div class="tracks-header">
-          <h2>ტრეკები</h2>
-        </div>
-        <div id="tracks" class="tracks-list-grid"></div>
-      </section>
-    </main>
-  </div>
-
-  <audio id="audio" preload="none"></audio>
-
-  <div id="lyrics-modal" class="hidden" aria-hidden="true">
-    <div class="modal-box">
-      <button id="modal-close" type="button">Close</button>
-      <h3 id="modal-title">Lyrics</h3>
-      <pre id="modal-lyrics"></pre>
     </div>
-  </div>
 
-  <div id="toast" class="hidden" role="status" aria-live="polite"></div>
+    <h1><a id="brand-link" href="#">Cube Cubic</a></h1>
+
+    <div id="header-player">
+      <div class="header-player-cover">
+        <img src="images/cover-placeholder.png" alt="Cover" />
+      </div>
+      <div class="player-info-header">
+        <div class="player-title">Demo Track</div>
+        <div class="player-artist">Artist</div>
+      </div>
+      <div class="player-controls-header">
+        <button id="play-btn" aria-label="Play">▶</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-wrapper">
+    <!-- Admin login -->
+    <div id="admin-login" class="admin-section">
+      <div class="admin-card">
+        <h2>Вход в панель администратора</h2>
+        <form id="login-form" autocomplete="off">
+          <label for="admin-user">Пользователь</label>
+          <input id="admin-user" name="user" type="text" required />
+          <label for="admin-pass">Пароль</label>
+          <input id="admin-pass" name="pass" type="password" required />
+          <div class="admin-actions" style="margin-top:12px; display:flex; gap:8px;">
+            <button type="submit" class="btn-primary">Войти</button>
+            <button type="button" id="demo-enter" class="btn-secondary">Демо вход</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Admin panel (hidden by default) -->
+    <div id="admin-panel" class="admin-section hidden">
+      <div class="admin-panel-wrap">
+        <div class="admin-top">
+          <h2>Панель администратора</h2>
+          <div>
+            <button id="logout-btn" class="btn-secondary">Выйти</button>
+          </div>
+        </div>
+
+        <div class="admin-grid">
+          <aside class="admin-sidebar">
+            <nav>
+              <ul>
+                <li><a href="#" data-section="dashboard" class="active">Дашборд</a></li>
+                <li><a href="#" data-section="users">Пользователи</a></li>
+                <li><a href="#" data-section="settings">Настройки</a></li>
+              </ul>
+            </nav>
+          </aside>
+
+          <div class="admin-content">
+            <div id="dashboard" class="admin-subsection active">
+              <h3>Обзор</h3>
+              <p>Краткая статистика и быстрые действия.</p>
+            </div>
+            <div id="users" class="admin-subsection">
+              <h3>Пользователи</h3>
+              <p>Список пользователей и управление ими.</p>
+            </div>
+            <div id="settings" class="admin-subsection">
+              <h3>Настройки</h3>
+              <p>Конфигурация сайта и параметры.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo content: tracks grid -->
+    <section class="admin-section" aria-label="Tracks demo">
+      <!-- Восстановлен заголовок "ტრეკები" -->
+      <div class="tracks-header">
+        <h2>ტრეკები</h2>
+      </div>
+
+      <div id="tracks" class="tracks-list-grid">
+        <div class="card" data-track-id="1">
+          <img class="track-cover" src="images/cover1.png" alt="Cover 1" />
+          <div class="track-info">
+            <h4>Track One</h4>
+            <div>Artist A</div>
+            <div class="track-actions">
+              <button class="btn-play">Play</button>
+              <button class="download-button">DL</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-track-id="2">
+          <img class="track-cover" src="images/cover2.png" alt="Cover 2" />
+          <div class="track-info">
+            <h4>Track Two</h4>
+            <div>Artist B</div>
+            <div class="track-actions">
+              <button class="btn-play">Play</button>
+              <button class="download-button">DL</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-track-id="3">
+          <img class="track-cover" src="images/cover3.png" alt="Cover 3" />
+          <div class="track-info">
+            <h4>Track Three</h4>
+            <div>Artist C</div>
+            <div class="track-actions">
+              <button class="btn-play">Play</button>
+              <button class="download-button">DL</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <script src="app.js"></script>
 </body>
