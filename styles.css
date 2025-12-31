@@ -1,6 +1,6 @@
 /* styles.css
    Полный файл стилей — Deep ocean variant с тонким бирюзовым кантом по нижнему краю шапки.
-   Добавлены улучшенные адаптивные стили для мобильных устройств.
+   Функциональность не изменялась — изменены только визуальные цвета и акценты.
 */
 /* Переменные палитры и визуальные переменные */
 :root{
@@ -594,4 +594,47 @@ header h1 a#brand-link {
 }
 #toast.visible {
   opacity: 1;
+}
+
+/* Надпись "ქვეალბომი" (компактно, равное расстояние) */
+#subalbum-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #f2f9f8;
+  margin: 10px 0 0 0; /* равное расстояние от последней кнопки */
+  text-align: left;
+}
+
+/* Раскрывающийся список подальбомов (визуально как кнопка альбома, компактно) */
+#subalbum-select {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #f2f9f8;
+  border: 1px solid rgba(15,179,166,0.06);
+  padding: 14px 40px 14px 16px; /* как у кнопок */
+  border-radius: calc(var(--card-radius) - 2px);
+  font-size: 16px;
+  font-weight: 700;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f2f9f8' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
+  margin-top: 10px; /* равное расстояние от надписи */
+  text-align: left;
+}
+
+#subalbum-select:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
+  color: #000;
+}
+
+#subalbum-select option {
+  background: #111;
+  color: #fff;
+  padding: 10px;
 }
