@@ -2,28 +2,33 @@
    Полный файл стилей — Deep ocean variant с тонким бирюзовым кантом по нижнему краю шапки.
    Функциональность не изменялась — изменены только визуальные цвета и акценты.
 */
+
 /* Переменные палитры и визуальные переменные */
 :root{
   /* Deep ocean palette */
   --ocean-deep: #071428;
   --ocean-navy: #0f2b45;
   --ocean-teal: #0fb3a6;
-  --ocean-sea: #2bb7a4;
+  --ocean-sea:  #2bb7a4;
   --ocean-coral: #ff7a66;
-  --muted-ice: #dbeff0;
+  --muted-ice:  #dbeff0;
+
   --accent-color: var(--ocean-coral);
   --accent-2: var(--ocean-teal);
+
   --header-height: 64px;
   --header-padding-vertical: 6px;
   --badge-size: calc(var(--header-height) - 18px);
   --title-font-size: calc(var(--header-height) * 0.36);
   --header-player-controls-size: 36px;
   --header-player-cover-size: calc(var(--header-height) - 18px);
+
   --card-radius: 12px;
   --soft-shadow-neutral: 0 12px 36px rgba(2,8,14,0.55);
   --warm-accent-glow: 0 8px 28px rgba(255,122,102,0.14);
   --cover-border: 1px solid rgba(255,255,255,0.04);
 }
+
 /* Базовый фон страницы — глубокий морской градиент */
 html, body {
   height: 100%;
@@ -35,6 +40,7 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--ocean-deep); /* fallback */
 }
+
 /* BACKGROUND (Deep ocean gradient) */
 body::before {
   content: "";
@@ -48,6 +54,7 @@ body::before {
   filter: saturate(1.06) contrast(1.04) brightness(0.96);
   will-change: filter;
 }
+
 /* Overlay для читаемости */
 body::after {
   content: "";
@@ -57,6 +64,7 @@ body::after {
   background: linear-gradient(180deg, rgba(3,6,10,0.40), rgba(6,10,14,0.46));
   pointer-events: none;
 }
+
 /* Контейнер контента */
 .site-wrapper {
   position: relative;
@@ -68,6 +76,7 @@ body::after {
   padding-right: 20px;
   box-sizing: border-box;
 }
+
 /* Header
    Приведена к палитре Deep ocean: градиент и акценты из палитры,
    чуть ярче фона, чтобы шапка визуально выделялась.
@@ -84,17 +93,20 @@ header {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 12px;
+
   /* Градиент шапки в палитре Deep ocean — чуть ярче фона */
   background: linear-gradient(180deg, rgba(11,43,69,0.86), rgba(15,47,74,0.78));
   color: var(--accent-color);
   z-index: 1001;
   box-sizing: border-box;
+
   /* Выраженный backdrop для чёткости элементов в шапке */
   backdrop-filter: blur(6px) saturate(1.04);
   -webkit-backdrop-filter: blur(6px) saturate(1.04);
   border-bottom: 1px solid rgba(255,255,255,0.03);
   overflow: visible; /* чтобы псевдоэлемент канта был видим */
 }
+
 /* Тонкий бирюзовый кант по нижнему краю шапки */
 header::after {
   content: "";
@@ -109,6 +121,7 @@ header::after {
   pointer-events: none;
   box-shadow: 0 4px 12px rgba(15,179,166,0.12); /* лёгкое свечение под кант */
 }
+
 /* Левый блок */
 #header-left {
   display: flex;
@@ -128,6 +141,7 @@ header::after {
   border-radius: 6px;
   box-shadow: 0 12px 34px rgba(2,8,14,0.6), 0 6px 18px rgba(15,179,166,0.06);
 }
+
 /* Бренд: логотипный коралл для выделения */
 header h1 {
   margin: 0;
@@ -154,6 +168,7 @@ header h1 a#brand-link {
   font-weight: inherit;
   line-height: inherit;
 }
+
 /* Плеер (в header) */
 #header-player {
   grid-column: 2;
@@ -165,6 +180,7 @@ header h1 a#brand-link {
   max-width: 70%;
   box-sizing: border-box;
 }
+
 /* Обложка в шапке */
 .header-player-cover {
   width: var(--header-player-cover-size);
@@ -182,6 +198,7 @@ header h1 a#brand-link {
   height: 100%;
   object-fit: cover;
 }
+
 /* Инфо плеера */
 .player-info-header {
   display: flex;
@@ -204,6 +221,7 @@ header h1 a#brand-link {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 /* Кнопки плеера */
 .player-controls-header {
   display: flex;
@@ -228,6 +246,7 @@ header h1 a#brand-link {
   transform: translateY(-2px);
   box-shadow: 0 10px 26px rgba(2,8,14,0.44), 0 3px 10px rgba(15,179,166,0.04);
 }
+
 /* Поиск и контейнеры */
 #global-search {
   margin-top: 12px;
@@ -246,6 +265,7 @@ header h1 a#brand-link {
   padding-bottom: 0;
   margin-bottom: 0;
 }
+
 /* album header: label и кнопка в одну строку */
 .album-header {
   display: flex;
@@ -259,6 +279,7 @@ header h1 a#brand-link {
   font-weight: bold;
   color: var(--accent-2);
 }
+
 /* Refresh button — коралловый акцент */
 #refresh-btn {
   background: var(--accent-color);
@@ -275,10 +296,12 @@ header h1 a#brand-link {
   transform: translateY(-3px);
   filter: brightness(0.98);
 }
+
 /* Скрываем старую метку (если есть) */
 .controls label[for="album-select"] {
   display: none;
 }
+
 /* Список альбомов контейнер */
 .album-list-vertical {
   margin-top: 6px;
@@ -286,6 +309,7 @@ header h1 a#brand-link {
   flex-direction: column;
   gap: 10px;
 }
+
 /* Большие кнопки альбомов (scoped) */
 .album-list-vertical .album-list-button {
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
@@ -320,6 +344,7 @@ header h1 a#brand-link {
   min-width: 44px;
   text-align: center;
 }
+
 /* Новый layout */
 .new-main-layout {
   display: flex;
@@ -348,6 +373,7 @@ header h1 a#brand-link {
   color: var(--accent-2);
   margin: 0 0 8px 0;
 }
+
 /* === Треки в три колонки === */
 #tracks.tracks-list-grid {
   display: grid;
@@ -356,6 +382,7 @@ header h1 a#brand-link {
   padding: 0 10px;
   box-sizing: border-box;
 }
+
 /* Карточки треков */
 .tracks-list-grid .card {
   display: flex;
@@ -372,6 +399,7 @@ header h1 a#brand-link {
   transform: translateY(-6px);
   box-shadow: 0 22px 52px rgba(2,8,14,0.28), var(--warm-accent-glow);
 }
+
 /* Усиленный эффект для проигрываемой карточки (Deep ocean bright) */
 .tracks-list-grid .card.playing-track {
   background: linear-gradient(180deg, rgba(15,179,166,0.22), rgba(11,43,69,0.16));
@@ -389,6 +417,8 @@ header h1 a#brand-link {
   z-index: 6;
   filter: drop-shadow(0 20px 60px rgba(255,140,120,0.18));
 }
+
+/* Яркая пульсация — включается классом .animate-deepocean */
 @keyframes deepOceanPulseBright {
   0% {
     box-shadow:
@@ -418,6 +448,7 @@ header h1 a#brand-link {
 .tracks-list-grid .card.playing-track.animate-deepocean {
   animation: deepOceanPulseBright 1800ms ease-in-out infinite;
 }
+
 /* Обложка трека */
 .tracks-list-grid .track-cover {
   width: 100%;
@@ -444,6 +475,7 @@ header h1 a#brand-link {
   border: var(--cover-border);
   box-shadow: 0 12px 36px rgba(2,8,14,0.22), 0 6px 20px rgba(255,122,102,0.08), 0 4px 14px rgba(15,179,166,0.06);
 }
+
 /* Track info */
 .tracks-list-grid .track-info {
   padding: 12px;
@@ -462,6 +494,7 @@ header h1 a#brand-link {
   color: var(--muted-ice);
   margin-bottom: 8px;
 }
+
 /* Track actions */
 .tracks-list-grid .track-actions {
   display: flex;
@@ -497,10 +530,15 @@ header h1 a#brand-link {
   height: 18px;
   fill: white;
 }
+
 /* Адаптивность */
 @media (max-width: 1200px) {
   #tracks.tracks-list-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  #header-player {
+    max-width: 70%;
+    min-width: 260px;
   }
 }
 @media (max-width: 900px) {
@@ -515,7 +553,18 @@ header h1 a#brand-link {
     max-height: none;
     overflow: visible;
   }
+  :root {
+    --header-height: 56px;
+    --badge-size: 40px;
+    --header-player-controls-size: 32px;
+    --header-player-cover-size: 36px;
+  }
+  #header-player {
+    max-width: 60%;
+    min-width: 180px;
+  }
 }
+
 /* Admin: правый угол, невидимая ссылка с подсказкой */
 #hidden-admin-link {
   position: absolute;
@@ -546,6 +595,7 @@ header h1 a#brand-link {
   font-size: 14px;
   white-space: nowrap;
 }
+
 /* Модалки */
 #lyrics-modal.hidden {
   display: none !important;
@@ -577,6 +627,7 @@ header h1 a#brand-link {
   white-space: pre-wrap;
   font-size: 13px;
 }
+
 /* Toast */
 #toast {
   position: fixed;
@@ -594,47 +645,4 @@ header h1 a#brand-link {
 }
 #toast.visible {
   opacity: 1;
-}
-
-/* Надпись "ქვეალბომი" (компактно, равное расстояние) */
-#subalbum-label {
-  font-size: 16px;
-  font-weight: bold;
-  color: #f2f9f8;
-  margin: 10px 0 0 0; /* равное расстояние от последней кнопки */
-  text-align: left;
-}
-
-/* Раскрывающийся список подальбомов (визуально как кнопка альбома, компактно) */
-#subalbum-select {
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  color: #f2f9f8;
-  border: 1px solid rgba(15,179,166,0.06);
-  padding: 14px 40px 14px 16px; /* как у кнопок */
-  border-radius: calc(var(--card-radius) - 2px);
-  font-size: 16px;
-  font-weight: 700;
-  width: 100%;
-  box-sizing: border-box;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f2f9f8' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
-  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
-  margin-top: 10px; /* равное расстояние от надписи */
-  text-align: left;
-}
-
-#subalbum-select:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
-  color: #000;
-}
-
-#subalbum-select option {
-  background: #111;
-  color: #fff;
-  padding: 10px;
 }
