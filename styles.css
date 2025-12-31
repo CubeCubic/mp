@@ -444,27 +444,210 @@ header h1 a#brand-link {
   border: var(--cover-border);
   box-shadow: 0 12px 36px rgba(2,8,14,0.22), 0 6px 20px rgba(255,122,102,0.08), 0 4px 14px rgba(15,179,166,0.06);
 }
-... (the rest of your original styles remain unchanged up to the subalbum-select rules) ...
-
-/* === Обновлённые правила для кнопки сохранения и кнопки возврата ===
-   Кнопка сохранения теперь встроена в админ-панель (не фиксирована сверху),
-   поэтому контейнер фиксированной позиции удалён. Правила ниже применяются
-   к кнопке в её новом месте (над блоком "ალბომის დამატება").
-*/
-
-/* Внешний контейнер для встроенной кнопки (если нужно дополнительное выравнивание) */
-#save-inline-wrapper {
+.tracks-list-grid .track-info {
+  padding: 12px;
+  flex: 1;
   display: flex;
-  justify-content: center;
-  margin-bottom: 12px;
-  pointer-events: none; /* контейнер не блокирует клики; кнопка внутри принимает события */
+  flex-direction: column;
+  justify-content: space-between;
 }
-
-/* Основная кнопка — широкая, заметная, кораллово-красная */
+.tracks-list-grid .track-info h4 {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  line-height: 1.3;
+}
+.tracks-list-grid .track-info div {
+  font-size: 13px;
+  color: var(--muted-ice);
+  margin-bottom: 8px;
+}
+.tracks-list-grid .track-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tracks-list-grid .track-actions button {
+  flex: 1;
+  padding: 8px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.tracks-list-grid .track-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(2,8,14,0.16), 0 3px 10px rgba(15,179,166,0.05);
+}
+.tracks-list-grid .btn-has-lyrics {
+  background: linear-gradient(90deg, var(--ocean-coral, #ff7a66), #ff8f78);
+  color: #000;
+  font-weight: 700;
+}
+.tracks-list-grid .download-button {
+  width: auto;
+  height: auto;
+  padding: 8px;
+  background: #2ecc71;
+}
+.tracks-list-grid .download-button svg {
+  width: 18px;
+  height: 18px;
+  fill: white;
+}
+@media (max-width: 1200px) {
+  #tracks.tracks-list-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 900px) {
+  #tracks.tracks-list-grid {
+    grid-template-columns: 1fr;
+  }
+  .new-main-layout {
+    flex-direction: column;
+  }
+  .albums-sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+#hidden-admin-link {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 32px;
+  z-index: 1202;
+  color: transparent;
+  font-size: 0;
+  text-indent: -9999px;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+#hidden-admin-link:hover::after {
+  content: "Admin";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(0,0,0,0.8);
+  color: var(--accent-color);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+#lyrics-modal.hidden {
+  display: none !important;
+}
+#lyrics-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.36);
+  z-index: 2000;
+}
+.modal-box {
+  background: white;
+  color: #000;
+  padding: 16px;
+  border-radius: 6px;
+  max-width: 420px;
+  width: 92%;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.modal-box h3 {
+  margin-top: 0;
+  font-size: 16px;
+}
+.modal-box pre {
+  white-space: pre-wrap;
+  font-size: 13px;
+}
+#toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 90px;
+  background: rgba(0,0,0,0.72);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  z-index: 3000;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+#toast.visible {
+  opacity: 1;
+}
+#subalbum-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #f2f9f8;
+  margin: 10px 0 0 0; /* равное расстояние от последней кнопки */
+  text-align: left;
+}
+#subalbum-select {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #f2f9f8;
+  border: 1px solid rgba(15,179,166,0.06);
+  padding: 14px 40px 14px 16px; /* как у кнопок */
+  border-radius: calc(var(--card-radius) - 2px);
+  font-size: 16px;
+  font-weight: 700;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f2f9f8' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
+  margin-top: 10px; /* равное расстояние от надписи */
+  text-align: left;
+}
+#subalbum-select:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
+  color: #000;
+}
+#subalbum-select option {
+  background: #111;
+  color: #fff;
+  padding: 10px;
+}
+/* === Добавленные стили для кнопки "Сохранить изменения" (фиксированная, заметная, красная, с анимацией) ===
+   Эти правила интегрированы в существующий файл стилей и не удаляют/не изменяют другие правила.
+   Размещение здесь в конце файла гарантирует, что они переопределяют предыдущие значения при необходимости.
+*/
+/* Контейнер кнопки сохранения — фиксирован под шапкой, центрирован по ширине */
+#save-all-container {
+  position: fixed;
+  top: calc(var(--header-height) + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+  width: 100%;
+  max-width: 1440px; /* согласуется с .site-wrapper / макс. шириной сайта */
+  padding: 8px 12px;
+  text-align: center;
+  pointer-events: none; /* контейнер не блокирует клики; сама кнопка будет принимать события */
+}
+/* Основная кнопка — широкая, заметная, красная */
 #btn-save-all {
   pointer-events: auto;
   display: inline-block;
-  background: var(--ocean-coral);
+  background: var(--ocean-coral); /* кораллово-красный акцент */
   color: #fff;
   font-weight: 900;
   font-size: 18px;
@@ -476,25 +659,22 @@ header h1 a#brand-link {
   max-width: 820px;
   box-shadow: 0 10px 36px rgba(255,122,102,0.28), 0 6px 18px rgba(2,8,14,0.28);
   transition: transform 220ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms ease, background 160ms ease;
-  letter-spacing: 6px;
+  letter-spacing: 6px; /* для читаемости разнесённого грузинского текста */
   text-transform: none;
   line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
 /* Если нужно, можно обернуть текст в span внутри кнопки и управлять letter-spacing отдельно */
 #btn-save-all span { letter-spacing: normal; display:inline-block; }
-
 /* Hover / focus state — лёгкий подъём и усиление тени */
 #btn-save-all:hover,
 #btn-save-all:focus {
-  background: #ff6b57;
+  background: #ff6b57; /* чуть светлее при наведении */
   transform: translateY(-6px) scale(1.02);
   box-shadow: 0 18px 48px rgba(255,122,102,0.36), 0 10px 28px rgba(2,8,14,0.36);
   outline: none;
 }
-
 /* Акцентная анимация — мягкий пульс, когда кнопка в состоянии idle (не наведена) */
 @keyframes saveButtonPulse {
   0% {
@@ -510,30 +690,13 @@ header h1 a#brand-link {
     box-shadow: 0 10px 36px rgba(255,122,102,0.28);
   }
 }
-
 /* Класс .idle добавляет медленный пульс; скрипт может добавлять/удалять этот класс при взаимодействии */
 #btn-save-all.idle {
   animation: saveButtonPulse 4s ease-in-out infinite;
 }
-
-/* Кнопка возврата на сайт — простой стиль, можно переопределить в отдельном классе */
-.btn-return {
-  display: inline-block;
-  padding: 8px 12px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 700;
-  color: var(--accent-color);
-  transition: transform 120ms ease, opacity 120ms ease;
-}
-.btn-return:hover {
-  transform: translateY(-3px);
-  opacity: 0.95;
-}
-
 /* Мобильная адаптация: кнопка шире и чуть меньше по отступам */
 @media (max-width: 720px) {
-  #save-inline-wrapper { margin-bottom: 8px; }
+  #save-all-container { top: calc(var(--header-height) + 6px); padding: 6px; }
   #btn-save-all {
     width: 92%;
     padding: 12px 18px;
@@ -541,8 +704,6 @@ header h1 a#brand-link {
     letter-spacing: 4px;
   }
 }
-
-/* Убедимся, что старая кнопка скрыта */
+/* Обеспечиваем, что скрытая старая кнопка не мешает */
 #old-save-all-btn { display: none !important; }
-
-/* Конец обновлённых правил */
+/* Конец добавленных правил для кнопки сохранения */

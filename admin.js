@@ -1,280 +1,300 @@
-<!doctype html>
-<html lang="ka">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Admin — Cube Cubic</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    /* --- Layout variables --- */
-    :root{
-      --site-header-height: 64px;
-      --site-header-safety: 12px;
-      --site-header-total: calc(var(--site-header-height) + var(--site-header-safety));
-      --compact-gap: 8px;
-      --compact-padding: 10px;
-      --compact-font-size: 13px;
-      --panel-radius: 8px;
-      --admin-max-width: 980px; /* narrowed admin area */
-    }
+// admin.js — статическая версия for GitHub Pages
+// Поддержка подальбомов (создание и редактирование), пароль 230470,
+// батч-режим (скачивание tracks.json вручную),
+// + вход по Enter
+// + редактирование треков (модалка)
+// + новая кнопка сохранения под шапкой
+(async function() {
+  if (!document.getElementById('admin-app')) return;
+  // Elements
+  const loginForm = document.getElementById('login-form');
+  const adminPanel = document.getElementById('admin-panel');
+  const loginBtn = document.getElementById('login-btn');
+  const loginMsg = document.getElementById('login-msg');
+  const passwordInput = document.getElementById('admin-password');
+  const albumName = document.getElementById('album-name');
+  const albumParent = document.getElementById('album-parent');
+  const btnCreateAlbum = document.getElementById('btn-create-album');
+  const btnRefreshAlbums = document.getElementById('btn-refresh-albums');
+  const btnSaveAll = document.getElementById('btn-save-all'); // новая кнопка
+  const albumsList = document.getElementById('albums-list');
+  const addForm = document.getElementById('add-track-form');
+  const trackAlbumSelect = document.getElementById('track-album-select');
+  const btnRefreshTracks = document.getElementById('btn-refresh-tracks');
+  const adminTracks = document.getElementById('admin-tracks');
+  const trackSearchInput = document.getElementById('track-search');
+  const trackSearchClear = document.getElementById('track-search-clear');
+  const logoutBtn = document.getElementById('logout-btn');
 
-    /* Ensure header doesn't cover content */
-    html { scroll-padding-top: var(--site-header-total); }
-    body {
-      font-family: Arial, sans-serif;
-      color: #fff;
-      background: #111;
-      /* top padding accounts for the fixed site header */
-      padding: calc(var(--site-header-total)) 12px 12px 12px;
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.3;
-    }
-    input, textarea, select, button { scroll-margin-top: var(--site-header-total); }
+  // Modal elements
+  const albumModal = document.getElementById('album-edit-modal');
+  const modalTitle = document.getElementById('modal-title');
+  const modalAlbumName = document.getElementById('modal-album-name');
+  const modalAlbumParent = document.getElementById('modal-album-parent');
+  const modalCancel = document.getElementById('modal-cancel');
+  const modalSave = document.getElementById('modal-save');
 
-    /* Main container */
-    main {
-      max-width: var(--admin-max-width);
-      margin: 0 auto;
-    }
+  let loggedIn = false;
+  let albums = [];
+  let tracks = [];
+  let editingAlbumId = null;
 
-    /* Panels */
-    .panel {
-      background: rgba(255,255,255,0.04);
-      border-radius: var(--panel-radius);
-      padding: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  // --- Login ---
+  function tryLogin() {
+    const pass = passwordInput.value.trim();
+    if (pass === '230470') {
+      loggedIn = true;
+      loginForm.classList.add('hidden');
+      adminPanel.classList.remove('hidden');
+      loadData();
+    } else {
+      loginMsg.textContent = 'არასწორი პაროლი';
     }
+  }
 
-    h2 {
-      margin: 0 0 12px 0;
-      font-size: 18px;
-      color: #ffcc00;
+  // --- Data load ---
+  async function loadData() {
+    try {
+      const res = await fetch('tracks.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      albums = data.albums || [];
+      tracks = data.tracks || [];
+      renderAlbums();
+      renderAlbumSelects();
+      renderTracks();
+    } catch (err) {
+      console.error(err);
+      alert('tracks.json არ მოიძებნა');
     }
+  }
 
-    label {
-      display: block;
-      margin: 8px 0 4px 0;
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    textarea,
-    select {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.06);
-      color: #fff;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-
-    button {
-      padding: 8px 14px;
-      border-radius: 6px;
-      border: none;
-      background: #ffcc00;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 120ms ease, opacity 120ms ease;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      opacity: 0.92;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .muted {
-      color: #aaa;
-      font-size: 12px;
-    }
-
-    .list {
-      margin-top: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .list-item {
-      background: rgba(255,255,255,0.04);
-      padding: 10px;
-      border-radius: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .list-item button {
-      font-size: 12px;
-      padding: 4px 8px;
-    }
-
-    /* НОВАЯ КНОПКА СОХРАНЕНИЯ — под шапкой сайта */
-    #save-all-container {
-      position: fixed;
-      top: calc(var(--site-header-height) + 8px);
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      width: 90%;
-      max-width: 980px;
-      text-align: center;
-    }
-
-    #btn-save-all {
-      background: #ff4444 !important; /* красный */
-      color: #fff !important;
-      font-size: 18px;
-      font-weight: 900;
-      padding: 14px 32px;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(255,68,68,0.4);
-      width: 80%;
-      max-width: 600px;
-    }
-
-    #btn-save-all:hover {
-      background: #ff6666 !important;
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(255,68,68,0.5);
-    }
-
-    /* Скрываем старую кнопку */
-    #old-save-all-btn {
-      display: none;
-    }
-
-    /* Modal backdrop */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-    }
-
-    .modal {
-      background: #222;
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 500px;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-  </style>
-</head>
-<body>
-  <main>
-    <!-- НОВАЯ КНОПКА СОХРАНЕНИЯ ПОД ШАПКОЙ -->
-    <div id="save-all-container">
-      <button id="btn-save-all" type="button">დ ა ი მ ა ხ ს ო ვ რ ე ც ვ ლ ი ლ ე ბ ა</button>
-    </div>
-
-    <div id="login-form">
-      <div class="panel">
-        <h2>ადმინის შესვლა</h2>
-        <label for="admin-password">პაროლი</label>
-        <input type="password" id="admin-password" autocomplete="off">
-        <div class="actions">
-          <button id="login-btn" type="button">შესვლა</button>
+  // --- Render albums ---
+  function renderAlbums() {
+    albumsList.innerHTML = '';
+    const mains = albums.filter(a => !a.parentId);
+    mains.forEach(a => {
+      const item = document.createElement('div');
+      item.className = 'list-item';
+      item.innerHTML = `
+        <span>${a.name} ${a.parentId ? '(ქვეალბომი)' : ''}</span>
+        <div>
+          <button data-id="${a.id}" class="edit-album">რედაქტირება</button>
+          <button data-id="${a.id}" class="delete-album">წაშლა</button>
         </div>
-        <p id="login-msg" class="muted"></p>
-      </div>
-    </div>
+      `;
+      albumsList.appendChild(item);
+    });
 
-    <div id="admin-panel" class="hidden">
-      <div class="panel">
-        <h2>ალბომის დამატება</h2>
-        <label for="album-name">სახელი</label>
-        <input type="text" id="album-name">
-        <label for="album-parent">მშობელი ალბომი</label>
-        <select id="album-parent">
-          <option value="">— ძირითადი —</option>
-        </select>
-        <div class="actions">
-          <button id="btn-create-album" type="button">დამატება</button>
-          <button id="btn-refresh-albums" type="button">Refresh albums</button>
+    // Edit / Delete handlers
+    albumsList.querySelectorAll('.edit-album').forEach(btn => {
+      btn.addEventListener('click', () => editAlbum(btn.dataset.id));
+    });
+    albumsList.querySelectorAll('.delete-album').forEach(btn => {
+      btn.addEventListener('click', () => deleteAlbum(btn.dataset.id));
+    });
+  }
+
+  function renderAlbumSelects() {
+    [albumParent, trackAlbumSelect, modalAlbumParent].forEach(sel => {
+      sel.innerHTML = '<option value="">— ძირითადი —</option>';
+      albums.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.id;
+        opt.textContent = a.name + (a.parentId ? ' (ქვეალბომი)' : '');
+        sel.appendChild(opt);
+      });
+    });
+  }
+
+  // --- Album CRUD ---
+  btnCreateAlbum.addEventListener('click', () => {
+    const name = albumName.value.trim();
+    if (!name) return alert('შეიყვანეთ სახელი');
+    const parentId = albumParent.value || null;
+    const newAlbum = { id: Date.now(), name, parentId };
+    albums.push(newAlbum);
+    albumName.value = '';
+    renderAlbums();
+    renderAlbumSelects();
+  });
+
+  function editAlbum(id) {
+    const album = albums.find(a => a.id == id);
+    if (!album) return;
+    editingAlbumId = id;
+    modalTitle.textContent = 'ალბომის რედაქტირება';
+    modalAlbumName.value = album.name;
+    modalAlbumParent.value = album.parentId || '';
+    albumModal.classList.remove('hidden');
+  }
+
+  function deleteAlbum(id) {
+    if (!confirm('დარწმუნებული ხართ?')) return;
+    albums = albums.filter(a => a.id != id);
+    tracks = tracks.filter(t => t.albumId != id);
+    renderAlbums();
+    renderAlbumSelects();
+    renderTracks();
+  }
+
+  modalCancel.addEventListener('click', () => {
+    albumModal.classList.add('hidden');
+    editingAlbumId = null;
+  });
+
+  modalSave.addEventListener('click', () => {
+    const name = modalAlbumName.value.trim();
+    if (!name) return alert('შეიყვანეთ სახელი');
+    const album = albums.find(a => a.id === editingAlbumId);
+    if (album) {
+      album.name = name;
+      album.parentId = modalAlbumParent.value || null;
+    }
+    albumModal.classList.add('hidden');
+    editingAlbumId = null;
+    renderAlbums();
+    renderAlbumSelects();
+    renderTracks();
+  });
+
+  // --- Track add ---
+  document.getElementById('btn-add-track').addEventListener('click', () => {
+    const title = document.getElementById('track-title').value.trim();
+    const artist = document.getElementById('track-artist').value.trim();
+    const albumId = trackAlbumSelect.value;
+    const audioUrl = document.getElementById('track-audio').value.trim();
+    const coverUrl = document.getElementById('track-cover').value.trim();
+    const lyrics = document.getElementById('track-lyrics').value.trim();
+
+    if (!title || !artist || !albumId || !audioUrl) {
+      return alert('შეავსეთ საჭირო ველები');
+    }
+
+    const newTrack = {
+      id: Date.now(),
+      title,
+      artist,
+      albumId,
+      audioUrl,
+      coverUrl: coverUrl || null,
+      lyrics: lyrics || null
+    };
+
+    tracks.push(newTrack);
+    document.getElementById('track-title').value = '';
+    document.getElementById('track-artist').value = '';
+    document.getElementById('track-audio').value = '';
+    document.getElementById('track-cover').value = '';
+    document.getElementById('track-lyrics').value = '';
+
+    renderTracks();
+  });
+
+  // --- Render tracks ---
+  function renderTracks(query = '') {
+    adminTracks.innerHTML = '';
+    let filtered = tracks;
+    if (query) {
+      const q = query.toLowerCase();
+      filtered = tracks.filter(t =>
+        t.title.toLowerCase().includes(q) ||
+        t.artist.toLowerCase().includes(q)
+      );
+    }
+    filtered.forEach(t => {
+      const album = albums.find(a => a.id == t.albumId);
+      const albumName = album ? album.name : 'უცნობი';
+      const item = document.createElement('div');
+      item.className = 'list-item';
+      item.innerHTML = `
+        <div>
+          <strong>${t.title}</strong> — ${t.artist}<br>
+          <small>${albumName}</small>
         </div>
-        <div id="albums-list" class="list"></div>
-      </div>
-
-      <div class="panel">
-        <h2>ტრეკის დამატება</h2>
-        <label for="track-title">სათაური</label>
-        <input type="text" id="track-title">
-        <label for="track-artist">შემსრულებელი</label>
-        <input type="text" id="track-artist">
-        <label for="track-album-select">ალბომი</label>
-        <select id="track-album-select"></select>
-        <label for="track-audio">აუდიო URL</label>
-        <input type="text" id="track-audio">
-        <label for="track-cover">ქავერი URL</label>
-        <input type="text" id="track-cover">
-        <label for="track-lyrics">ტექსტი (არასავალდებულო)</label>
-        <textarea id="track-lyrics" rows="4"></textarea>
-        <div class="actions">
-          <button id="btn-add-track" type="button">დამატება</button>
+        <div>
+          <button data-id="${t.id}" class="delete-track">წაშლა</button>
         </div>
-      </div>
+      `;
+      adminTracks.appendChild(item);
+    });
 
-      <div class="panel">
-        <h2>ტრეკები</h2>
-        <div style="display:flex; gap:8px; margin-bottom:8px;">
-          <input type="text" id="track-search" placeholder="ძებნა ტრეკებში..." style="flex:1;">
-          <button id="track-search-clear" type="button" style="padding:6px 10px;">✕</button>
-        </div>
-        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-          <button id="btn-refresh-tracks" type="button">Refresh tracks</button>
-          <span class="muted" style="font-size:12px">(Use Edit to change)</span>
-        </div>
-        <div id="admin-tracks" class="list"></div>
-      </div>
+    adminTracks.querySelectorAll('.delete-track').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!confirm('წავშალოთ ტრეკი?')) return;
+        tracks = tracks.filter(tr => tr.id != btn.dataset.id);
+        renderTracks(trackSearchInput.value);
+      });
+    });
+  }
 
-      <!-- СТАРАЯ КНОПКА — скрыта -->
-      <div id="old-save-all-btn" style="display:flex; justify-content:flex-end;">
-        <button id="btn-save-all-old" type="button">Сохранить изменения</button>
-      </div>
+  // --- Save all (НОВАЯ КНОПКА) ---
+  btnSaveAll.addEventListener('click', async () => {
+    if (!confirm('დაიმახსოვროთ ყველა ცვლილება tracks.json-ში?')) return;
+    const data = { albums, tracks };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tracks.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    alert('ფაილი მზადაა ჩამოსატვირთად. ატვირთეთ GitHub-ზე.');
+  });
 
-      <div style="display:flex; justify-content:flex-end;">
-        <button id="logout-btn" type="button">გასვლა</button>
-      </div>
-    </div>
-  </main>
+  // Refresh buttons
+  btnRefreshAlbums.addEventListener('click', loadData);
+  btnRefreshTracks.addEventListener('click', loadData);
 
-  <!-- Modal for editing album -->
-  <div id="album-edit-modal" class="modal-backdrop hidden" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <h3 id="modal-title">Edit album</h3>
-      <label>Name</label>
-      <input id="modal-album-name">
-      <label>Parent album</label>
-      <select id="modal-album-parent"></select>
-      <div class="actions">
-        <button id="modal-cancel" type="button">Cancel</button>
-        <button id="modal-save" type="button">Save</button>
-      </div>
-    </div>
-  </div>
+  // Login handlers
+  if (loginBtn) {
+    loginBtn.addEventListener('click', tryLogin);
+  }
+  // Enter to login
+  if (passwordInput) {
+    passwordInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        tryLogin();
+      }
+    });
+  }
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      loggedIn = false;
+      adminPanel.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+    });
+  }
 
-  <script src="admin.js"></script>
-</body>
-</html>
+  // --- Search logic (debounced) ---
+  function debounce(fn, wait) {
+    let t = null;
+    return function(...args) {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, args), wait);
+    };
+  }
+
+  if (trackSearchInput) {
+    const onSearch = debounce(() => {
+      const q = trackSearchInput.value || '';
+      renderTracks(q);
+    }, 200);
+    trackSearchInput.addEventListener('input', onSearch);
+
+    if (trackSearchClear) {
+      trackSearchClear.addEventListener('click', () => {
+        trackSearchInput.value = '';
+        renderTracks('');
+        trackSearchInput.focus();
+      });
+    }
+  }
+
+  // Initialization
+  document.addEventListener('DOMContentLoaded', () => {
+    adminPanel.classList.add('hidden');
+    loginForm.classList.remove('hidden');
+  });
+})();

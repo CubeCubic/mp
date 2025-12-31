@@ -6,6 +6,7 @@
   <title>Admin — Cube Cubic</title>
   <link rel="stylesheet" href="styles.css">
   <style>
+    /* --- Layout variables --- */
     :root{
       --site-header-height: 64px;
       --site-header-safety: 12px;
@@ -14,14 +15,16 @@
       --compact-padding: 10px;
       --compact-font-size: 13px;
       --panel-radius: 8px;
-      --admin-max-width: 980px;
+      --admin-max-width: 980px; /* narrowed admin area */
     }
 
+    /* Ensure header doesn't cover content */
     html { scroll-padding-top: var(--site-header-total); }
     body {
       font-family: Arial, sans-serif;
       color: #fff;
       background: #111;
+      /* top padding accounts for the fixed site header */
       padding: calc(var(--site-header-total)) 12px 12px 12px;
       margin: 0;
       font-size: 14px;
@@ -29,11 +32,13 @@
     }
     input, textarea, select, button { scroll-margin-top: var(--site-header-total); }
 
+    /* Main container */
     main {
       max-width: var(--admin-max-width);
       margin: 0 auto;
     }
 
+    /* Panels */
     .panel {
       background: rgba(255,255,255,0.04);
       border-radius: var(--panel-radius);
@@ -117,6 +122,41 @@
       padding: 4px 8px;
     }
 
+    /* НОВАЯ КНОПКА СОХРАНЕНИЯ — под шапкой сайта */
+    #save-all-container {
+      position: fixed;
+      top: calc(var(--site-header-height) + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      width: 90%;
+      max-width: 980px;
+      text-align: center;
+    }
+
+    #btn-save-all {
+      background: #ff4444 !important; /* красный */
+      color: #fff !important;
+      font-size: 18px;
+      font-weight: 900;
+      padding: 14px 32px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(255,68,68,0.4);
+      width: 80%;
+      max-width: 600px;
+    }
+
+    #btn-save-all:hover {
+      background: #ff6666 !important;
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(255,68,68,0.5);
+    }
+
+    /* Скрываем старую кнопку */
+    #old-save-all-btn {
+      display: none;
+    }
+
     /* Modal backdrop */
     .modal-backdrop {
       position: fixed;
@@ -144,7 +184,11 @@
 </head>
 <body>
   <main>
-    <!-- Кнопка сохранения теперь находится внутри админ-панели (появляется только после входа) -->
+    <!-- НОВАЯ КНОПКА СОХРАНЕНИЯ ПОД ШАПКОЙ -->
+    <div id="save-all-container">
+      <button id="btn-save-all" type="button">დ ა ი მ ა ხ ს ო ვ რ ე ც ვ ლ ი ლ ე ბ ა</button>
+    </div>
+
     <div id="login-form">
       <div class="panel">
         <h2>ადმინის შესვლა</h2>
@@ -158,16 +202,6 @@
     </div>
 
     <div id="admin-panel" class="hidden">
-      <!-- Здесь размещаем кнопку сохранения над блоком "ალბომის დამატება" -->
-      <div id="save-inline-wrapper" style="display:flex; justify-content:center; margin-bottom:12px;">
-        <button id="btn-save-all" class="idle" type="button">დ ა ი მ ა ხ ს ო ვ რ ე____ც ვ ლ ი ლ ე ბ ა</button>
-      </div>
-
-      <!-- Добавлена кнопка возврата на сайт (рядом с верхней частью панели) -->
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:8px;">
-        <a id="btn-return-site" href="https://cubecubic.github.io/mp" class="btn-return" style="background:transparent; border:none; color:#ffcc00; font-weight:700; text-decoration:none; padding:8px 12px; border-radius:8px;">საიტზე დაბრუნება</a>
-      </div>
-
       <div class="panel">
         <h2>ალბომის დამატება</h2>
         <label for="album-name">სახელი</label>
@@ -215,12 +249,12 @@
         <div id="admin-tracks" class="list"></div>
       </div>
 
-      <!-- Старая кнопка скрыта -->
-      <div id="old-save-all-btn" style="display:none;">
+      <!-- СТАРАЯ КНОПКА — скрыта -->
+      <div id="old-save-all-btn" style="display:flex; justify-content:flex-end;">
         <button id="btn-save-all-old" type="button">Сохранить изменения</button>
       </div>
 
-      <div style="display:flex; justify-content:flex-end; margin-top:12px;">
+      <div style="display:flex; justify-content:flex-end;">
         <button id="logout-btn" type="button">გასვლა</button>
       </div>
     </div>
