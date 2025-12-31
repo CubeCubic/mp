@@ -138,6 +138,20 @@
       albumListContainer.appendChild(btn);
     });
   }
+  function buildAlbumSelectors() {
+    if (albumSelect) albumSelect.value = '';
+    if (subalbumSelect) {
+      subalbumSelect.innerHTML = '';
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = '— ყველა ქვეალბომი —';
+      subalbumSelect.appendChild(opt);
+      subalbumSelect.disabled = true;
+      subalbumSelect.style.display = 'none';
+      if (subalbumLabel) subalbumLabel.style.display = 'none';
+    }
+    renderAlbumList();
+  }
   function onAlbumChange() {
     const currentAlbumId = albumSelect ? albumSelect.value : '';
     if (subalbumSelect) {
@@ -180,8 +194,13 @@
       (albums.find(a => String(a.id) === String(track.albumId)) || {}).name?.toLowerCase().includes(q)
     );
   }
+  function applySearch() {
+    const query = globalSearchInput ? globalSearchInput.value.trim() : '';
+    filteredTracks = tracks.filter(t => matchesQuery(t, query));
+  }
   if (globalSearchInput) {
     globalSearchInput.addEventListener('input', () => {
+      applySearch();
       renderTracks();
       renderAlbumList();
       currentTrackIndex = -1;
