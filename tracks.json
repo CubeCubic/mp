@@ -29,6 +29,11 @@
       "id": "1767101048345",
       "name": "Funk Fusion",
       "parentId": "1767100972913"
+    },
+    {
+      "id": "1767162208459",
+      "name": "Smooth Jazz",
+      "parentId": "1767100972913"
     }
   ],
   "tracks": [
@@ -274,6 +279,15 @@
       "albumId": "1767101048345",
       "audioUrl": "https://archive.org/download/rise-up_202512/Mystery.wav",
       "coverUrl": "https://archive.org/download/rise-up_202512/Mystery.png"
+    },
+    {
+      "id": "1767162216213",
+      "title": "Morning Coffee",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/rise-up_202512/Morning%20Coffee.wav",
+      "coverUrl": "https://archive.org/download/rise-up_202512/morning-coffee.png"
     }
   ]
 }
