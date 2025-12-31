@@ -32,203 +32,226 @@
     }
     input, textarea, select, button { scroll-margin-top: var(--site-header-total); }
 
-    /* Centered, narrower admin area */
-    main#admin-app {
+    /* Main container */
+    main {
       max-width: var(--admin-max-width);
       margin: 0 auto;
-      width: 100%;
-      box-sizing: border-box;
     }
 
-    /* Header */
-    header { margin: 0 0 8px 0; padding: 6px 0; }
-    h1 { color: #ffcc00; margin: 0 0 6px 0; font-size: 18px; line-height: 1.1; }
-    .hidden { display: none; }
-
-    /* Panels — compact */
+    /* Panels */
     .panel {
-      background: rgba(0,0,0,0.6);
-      padding: var(--compact-padding);
+      background: rgba(255,255,255,0.04);
       border-radius: var(--panel-radius);
-      margin-bottom: 10px;
-      box-sizing: border-box;
-      font-size: var(--compact-font-size);
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     }
 
-    label { display:block; margin:6px 0 4px; color:#ffd; font-weight:600; font-size:13px; }
-
-    input[type="text"], input[type="password"], select, textarea {
-      width:100%;
-      padding:8px;
-      border-radius:6px;
-      border:1px solid #333;
-      background:#111;
-      color:#fff;
-      box-sizing: border-box;
-      font-size: 13px;
+    h2 {
+      margin: 0 0 12px 0;
+      font-size: 18px;
+      color: #ffcc00;
     }
 
-    .row { display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; }
-    .col { flex:1; min-width:200px; }
-    .small { width:180px; flex:0 0 180px; min-width:140px; }
+    label {
+      display: block;
+      margin: 8px 0 4px 0;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
 
     button {
-      background:#444;
-      color:#fff;
-      padding:8px 10px;
-      border-radius:6px;
-      border:none;
-      cursor:pointer;
-      font-size: 13px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: none;
+      background: #ffcc00;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 120ms ease, opacity 120ms ease;
     }
-    button:hover { background:#666; }
+
+    button:hover {
+      transform: translateY(-2px);
+      opacity: 0.92;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .muted {
+      color: #aaa;
+      font-size: 12px;
+    }
 
     .list {
-      margin-top:8px;
-      max-height:300px;
-      overflow:auto;
-      border-top:1px dashed rgba(255,255,255,0.06);
-      padding-top:8px;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
-    .item {
-      padding:6px;
-      border-radius:6px;
-      display:flex;
-      gap:8px;
-      align-items:center;
-      background:rgba(255,255,255,0.02);
-      margin-bottom:8px;
-      font-size: 13px;
-    }
-    .meta { flex:1; color:#ddd; font-size: 13px; }
-    .muted { color:#999; font-size:12px; }
-    .note { color:#ccc; font-size:12px; margin-top:6px; }
 
+    .list-item {
+      background: rgba(255,255,255,0.04);
+      padding: 10px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .list-item button {
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+
+    /* НОВАЯ КНОПКА СОХРАНЕНИЯ — под шапкой сайта */
+    #save-all-container {
+      position: fixed;
+      top: calc(var(--site-header-height) + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      width: 90%;
+      max-width: 980px;
+      text-align: center;
+    }
+
+    #btn-save-all {
+      background: #ff4444 !important; /* красный */
+      color: #fff !important;
+      font-size: 18px;
+      font-weight: 900;
+      padding: 14px 32px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(255,68,68,0.4);
+      width: 80%;
+      max-width: 600px;
+    }
+
+    #btn-save-all:hover {
+      background: #ff6666 !important;
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(255,68,68,0.5);
+    }
+
+    /* Скрываем старую кнопку */
+    #old-save-all-btn {
+      display: none;
+    }
+
+    /* Modal backdrop */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.7);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 2000;
     }
-    .modal-backdrop.hidden { display: none !important; }
+
     .modal {
-      background: #fff; color: #000;
-      border-radius: 8px; width: 420px; max-width: 95%;
-      padding: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-      font-size: 13px;
-    }
-    .modal h3 { margin-top: 0; font-size: 16px; }
-    .modal .actions { display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
-
-    #logout-btn { margin-top: 8px; padding: 8px 10px; background: #333; border-radius: 6px; }
-
-    #add-track-form textarea { min-height: 80px; }
-    #albums-list .item, #admin-tracks .item { padding: 6px; }
-    .small button { width:100%; box-sizing:border-box; }
-
-    /* Lower the login block so it sits clearly below the header */
-    /* You can adjust the value below if you need it lower/higher */
-    #login-form {
-      margin-top: 48px; /* increased margin to ensure the whole block is below header */
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
     }
 
-    @media (max-width: 720px) {
-      :root { --site-header-height: 56px; --site-header-safety: 12px; }
-      .row { gap:8px; }
-      .small { width: 100%; flex: 1 1 100%; }
-      .col { min-width: 100%; }
-      body { padding-left: 10px; padding-right: 10px; }
-      #login-form { margin-top: 56px; } /* slightly larger on mobile */
+    .hidden {
+      display: none !important;
     }
-
-    /* Search input styling for tracks */
-    .track-search-wrap { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
-    #track-search { flex:1; padding:8px; border-radius:6px; border:1px solid #333; background:#0f0f0f; color:#fff; }
-    #track-search-clear { background: transparent; border: 1px solid rgba(255,255,255,0.06); color:#fff; padding:6px 8px; border-radius:6px; cursor:pointer; }
-    #track-search-clear:hover { background: rgba(255,255,255,0.02); }
   </style>
 </head>
 <body>
-  <header>
-    <h1>ადმინისტრატორი</h1>
-    <a href="index.html" style="color:#fff; font-size:13px">მთავარი გვერდი</a>
-  </header>
+  <main>
+    <!-- НОВАЯ КНОПКА СОХРАНЕНИЯ ПОД ШАПКОЙ -->
+    <div id="save-all-container">
+      <button id="btn-save-all" type="button">დ ა ი მ ა ხ ს ო ვ რ ე ც ვ ლ ი ლ ე ბ ა</button>
+    </div>
 
-  <main id="admin-app">
-    <div id="login-form" class="panel">
-      <h2 style="margin:0 0 8px 0; font-size:16px">შესვლა</h2>
-      <form id="login-form-wrapper" style="margin:0">
-        <input id="admin-password" type="password" placeholder="პაროლი" />
-        <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+    <div id="login-form">
+      <div class="panel">
+        <h2>ადმინის შესვლა</h2>
+        <label for="admin-password">პაროლი</label>
+        <input type="password" id="admin-password" autocomplete="off">
+        <div class="actions">
           <button id="login-btn" type="button">შესვლა</button>
-          <span id="login-msg" class="muted" style="margin-left:6px"></span>
         </div>
-      </form>
+        <p id="login-msg" class="muted"></p>
+      </div>
     </div>
 
     <div id="admin-panel" class="hidden">
       <div class="panel">
-        <h2 style="margin:0 0 8px 0; font-size:15px">ალბომები</h2>
-        <div class="row">
-          <div class="col">
-            <label for="album-name">სახელი</label>
-            <input id="album-name" type="text" />
-          </div>
-          <div class="small">
-            <label for="album-parent">Parent</label>
-            <select id="album-parent"><option value="">— მთავარი ალბომი —</option></select>
-          </div>
-          <div class="small" style="display:flex;flex-direction:column;gap:8px;">
-            <button id="btn-create-album" type="button">Create album</button>
-            <button id="btn-refresh-albums" type="button">Refresh</button>
-            <button id="btn-save-all" type="button">Сохранить изменения</button>
-          </div>
+        <h2>ალბომის დამატება</h2>
+        <label for="album-name">სახელი</label>
+        <input type="text" id="album-name">
+        <label for="album-parent">მშობელი ალბომი</label>
+        <select id="album-parent">
+          <option value="">— ძირითადი —</option>
+        </select>
+        <div class="actions">
+          <button id="btn-create-album" type="button">დამატება</button>
+          <button id="btn-refresh-albums" type="button">Refresh albums</button>
         </div>
-        <div class="list" id="albums-list"></div>
+        <div id="albums-list" class="list"></div>
       </div>
 
       <div class="panel">
-        <h2 style="margin:0 0 8px 0; font-size:15px">ტრეკის დამატება</h2>
-        <form id="add-track-form">
-          <div class="row">
-            <div class="col">
-              <label>Title</label>
-              <input name="title" required>
-              <label>Artist</label>
-              <input name="artist">
-              <label>Lyrics</label>
-              <textarea name="lyrics"></textarea>
-            </div>
-            <div class="small">
-              <label>Album</label>
-              <select id="track-album-select" name="album"></select>
-              <label>Audio URL</label>
-              <input name="audioUrl">
-              <label>Cover URL</label>
-              <input name="coverUrl">
-              <button type="submit">დამატება</button>
-            </div>
-          </div>
-        </form>
+        <h2>ტრეკის დამატება</h2>
+        <label for="track-title">სათაური</label>
+        <input type="text" id="track-title">
+        <label for="track-artist">შემსრულებელი</label>
+        <input type="text" id="track-artist">
+        <label for="track-album-select">ალბომი</label>
+        <select id="track-album-select"></select>
+        <label for="track-audio">აუდიო URL</label>
+        <input type="text" id="track-audio">
+        <label for="track-cover">ქავერი URL</label>
+        <input type="text" id="track-cover">
+        <label for="track-lyrics">ტექსტი (არასავალდებულო)</label>
+        <textarea id="track-lyrics" rows="4"></textarea>
+        <div class="actions">
+          <button id="btn-add-track" type="button">დამატება</button>
+        </div>
       </div>
 
       <div class="panel">
-        <h2 style="margin:0 0 8px 0; font-size:15px">არსებული ტრეკები</h2>
-
-        <!-- Search tracks -->
-        <div class="track-search-wrap">
-          <input id="track-search" type="text" placeholder="Поиск по названию, исполнителю или альбому..." aria-label="Search tracks">
-          <button id="track-search-clear" type="button" title="Очистить поиск">✕</button>
+        <h2>ტრეკები</h2>
+        <div style="display:flex; gap:8px; margin-bottom:8px;">
+          <input type="text" id="track-search" placeholder="ძებნა ტრეკებში..." style="flex:1;">
+          <button id="track-search-clear" type="button" style="padding:6px 10px;">✕</button>
         </div>
-
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
           <button id="btn-refresh-tracks" type="button">Refresh tracks</button>
           <span class="muted" style="font-size:12px">(Use Edit to change)</span>
         </div>
         <div id="admin-tracks" class="list"></div>
+      </div>
+
+      <!-- СТАРАЯ КНОПКА — скрыта -->
+      <div id="old-save-all-btn" style="display:flex; justify-content:flex-end;">
+        <button id="btn-save-all-old" type="button">Сохранить изменения</button>
       </div>
 
       <div style="display:flex; justify-content:flex-end;">
