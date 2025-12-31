@@ -184,8 +184,13 @@
           <div class="small" style="display:flex;flex-direction:column;gap:8px;">
             <button id="btn-create-album" type="button">Create album</button>
             <button id="btn-refresh-albums" type="button">Refresh</button>
-            <!-- Оставляем оригинальный текст в HTML; JS обновит текст и добавит классы -->
-            <button id="btn-save-all" type="button">Сохранить изменения</button>
+
+            <!-- Обёртка для центрирования кнопки -->
+            <div class="save-btn-wrapper" aria-hidden="false">
+              <!-- Оставляем исходный текст; JS заменит текст и добавит классы -->
+              <button id="btn-save-all" type="button">Сохранить изменения</button>
+            </div>
+
           </div>
         </div>
         <div class="list" id="albums-list"></div>
