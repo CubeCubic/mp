@@ -67,6 +67,36 @@
     });
     return e;
   }
+
+  // === Apply visual changes to Save button: text, aria, classes, blinking ===
+  (function applySaveButtonVisuals() {
+    if (!btnSaveAll) return;
+    // Ensure inner-text span exists and set Georgian text
+    let inner = btnSaveAll.querySelector('.inner-text');
+    if (!inner) {
+      inner = document.createElement('span');
+      inner.className = 'inner-text';
+      // Replace visible text with span to allow CSS compensation
+      btnSaveAll.textContent = '';
+      btnSaveAll.appendChild(inner);
+    }
+    inner.textContent = 'არ დაგავიწყდეს დამახსოვრება';
+    // Accessibility label
+    btnSaveAll.setAttribute('aria-label', 'არ დაგავიწყდეს დამახსოვრება');
+    // Add classes used by styles.css
+    btnSaveAll.classList.add('save-btn', 'blinking');
+    // Ensure type is button
+    btnSaveAll.setAttribute('type', 'button');
+
+    // Optional: brief visual feedback on click (keeps blinking but restarts)
+    btnSaveAll.addEventListener('click', () => {
+      // If there is existing save logic (attached later), keep it.
+      // Provide short visual pause in blinking to emphasize click
+      btnSaveAll.classList.remove('blinking');
+      setTimeout(() => btnSaveAll.classList.add('blinking'), 700);
+    });
+  })();
+
   async function fetchTracksJson() {
     const res = await fetch('tracks.json');
     if (!res.ok) throw new Error('Не удалось загрузить tracks.json');
@@ -152,6 +182,7 @@
         albumEditModal.setAttribute('aria-hidden', 'false');
         setTimeout(() => { try { modalAlbumName.focus(); } catch (e) {} }, 0);
       });
+
       btnDelete.addEventListener('click', () => {
         if (!confirm('Delete album?')) return;
         albums = albums.filter(x => x.id !== a.id);
