@@ -117,65 +117,6 @@
       padding: 4px 8px;
     }
 
-    /* Save button container (fixed under header) */
-    #save-all-container {
-      position: fixed;
-      top: calc(var(--site-header-height) + 8px);
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      width: 100%;
-      max-width: var(--admin-max-width);
-      text-align: center;
-      padding: 8px 0;
-      pointer-events: none; /* container doesn't block clicks; button will */
-    }
-
-    /* Save button styling */
-    #btn-save-all {
-      pointer-events: auto;
-      background: #ff4444;
-      color: #fff;
-      font-size: 18px;
-      font-weight: 900;
-      padding: 14px 36px;
-      border-radius: 12px;
-      box-shadow: 0 8px 28px rgba(255,68,68,0.35);
-      width: 84%;
-      max-width: 720px;
-      border: none;
-      cursor: pointer;
-      transition: transform 220ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms ease, background 160ms ease;
-      letter-spacing: 6px;
-    }
-
-    /* Georgian spaced text looks better with increased letter-spacing; keep readable */
-    #btn-save-all span {
-      display: inline-block;
-      letter-spacing: normal;
-    }
-
-    #btn-save-all:hover {
-      background: #ff6666;
-      transform: translateY(-6px) scale(1.02);
-      box-shadow: 0 14px 40px rgba(255,68,68,0.45);
-    }
-
-    /* subtle pulse animation to draw attention */
-    @keyframes savePulse {
-      0% { box-shadow: 0 8px 28px rgba(255,68,68,0.35); transform: translateY(0); }
-      50% { box-shadow: 0 18px 48px rgba(255,68,68,0.28); transform: translateY(-3px); }
-      100% { box-shadow: 0 8px 28px rgba(255,68,68,0.35); transform: translateY(0); }
-    }
-
-    /* apply gentle pulse when not hovered */
-    #btn-save-all.idle {
-      animation: savePulse 3.6s ease-in-out infinite;
-    }
-
-    /* hide old save button if present */
-    #old-save-all-btn { display: none; }
-
     /* Modal backdrop */
     .modal-backdrop {
       position: fixed;
@@ -199,20 +140,11 @@
     .hidden {
       display: none !important;
     }
-
-    @media (max-width: 720px) {
-      #btn-save-all { width: 92%; padding: 12px 20px; font-size: 16px; }
-      :root { --site-header-height: 56px; }
-    }
   </style>
 </head>
 <body>
   <main>
-    <!-- НОВАЯ КНОПКА СОХРАНЕНИЯ ПОД ШАПКОЙ -->
-    <div id="save-all-container">
-      <button id="btn-save-all" class="idle" type="button">დ ა ი მ ა ხ ს ო ვ რ ე ც ვ ლ ი ლ ე ბ ა</button>
-    </div>
-
+    <!-- Кнопка сохранения теперь находится внутри админ-панели (появляется только после входа) -->
     <div id="login-form">
       <div class="panel">
         <h2>ადმინის შესვლა</h2>
@@ -226,6 +158,16 @@
     </div>
 
     <div id="admin-panel" class="hidden">
+      <!-- Здесь размещаем кнопку сохранения над блоком "ალბომის დამატება" -->
+      <div id="save-inline-wrapper" style="display:flex; justify-content:center; margin-bottom:12px;">
+        <button id="btn-save-all" class="idle" type="button">დ ა ი მ ა ხ ს ო ვ რ ე____ც ვ ლ ი ლ ე ბ ა</button>
+      </div>
+
+      <!-- Добавлена кнопка возврата на сайт (рядом с верхней частью панели) -->
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:8px;">
+        <a id="btn-return-site" href="https://cubecubic.github.io/mp" class="btn-return" style="background:transparent; border:none; color:#ffcc00; font-weight:700; text-decoration:none; padding:8px 12px; border-radius:8px;">საიტზე დაბრუნება</a>
+      </div>
+
       <div class="panel">
         <h2>ალბომის დამატება</h2>
         <label for="album-name">სახელი</label>
@@ -273,12 +215,12 @@
         <div id="admin-tracks" class="list"></div>
       </div>
 
-      <!-- СТАРАЯ КНОПКА — скрыта -->
+      <!-- Старая кнопка скрыта -->
       <div id="old-save-all-btn" style="display:none;">
         <button id="btn-save-all-old" type="button">Сохранить изменения</button>
       </div>
 
-      <div style="display:flex; justify-content:flex-end;">
+      <div style="display:flex; justify-content:flex-end; margin-top:12px;">
         <button id="logout-btn" type="button">გასვლა</button>
       </div>
     </div>

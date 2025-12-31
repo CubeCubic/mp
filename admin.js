@@ -19,7 +19,7 @@
   const albumParent = document.getElementById('album-parent');
   const btnCreateAlbum = document.getElementById('btn-create-album');
   const btnRefreshAlbums = document.getElementById('btn-refresh-albums');
-  const btnSaveAll = document.getElementById('btn-save-all'); // новая кнопка
+  const btnSaveAll = document.getElementById('btn-save-all'); // новая кнопка (теперь внутри admin-panel)
   const albumsList = document.getElementById('albums-list');
   const addFormBtn = document.getElementById('btn-add-track');
   const trackAlbumSelect = document.getElementById('track-album-select');
