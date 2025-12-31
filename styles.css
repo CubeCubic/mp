@@ -1,6 +1,6 @@
 /* styles.css
    Полный файл стилей — Deep ocean variant с тонким бирюзовым кантом по нижнему краю шапки.
-   Добавлены улучшенные адаптивные стили для мобильных устройств.
+   Функциональность не изменялась — изменены только визуальные цвета и акценты.
 */
 /* Переменные палитры и визуальные переменные */
 :root{
@@ -274,7 +274,7 @@ header h1 a#brand-link {
   margin-top: 6px;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* единое расстояние между всеми элементами */
+  gap: 10px; /* единое расстояние */
 }
 /* Большие кнопки альбомов (scoped) */
 .album-list-vertical .album-list-button {
@@ -457,53 +457,6 @@ header h1 a#brand-link {
   fill: white;
 }
 
-/* === Блок подальбомов (единый gap с альбомами) === */
-.subalbum-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px; /* то же расстояние, что и между кнопками альбомов */
-}
-
-#subalbum-label {
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--accent-2);
-  margin: 0;
-}
-
-/* Сам <select> — полностью как кнопка альбома, но высота меньше на 15% */
-#subalbum-select {
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  color: #f2f9f8;
-  border: 1px solid rgba(15,179,166,0.06);
-  padding: 11.9px 16px; /* 14px * 0.85 ≈ 11.9px — на 15% меньше */
-  border-radius: calc(var(--card-radius) - 2px);
-  font-size: 16px;
-  font-weight: 700;
-  width: 100%;
-  box-sizing: border-box;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f2f9f8' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  padding-right: 40px;
-  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
-  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
-}
-
-#subalbum-select:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
-  color: #000;
-}
-
-#subalbum-select option {
-  background: #111;
-  color: #fff;
-  padding: 10px;
-}
-
 /* === АДАПТИВНЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ === */
 
 /* Планшеты (до 1024px) */
@@ -575,8 +528,7 @@ header h1 a#brand-link {
     padding: 12px;
   }
 
-  .album-list-vertical .album-list-button,
-  #subalbum-select {
+  .album-list-vertical .album-list-button {
     padding: 16px;
     font-size: 17px;
   }
@@ -607,7 +559,8 @@ header h1 a#brand-link {
     font-size: 14px;
   }
 
-  button, .album-list-button, .card, #subalbum-select {
+  /* Увеличиваем тач-зоны на мобильных */
+  button, .album-list-button, .card {
     min-height: 48px;
   }
 }
@@ -628,8 +581,7 @@ header h1 a#brand-link {
   #global-search {
     margin-bottom: 16px;
   }
-  .album-list-vertical .album-list-button,
-  #subalbum-select {
+  .album-list-vertical .album-list-button {
     padding: 18px 16px;
     font-size: 18px;
   }
@@ -713,4 +665,34 @@ header h1 a#brand-link {
 }
 #toast.visible {
   opacity: 1;
+}
+
+/* Сам <select> — выглядит как кнопка альбома */
+#subalbum-select {
+  background: rgba(255, 255, 0, 0.15);
+  color: #ffcc00;
+  border: 1px solid #ffcc00;
+  padding: 11.9px 16px; /* Уменьшено на 15% от 14px */
+  border-radius: 8px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23ffcc00' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+  transition: all 160ms ease;
+}
+
+#subalbum-select:hover {
+  background: #ffcc00;
+  color: #000;
+}
+
+#subalbum-select option {
+  background: #111;
+  color: #fff;
+  padding: 10px;
 }
