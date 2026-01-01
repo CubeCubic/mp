@@ -798,24 +798,26 @@ header h1 a#brand-link {
 }
 
 /* === Конец блока admin save button === */
+
+/* footer*/
 .site-footer {
-  position: fixed;       /* фиксируем футер */
-  bottom: 0;             /* прижимаем к низу экрана */
+  position: fixed;
+  bottom: 0;
   left: 0;
-  width: 100%;           /* на всю ширину */
-  background: #111;      /* тёмный фон в стиле сайта */
+  width: 100%;
+  background: #111; /* как фон сайта */
   border-top: 1px solid rgba(255,255,255,0.06);
-  text-align: center;    /* центрируем содержимое */
-  padding: 6px 12px;     /* минимальная высота */
+  text-align: center;
+  padding: 6px 12px;
   font-size: 13px;
   color: #aaa;
-  z-index: 1000;         /* поверх контента */
+  z-index: 1000;
 }
 
 .site-footer a {
   color: #ffcc00;
   text-decoration: none;
-  margin: 0 12px;        /* отступы между ссылками */
+  margin: 0 12px;
 }
 
 .site-footer a:hover {
@@ -823,6 +825,13 @@ header h1 a#brand-link {
 }
 
 .site-footer p {
-  margin: 0;             /* убираем лишние отступы */
-  display: inline;       /* всё в одну строку */
+  margin: 0;
+  display: inline-block;
 }
+
+.site-footer .icon {
+  vertical-align: middle;
+  margin: 0 4px;
+}
+
+
