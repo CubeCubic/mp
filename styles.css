@@ -77,8 +77,7 @@ header {
   right: 0;
   height: var(--header-height);
   padding: var(--header-padding-vertical) 16px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  /* display: grid; теперь сетка внутри .header-inner */
   align-items: center;
   gap: 12px;
   background: linear-gradient(180deg, rgba(11,43,69,0.86), rgba(15,47,74,0.78));
@@ -101,6 +100,19 @@ header::after {
   background: linear-gradient(90deg, rgba(15,179,166,1) 0%, rgba(43,183,164,0.95) 50%, rgba(11,43,69,0.0) 100%);
   pointer-events: none;
   box-shadow: 0 4px 12px rgba(15,179,166,0.12);
+}
+
+/* Header inner container: совпадает по ширине с контентом */
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 /* Header left block */
@@ -148,17 +160,23 @@ header h1 a#brand-link {
   line-height: inherit;
 }
 
-/* Header player */
+/* Header player (в шапке, но выровнен по ширине секции треков) */
 #header-player {
   grid-column: 2;
+  justify-self: center;
+  width: 100%;
+  max-width: 900px; /* совпадает с шириной секции карточек треков на больших экранах */
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 12px;
-  justify-content: center;
-  min-width: 320px;
-  max-width: 70%;
-  box-sizing: border-box;
+  padding: 6px 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.02);
 }
+
+/* Стили внутренних частей плеера (как были) */
 .header-player-cover {
   width: var(--header-player-cover-size);
   height: var(--header-player-cover-size);
@@ -336,8 +354,11 @@ header h1 a#brand-link {
 .tracks-section {
   flex: 1;
   min-width: 0;
-  /* Поднятие секции треков, чтобы верх совпадал с полем поиска */
   padding-top: 12px;
+  /* Ограничение ширины секции карточек треков для выравнивания с плеером */
+  max-width: 900px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 .tracks-header {
   margin-bottom: 0;
@@ -519,8 +540,8 @@ header h1 a#brand-link {
     grid-template-columns: repeat(2, 1fr);
   }
   #header-player {
-    max-width: 60%;
-    min-width: 280px;
+    max-width: calc(100% - 40px);
+    min-width: 0;
   }
 }
 
@@ -539,6 +560,11 @@ header h1 a#brand-link {
     gap: 8px;
   }
 
+  .header-inner {
+    grid-template-columns: auto 1fr;
+    padding: 0 12px;
+  }
+
   #header-left {
     gap: 8px;
   }
@@ -546,7 +572,10 @@ header h1 a#brand-link {
   #header-player {
     gap: 8px;
     min-width: 0;
-    max-width: 55%;
+    max-width: 100%;
+    padding: 8px;
+    flex-wrap: wrap;
+    justify-self: stretch;
   }
 
   .player-title {
@@ -612,12 +641,13 @@ header h1 a#brand-link {
 /* Responsive: up to 480px */
 @media (max-width: 480px) {
   header {
-    grid-template-columns: auto 1fr;
+    /* header-inner уже переключается на 2 колонки выше */
   }
   #header-player {
     grid-column: 1 / -1;
-    justify-content: flex-start;
+    justify-self: stretch;
     margin-top: 8px;
+    padding: 10px 12px;
   }
   .player-controls-header {
     margin-left: auto;
@@ -850,6 +880,8 @@ header h1 a#brand-link {
   .tracks-section {
     width: 100%;
     order: 1;
+    margin: 0;
+    padding: 0 12px 12px;
   }
   header h1 {
     font-size: 18px;
@@ -864,6 +896,8 @@ header h1 a#brand-link {
   }
   .tracks-section {
     width: 100%;
+    margin: 0;
+    padding: 0 12px;
   }
   header h1 {
     font-size: 20px;
@@ -888,6 +922,8 @@ header h1 a#brand-link {
   }
   .tracks-section {
     flex: 1 1 calc(100% - 320px);
+    max-width: 100%;
+    margin: 0;
   }
   header h1 {
     font-size: 22px;
@@ -911,6 +947,6 @@ header h1 a#brand-link {
     font-size: 26px;
   }
   #header-player {
-    justify-content: space-between;
+    justify-self: center;
   }
 }
