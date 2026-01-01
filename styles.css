@@ -799,18 +799,30 @@ header h1 a#brand-link {
 
 /* === Конец блока admin save button === */
 .site-footer {
-  text-align: center;
-  padding: 16px;
+  position: fixed;       /* фиксируем футер */
+  bottom: 0;             /* прижимаем к низу экрана */
+  left: 0;
+  width: 100%;           /* на всю ширину */
+  background: #111;      /* тёмный фон в стиле сайта */
+  border-top: 1px solid rgba(255,255,255,0.06);
+  text-align: center;    /* центрируем содержимое */
+  padding: 6px 12px;     /* минимальная высота */
   font-size: 13px;
   color: #aaa;
-  background: #111; /* гармонирует с тёмной темой */
-  border-top: 1px solid rgba(255,255,255,0.06);
+  z-index: 1000;         /* поверх контента */
 }
+
 .site-footer a {
   color: #ffcc00;
   text-decoration: none;
+  margin: 0 12px;        /* отступы между ссылками */
 }
+
 .site-footer a:hover {
   text-decoration: underline;
 }
 
+.site-footer p {
+  margin: 0;             /* убираем лишние отступы */
+  display: inline;       /* всё в одну строку */
+}
