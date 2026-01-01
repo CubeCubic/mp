@@ -838,3 +838,79 @@ header h1 a#brand-link {
 .site-footer .icon svg {
   fill: #4dd0e1; /* иконки тоже бирюзовые */
 }
+
+/* === Дополнительные медиа‑запросы === */
+
+/* Small phones: до 480px */
+@media (max-width: 480px) {
+  .albums-sidebar {
+    width: 100%;
+    order: 2;
+  }
+  .tracks-section {
+    width: 100%;
+    order: 1;
+  }
+  header h1 {
+    font-size: 18px;
+  }
+}
+
+/* Medium devices: телефоны в горизонтали и небольшие планшеты (481px–768px) */
+@media (max-width: 768px) {
+  .albums-sidebar {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  .tracks-section {
+    width: 100%;
+  }
+  header h1 {
+    font-size: 20px;
+  }
+  #header-player {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .player-controls-header button {
+    font-size: 14px;
+  }
+}
+
+/* Tablets: 769px–1024px */
+@media (max-width: 1024px) {
+  .site-wrapper {
+    padding: 0 12px;
+  }
+  .albums-sidebar {
+    flex: 1 1 100%;
+    max-width: 300px;
+  }
+  .tracks-section {
+    flex: 1 1 calc(100% - 320px);
+  }
+  header h1 {
+    font-size: 22px;
+  }
+  #global-search {
+    font-size: 14px;
+  }
+}
+
+/* Large monitors: от 1200px и выше */
+@media (min-width: 1200px) {
+  .site-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .tracks-section {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header h1 {
+    font-size: 26px;
+  }
+  #header-player {
+    justify-content: space-between;
+  }
+}
