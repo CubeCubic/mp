@@ -799,28 +799,30 @@ header h1 a#brand-link {
 
 /* === Конец блока admin save button === */
 
-/* footer*/
+/* === Deep Ocean Footer === */
 .site-footer {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  background: #111; /* как фон сайта */
-  border-top: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(90deg, #001f3f, #003366, #004466); /* глубокий океанский градиент */
+  border-top: 1px solid rgba(255,255,255,0.08);
   text-align: center;
   padding: 6px 12px;
   font-size: 13px;
-  color: #aaa;
+  color: #cce7ff; /* светлый океанский текст */
   z-index: 1000;
 }
 
 .site-footer a {
-  color: #ffcc00;
+  color: #4dd0e1; /* акцент — бирюзовый */
   text-decoration: none;
   margin: 0 12px;
+  font-weight: 500;
 }
 
 .site-footer a:hover {
+  color: #80deea; /* чуть светлее при наведении */
   text-decoration: underline;
 }
 
@@ -833,5 +835,6 @@ header h1 a#brand-link {
   vertical-align: middle;
   margin: 0 4px;
 }
-
-
+.site-footer .icon svg {
+  fill: #4dd0e1; /* иконки тоже бирюзовые */
+}
