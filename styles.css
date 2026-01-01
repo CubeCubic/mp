@@ -150,25 +150,15 @@ header h1 a#brand-link {
 
 /* Header player */
 #header-player {
-  position: absolute;
-  bottom: -80px;               /* оставляем текущее вертикальное выталкивание */
-  left: 50%;                   /* центрируем по горизонтали базово */
-  transform: translateX(calc(-50% + 120px)); /* сдвиг вправо на 120px */
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 10px 16px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.02);
-  box-shadow: 0 12px 36px rgba(2,8,14,0.18);
-  box-sizing: border-box;
+  grid-column: 2;
   display: flex;
   align-items: center;
   gap: 12px;
-  z-index: 1002;
+  justify-content: center;
+  min-width: 320px;
+  max-width: 70%;
+  box-sizing: border-box;
 }
-
 .header-player-cover {
   width: var(--header-player-cover-size);
   height: var(--header-player-cover-size);
@@ -905,18 +895,6 @@ header h1 a#brand-link {
   #global-search {
     font-size: 14px;
   }
-
-  /* На планшетах уменьшаем смещение плеера, чтобы он не вылезал за границы */
-  #header-player {
-    /* если плеер позиционируется абсолютом в header — сохраняем left/transform */
-    left: 50%;
-    transform: translateX(calc(-50% + 24px)); /* смещение вправо на 24px */
-    max-width: calc(100% - 32px);
-    padding: 8px 12px;
-    bottom: -72px;
-    flex-wrap: wrap;
-    box-sizing: border-box;
-  }
 }
 
 /* Large monitors: от 1200px и выше */
@@ -932,30 +910,7 @@ header h1 a#brand-link {
   header h1 {
     font-size: 26px;
   }
-
-  /* На больших экранах сдвигаем плеер вправо относительно центра */
   #header-player {
-    left: 50%;
-    transform: translateX(calc(-50% + 120px)); /* смещение вправо на 120px */
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 10px 16px;
-    bottom: -80px;
-    box-sizing: border-box;
-    z-index: 1002;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-}
-
-/* Узкие экраны: сбрасываем смещение, чтобы плеер был по центру */
-@media (max-width: 480px) {
-  #header-player {
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 100%;
-    bottom: -64px;
-    padding: 10px 12px;
+    justify-content: space-between;
   }
 }
