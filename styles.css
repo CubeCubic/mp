@@ -319,6 +319,40 @@ header h1 a#brand-link {
   gap: 12px;
   box-shadow: 0 10px 28px rgba(2,8,14,0.18);
 }
+  .player-info-header {
+    width: 100%;
+  }
+  .player-controls-header {
+    margin-left: auto;
+  }
+}
+
+/* Album list vertical */
+.album-list-vertical {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.album-list-vertical .album-list-button {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #f2f9f8;
+  border: 1px solid rgba(15,179,166,0.06);
+  padding: 14px 16px;
+  border-radius: calc(var(--card-radius) - 2px);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
+}
 .album-list-vertical .album-list-button:hover {
   transform: translateY(-6px);
   box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
@@ -481,7 +515,6 @@ header h1 a#brand-link {
   height: 18px;
   fill: white;
 }
-
 /* Subalbum container and select */
 .subalbum-container {
   display: flex;
@@ -641,13 +674,12 @@ header h1 a#brand-link {
 /* Responsive: up to 480px */
 @media (max-width: 480px) {
   header {
-    /* header-inner уже переключается на 2 колонки выше */
+    grid-template-columns: auto 1fr;
   }
   #header-player {
     grid-column: 1 / -1;
-    justify-self: stretch;
+    justify-content: flex-start;
     margin-top: 8px;
-    padding: 10px 12px;
   }
   .player-controls-header {
     margin-left: auto;
@@ -692,7 +724,6 @@ header h1 a#brand-link {
   font-size: 14px;
   white-space: nowrap;
 }
-
 /* Modals */
 #lyrics-modal.hidden {
   display: none !important;
@@ -743,6 +774,7 @@ header h1 a#brand-link {
 #toast.visible {
   opacity: 1;
 }
+
 /* === ADMIN: Save button override (вставить в конец styles.css) === */
 /* Вставьте этот блок в конец styles.css, после всех существующих правил */
 
