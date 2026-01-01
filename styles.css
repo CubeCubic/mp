@@ -150,15 +150,25 @@ header h1 a#brand-link {
 
 /* Header player */
 #header-player {
-  grid-column: 2;
+  position: absolute;
+  bottom: -80px;               /* оставляем текущее вертикальное выталкивание */
+  left: 50%;                   /* центрируем по горизонтали базово */
+  transform: translateX(calc(-50% + 120px)); /* сдвиг вправо на 120px */
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.02);
+  box-shadow: 0 12px 36px rgba(2,8,14,0.18);
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 12px;
-  justify-content: center;
-  min-width: 320px;
-  max-width: 70%;
-  box-sizing: border-box;
+  z-index: 1002;
 }
+
 .header-player-cover {
   width: var(--header-player-cover-size);
   height: var(--header-player-cover-size);
@@ -914,3 +924,4 @@ header h1 a#brand-link {
     justify-content: space-between;
   }
 }
+
