@@ -905,6 +905,18 @@ header h1 a#brand-link {
   #global-search {
     font-size: 14px;
   }
+
+  /* На планшетах уменьшаем смещение плеера, чтобы он не вылезал за границы */
+  #header-player {
+    /* если плеер позиционируется абсолютом в header — сохраняем left/transform */
+    left: 50%;
+    transform: translateX(calc(-50% + 24px)); /* смещение вправо на 24px */
+    max-width: calc(100% - 32px);
+    padding: 8px 12px;
+    bottom: -72px;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+  }
 }
 
 /* Large monitors: от 1200px и выше */
@@ -920,8 +932,30 @@ header h1 a#brand-link {
   header h1 {
     font-size: 26px;
   }
+
+  /* На больших экранах сдвигаем плеер вправо относительно центра */
   #header-player {
-    justify-content: space-between;
+    left: 50%;
+    transform: translateX(calc(-50% + 120px)); /* смещение вправо на 120px */
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 16px;
+    bottom: -80px;
+    box-sizing: border-box;
+    z-index: 1002;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 }
 
+/* Узкие экраны: сбрасываем смещение, чтобы плеер был по центру */
+@media (max-width: 480px) {
+  #header-player {
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 100%;
+    bottom: -64px;
+    padding: 10px 12px;
+  }
+}
