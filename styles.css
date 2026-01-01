@@ -77,7 +77,8 @@ header {
   right: 0;
   height: var(--header-height);
   padding: var(--header-padding-vertical) 16px;
-  /* display: grid; теперь сетка внутри .header-inner */
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 12px;
   background: linear-gradient(180deg, rgba(11,43,69,0.86), rgba(15,47,74,0.78));
@@ -100,19 +101,6 @@ header::after {
   background: linear-gradient(90deg, rgba(15,179,166,1) 0%, rgba(43,183,164,0.95) 50%, rgba(11,43,69,0.0) 100%);
   pointer-events: none;
   box-shadow: 0 4px 12px rgba(15,179,166,0.12);
-}
-
-/* Header inner container: совпадает по ширине с контентом */
-.header-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 12px;
-  height: 100%;
-  box-sizing: border-box;
 }
 
 /* Header left block */
@@ -160,23 +148,17 @@ header h1 a#brand-link {
   line-height: inherit;
 }
 
-/* Header player (в шапке, но выровнен по ширине секции треков) */
+/* Header player */
 #header-player {
   grid-column: 2;
-  justify-self: center;
-  width: 100%;
-  max-width: 900px; /* совпадает с шириной секции карточек треков на больших экранах */
-  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 12px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.02);
+  justify-content: center;
+  min-width: 320px;
+  max-width: 70%;
+  box-sizing: border-box;
 }
-
-/* Стили внутренних частей плеера (как были) */
 .header-player-cover {
   width: var(--header-player-cover-size);
   height: var(--header-player-cover-size);
@@ -319,40 +301,6 @@ header h1 a#brand-link {
   gap: 12px;
   box-shadow: 0 10px 28px rgba(2,8,14,0.18);
 }
-  .player-info-header {
-    width: 100%;
-  }
-  .player-controls-header {
-    margin-left: auto;
-  }
-}
-
-/* Album list vertical */
-.album-list-vertical {
-  margin-top: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.album-list-vertical .album-list-button {
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  color: #f2f9f8;
-  border: 1px solid rgba(15,179,166,0.06);
-  padding: 14px 16px;
-  border-radius: calc(var(--card-radius) - 2px);
-  font-size: 16px;
-  font-weight: 700;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
-}
 .album-list-vertical .album-list-button:hover {
   transform: translateY(-6px);
   box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
@@ -388,11 +336,8 @@ header h1 a#brand-link {
 .tracks-section {
   flex: 1;
   min-width: 0;
+  /* Поднятие секции треков, чтобы верх совпадал с полем поиска */
   padding-top: 12px;
-  /* Ограничение ширины секции карточек треков для выравнивания с плеером */
-  max-width: 900px;
-  margin: 0 auto;
-  box-sizing: border-box;
 }
 .tracks-header {
   margin-bottom: 0;
@@ -515,6 +460,7 @@ header h1 a#brand-link {
   height: 18px;
   fill: white;
 }
+
 /* Subalbum container and select */
 .subalbum-container {
   display: flex;
@@ -573,8 +519,8 @@ header h1 a#brand-link {
     grid-template-columns: repeat(2, 1fr);
   }
   #header-player {
-    max-width: calc(100% - 40px);
-    min-width: 0;
+    max-width: 60%;
+    min-width: 280px;
   }
 }
 
@@ -593,11 +539,6 @@ header h1 a#brand-link {
     gap: 8px;
   }
 
-  .header-inner {
-    grid-template-columns: auto 1fr;
-    padding: 0 12px;
-  }
-
   #header-left {
     gap: 8px;
   }
@@ -605,10 +546,7 @@ header h1 a#brand-link {
   #header-player {
     gap: 8px;
     min-width: 0;
-    max-width: 100%;
-    padding: 8px;
-    flex-wrap: wrap;
-    justify-self: stretch;
+    max-width: 55%;
   }
 
   .player-title {
@@ -724,6 +662,7 @@ header h1 a#brand-link {
   font-size: 14px;
   white-space: nowrap;
 }
+
 /* Modals */
 #lyrics-modal.hidden {
   display: none !important;
@@ -774,7 +713,6 @@ header h1 a#brand-link {
 #toast.visible {
   opacity: 1;
 }
-
 /* === ADMIN: Save button override (вставить в конец styles.css) === */
 /* Вставьте этот блок в конец styles.css, после всех существующих правил */
 
@@ -912,8 +850,6 @@ header h1 a#brand-link {
   .tracks-section {
     width: 100%;
     order: 1;
-    margin: 0;
-    padding: 0 12px 12px;
   }
   header h1 {
     font-size: 18px;
@@ -928,8 +864,6 @@ header h1 a#brand-link {
   }
   .tracks-section {
     width: 100%;
-    margin: 0;
-    padding: 0 12px;
   }
   header h1 {
     font-size: 20px;
@@ -954,8 +888,6 @@ header h1 a#brand-link {
   }
   .tracks-section {
     flex: 1 1 calc(100% - 320px);
-    max-width: 100%;
-    margin: 0;
   }
   header h1 {
     font-size: 22px;
@@ -979,6 +911,6 @@ header h1 a#brand-link {
     font-size: 26px;
   }
   #header-player {
-    justify-self: center;
+    justify-content: space-between;
   }
 }
