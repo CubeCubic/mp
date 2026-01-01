@@ -20,7 +20,7 @@
         </h1>
       </div>
 
-      <!-- Плеер: остаётся в DOM шапки, JS позиционирует его фиксированно над секцией треков -->
+      <!-- Плеер -->
       <div id="header-player" aria-label="Header player">
         <div id="player-cover" class="header-player-cover" aria-hidden="false">
           <img id="player-cover-img" src="images/midcube.png" alt="Cover">
@@ -56,7 +56,6 @@
         <div class="controls">
           <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
 
-          <!-- album header: label и кнопка Refresh в одну строку -->
           <div class="album-header">
             <label for="album-select">ალბომები</label>
             <button id="refresh-btn" type="button">Refresh</button>
@@ -70,14 +69,11 @@
           </select>
         </div>
 
-        <!-- Сайдбар-плеер скрыт, т.к. плеер теперь в шапке -->
         <div id="player-sidebar" class="player-sidebar" style="display:none;" aria-hidden="true"></div>
       </aside>
 
       <section class="tracks-section">
-        <!-- Heading intentionally removed to match your request -->
         <div class="tracks-header" aria-hidden="true"></div>
-
         <div id="tracks" class="tracks-list-grid"></div>
       </section>
     </main>
@@ -94,6 +90,13 @@
   </div>
 
   <div id="toast" class="hidden" role="status" aria-live="polite"></div>
+
+  <!-- Контакты -->
+  <footer class="site-footer">
+    <p>📧 <a href="mailto:youremail@example.com">youremail@example.com</a></p>
+    <p>📞 <a href="tel:+995123456789">+995 123 456 789</a></p>
+    <p>🌐 <a href="https://linkedin.com/in/yourprofile" target="_blank">LinkedIn</a></p>
+  </footer>
 
   <script src="app.js"></script>
 </body>
