@@ -914,3 +914,21 @@ header h1 a#brand-link {
     justify-content: space-between;
   }
 }
+
+/* === HEADER PLAYER OFFSET CONTROL === */
+:root {
+  --player-offset-x: 20mm; /* Измени это значение, например 10mm или 25px */
+}
+
+#header-player {
+  position: relative;
+  left: var(--player-offset-x);
+  transition: left 0.3s ease;
+}
+
+/* Для мобильных устройств — смещение отключаем */
+@media (max-width: 768px) {
+  #header-player {
+    left: 0;
+  }
+}
