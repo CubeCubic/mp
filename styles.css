@@ -741,8 +741,9 @@ header h1 a#brand-link {
 #toast.visible {
   opacity: 1;
 }
+/* === ADMIN: Save button override (вставить в конец styles.css) === */
+/* Вставьте этот блок в конец styles.css, после всех существующих правил */
 
-/* Admin save button overrides */
 #btn-save-all.save-btn {
   display: inline-block;
   transform-origin: left center;
@@ -945,11 +946,16 @@ header h1 a#brand-link {
     max-width: 900px;
     margin: 0 auto;
     padding: 10px 16px;
-    bottom: -80px;
+    /* bottom removed to keep player inside header */
     box-sizing: border-box;
     z-index: 1002;
     display: flex;
     align-items: center;
     gap: 12px;
   }
+}
+
+/* Accessibility helpers */
+.hidden {
+  display: none !important;
 }
