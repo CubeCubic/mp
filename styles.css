@@ -953,22 +953,3 @@ header h1 a#brand-link {
     gap: 12px;
   }
 }
-/* HEADER PLAYER OFFSET CONTROL (fallback) */
-:root {
-  --player-offset-x: 0px;
-}
-#header-player {
-  …
-}
-@media (max-width: 768px) {
-  #header-player {
-    left: 0;
-    transform: none;
-  }
-}
-
-/* Accessibility helpers */
-.hidden {
-  display: none !important;
-}
-
