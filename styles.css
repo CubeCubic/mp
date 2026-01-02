@@ -460,7 +460,6 @@ header h1 a#brand-link {
   height: 18px;
   fill: white;
 }
-
 /* Subalbum container and select */
 .subalbum-container {
   display: flex;
@@ -662,7 +661,6 @@ header h1 a#brand-link {
   font-size: 14px;
   white-space: nowrap;
 }
-
 /* Modals: improved rules to ensure modal overlay sits above header and cover is positioned inside modal */
 #lyrics-modal.hidden {
   display: none !important;
@@ -826,7 +824,6 @@ header h1 a#brand-link {
 }
 
 /* === Конец блока admin save button === */
-
 /* === Deep Ocean Footer === */
 .site-footer {
   position: fixed;
