@@ -943,8 +943,10 @@ header h1 a#brand-link {
     left: 50%;                     /* центр по горизонтали */
     top: 50%;                      /* центр по вертикали */
     transform: translate(-50%, -50%); /* центрирование по обеим осям */
-    max-width: 900px;
-    width: auto;
+/* вместо width: auto; */
+   width: 308px;
+   max-width: 308px;
+   min-width: 280px; /* опционально */
     margin: 0;
     padding: 10px 16px;
     box-sizing: border-box;
@@ -967,4 +969,5 @@ header h1 a#brand-link {
 .hidden {
   display: none !important;
 }
+
 
