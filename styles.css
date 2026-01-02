@@ -663,7 +663,7 @@ header h1 a#brand-link {
   white-space: nowrap;
 }
 
-/* Modals */
+/* Modals: improved rules to ensure modal overlay sits above header and cover is positioned inside modal */
 #lyrics-modal.hidden {
   display: none !important;
 }
@@ -674,17 +674,22 @@ header h1 a#brand-link {
   align-items: center;
   justify-content: center;
   background: rgba(0,0,0,0.36);
-  z-index: 2000;
+  z-index: 4000; /* выше header и всех элементов интерфейса */
+  pointer-events: auto;
 }
+
+/* Modal box: positioned container for absolute children (cover) */
 .modal-box {
-  background: white;
+  position: relative;
+  background: #ffffff;
   color: #000;
-  padding: 16px;
-  border-radius: 6px;
-  max-width: 420px;
+  padding: 18px;
+  border-radius: 8px;
+  max-width: 720px;
   width: 92%;
-  max-height: 70vh;
-  overflow-y: auto;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
 }
 .modal-box h3 {
   margin-top: 0;
@@ -693,6 +698,29 @@ header h1 a#brand-link {
 .modal-box pre {
   white-space: pre-wrap;
   font-size: 13px;
+  margin-bottom: 0;
+}
+
+/* Маленькая обложка трека в модальном окне */
+.modal-cover {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 72px;
+  height: 72px;
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 10;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+  background: #eee; /* placeholder пока картинка не загрузится */
+  flex: 0 0 auto;
+}
+.modal-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  visibility: visible;
 }
 
 /* Toast */
@@ -713,9 +741,8 @@ header h1 a#brand-link {
 #toast.visible {
   opacity: 1;
 }
-/* === ADMIN: Save button override (вставить в конец styles.css) === */
-/* Вставьте этот блок в конец styles.css, после всех существующих правил */
 
+/* Admin save button overrides */
 #btn-save-all.save-btn {
   display: inline-block;
   transform-origin: left center;
@@ -910,18 +937,29 @@ header h1 a#brand-link {
   header h1 {
     font-size: 26px;
   }
+  /* На больших экранах можно аккуратно сдвинуть плеер вправо относительно центра */
   #header-player {
-    justify-content: space-between;
+    left: 50%;
+    transform: translateX(calc(-50% + 120px));
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 16px;
+    bottom: -80px;
+    box-sizing: border-box;
+    z-index: 1002;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 }
 
-/* === HEADER PLAYER OFFSET CONTROL === */
+/* HEADER PLAYER OFFSET CONTROL (fallback) */
 :root {
-  --player-offset-x: 53mm; /* Измени это значение, например 10mm или 25px */
+  --player-offset-x: 0px;
 }
-
 #header-player {
-  position: relative;
+  /* keep default layout; if you need a manual offset, change --player-offset-x */
   left: var(--player-offset-x);
   transition: left 0.3s ease;
 }
@@ -930,31 +968,11 @@ header h1 a#brand-link {
 @media (max-width: 768px) {
   #header-player {
     left: 0;
+    transform: none;
   }
 }
-/* маленькая обложка трека в модальном окне */
-.modal-box {
-  position: relative;
+
+/* Accessibility helpers */
+.hidden {
+  display: none !important;
 }
-
-.modal-cover {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 64px;
-  height: 64px;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-}
-
-.modal-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-
-
-
-
