@@ -156,7 +156,7 @@ header h1 a#brand-link {
   gap: 12px;
   justify-content: center;
   min-width: 320px;
-  max-width: 70%;
+  max-width: 1000%;
   box-sizing: border-box;
 }
 .header-player-cover {
@@ -969,5 +969,6 @@ header h1 a#brand-link {
 .hidden {
   display: none !important;
 }
+
 
 
