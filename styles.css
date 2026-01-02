@@ -932,6 +932,28 @@ header h1 a#brand-link {
     left: 0;
   }
 }
+/* маленькая обложка трека в модальном окне */
+.modal-box {
+  position: relative;
+}
+
+.modal-cover {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+.modal-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 
 
 
