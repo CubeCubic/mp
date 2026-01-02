@@ -940,10 +940,11 @@ header h1 a#brand-link {
      горизонтальное смещение сохраняется, вертикально центрируется */
   #header-player {
     position: absolute;            /* внутри header */
-    left: calc(50% + 120px);       /* смещение вправо относительно центра */
-    top: 50%;                      /* центр по вертикали шапки */
-    transform: translateY(-50%);   /* вертикальное выравнивание */
+    left: 50%;                     /* центр по горизонтали */
+    top: 50%;                      /* центр по вертикали */
+    transform: translate(-50%, -50%); /* центрирование по обеим осям */
     max-width: 900px;
+    width: auto;
     margin: 0;
     padding: 10px 16px;
     box-sizing: border-box;
@@ -966,3 +967,4 @@ header h1 a#brand-link {
 .hidden {
   display: none !important;
 }
+
