@@ -935,20 +935,30 @@ header h1 a#brand-link {
   header h1 {
     font-size: 26px;
   }
-  /* На больших экранах можно аккуратно сдвинуть плеер вправо относительно центра */
+
+  /* Плеер: абсолютное позиционирование внутри header,
+     горизонтальное смещение сохраняется, вертикально центрируется */
   #header-player {
-    left: 50%;
-    transform: translateX(calc(-50% + 120px));
-    position: relative;
+    position: absolute;            /* внутри header */
+    left: calc(50% + 120px);       /* смещение вправо относительно центра */
+    top: 50%;                      /* центр по вертикали шапки */
+    transform: translateY(-50%);   /* вертикальное выравнивание */
     max-width: 900px;
-    margin: 0 auto;
+    margin: 0;
     padding: 10px 16px;
-    /* bottom removed to keep player inside header */
     box-sizing: border-box;
     z-index: 1002;
     display: flex;
     align-items: center;
     gap: 12px;
+    justify-content: center;
+  }
+
+  /* Убедимся, что header позволяет абсолютным детям позиционироваться */
+  header {
+    position: fixed;               /* уже есть, но дублируем для надёжности */
+    overflow: visible;             /* чтобы плеер не обрезался */
+    height: var(--header-height);  /* фиксированная высота шапки */
   }
 }
 
