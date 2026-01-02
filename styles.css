@@ -953,18 +953,13 @@ header h1 a#brand-link {
     gap: 12px;
   }
 }
-
 /* HEADER PLAYER OFFSET CONTROL (fallback) */
 :root {
   --player-offset-x: 0px;
 }
 #header-player {
-  /* keep default layout; if you need a manual offset, change --player-offset-x */
-  left: var(--player-offset-x);
-  transition: left 0.3s ease;
+  …
 }
-
-/* Для мобильных устройств — смещение отключаем */
 @media (max-width: 768px) {
   #header-player {
     left: 0;
@@ -976,3 +971,4 @@ header h1 a#brand-link {
 .hidden {
   display: none !important;
 }
+
