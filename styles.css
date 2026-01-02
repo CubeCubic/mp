@@ -917,7 +917,7 @@ header h1 a#brand-link {
 
 /* === HEADER PLAYER OFFSET CONTROL === */
 :root {
-  --player-offset-x: 20mm; /* Измени это значение, например 10mm или 25px */
+  --player-offset-x: 30mm; /* Измени это значение, например 10mm или 25px */
 }
 
 #header-player {
@@ -932,3 +932,4 @@ header h1 a#brand-link {
     left: 0;
   }
 }
+
