@@ -46,6 +46,23 @@
     const s = Math.floor(sec % 60);
     return `${m}:${s.toString().padStart(2, '0')}`;
   }
+// === Модальное окно с текстом и обложкой ===
+function openLyricsModal(track) {
+  const modal = document.getElementById('lyrics-modal');
+  const modalTitle = document.getElementById('modal-title');
+  const modalLyrics = document.getElementById('modal-lyrics');
+  const modalCoverImg = document.getElementById('modal-cover-img');
+
+  modalTitle.textContent = track.title;
+  modalLyrics.textContent = track.lyrics;
+  modalCoverImg.src = track.coverSrc; // путь к обложке трека
+
+  modal.classList.remove('hidden');
+}
+
+document.getElementById('modal-close').addEventListener('click', () => {
+  document.getElementById('lyrics-modal').classList.add('hidden');
+});
 
   function getStreamUrl(t) {
     if (!t) return null;
@@ -548,4 +565,5 @@
     if (audio && volumeSidebar) audio.volume = parseFloat(volumeSidebar.value || 1);
     updateSidebarPlayer(null);
   });
+
 })();
