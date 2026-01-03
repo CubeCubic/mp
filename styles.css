@@ -764,3 +764,102 @@ header h1 a#brand-link {
 .hidden {
   display: none !important;
 }
+
+/* Mobile and small tablet tweaks up to 768px */
+@media (max-width: 768px) {
+  /* Переменные для мобильных размеров */
+  :root {
+    --header-height-mobile: 56px;       /* высота шапки для <=768px */
+    --header-padding-vertical-mobile: 8px;
+  }
+
+  /* Уменьшаем высоту шапки и делаем её адаптивной */
+  header {
+    height: var(--header-height-mobile) !important;
+    padding: var(--header-padding-vertical-mobile) 12px !important;
+    align-items: center;
+    box-sizing: border-box;
+    z-index: 1100; /* чтобы шапка всегда над контентом */
+  }
+
+  /* Подстраиваем основной отступ, чтобы контент не прятался под шапкой */
+  .site-wrapper {
+    padding-top: calc(var(--header-height-mobile) + 8px) !important;
+  }
+
+  /* Ограничиваем высоту прямых детей header, чтобы они не растягивали шапку */
+  header > * {
+    max-height: calc(var(--header-height-mobile) - 6px);
+    overflow: visible;
+  }
+
+  /* Плеер остаётся внутри header, центрируется и не выталкивает шапку вниз */
+  #header-player {
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 6px 0 0 0 !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  /* Уменьшаем размеры элементов плеера, чтобы поместился в уменьшенную шапку */
+  .header-player-cover {
+    width: calc(var(--header-player-cover-size) * 0.9);
+    height: calc(var(--header-player-cover-size) * 0.9);
+  }
+  .player-controls-header button {
+    width: 34px;
+    height: 34px;
+  }
+  .player-info-header {
+    max-width: 180px;
+  }
+
+  /* Центрируем заголовок и уменьшаем шрифт */
+  header h1 {
+    font-size: 18px;
+    line-height: 1;
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Скрываем текст Admin и фиксируем его в правом верхнем углу шапки.
+     Подставь реальный селектор, если у тебя другой класс/ID. */
+  header .admin,
+  header #admin,
+  header .admin-label,
+  header .admin-text,
+  header .user-admin {
+    position: absolute !important;
+    top: 6px !important;
+    right: 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: 1200 !important;
+    transform: none !important;
+  }
+
+  /* Если нужно полностью убрать из потока (не влияет на доступность) — раскомментируй:
+  header .admin, header #admin, header .admin-label, header .admin-text, header .user-admin {
+    display: none !important;
+  }
+  */
+
+  /* Мелкие подстройки для сетки и карточек на небольших экранах */
+  #tracks.tracks-list-grid {
+    gap: 14px;
+  }
+  .tracks-list-grid .track-cover {
+    height: 180px;
+  }
+}
