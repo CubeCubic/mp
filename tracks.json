@@ -343,6 +343,15 @@
       "albumId": "1767343222772",
       "audioUrl": "https://archive.org/download/girl-from-my-street/Girl%20From%20My%20Street.wav",
       "coverUrl": "https://archive.org/download/girl-from-my-street/Girl.png"
+    },
+    {
+      "id": "1767455555402",
+      "title": "The Fortress of Love",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767343222772",
+      "audioUrl": "https://archive.org/download/girl-from-my-street/The%20Fortress%20of%20Love.wav",
+      "coverUrl": ""
     }
   ]
 }
