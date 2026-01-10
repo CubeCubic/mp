@@ -1039,4 +1039,65 @@ header h1 a#brand-link {
 .hidden {
   display: none !important;
 }
+/* --- Force header player to sit visually inside the header on all viewports --- */
+header #header-player {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: min(920px, 82%) !important;      /* ограничиваем ширину плеера */
+  max-width: calc(100% - 140px) !important; /* резерв для левого логотипа и правой ссылки */
+  box-sizing: border-box !important;
+  z-index: 1003 !important;               /* чуть выше header::after */
+  pointer-events: auto !important;
+  margin: 0 !important;
+  gap: 10px !important;
+}
+
+/* Уменьшаем размеры внутренних элементов, если нужно (не меняет структуру) */
+header #header-player .player-info-header { max-width: 36% !important; min-width: 0 !important; }
+header #header-player .player-title { max-width: 100% !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+header #header-player .player-artist { max-width: 100% !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Responsive tweaks */
+@media (max-width: 1024px) {
+  header #header-player {
+    width: min(760px, 84%) !important;
+    max-width: calc(100% - 110px) !important;
+  }
+  header #header-player .player-info-header { max-width: 40% !important; }
+}
+
+@media (max-width: 768px) {
+  header #header-player {
+    width: calc(100% - 28px) !important; /* почти во всю ширину, с отступом по краям */
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    max-width: none !important;
+    padding: 0 8px !important;
+    gap: 8px !important;
+  }
+  header #header-player .player-info-header { max-width: 52% !important; }
+  header #header-player .player-title { font-size: 13px !important; }
+  header #header-player .player-artist { font-size: 12px !important; }
+}
+
+@media (max-width: 480px) {
+  /* На очень маленьких экранах растянем плеер по ширине шапки, сохраняя читаемость */
+  header #header-player {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: calc(100% - 24px) !important;
+    padding: 0 6px !important;
+    gap: 6px !important;
+  }
+  header #header-player .player-info-header { display: none !important; } /* скрываем текстовую часть для плотных мобильных шапок */
+  header #header-player .header-player-cover { margin-right: 6px !important; }
+  header h1 { padding-right: 10px; } /* небольшая компенсация, не меняет семантику */
+}
 
