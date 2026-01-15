@@ -120,7 +120,14 @@
     </p>
   </footer>
 
+  <!-- Подключение основного JS -->
   <script src="app.js"></script>
+
+  <!-- Скрипт для кнопки "Наверх" -->
+  <script>
+    document.getElementById('back-to-top').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
 </body>
 </html>
-
