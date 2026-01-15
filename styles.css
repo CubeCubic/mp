@@ -1032,3 +1032,9 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
   header #header-player .header-player-cover { margin-right: 6px !important; }
   header h1 { padding-right: 10px; }
 }
+/* === Extra scroll space to avoid footer overlap === */
+.site-wrapper,
+.tracks-section {
+  padding-bottom: 80px; /* запас под фиксированный футер */
+}
+
