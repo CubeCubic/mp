@@ -1037,4 +1037,27 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
 .tracks-section {
   padding-bottom: 80px; /* запас под фиксированный футер */
 }
+/* Back-to-top button */
+.back-to-top-wrapper {
+  text-align: center;
+  margin: 20px 0; /* отступ сверху и снизу */
+}
+
+#back-to-top {
+  background: var(--accent-color);
+  color: #000;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  transition: transform 140ms ease, filter 140ms ease;
+}
+
+#back-to-top:hover {
+  transform: translateY(-3px);
+  filter: brightness(0.95);
+}
+
 
