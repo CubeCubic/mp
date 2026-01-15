@@ -1100,24 +1100,3 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
   header #header-player .header-player-cover { margin-right: 6px !important; }
   header h1 { padding-right: 10px; } /* небольшая компенсация, не меняет семантику */
 }
-/* === Fix: make only the save-all button shrink to its text and be centered === */
-
-/* Убедиться, что обёртка центрирует содержимое */
-.save-btn-wrapper {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  width: 100% !important;
-}
-
-/* Переопределение для конкретной кнопки — важнее любых общих правил */
-.save-btn-wrapper #btn-save-all {
-  display: inline-block !important;
-  width: auto !important;
-  max-width: none !important;
-  box-sizing: border-box !important;
-  padding-left: 10px !important;
-  padding-right: 10px !important;
-}
-
-
