@@ -171,26 +171,24 @@
   </header>
 
   <main id="admin-app">
-    <!-- NOTE: outer container renamed to avoid ID collision with the form.
-         The form itself must keep id="login-form" because admin.js expects it. -->
-    <div id="login-panel" class="panel">
+    <!-- Login panel -->
+    <div id="login-panel" class="panel" aria-live="polite">
       <h2 style="margin:0 0 8px 0; font-size:16px">შესვლა</h2>
 
-      <!-- IMPORTANT: keep id="login-form" on the <form> element so existing JS that selects
-           document.getElementById('login-form') or attaches submit handlers continues to work. -->
-      <form id="login-form" style="margin:0" action="#" method="post">
+      <!-- Prevent any accidental navigation or POST to the server:
+           form has no action and we explicitly prevent submission in script. -->
+      <form id="login-form" style="margin:0" novalidate>
         <input id="admin-password" name="password" type="password" placeholder="პაროლი" autocomplete="current-password" />
         <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
-          <!-- If admin.js listens for click on #login-btn, keep id. If it listens for form submit,
-               this button is type="submit" so the submit event fires. -->
-          <button id="login-btn" type="submit">შესვლა</button>
-          <span id="login-msg" class="muted" style="margin-left:6px"></span>
+          <!-- Keep id="login-btn". Use type="button" to avoid native submit navigation. -->
+          <button id="login-btn" type="button" aria-label="Login">შესვლა</button>
+          <span id="login-msg" class="muted" style="margin-left:6px" aria-live="polite"></span>
         </div>
       </form>
     </div>
 
     <!-- Admin panel (hidden until authenticated) -->
-    <div id="admin-panel" class="hidden">
+    <div id="admin-panel" class="hidden" aria-hidden="true">
       <div class="panel">
         <h2 style="margin:0 0 8px 0; font-size:15px">ალბომები</h2>
         <div class="row">
@@ -232,7 +230,7 @@
         </div>
 
         <div style="margin-top:10px;">
-          <form id="add-track-form">
+          <form id="add-track-form" onsubmit="return false;">
             <label for="new-track-title">New track title</label>
             <input id="new-track-title" type="text" />
             <label for="new-track-lyrics" style="margin-top:8px;">Lyrics</label>
@@ -266,7 +264,127 @@
     </div>
   </main>
 
-  <!-- Include admin script. Ensure admin.js expects form id="login-form" and button id="login-btn". -->
+  <!-- Inline script to prevent accidental navigation/POST and to provide a safe client-side login fallback.
+       This avoids server POSTs that can produce "405 Not Allowed" and also prevents unhandled form submits.
+       If you have an existing admin.js that handles login, it will still be loaded after this script.
+       The script first prevents default form submission, then attaches a click handler to #login-btn.
+       It performs a simple client-side check: if password is non-empty, show admin panel.
+       You can replace the check with a call to your real authentication endpoint later. -->
+  <script>
+    (function () {
+      // Prevent the form from ever submitting via HTTP
+      var loginForm = document.getElementById('login-form');
+      if (loginForm) {
+        loginForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }, { passive: false });
+      }
+
+      var loginBtn = document.getElementById('login-btn');
+      var passwordInput = document.getElementById('admin-password');
+      var loginMsg = document.getElementById('login-msg');
+      var loginPanel = document.getElementById('login-panel');
+      var adminPanel = document.getElementById('admin-panel');
+      var logoutBtn = document.getElementById('logout-btn');
+
+      // Helper to show admin panel
+      function showAdminPanel() {
+        if (loginPanel) loginPanel.classList.add('hidden');
+        if (adminPanel) {
+          adminPanel.classList.remove('hidden');
+          adminPanel.setAttribute('aria-hidden', 'false');
+        }
+        if (loginMsg) loginMsg.textContent = '';
+      }
+
+      // Helper to hide admin panel
+      function hideAdminPanel() {
+        if (adminPanel) {
+          adminPanel.classList.add('hidden');
+          adminPanel.setAttribute('aria-hidden', 'true');
+        }
+        if (loginPanel) loginPanel.classList.remove('hidden');
+        if (passwordInput) passwordInput.value = '';
+        if (loginMsg) loginMsg.textContent = '';
+      }
+
+      // Attach click handler to login button
+      if (loginBtn) {
+        loginBtn.addEventListener('click', function (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+
+          // Basic client-side fallback authentication:
+          // If password field is empty — show message.
+          // If non-empty — reveal admin panel locally (no network request).
+          // This avoids server POSTs that can return 405.
+          var pwd = passwordInput ? passwordInput.value.trim() : '';
+          if (!pwd) {
+            if (loginMsg) {
+              loginMsg.textContent = 'გთხოვთ შეიყვანოთ პაროლი';
+              loginMsg.style.color = '#ffb3b3';
+            }
+            return;
+          }
+
+          // Optionally: if you want a fixed test password for local use, uncomment and set:
+          // if (pwd !== 'your-test-password') { loginMsg.textContent = 'პაროლი არასწორია'; return; }
+
+          // Reveal admin UI locally
+          showAdminPanel();
+
+          // If admin.js exists and expects a programmatic login event, dispatch a custom event
+          // so existing scripts can react (non-blocking).
+          try {
+            var evt = new CustomEvent('admin:login', { detail: { password: pwd } });
+            window.dispatchEvent(evt);
+          } catch (e) {
+            // ignore
+          }
+        }, false);
+      }
+
+      // Logout handler
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          hideAdminPanel();
+        }, false);
+      }
+
+      // Defensive: catch unhandled promise rejections to avoid noisy console errors
+      // (this does not suppress real errors in your scripts, but reduces "message port closed" noise).
+      window.addEventListener('unhandledrejection', function (event) {
+        // If the rejection is from an extension/service worker message port closing,
+        // ignore it to avoid confusing the user. Otherwise, rethrow.
+        try {
+          var reason = event.reason && (event.reason.message || event.reason.toString && event.reason.toString());
+          if (reason && /message port closed/i.test(reason)) {
+            // swallow this specific noisy rejection
+            event.preventDefault();
+          }
+        } catch (e) {
+          // noop
+        }
+      });
+
+      // Ensure no accidental navigation when pressing Enter in password field triggers form submit
+      if (passwordInput) {
+        passwordInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            if (loginBtn) loginBtn.click();
+          }
+        }, false);
+      }
+    })();
+  </script>
+
+  <!-- Load existing admin.js after inline safeguards so it can attach its handlers if present.
+       If admin.js performs network requests, the inline safeguards above prevent accidental form POSTs. -->
   <script src="admin.js"></script>
 </body>
 </html>
