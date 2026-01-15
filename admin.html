@@ -18,6 +18,7 @@
       --admin-max-width: 980px;
     }
 
+    /* Ensure header doesn't cover content */
     html { scroll-padding-top: var(--site-header-total); }
     body {
       font-family: Arial, sans-serif;
@@ -37,7 +38,7 @@
       box-sizing: border-box;
     }
 
-    header { margin: 0 0 8px 0; padding: 6px 0; }
+    header { margin: 0 0 8px 0; padding: 6px 0; display:flex; align-items:center; gap:12px; }
     h1 { color: #ffcc00; margin: 0 0 6px 0; font-size: 18px; line-height: 1.1; }
     .hidden { display: none; }
 
@@ -158,6 +159,9 @@
     #btn-save-all:hover {
       background: #e53935;
     }
+
+    /* Small accessibility tweak for focus */
+    #btn-save-all:focus { outline: 3px solid rgba(255,255,255,0.08); outline-offset: 2px; }
   </style>
 </head>
 <body>
@@ -167,17 +171,25 @@
   </header>
 
   <main id="admin-app">
-    <div id="login-form" class="panel">
+    <!-- NOTE: outer container renamed to avoid ID collision with the form.
+         The form itself must keep id="login-form" because admin.js expects it. -->
+    <div id="login-panel" class="panel">
       <h2 style="margin:0 0 8px 0; font-size:16px">შესვლა</h2>
-      <form id="login-form-wrapper" style="margin:0">
-        <input id="admin-password" type="password" placeholder="პაროლი" />
+
+      <!-- IMPORTANT: keep id="login-form" on the <form> element so existing JS that selects
+           document.getElementById('login-form') or attaches submit handlers continues to work. -->
+      <form id="login-form" style="margin:0" action="#" method="post">
+        <input id="admin-password" name="password" type="password" placeholder="პაროლი" autocomplete="current-password" />
         <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
-          <button id="login-btn" type="button">შესვლა</button>
+          <!-- If admin.js listens for click on #login-btn, keep id. If it listens for form submit,
+               this button is type="submit" so the submit event fires. -->
+          <button id="login-btn" type="submit">შესვლა</button>
           <span id="login-msg" class="muted" style="margin-left:6px"></span>
         </div>
       </form>
     </div>
 
+    <!-- Admin panel (hidden until authenticated) -->
     <div id="admin-panel" class="hidden">
       <div class="panel">
         <h2 style="margin:0 0 8px 0; font-size:15px">ალბომები</h2>
@@ -194,11 +206,67 @@
             <button id="btn-create-album" type="button">Create album</button>
             <button id="btn-refresh-albums" type="button">Refresh</button>
 
-            <!-- Центрированная кнопка -->
+            <!-- Центрированная кнопка сохранения -->
             <div class="save-btn-wrapper">
               <button id="btn-save-all" type="button">არ დაგავიწყდეს დამახსოვრება</button>
             </div>
 
           </div>
         </div>
-        <div class="list" id="albums-list
+        <div class="list" id="albums-list"></div>
+      </div>
+
+      <div class="panel" id="tracks-panel">
+        <h2 style="margin:0 0 8px 0; font-size:15px">ტრეკები</h2>
+        <div class="track-search-wrap">
+          <input id="track-search" type="text" placeholder="Search tracks..." />
+          <button id="track-search-clear" type="button">Clear</button>
+        </div>
+
+        <div id="admin-tracks" class="list">
+          <!-- Example item -->
+          <div class="item">
+            <div class="meta">Example Track</div>
+            <div><button class="small" type="button">Edit</button></div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <form id="add-track-form">
+            <label for="new-track-title">New track title</label>
+            <input id="new-track-title" type="text" />
+            <label for="new-track-lyrics" style="margin-top:8px;">Lyrics</label>
+            <textarea id="new-track-lyrics"></textarea>
+            <div style="margin-top:8px; display:flex; gap:8px;">
+              <button id="btn-add-track" type="button">Add track</button>
+              <button id="btn-upload-cover" type="button">Upload cover</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 style="margin:0 0 8px 0; font-size:15px">Settings</h2>
+        <div class="row">
+          <div class="col">
+            <label for="site-title">Site title</label>
+            <input id="site-title" type="text" />
+          </div>
+          <div class="small">
+            <label for="site-theme">Theme</label>
+            <select id="site-theme"><option value="deep">Deep Ocean</option><option value="light">Light</option></select>
+          </div>
+        </div>
+        <div class="note">Changes here affect public site after saving.</div>
+      </div>
+
+      <div style="text-align:right; margin-top:8px;">
+        <button id="logout-btn" type="button">Logout</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Include admin script. Ensure admin.js expects form id="login-form" and button id="login-btn". -->
+  <script src="admin.js"></script>
+</body>
+</html>
