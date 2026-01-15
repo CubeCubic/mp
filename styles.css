@@ -1040,14 +1040,14 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
 /* Back-to-top button */
 .back-to-top-wrapper {
   text-align: center;
-  margin: 20px 0; /* отступ сверху и снизу */
+  margin: 30px 0; /* отступ сверху и снизу */
 }
 
 #back-to-top {
   background: var(--accent-color);
   color: #000;
   border: none;
-  padding: 10px 16px;
+  padding: 10px 18px;
   border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
@@ -1059,5 +1059,3 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
   transform: translateY(-3px);
   filter: brightness(0.95);
 }
-
-
