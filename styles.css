@@ -1100,4 +1100,12 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
   header #header-player .header-player-cover { margin-right: 6px !important; }
   header h1 { padding-right: 10px; } /* небольшая компенсация, не меняет семантику */
 }
+/* Override: make only the save-all button shrink to its text and stay centered */
+.save-btn-wrapper #btn-save-all {
+  display: inline-block !important;
+  width: auto !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
 
