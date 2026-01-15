@@ -149,6 +149,15 @@
     #track-search { flex:1; padding:8px; border-radius:6px; border:1px solid #333; background:#0f0f0f; color:#fff; }
     #track-search-clear { background: transparent; border: 1px solid rgba(255,255,255,0.06); color:#fff; padding:6px 8px; border-radius:6px; cursor:pointer; }
     #track-search-clear:hover { background: rgba(255,255,255,0.02); }
+
+    /* === Override only for the save-all button to make it shrink to text and be centered === */
+    /* This targets the specific button and overrides the .small button { width:100% } rule */
+    .save-btn-wrapper #btn-save-all {
+      display: inline-block !important;
+      width: auto !important;
+      box-sizing: border-box !important;
+    }
+    /* ================================================================================ */
   </style>
 </head>
 <body>
