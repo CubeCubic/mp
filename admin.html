@@ -15,16 +15,14 @@
       --compact-padding: 10px;
       --compact-font-size: 13px;
       --panel-radius: 8px;
-      --admin-max-width: 980px; /* narrowed admin area */
+      --admin-max-width: 980px;
     }
 
-    /* Ensure header doesn't cover content */
     html { scroll-padding-top: var(--site-header-total); }
     body {
       font-family: Arial, sans-serif;
       color: #fff;
       background: #111;
-      /* top padding accounts for the fixed site header */
       padding: calc(var(--site-header-total)) 12px 12px 12px;
       margin: 0;
       font-size: 14px;
@@ -32,7 +30,6 @@
     }
     input, textarea, select, button { scroll-margin-top: var(--site-header-total); }
 
-    /* Centered, narrower admin area */
     main#admin-app {
       max-width: var(--admin-max-width);
       margin: 0 auto;
@@ -40,12 +37,10 @@
       box-sizing: border-box;
     }
 
-    /* Header */
     header { margin: 0 0 8px 0; padding: 6px 0; }
     h1 { color: #ffcc00; margin: 0 0 6px 0; font-size: 18px; line-height: 1.1; }
     .hidden { display: none; }
 
-    /* Panels — compact */
     .panel {
       background: rgba(0,0,0,0.6);
       padding: var(--compact-padding);
@@ -129,26 +124,40 @@
     #albums-list .item, #admin-tracks .item { padding: 6px; }
     .small button { width:100%; box-sizing:border-box; }
 
-    /* Lower the login block so it sits clearly below the header */
-    /* You can adjust the value below if you need it lower/higher */
-    #login-form {
-      margin-top: 48px; /* increased margin to ensure the whole block is below header */
-    }
-
+    #login-form { margin-top: 48px; }
     @media (max-width: 720px) {
       :root { --site-header-height: 56px; --site-header-safety: 12px; }
       .row { gap:8px; }
       .small { width: 100%; flex: 1 1 100%; }
       .col { min-width: 100%; }
       body { padding-left: 10px; padding-right: 10px; }
-      #login-form { margin-top: 56px; } /* slightly larger on mobile */
+      #login-form { margin-top: 56px; }
     }
 
-    /* Search input styling for tracks */
     .track-search-wrap { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
     #track-search { flex:1; padding:8px; border-radius:6px; border:1px solid #333; background:#0f0f0f; color:#fff; }
     #track-search-clear { background: transparent; border: 1px solid rgba(255,255,255,0.06); color:#fff; padding:6px 8px; border-radius:6px; cursor:pointer; }
     #track-search-clear:hover { background: rgba(255,255,255,0.02); }
+
+    /* Центрирование кнопки сохранения */
+    .save-btn-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    #btn-save-all {
+      width: auto;
+      padding: 8px 14px;
+      background: #c62828;
+      color: #fff;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(198,40,40,0.25);
+    }
+    #btn-save-all:hover {
+      background: #e53935;
+    }
   </style>
 </head>
 <body>
@@ -185,79 +194,11 @@
             <button id="btn-create-album" type="button">Create album</button>
             <button id="btn-refresh-albums" type="button">Refresh</button>
 
-            <!-- Обёртка для центрирования кнопки -->
-            <div class="save-btn-wrapper" aria-hidden="false">
-              <!-- Оставляем исходный текст; JS заменит текст и добавит классы -->
-              <button id="btn-save-all" type="button">Сохранить изменения</button>
+            <!-- Центрированная кнопка -->
+            <div class="save-btn-wrapper">
+              <button id="btn-save-all" type="button">არ დაგავიწყდეს დამახსოვრება</button>
             </div>
 
           </div>
         </div>
-        <div class="list" id="albums-list"></div>
-      </div>
-
-      <div class="panel">
-        <h2 style="margin:0 0 8px 0; font-size:15px">ტრეკის დამატება</h2>
-        <form id="add-track-form">
-          <div class="row">
-            <div class="col">
-              <label>Title</label>
-              <input name="title" required>
-              <label>Artist</label>
-              <input name="artist">
-              <label>Lyrics</label>
-              <textarea name="lyrics"></textarea>
-            </div>
-            <div class="small">
-              <label>Album</label>
-              <select id="track-album-select" name="album"></select>
-              <label>Audio URL</label>
-              <input name="audioUrl">
-              <label>Cover URL</label>
-              <input name="coverUrl">
-              <button type="submit">დამატება</button>
-            </div>
-          </div>
-        </form>
-      </div>
-
-      <div class="panel">
-        <h2 style="margin:0 0 8px 0; font-size:15px">არსებული ტრეკები</h2>
-
-        <!-- Search tracks -->
-        <div class="track-search-wrap">
-          <input id="track-search" type="text" placeholder="Поиск по названию, исполнителю или альбому..." aria-label="Search tracks">
-          <button id="track-search-clear" type="button" title="Очистить поиск">✕</button>
-        </div>
-
-        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-          <button id="btn-refresh-tracks" type="button">Refresh tracks</button>
-          <span class="muted" style="font-size:12px">(Use Edit to change)</span>
-        </div>
-        <div id="admin-tracks" class="list"></div>
-      </div>
-
-      <div style="display:flex; justify-content:flex-end;">
-        <button id="logout-btn" type="button">გასვლა</button>
-      </div>
-    </div>
-  </main>
-
-  <!-- Modal for editing album -->
-  <div id="album-edit-modal" class="modal-backdrop hidden" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <h3 id="modal-title">Edit album</h3>
-      <label>Name</label>
-      <input id="modal-album-name">
-      <label>Parent album</label>
-      <select id="modal-album-parent"></select>
-      <div class="actions">
-        <button id="modal-cancel" type="button">Cancel</button>
-        <button id="modal-save" type="button">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="admin.js"></script>
-</body>
-</html>
+        <div class="list" id="albums-list
