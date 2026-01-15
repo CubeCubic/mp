@@ -70,14 +70,18 @@
         <div id="tracks" class="tracks-list-grid"></div>
       </section>
     </main>
+
+    <!-- Кнопка "Наверх" -->
+    <div class="back-to-top-wrapper">
+      <button id="back-to-top" type="button" aria-label="Back to top">↑ ზევით</button>
+    </div>
   </div>
 
   <audio id="audio" preload="none"></audio>
 
-  <!-- Модальное окно с обложкой трека (обязательно вне header, перед закрывающим body) -->
+  <!-- Модальное окно с обложкой трека -->
   <div id="lyrics-modal" class="hidden" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <!-- маленькая обложка трека -->
       <div class="modal-cover" aria-hidden="true">
         <img id="modal-cover-img" src="" alt="Track cover">
       </div>
@@ -105,17 +109,14 @@
         </svg>
       </span>
       <a href="tel:+995501223704">+995 501 223 704</a>
-
-       <!-- Facebook
-      <span class="icon" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-          <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.86 8 9.8v-6.93H7.9v-2.87H10V9.75c0-2.07 1.23-3.22 3.1-3.22.9 0 1.84.16 1.84.16v2.02h-1.04c-1.03 0-1.35.64-1.35 1.3v1.56h2.3l-.37 2.87h-1.93V21.8c4.56-.94 8-4.96 8-9.8z"/>
-        </svg>
-      </span>
-      <a href="https://facebook.com/yourprofile" target="_blank" rel="noopener">Facebook</a> -->
     </p>
   </footer>
 
   <script src="app.js"></script>
+  <script>
+    document.getElementById('back-to-top').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
 </body>
 </html>
