@@ -388,6 +388,15 @@
       "albumId": "1767343222772",
       "audioUrl": "https://archive.org/download/rise-up_202512/Shadows%20of%20Yesterday.wav",
       "coverUrl": "https://archive.org/download/rise-up_202512/Shadows%20of%20Yesterday.png"
+    },
+    {
+      "id": "1768833383069",
+      "title": "Eternal Duality",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767343222772",
+      "audioUrl": "https://archive.org/download/girl-from-my-street/Eternal%20Duality.wav",
+      "coverUrl": "https://archive.org/download/girl-from-my-street/Eternal%20Duality.png"
     }
   ]
 }
