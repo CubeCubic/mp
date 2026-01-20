@@ -53,9 +53,11 @@
         <div class="controls">
           <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
           <div class="album-header">
-            <label for="album-select">ალბომები</label>
-            <button id="refresh-btn" type="button">Refresh</button>
-          </div>
+      <label for="album-select">ალბომები</label>
+      <div class="album-header-controls">
+        <button id="refresh-btn" type="button">Refresh</button>
+        <span id="tracks-count" class="tracks-count">სულ 0</span>
+         </div>
           <input type="hidden" id="album-select" value="">
           <div id="album-list" class="album-list-vertical"></div>
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
@@ -120,3 +122,4 @@
   </script>
 </body>
 </html>
+
