@@ -270,7 +270,7 @@ header h1 a#brand-link {
 .album-header-controls {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 88px;
   order: 1;
   margin-left: 0;
 }
@@ -1111,3 +1111,4 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
   transform: translateY(-3px);
   filter: brightness(0.95);
 }
+
