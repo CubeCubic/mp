@@ -452,6 +452,15 @@
       "albumId": "1767340968092",
       "audioUrl": "https://archive.org/download/journey-to-a-dream/Journey%20to%20a%20Dream.wav",
       "coverUrl": "https://archive.org/download/journey-to-a-dream/Journey%20to%20a%20Dream.png"
+    },
+    {
+      "id": "1768908312700",
+      "title": "The Shadows",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767340968092",
+      "audioUrl": "https://archive.org/download/the-shadows_202601/The%20Shadows.wav",
+      "coverUrl": "https://archive.org/download/the-shadows_202601/The%20Shadows.png"
     }
   ]
 }
