@@ -85,7 +85,7 @@
   function updateTracksCount() {
     if (!tracksCountEl) return;
     const total = Array.isArray(tracks) ? tracks.length : 0;
-    tracksCountEl.textContent = `სულ ${total}`;
+    tracksCountEl.textContent = `სულ ტრეკი: ${total}`;
   }
 
   async function triggerDownload(url, filename = 'track.mp3') {
@@ -622,3 +622,4 @@
   });
 
 })();
+
