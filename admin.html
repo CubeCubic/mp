@@ -187,12 +187,12 @@
             <input id="album-name" type="text" />
           </div>
           <div class="small">
-            <label for="album-parent">Parent</label>
+            <label for="album-parent">მშობლიური</label>
             <select id="album-parent"><option value="">— მთავარი ალბომი —</option></select>
           </div>
           <div class="small" style="display:flex;flex-direction:column;gap:8px;">
-            <button id="btn-create-album" type="button">Create album</button>
-            <button id="btn-refresh-albums" type="button">Refresh</button>
+            <button id="btn-create-album" type="button">შექმენი ალბომი</button>
+            <button id="btn-refresh-albums" type="button">განახლება</button>
 
             <!-- Обёртка для центрирования кнопки -->
             <div class="save-btn-wrapper" aria-hidden="false" style="width:100%; display:flex; justify-content:center;">
@@ -210,19 +210,19 @@
         <form id="add-track-form">
           <div class="row">
             <div class="col">
-              <label>Title</label>
+              <label>სახელი</label>
               <input name="title" required>
-              <label>Artist</label>
+              <label>არტისტი</label>
               <input name="artist">
-              <label>Lyrics</label>
+              <label>ტექსტი</label>
               <textarea name="lyrics"></textarea>
             </div>
             <div class="small">
-              <label>Album</label>
+              <label>ალბომი</label>
               <select id="track-album-select" name="album"></select>
-              <label>Audio URL</label>
+              <label>აუდიო URL</label>
               <input name="audioUrl">
-              <label>Cover URL</label>
+              <label>ფოტო URL</label>
               <input name="coverUrl">
               <button type="submit">დამატება</button>
             </div>
@@ -235,12 +235,12 @@
 
         <!-- Search tracks -->
         <div class="track-search-wrap">
-          <input id="track-search" type="text" placeholder="Поиск по названию, исполнителю или альбому..." aria-label="Search tracks">
-          <button id="track-search-clear" type="button" title="Очистить поиск">✕</button>
+          <input id="track-search" type="text" placeholder="ძიება..." aria-label="Search tracks">
+          <button id="track-search-clear" type="button" title="გაწმენდა">✕</button>
         </div>
 
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-          <button id="btn-refresh-tracks" type="button">Refresh tracks</button>
+          <button id="btn-refresh-tracks" type="button">ტრეკების განაზლება</button>
           <span class="muted" style="font-size:12px">(Use Edit to change)</span>
         </div>
         <div id="admin-tracks" class="list"></div>
@@ -255,14 +255,14 @@
   <!-- Modal for editing album -->
   <div id="album-edit-modal" class="modal-backdrop hidden" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <h3 id="modal-title">Edit album</h3>
-      <label>Name</label>
+      <h3 id="modal-title">ალბომის რედაქტირება</h3>
+      <label>სახელი</label>
       <input id="modal-album-name">
-      <label>Parent album</label>
+      <label>მშობლიური ალბომი</label>
       <select id="modal-album-parent"></select>
       <div class="actions">
-        <button id="modal-cancel" type="button">Cancel</button>
-        <button id="modal-save" type="button">Save</button>
+        <button id="modal-cancel" type="button">უარყოფა</button>
+        <button id="modal-save" type="button">დამახსოვრება</button>
       </div>
     </div>
   </div>
@@ -270,4 +270,5 @@
   <script src="admin.js"></script>
 </body>
 </html>
+
 
