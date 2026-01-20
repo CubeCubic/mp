@@ -1065,6 +1065,7 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  margin-left: auto;
 }
 
 /* Tracks count styling adjusted for dark theme */
@@ -1083,4 +1084,5 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
   .album-header-controls { gap: 8px; }
   .tracks-count { padding: 6px 8px; font-size: 0.92rem; }
 }
+
 
