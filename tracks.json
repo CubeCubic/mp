@@ -44,6 +44,11 @@
       "id": "1767343222772",
       "name": "Songs in English",
       "parentId": null
+    },
+    {
+      "id": "1768902768071",
+      "name": "Acoustic Pop",
+      "parentId": "1767100972913"
     }
   ],
   "tracks": [
@@ -415,6 +420,15 @@
       "albumId": "1767101002065",
       "audioUrl": "https://archive.org/download/saxs-history/Sax%27s%20History.wav",
       "coverUrl": "https://archive.org/download/saxs-history/1_Sax%27s%20History.png"
+    },
+    {
+      "id": "1768905870413",
+      "title": "Acoustic Pop",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1768902768071",
+      "audioUrl": "https://archive.org/download/dont-leave-me-alone_202601/1_Don%27t%20Leave%20Me%20Alone.wav",
+      "coverUrl": "https://archive.org/download/dont-leave-me-alone_202601/Don%27t%20Leave%20Me%20Alone.png"
     }
   ]
 }
