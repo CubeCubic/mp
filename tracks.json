@@ -49,6 +49,11 @@
       "id": "1768902768071",
       "name": "Acoustic Pop",
       "parentId": "1767100972913"
+    },
+    {
+      "id": "1768906315515",
+      "name": "Experimental Rock",
+      "parentId": "1767100972913"
     }
   ],
   "tracks": [
@@ -429,6 +434,15 @@
       "albumId": "1768902768071",
       "audioUrl": "https://archive.org/download/dont-leave-me-alone_202601/1_Don%27t%20Leave%20Me%20Alone.wav",
       "coverUrl": "https://archive.org/download/dont-leave-me-alone_202601/Don%27t%20Leave%20Me%20Alone.png"
+    },
+    {
+      "id": "1768906709323",
+      "title": "Melancholy",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1768906315515",
+      "audioUrl": "https://archive.org/download/melancholy_202601/Melancholy.wav",
+      "coverUrl": "https://archive.org/download/melancholy_202601/Melancholy.png"
     }
   ]
 }
