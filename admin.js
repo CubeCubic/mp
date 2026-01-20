@@ -139,17 +139,17 @@
   function fillAlbumSelects() {
     if (albumParent) {
       albumParent.innerHTML = '';
-      albumParent.appendChild(el('option', { value: '' }, '— მთავარი ალბომი —'));
+      albumParent.appendChild(el('option', { value: '' }, '— главный альбом —'));
       albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => albumParent.appendChild(el('option', { value: a.id }, a.name)));
     }
     if (trackAlbumSelect) {
       trackAlbumSelect.innerHTML = '';
-      trackAlbumSelect.appendChild(el('option', { value: '' }, '— ალბომის გარეშე —'));
+      trackAlbumSelect.appendChild(el('option', { value: '' }, '— без альбома —'));
       albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => trackAlbumSelect.appendChild(el('option', { value: a.id }, a.name)));
     }
     if (trackEditRefs && trackEditRefs.album) {
       trackEditRefs.album.innerHTML = '';
-      trackEditRefs.album.appendChild(el('option', { value: '' }, '— ალბომის გარეშე —'));
+      trackEditRefs.album.appendChild(el('option', { value: '' }, '— без альбома —'));
       albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => trackEditRefs.album.appendChild(el('option', { value: a.id }, a.name)));
     }
   }
@@ -476,13 +476,26 @@
       }
     });
   }
+  // --- ИЗМЕНЕНО: Обработчик кнопки выхода с подтверждением ---
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
+      // --- НОВОЕ: Проверка на изменения ---
+      if (isDirty) {
+        const confirmLogout = confirm('У вас есть несохранённые изменения. Вы уверены, что хотите выйти?');
+        if (!confirmLogout) {
+          return; // Не выходить, если пользователь нажал "Отмена"
+        }
+      }
+      // ---
       loggedIn = false;
       adminPanel.classList.add('hidden');
       loginForm.classList.remove('hidden');
+      // Возможно, сбросить isDirty после выхода, если не планируется скачивание
+      // clearDirty(); // <- раскомментируйте, если хотите сбрасывать при выходе
     });
   }
+  // ---
+
 
   // --- Search logic (debounced) ---
   function debounce(fn, wait) {
@@ -515,4 +528,3 @@
     loginForm.classList.remove('hidden');
   });
 })();
-
