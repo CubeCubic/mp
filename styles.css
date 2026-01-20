@@ -850,6 +850,29 @@ header h1 a#brand-link {
   fill: #4dd0e1;
 }
 
+/* --- НОВОЕ: Стили для кнопки Share --- */
+.site-footer .share-icon {
+  margin-right: 4px; /* Отступ между иконкой и текстом кнопки */
+}
+.site-footer button#share-site-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255, 0.1);
+  color: #4dd0e1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-left: 8px; /* Отступ от предыдущего элемента */
+  vertical-align: middle; /* Выравнивание по центру строки */
+  transition: background 140ms ease, color 140ms ease;
+}
+.site-footer button#share-site-btn:hover {
+  background: rgba(255,255,255, 0.08);
+  color: #80deea;
+}
+/* --- */
+
+
 /* === Additional responsive rules (repeated blocks consolidated) === */
 
 /* Small phones: до 480px */
