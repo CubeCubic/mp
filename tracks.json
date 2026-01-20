@@ -461,6 +461,15 @@
       "albumId": "1767340968092",
       "audioUrl": "https://archive.org/download/the-shadows_202601/The%20Shadows.wav",
       "coverUrl": "https://archive.org/download/the-shadows_202601/The%20Shadows.png"
+    },
+    {
+      "id": "1768937186258",
+      "title": "Silens",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767101030017",
+      "audioUrl": "https://archive.org/download/silence_202601/Silence.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/2.png"
     }
   ]
 }
