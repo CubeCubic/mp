@@ -47,7 +47,7 @@
     },
     {
       "id": "1768902768071",
-      "name": "Acoustic Pop",
+      "name": "Pop",
       "parentId": "1767100972913"
     },
     {
@@ -440,9 +440,18 @@
       "title": "Melancholy",
       "artist": "Cube Cubic",
       "lyrics": "",
-      "albumId": "1768906315515",
+      "albumId": "1767340968092",
       "audioUrl": "https://archive.org/download/melancholy_202601/Melancholy.wav",
       "coverUrl": "https://archive.org/download/melancholy_202601/Melancholy.png"
+    },
+    {
+      "id": "1768907704243",
+      "title": "Journey to a Dream",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767340968092",
+      "audioUrl": "https://archive.org/download/journey-to-a-dream/Journey%20to%20a%20Dream.wav",
+      "coverUrl": "https://archive.org/download/journey-to-a-dream/Journey%20to%20a%20Dream.png"
     }
   ]
 }
