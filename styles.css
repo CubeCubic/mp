@@ -23,6 +23,9 @@
   --soft-shadow-neutral: 0 12px 36px rgba(2,8,14,0.55);
   --warm-accent-glow: 0 8px 28px rgba(255,122,102,0.14);
   --cover-border: 1px solid rgba(255,255,255,0.04);
+
+  /* Позиционирование кнопки Refresh: подберите значение в px, чтобы кнопка попала между вашими красными линиями */
+  --refresh-left: 18px;
 }
 
 /* Base layout and background */
@@ -237,34 +240,48 @@ header h1 a#brand-link {
 }
 
 /* Controls and album header */
-/* Album header: сначала controls (Refresh + count), затем label */
+.controls {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+/* Album header: контейнер относительный, чтобы кнопка могла позиционироваться внутри */
 .album-header {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
-  justify-content: flex-start; /* выравнивание влево */
+  margin: 8px 0 12px 0;
 }
 
-/* Блок с кнопкой Refresh и счётчиком — ставим первым */
+/* Метка "ალბომები" — по умолчанию справа от кнопки, но позиция подстраивается ниже */
+.album-header label {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--accent-2);
+  /* Сдвиг вправо, чтобы не перекрывать абсолютную кнопку; подгоняйте при необходимости */
+  margin-left: calc(var(--refresh-left) + 140px);
+}
+
+/* Album header controls: кнопка Refresh и счётчик — визуально остаются внутри контейнера,
+   но кнопка будет абсолютной и показана слева в пределах .album-header */
 .album-header-controls {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  order: 1;        /* показываем первым */
-  margin-left: 0;  /* отменяем auto, если было */
+  order: 1;
+  margin-left: 0;
 }
 
-/* Метка "ალბომები" — показываем после controls */
-.album-header label {
-  order: 2;        /* показываем второй */
-  margin: 0 0 0 8px; /* небольшой отступ слева от controls */
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--accent-2);
-}
-
-/* Refresh button */
+/* Refresh button — абсолютное позиционирование внутри .album-header */
 #refresh-btn {
+  position: absolute;
+  left: var(--refresh-left);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
   background: var(--accent-color);
   color: #000;
   border: none;
@@ -276,8 +293,22 @@ header h1 a#brand-link {
   transition: transform 140ms ease, filter 140ms ease;
 }
 #refresh-btn:hover {
-  transform: translateY(-3px);
+  transform: translateY(-50%) translateY(-3px);
   filter: brightness(0.98);
+}
+
+/* Tracks count — позиционируем относительно, чтобы не улетать при абсолютной кнопке.
+   Подгоните значение (86px) под реальную ширину кнопки + желаемый gap */
+.tracks-count {
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(255,255,255,0.06);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.03);
+  position: relative;
+  margin-left: calc(var(--refresh-left) + 86px);
 }
 
 /* Hide redundant label for album-select */
@@ -615,6 +646,19 @@ header h1 a#brand-link {
 
   button, .album-list-button, .card, #subalbum-select {
     min-height: 48px;
+  }
+
+  /* На мобильных возвращаем потоковое расположение кнопки Refresh и сбрасываем смещения */
+  #refresh-btn {
+    position: static;
+    transform: none;
+    margin-right: 8px;
+  }
+  .tracks-count {
+    margin-left: 0;
+  }
+  .album-header label {
+    margin-left: 0;
   }
 }
 
@@ -1067,31 +1111,3 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
   transform: translateY(-3px);
   filter: brightness(0.95);
 }
-
-/* Album header controls (refresh + count) */
-.album-header-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-left: auto;
-}
-
-/* Tracks count styling adjusted for dark theme */
-.tracks-count {
-  font-weight: 600;
-  color: #ffffff;
-  background: rgba(255,255,255,0.06);
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  border: 1px solid rgba(255,255,255,0.03);
-}
-
-/* Ensure the small count doesn't overflow on narrow screens */
-@media (max-width: 480px) {
-  .album-header-controls { gap: 8px; }
-  .tracks-count { padding: 6px 8px; font-size: 0.92rem; }
-}
-
-
-
