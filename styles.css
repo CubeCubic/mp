@@ -1059,3 +1059,18 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
   transform: translateY(-3px);
   filter: brightness(0.95);
 }
+.album-header-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tracks-count {
+  font-weight: 600;
+  color: #222;
+  background: rgba(0,0,0,0.04);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
