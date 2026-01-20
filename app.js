@@ -40,8 +40,9 @@
   let pendingTrackToOpen = null;
   let userHasInteracted = false;
 
-  // --- НОВОЕ: Переменная для режима перемешивания ---
-  let shuffleEnabled = true;
+  // --- УДАЛЕНО: Переменная shuffleEnabled ---
+  // ---
+
 
   // --- Утилиты ---
   function formatTime(sec) {
@@ -334,7 +335,7 @@
     });
   }
 
-  // --- Рендер треков (ИЗМЕНЕНО: теперь учитывает настройку перемешивания) ---
+  // --- Рендер треков (ИЗМЕНЕНО: теперь перемешивание всегда включено) ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -365,10 +366,8 @@
       return;
     }
 
-    // --- ИЗМЕНЕНО: Перемешиваем треки, только если включена настройка ---
-    if (shuffleEnabled) {
-      toRender = shuffle(toRender);
-    }
+    // --- ИЗМЕНЕНО: Перемешиваем треки всегда ---
+    toRender = shuffle(toRender);
     // ---
 
     toRender.forEach(t => {
@@ -494,7 +493,15 @@
     }
   }
 
-  if (refreshBtn) refreshBtn.addEventListener('click', loadData);
+  // --- ИЗМЕНЕНО: Обработчик кнопки Refresh с перемешиванием ---
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+        loadData(); // Загружаем данные заново
+        // renderTracks(); // Перемешивание происходит внутри renderTracks, вызывается из loadData
+    });
+  }
+  // ---
+
 
   // --- Плеер ---
   function updateSidebarPlayer(t = null) {
@@ -655,16 +662,9 @@
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
 
-    // --- НОВОЕ: Обработчик чекбокса перемешивания ---
-    const shuffleCheckbox = document.getElementById('shuffle-checkbox');
-    if (shuffleCheckbox) {
-      shuffleCheckbox.checked = shuffleEnabled; // Установить начальное состояние
-      shuffleCheckbox.addEventListener('change', (e) => {
-        shuffleEnabled = e.target.checked;
-        renderTracks(); // Перерендер при изменении
-      });
-    }
+    // --- УДАЛЕНО: Обработчик чекбокса перемешивания ---
     // ---
+
 
     // --- НОВОЕ: Обработчик клавиш ---
     document.addEventListener('keydown', (e) => {
