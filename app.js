@@ -7,6 +7,12 @@
   const globalSearchInput = document.getElementById('global-search');
   const albumListContainer = document.getElementById('album-list');
 
+  // --- Элементы для "последних треков" ---
+  const latestTracksBtn = document.getElementById('latest-tracks-btn');
+  const latestTracksCountEl = document.getElementById('latest-tracks-count');
+  // ---
+
+
   // Плеер элементы — поддерживаем старые и новые id (fallback)
   const headerPlayer = document.getElementById('header-player') || document.getElementById('player-sidebar') || null;
   const playerCoverImg = document.getElementById('player-cover-img') || null;
@@ -34,15 +40,11 @@
 
   // --- Состояние ---
   let albums = [];
-  let tracks = [];
+  let tracks = []; // Теперь это глобальный список всех треков
   let currentTrackIndex = -1;
-  let filteredTracks = [];
+  let filteredTracks = []; // Этот массив будет содержать отфильтрованные/отсортированные треки для отображения
   let pendingTrackToOpen = null;
   let userHasInteracted = false;
-
-  // --- УДАЛЕНО: Переменная shuffleEnabled ---
-  // ---
-
 
   // --- Утилиты ---
   function formatTime(sec) {
@@ -94,6 +96,20 @@
     tracksCountEl.setAttribute('aria-live', 'polite');
     // ---
   }
+
+  // --- ИЗМЕНЕНО: Функция для получения последних N треков (или всех, если n не указан или null) ---
+  function getLatestTracks(n = null) {
+    // Сортируем треки по ID в порядке убывания (предполагаем, что ID - timestamp)
+    const sortedTracks = tracks.slice().sort((a, b) => parseInt(b.id) - parseInt(a.id));
+    // Если n не указано или null, возвращаем все отсортированные треки
+    if (n === null || typeof n === 'undefined') {
+        return sortedTracks;
+    }
+    // Иначе возвращаем первые n треков из отсортированного массива
+    return sortedTracks.slice(0, n);
+  }
+  // ---
+
 
   async function triggerDownload(url, filename = 'track.mp3') {
     if (!url || url.trim() === '') {
@@ -149,7 +165,7 @@
       modalCoverImg.style.visibility = 'hidden';
       modalCoverImg.src = ''; // сброс старого src
       modalCoverImg.alt = track.title || 'Cover';
-      // --- НОВОЕ: lazy loading для обложки в модалке ---
+      // --- lazy loading для обложки в модалке ---
       modalCoverImg.loading = 'lazy';
       // ---
     }
@@ -240,9 +256,9 @@
       countSpan.textContent = `(${trackCount})`;
       btn.appendChild(countSpan);
 
-      if (String(albumSelect ? albumSelect.value : '') === String(a.id || '')) {
-        btn.classList.add('selected');
-      }
+      // --- Удаление класса 'selected' при отображении альбомов ---
+      btn.classList.remove('selected');
+      // ---
 
       btn.addEventListener('click', (ev) => {
         ev.preventDefault();
@@ -335,18 +351,21 @@
     });
   }
 
-  // --- Рендер треков (ИЗМЕНЕНО: теперь перемешивание всегда включено) ---
+  // --- Рендер треков (ИЗМЕНЕНО: теперь учитывает фильтрацию, поиск и "последние треки") ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
 
+    // Начинаем с массива всех треков
     let toRender = tracks.slice();
 
+    // Применяем фильтрацию по поисковому запросу
     const searchQuery = globalSearchInput ? globalSearchInput.value.trim() : '';
     if (searchQuery) {
       toRender = toRender.filter(t => matchesQuery(t, searchQuery));
     }
 
+    // Применяем фильтрацию по альбому/подальбому
     const selectedAlbumId = albumSelect ? albumSelect.value : '';
     const selectedSubalbumId = subalbumSelect ? subalbumSelect.value : '';
 
@@ -360,17 +379,29 @@
       });
     }
 
+    // --- ИЗМЕНЕНО: Проверяем, отображаются ли "последние треки" ---
+    // Это состояние нужно как-то отслеживать. Добавим глобальную переменную.
+    if (window.showingLatestTracks) {
+        toRender = getLatestTracks(); // Получаем ВСЕ последние треки, отсортированные по ID
+    }
+    // ---
+
+
     if (!toRender.length) {
       tracksContainer.innerHTML = '<div class="muted">ტრეკები არ მოიძებნა</div>';
-      filteredTracks = [];
+      filteredTracks = []; // Обновляем глобальный фильтрованный массив
       return;
     }
 
-    // --- ИЗМЕНЕНО: Перемешиваем треки всегда ---
-    toRender = shuffle(toRender);
-    // ---
+    // Перемешиваем треки только если НЕ отображаются "последние треки" и НЕ производится поиск
+    if (!window.showingLatestTracks && !searchQuery) {
+      toRender = shuffle(toRender);
+    }
 
-    toRender.forEach(t => {
+    // Сохраняем отфильтрованный и отсортированный массив в глобальной переменной
+    filteredTracks = toRender;
+
+    filteredTracks.forEach(t => {
       const card = document.createElement('div');
       card.className = 'card';
       card.setAttribute('data-track-id', t.id || '');
@@ -379,7 +410,7 @@
       img.className = 'track-cover';
       img.src = getCoverUrl(t);
       img.alt = safeStr(t.title) + ' cover';
-      // --- НОВОЕ: lazy loading для обложки трека ---
+      // --- lazy loading для обложки трека ---
       img.loading = 'lazy';
       // ---
       card.appendChild(img);
@@ -451,15 +482,14 @@
 
       card.addEventListener('click', () => {
         userHasInteracted = true;
-        const idx = toRender.indexOf(t);
+        const idx = filteredTracks.indexOf(t);
         playTrackByIndex(idx);
       });
 
       tracksContainer.appendChild(card);
     });
 
-    filteredTracks = toRender;
-
+    // highlightCurrentTrack вызывается в playTrackByIndex, но можно вызвать и здесь при смене списка
     highlightCurrentTrack();
 
     if (pendingTrackToOpen) {
@@ -485,19 +515,23 @@
       updateTracksCount();
 
       buildAlbumSelectors();
-      applySearch();
-      renderTracks();
+      applySearch(); // Применяем поиск, если он был
+      renderTracks(); // Отображаем треки (в зависимости от текущего состояния)
     } catch (err) {
       console.error('Ошибка загрузки tracks.json:', err);
       if (tracksContainer) tracksContainer.innerHTML = '<div class="muted">Не удалось загрузить треки</div>';
     }
   }
 
-  // --- ИЗМЕНЕНО: Обработчик кнопки Refresh с перемешиванием ---
+  // --- Обработчик кнопки Refresh с перемешиванием ---
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
         loadData(); // Загружаем данные заново
         // renderTracks(); // Перемешивание происходит внутри renderTracks, вызывается из loadData
+        // --- Сброс состояния "последние треки" при обновлении ---
+        window.showingLatestTracks = false;
+        if (latestTracksBtn) latestTracksBtn.classList.remove('selected');
+        // ---
     });
   }
   // ---
@@ -510,7 +544,7 @@
       if (playerArtistSidebar) playerArtistSidebar.textContent = '';
       if (playerCoverImg) {
         playerCoverImg.src = 'images/midcube.png';
-        // --- НОВОЕ: lazy loading для обложки в плеере ---
+        // --- lazy loading для обложки в плеере ---
         playerCoverImg.loading = 'lazy';
         // ---
       }
@@ -523,7 +557,7 @@
     if (playerArtistSidebar) playerArtistSidebar.textContent = safeStr(t.artist);
     if (playerCoverImg) {
       playerCoverImg.src = getCoverUrl(t);
-      // --- НОВОЕ: lazy loading для обложки в плеере ---
+      // --- lazy loading для обложки в плеере ---
       playerCoverImg.loading = 'lazy';
       // ---
     }
@@ -594,7 +628,7 @@
       if (audio.duration && progressSidebar) {
         progressSidebar.value = audio.currentTime;
         progressSidebar.max = audio.duration;
-        // --- НОВОЕ: Обновление aria-valuenow для прогресса ---
+        // --- Обновление aria-valuenow для прогресса ---
         progressSidebar.setAttribute('aria-valuenow', audio.currentTime);
         // ---
         if (timeCurrentSidebar) timeCurrentSidebar.textContent = formatTime(audio.currentTime);
@@ -604,7 +638,7 @@
       if (timeDurationSidebar) timeDurationSidebar.textContent = formatTime(audio.duration);
       if (progressSidebar) {
         progressSidebar.max = audio.duration || 0;
-        // --- НОВОЕ: Обновление aria-valuemax для прогресса ---
+        // --- Обновление aria-valuemax для прогресса ---
         progressSidebar.setAttribute('aria-valuemax', audio.duration || 0);
         // ---
       }
@@ -612,7 +646,7 @@
     audio.addEventListener('volumechange', () => {
       if (volumeSidebar) {
         volumeSidebar.value = audio.volume;
-        // --- НОВОЕ: Обновление aria-valuenow для громкости ---
+        // --- Обновление aria-valuenow для громкости ---
         volumeSidebar.setAttribute('aria-valuenow', audio.volume);
         // ---
       }
@@ -658,15 +692,51 @@
     });
   }
 
+  // --- Обработчик кнопки "უახლესი ტრეკები" ---
+  if (latestTracksBtn) {
+    // Изначально кнопка не выбрана
+    latestTracksBtn.classList.remove('selected');
+
+    latestTracksBtn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        // Сбрасываем выбор альбома
+        if (albumSelect) albumSelect.value = '';
+        // Сбрасываем подальбом
+        if (subalbumSelect) {
+             subalbumSelect.value = '';
+             subalbumSelect.style.display = 'none';
+             if (subalbumLabel) subalbumLabel.style.display = 'none';
+        }
+        // Сбрасываем поиск
+        if (globalSearchInput) globalSearchInput.value = '';
+
+        // Устанавливаем флаг "показываются последние треки"
+        window.showingLatestTracks = true;
+
+        // Обновляем отображение альбомов (убираем выделение)
+        renderAlbumList();
+        // Обновляем отображение треков
+        renderTracks();
+        // Сбрасываем индекс текущего трека
+        currentTrackIndex = -1;
+        // Обновляем плеер
+        updateSidebarPlayer(null);
+
+         // Добавляем класс 'selected' к кнопке "უახლესი ტრეკები"
+        latestTracksBtn.classList.add('selected');
+        // Убираем класс 'selected' с других кнопок альбомов (уже в renderAlbumList)
+    });
+  }
+  // ---
+
+
   // --- Инициализация ---
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
 
-    // --- УДАЛЕНО: Обработчик чекбокса перемешивания ---
-    // ---
-
-
-    // --- НОВОЕ: Обработчик клавиш ---
+    // --- Обработчик клавиш ---
     document.addEventListener('keydown', (e) => {
       // Проверяем, что фокус не на поле ввода (чтобы не мешать вводу)
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
