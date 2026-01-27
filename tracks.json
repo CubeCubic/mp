@@ -470,6 +470,15 @@
       "albumId": "1767101030017",
       "audioUrl": "https://archive.org/download/silence_202601/Silence.wav",
       "coverUrl": "https://archive.org/download/silence_202601/2.png"
+    },
+    {
+      "id": "1769518042051",
+      "title": "Hush",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://mega.nz/file/eapyVAqD#7owM3tGWVAk_WnG_h0L0qarXM_AJ0jdnQdUC_Q9qSDI",
+      "coverUrl": "https://mega.nz/file/3LYjAJ4b#lJzvqZE3zYhDzsn6DGQagoFZg10IwxhZfXap8Y2UH8w"
     }
   ]
 }
