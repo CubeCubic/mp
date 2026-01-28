@@ -59,6 +59,11 @@
       "id": "1769588635457",
       "name": "Neo-Classical",
       "parentId": "1767100972913"
+    },
+    {
+      "id": "1769591739466",
+      "name": "Modern Rock",
+      "parentId": "1767100972913"
     }
   ],
   "tracks": [
@@ -493,6 +498,15 @@
       "albumId": "1769588635457",
       "audioUrl": "https://archive.org/download/silence_202601/House%20of%20Sun.wav",
       "coverUrl": "https://archive.org/download/silence_202601/House%20of%20Sun.png"
+    },
+    {
+      "id": "1769592463659",
+      "title": "Why Not",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1769591739466",
+      "audioUrl": "https://archive.org/download/silence_202601/Why%20Not.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/Why%20Not%20.png"
     }
   ]
 }
