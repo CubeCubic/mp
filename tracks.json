@@ -525,6 +525,15 @@
       "albumId": "1767162208459",
       "audioUrl": "https://archive.org/download/silence_202601/Voices%20of%20Summer.wav",
       "coverUrl": "https://archive.org/download/silence_202601/Voices%20of%20Summer.png"
+    },
+    {
+      "id": "1769597964413",
+      "title": "Gentle Dreams",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767101030017",
+      "audioUrl": "https://archive.org/download/silence_202601/Gentle%20Dreams.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/Gentle%20Dreams.png"
     }
   ]
 }
