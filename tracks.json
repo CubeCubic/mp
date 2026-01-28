@@ -516,6 +516,15 @@
       "albumId": "1767162208459",
       "audioUrl": "https://archive.org/download/silence_202601/After.wav",
       "coverUrl": "https://archive.org/download/silence_202601/After.png"
+    },
+    {
+      "id": "1769595848484",
+      "title": "Voices of Summer",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/silence_202601/Voices%20of%20Summer.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/Voices%20of%20Summer.png"
     }
   ]
 }
