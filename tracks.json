@@ -507,6 +507,15 @@
       "albumId": "1769591739466",
       "audioUrl": "https://archive.org/download/silence_202601/Why%20Not.wav",
       "coverUrl": "https://archive.org/download/silence_202601/Why%20Not%20.png"
+    },
+    {
+      "id": "1769594909220",
+      "title": "After",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/silence_202601/After.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/After.png"
     }
   ]
 }
