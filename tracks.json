@@ -54,6 +54,11 @@
       "id": "1768906315515",
       "name": "Experimental Rock",
       "parentId": "1767100972913"
+    },
+    {
+      "id": "1769588635457",
+      "name": "Neo-Classical",
+      "parentId": "1767100972913"
     }
   ],
   "tracks": [
@@ -477,8 +482,17 @@
       "artist": "Cube Cubic",
       "lyrics": "",
       "albumId": "1767162208459",
-      "audioUrl": "https://files.catbox.moe/cnsbsf.wav",
-      "coverUrl": "https://files.catbox.moe/jlmm3v.png"
+      "audioUrl": "https://archive.org/download/silence_202601/Hush.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/Hush.png"
+    },
+    {
+      "id": "1769591010370",
+      "title": "House of Sun",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1769588635457",
+      "audioUrl": "https://archive.org/download/silence_202601/House%20of%20Sun.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/House%20of%20Sun.png"
     }
   ]
 }
