@@ -1,0 +1,24 @@
+{
+  "name": "cube-cubic-site",
+  "version": "1.0.0",
+  "description": "Cube Cubic music site — served via Express on Render.com",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "compression": "^1.7.4",
+    "helmet": "^7.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CubeCubic/mp.git"
+  },
+  "author": "Cube Cubic",
+  "license": "MIT"
+}

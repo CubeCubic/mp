@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="ka">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ადმინი — Cube Cubic</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ═══ Admin-only overrides ═══ */
+    :root {
+      --site-header-height: 64px;
+      --site-header-safety: 14px;
+      --site-header-total: calc(var(--site-header-height) + var(--site-header-safety));
+      --compact-gap:    8px;
+      --compact-pad:   10px;
+      --compact-fs:    13px;
+      --panel-radius:   8px;
+      --admin-max:    960px;
+    }
+
+    html { scroll-padding-top: var(--site-header-total); }
+
+    body {
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background: #0e1a2a;
+      margin: 0;
+      padding: var(--site-header-total) 14px 30px;
+      font-size: 14px;
+      line-height: 1.4;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    /* Sticky top bar (mimics main header feel) */
+    .admin-topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--site-header-height);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 18px;
+      background: linear-gradient(180deg, rgba(11,43,69,.9), rgba(15,47,74,.82));
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      z-index: 1001;
+      box-sizing: border-box;
+    }
+    .admin-topbar h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffcc00;
+    }
+    .admin-topbar a {
+      color: rgba(255,255,255,.5);
+      font-size: 13px;
+      text-decoration: none;
+      margin-left: auto;
+      transition: color .18s;
+    }
+    .admin-topbar a:hover { color: #fff; }
+
+    /* ─── Main admin area ─── */
+    main#admin-app {
+      max-width: var(--admin-max);
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ─── Panel ─── */
+    .panel {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: var(--panel-radius);
+      padding: var(--compact-pad) 14px;
+      margin-bottom: 14px;
+      box-sizing: border-box;
+      font-size: var(--compact-fs);
+    }
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #e8d44d;
+    }
+
+    label {
+      display: block;
+      margin: 8px 0 3px;
+      color: rgba(255,255,255,.7);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: #fff;
+      font-size: var(--compact-fs);
+      box-sizing: border-box;
+      transition: border-color .18s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #0fb3a6;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+
+    /* ─── Row / Col layout ─── */
+    .row { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+    .col { flex: 1; min-width: 180px; }
+    .small { width: 180px; flex: 0 0 180px; min-width: 140px; }
+    .small button { width: 100%; box-sizing: border-box; margin-top: 8px; }
+
+    /* ─── Buttons ─── */
+    button {
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.12);
+      cursor: pointer;
+      font-size: var(--compact-fs);
+      font-weight: 600;
+      min-height: auto;
+      height: auto;
+      transition: background .18s, border-color .18s;
+      white-space: nowrap;
+    }
+    button:hover {
+      background: rgba(255,255,255,.18);
+      border-color: rgba(255,255,255,.25);
+    }
+    button:active { transform: scale(.96); }
+
+    /* Save button — blinking accent */
+    .save-btn {
+      background: linear-gradient(135deg, #0fb3a6, #2bb7a4);
+      border-color: transparent;
+      color: #fff;
+      font-weight: 700;
+    }
+    .save-btn:hover { filter: brightness(1.15); }
+    .save-btn.blinking {
+      animation: savePulse 1.6s ease-in-out infinite;
+    }
+    @keyframes savePulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(15,179,166,.4); }
+      50%     { box-shadow: 0 0 14px 4px rgba(15,179,166,.25); }
+    }
+
+    /* ─── Lists (albums / tracks) ─── */
+    .list {
+      margin-top: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+      border-top: 1px solid rgba(255,255,255,.06);
+      padding-top: 8px;
+    }
+    .item {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 7px 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,.03);
+      margin-bottom: 5px;
+      font-size: var(--compact-fs);
+      transition: background .15s;
+    }
+    .item:hover { background: rgba(255,255,255,.06); }
+    .meta { flex: 1; }
+    .meta strong { color: #fff; font-size: 13px; }
+    .muted { color: rgba(255,255,255,.38); font-size: 11px; margin-top: 2px; }
+
+    .item-actions { display: flex; gap: 5px; flex-shrink: 0; }
+    .item-actions button { padding: 4px 9px; font-size: 11px; }
+
+    /* ─── Search bar ─── */
+    .search-wrap {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .search-wrap input {
+      flex: 1;
+      padding: 7px 10px;
+      font-size: 13px;
+    }
+    .search-wrap .clear-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.5);
+      padding: 5px 8px;
+      font-size: 13px;
+      min-height: auto;
+    }
+    .search-wrap .clear-btn:hover { color: #fff; }
+
+    /* ─── Login panel ─── */
+    #login-form { margin-top: 40px; max-width: 360px; }
+    #login-form h2 { color: #fff; font-size: 18px; margin-bottom: 14px; }
+    #login-msg { font-size: 12px; color: #ff7a66; margin-left: 10px; }
+
+    /* ─── Logout ─── */
+    #logout-btn {
+      display: block;
+      margin-left: auto;
+      margin-top: 6px;
+      background: rgba(255,255,255,.07);
+      color: rgba(255,255,255,.55);
+      font-size: 12px;
+    }
+    #logout-btn:hover { color: #fff; }
+
+    /* ─── Modal ─── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-backdrop.hidden { display: none !important; }
+    .modal {
+      background: #fff;
+      color: #111;
+      border-radius: 10px;
+      width: 420px;
+      max-width: 94%;
+      padding: 20px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.5);
+      font-size: 13px;
+    }
+    .modal h3 { margin: 0 0 12px; font-size: 16px; color: #000; }
+    .modal label { color: #555; text-transform: none; letter-spacing: 0; font-size: 12px; margin: 8px 0 3px; }
+    .modal input, .modal select, .modal textarea {
+      background: #f5f5f5;
+      border-color: #ccc;
+      color: #111;
+    }
+    .modal input:focus, .modal select:focus, .modal textarea:focus {
+      border-color: #0fb3a6;
+    }
+    .modal .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .modal .actions button {
+      background: #eee;
+      color: #333;
+      border-color: #ccc;
+    }
+    .modal .actions button:last-child {
+      background: #0fb3a6;
+      color: #fff;
+      border-color: transparent;
+    }
+    .modal .actions button:last-child:hover { background: #12c9bb; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 600px) {
+      :root { --site-header-height: 56px; }
+      .row { flex-direction: column; }
+      .small { width: 100%; flex: 1 1 100%; }
+      .col { min-width: 100%; }
+      #login-form { margin-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky top bar -->
+  <div class="admin-topbar">
+    <h1>ადმინი</h1>
+    <a href="index.html">← გამდი გვერდი</a>
+  </div>
+
+  <main id="admin-app">
+
+    <!-- ═══ LOGIN ═══ -->
+    <div id="login-form" class="panel">
+      <h2>შესვლი</h2>
+      <label for="admin-password">პარול</label>
+      <input id="admin-password" type="password" placeholder="შეტივი პარול…" autocomplete="off">
+      <div style="margin-top:10px; display:flex; align-items:center;">
+        <button id="login-btn" type="button">შესვლი</button>
+        <span id="login-msg"></span>
+      </div>
+    </div>
+
+    <!-- ═══ ADMIN PANEL (hidden until login) ═══ -->
+    <div id="admin-panel" class="hidden">
+
+      <!-- Albums section -->
+      <div class="panel">
+        <h2>ალბომები</h2>
+        <div class="row">
+          <div class="col">
+            <label for="album-name">სახელი</label>
+            <input id="album-name" type="text" placeholder="ალბომის სახელი…">
+          </div>
+          <div class="small">
+            <label for="album-parent">შიდა ალბომი (ijaneti)</label>
+            <select id="album-parent">
+              <option value="">— გამდი ალბომი —</option>
+            </select>
+            <button id="btn-create-album" type="button">+ ალბომი</button>
+            <button id="btn-refresh-albums" type="button">გამდი</button>
+          </div>
+        </div>
+        <div class="list" id="albums-list"></div>
+      </div>
+
+      <!-- Add Track section -->
+      <div class="panel">
+        <h2>ტრეკი დამატ
+</h2>
+        <form id="add-track-form">
+          <div class="row">
+            <div class="col">
+              <label>სახელი</label>
+              <input name="title" required placeholder="ტრეკის სახელი…">
+              <label>შემდამიგი</label>
+              <input name="artist" placeholder="შემდამიგი…">
+              <label>ტექსტი (ლირიკი)</label>
+              <textarea name="lyrics" placeholder="ტექსტი…"></textarea>
+            </div>
+            <div class="small">
+              <label>ალბომი</label>
+              <select id="track-album-select" name="album"></select>
+              <label>Audio URL</label>
+              <input name="audioUrl" placeholder="https://archive.org/…">
+              <label>Cover URL</label>
+              <input name="coverUrl" placeholder="https://archive.org/…">
+              <button type="submit" style="margin-top:12px; background:#0fb3a6; border-color:transparent; width:100%;">+ დამატი ტრეკი</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Track list section -->
+      <div class="panel">
+        <h2>ტრეკების სია</h2>
+        <div class="search-wrap">
+          <input id="track-search" type="text" placeholder="გამდი ტრეკი…">
+          <button id="track-search-clear" class="clear-btn" type="button" title="გამდი">✕</button>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+          <button id="btn-refresh-tracks" type="button">გამდი ტრეკი</button>
+        </div>
+        <div id="admin-tracks" class="list"></div>
+      </div>
+
+      <!-- Save + Logout -->
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+        <button id="btn-save-all" type="button" class="save-btn blinking">
+          <span class="inner-text">დამახსოვი შsrednj</span>
+        </button>
+        <button id="logout-btn" type="button">გამდი</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══ Album edit modal ═══ -->
+  <div id="album-edit-modal" class="modal-backdrop hidden" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3>ალბომი რედაქტი</h3>
+      <label>სახელი</label>
+      <input id="modal-album-name" type="text">
+      <label>შიდა ალბომი</label>
+      <select id="modal-album-parent"></select>
+      <div class="actions">
+        <button id="modal-cancel" type="button">გამდი</button>
+        <button id="modal-save" type="button">შემং</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

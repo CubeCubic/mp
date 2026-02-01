@@ -1,0 +1,39 @@
+{
+  "albums": [
+    {
+      "id": "1",
+      "name": "Instrumental",
+      "parentId": null
+    },
+    {
+      "id": "2",
+      "name": "Songs",
+      "parentId": null
+    },
+    {
+      "id": "3",
+      "name": "Piano",
+      "parentId": "1"
+    }
+  ],
+  "tracks": [
+    {
+      "id": "1001",
+      "title": "Calm Piano",
+      "artist": "Studio A",
+      "albumId": "3",
+      "audioUrl": "https://archive.org/download/YourUploadID/calm-piano.mp3",
+      "coverUrl": "https://archive.org/download/YourUploadID/cover-piano.jpg",
+      "lyrics": "Instrumental — no lyrics."
+    },
+    {
+      "id": "1002",
+      "title": "Morning Light",
+      "artist": "Jane",
+      "albumId": "2",
+      "audioUrl": "https://archive.org/download/YourUploadID/morning-light.wav",
+      "coverUrl": "https://archive.org/download/YourUploadID/cover-morning.png",
+      "lyrics": "Wake up to the morning light,\nShining bright, a brand new sight.\nEvery day's a chance to grow,\nLet the golden sunrise show."
+    }
+  ]
+}

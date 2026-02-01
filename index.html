@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ka">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cube Cubic</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="images/smallcube.png">
+</head>
+<body>
+  <div class="site-wrapper">
+
+    <!-- ═══ HEADER + PLAYER ═══ -->
+    <header>
+      <div id="header-badge" aria-hidden="true">
+        <img src="images/midcube.png" alt="Cube Cubic">
+      </div>
+
+      <h1>Cube Cubic</h1>
+
+      <!-- Header Player (visible when a track is playing) -->
+      <div id="header-player">
+        <div class="header-player-cover">
+          <img id="player-cover-img" src="images/midcube.png" alt="ამდირ План">
+        </div>
+        <div class="player-info-header">
+          <span class="player-title" id="player-title-header">აირჩიეთ ტრეკი</span>
+          <span class="player-artist" id="player-artist-header"></span>
+        </div>
+        <div class="player-controls-header">
+          <button id="prev-sidebar" type="button" aria-label="წარჩი ტრეკი">◀</button>
+          <button id="play-sidebar" type="button" aria-label="დაკვა / დაჩერება">▶</button>
+          <button id="next-sidebar" type="button" aria-label="შემდეგი ტრეკი">▶▶</button>
+        </div>
+      </div>
+
+      <a href="admin.html" id="hidden-admin-link" aria-label="ককვ">Admin</a>
+    </header>
+
+    <!-- ═══ MAIN LAYOUT ═══ -->
+    <main class="new-main-layout">
+
+      <!-- Left sidebar: albums + search -->
+      <aside class="albums-sidebar">
+        <div class="controls">
+          <input id="global-search" type="text" placeholder="გამდი ალბომი, ტრეკი..." aria-label="გამდი">
+          <label for="album-list">ალბომები</label>
+          <input type="hidden" id="album-select" value="">
+          <div id="album-list" class="album-list-vertical"></div>
+
+          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
+          <select id="subalbum-select" style="display:none;">
+            <option value="">— ყველა ქვეალბომი —</option>
+          </select>
+
+          <button id="refresh-btn" type="button">გამდი</button>
+        </div>
+      </aside>
+
+      <!-- Right: track cards -->
+      <section class="tracks-section">
+        <div class="tracks-header">
+          <h2>ტრეკები</h2>
+        </div>
+        <div id="tracks" class="tracks-list-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Hidden audio element -->
+  <audio id="audio" preload="none"></audio>
+
+  <!-- ═══ LYRICS MODAL ═══ -->
+  <div id="lyrics-modal" class="hidden" aria-hidden="true">
+    <div class="modal-box" tabindex="-1">
+      <button id="modal-close" type="button">✕ დაიდი</button>
+      <h3 id="modal-title">ტექსტი</h3>
+      <pre id="modal-lyrics"></pre>
+    </div>
+  </div>
+
+  <!-- ═══ TOAST ═══ -->
+  <div id="toast" class="hidden" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
