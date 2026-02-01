@@ -983,6 +983,13 @@ button.save-btn {
   outline-offset: 4px !important;
 }
 
+/* --- НОВОЕ: Универсальный стиль фокуса --- */
+*:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+/* --- */
+
 /* Accessibility helpers */
 .hidden {
   display: none !important;

@@ -40,6 +40,10 @@
   let pendingTrackToOpen = null;
   let userHasInteracted = false;
 
+  // --- УДАЛЕНО: Переменная shuffleEnabled ---
+  // ---
+
+
   // --- Утилиты ---
   function formatTime(sec) {
     if (!isFinite(sec)) return '0:00';
@@ -86,6 +90,9 @@
     if (!tracksCountEl) return;
     const total = Array.isArray(tracks) ? tracks.length : 0;
     tracksCountEl.textContent = `სულ ტრეკი: ${total}`;
+    // --- НОВОЕ: Добавлен атрибут aria-live ---
+    tracksCountEl.setAttribute('aria-live', 'polite');
+    // ---
   }
 
   async function triggerDownload(url, filename = 'track.mp3') {
@@ -142,6 +149,9 @@
       modalCoverImg.style.visibility = 'hidden';
       modalCoverImg.src = ''; // сброс старого src
       modalCoverImg.alt = track.title || 'Cover';
+      // --- НОВОЕ: lazy loading для обложки в модалке ---
+      modalCoverImg.loading = 'lazy';
+      // ---
     }
 
     // Показываем модалку (фон и контейнер)
@@ -325,7 +335,7 @@
     });
   }
 
-  // --- Рендер треков (ИЗМЕНЕНО: перемешивание при каждой загрузке) ---
+  // --- Рендер треков (ИЗМЕНЕНО: теперь перемешивание всегда включено) ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -356,8 +366,9 @@
       return;
     }
 
-    // Перемешиваем треки случайным образом при каждой загрузке
+    // --- ИЗМЕНЕНО: Перемешиваем треки всегда ---
     toRender = shuffle(toRender);
+    // ---
 
     toRender.forEach(t => {
       const card = document.createElement('div');
@@ -368,6 +379,9 @@
       img.className = 'track-cover';
       img.src = getCoverUrl(t);
       img.alt = safeStr(t.title) + ' cover';
+      // --- НОВОЕ: lazy loading для обложки трека ---
+      img.loading = 'lazy';
+      // ---
       card.appendChild(img);
 
       const info = document.createElement('div');
@@ -479,14 +493,27 @@
     }
   }
 
-  if (refreshBtn) refreshBtn.addEventListener('click', loadData);
+  // --- ИЗМЕНЕНО: Обработчик кнопки Refresh с перемешиванием ---
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+        loadData(); // Загружаем данные заново
+        // renderTracks(); // Перемешивание происходит внутри renderTracks, вызывается из loadData
+    });
+  }
+  // ---
+
 
   // --- Плеер ---
   function updateSidebarPlayer(t = null) {
     if (!t) {
       if (playerTitleSidebar) playerTitleSidebar.textContent = 'აირჩიეთ ტრეკი';
       if (playerArtistSidebar) playerArtistSidebar.textContent = '';
-      if (playerCoverImg) playerCoverImg.src = 'images/midcube.png';
+      if (playerCoverImg) {
+        playerCoverImg.src = 'images/midcube.png';
+        // --- НОВОЕ: lazy loading для обложки в плеере ---
+        playerCoverImg.loading = 'lazy';
+        // ---
+      }
       if (playBtnSidebar) playBtnSidebar.textContent = '▶';
       if (headerPlayer) headerPlayer.classList.remove('playing');
       return;
@@ -494,7 +521,12 @@
 
     if (playerTitleSidebar) playerTitleSidebar.textContent = safeStr(t.title);
     if (playerArtistSidebar) playerArtistSidebar.textContent = safeStr(t.artist);
-    if (playerCoverImg) playerCoverImg.src = getCoverUrl(t);
+    if (playerCoverImg) {
+      playerCoverImg.src = getCoverUrl(t);
+      // --- НОВОЕ: lazy loading для обложки в плеере ---
+      playerCoverImg.loading = 'lazy';
+      // ---
+    }
     if (headerPlayer) headerPlayer.classList.add('playing');
   }
 
@@ -562,15 +594,28 @@
       if (audio.duration && progressSidebar) {
         progressSidebar.value = audio.currentTime;
         progressSidebar.max = audio.duration;
+        // --- НОВОЕ: Обновление aria-valuenow для прогресса ---
+        progressSidebar.setAttribute('aria-valuenow', audio.currentTime);
+        // ---
         if (timeCurrentSidebar) timeCurrentSidebar.textContent = formatTime(audio.currentTime);
       }
     });
     audio.addEventListener('loadedmetadata', () => {
       if (timeDurationSidebar) timeDurationSidebar.textContent = formatTime(audio.duration);
-      if (progressSidebar) progressSidebar.max = audio.duration || 0;
+      if (progressSidebar) {
+        progressSidebar.max = audio.duration || 0;
+        // --- НОВОЕ: Обновление aria-valuemax для прогресса ---
+        progressSidebar.setAttribute('aria-valuemax', audio.duration || 0);
+        // ---
+      }
     });
     audio.addEventListener('volumechange', () => {
-      if (volumeSidebar) volumeSidebar.value = audio.volume;
+      if (volumeSidebar) {
+        volumeSidebar.value = audio.volume;
+        // --- НОВОЕ: Обновление aria-valuenow для громкости ---
+        volumeSidebar.setAttribute('aria-valuenow', audio.volume);
+        // ---
+      }
     });
     audio.addEventListener('error', (e) => {
       console.error('Audio error:', e);
@@ -616,6 +661,41 @@
   // --- Инициализация ---
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
+
+    // --- УДАЛЕНО: Обработчик чекбокса перемешивания ---
+    // ---
+
+
+    // --- НОВОЕ: Обработчик клавиш ---
+    document.addEventListener('keydown', (e) => {
+      // Проверяем, что фокус не на поле ввода (чтобы не мешать вводу)
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      switch(e.key) {
+        case ' ':
+          e.preventDefault(); // Предотвратить прокрутку страницы
+          togglePlayPause();
+          break;
+        case 'ArrowRight':
+          if (e.ctrlKey) { // Ctrl + ->
+            e.preventDefault();
+            playNext();
+          }
+          break;
+        case 'ArrowLeft':
+          if (e.ctrlKey) { // Ctrl + <-
+            e.preventDefault();
+            playPrev();
+          }
+          break;
+        // Можно добавить и другие, например '+' для увеличения громкости
+        default:
+          break;
+      }
+    });
+    // ---
 
     if (audio && volumeSidebar) audio.volume = parseFloat(volumeSidebar.value || 1);
     updateSidebarPlayer(null);
