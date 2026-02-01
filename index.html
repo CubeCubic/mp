@@ -3,7 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cube Cubic</title>
+  <!-- ИЗМЕНЕНО: Улучшенный title для SEO -->
+  <title>Cube Cubic | მუსიკალური პლეერი ქართული ტექსტებით</title>
+  <!-- НОВОЕ: Мета-описание для SEO -->
+  <meta name="description" content="Cube Cubic — უნიკალური მუსიკალური პლეერი ქართული ლირიკით, ჯაზით, ფანკით და ინსტრუმენტული მუსიკით. მოისმინეთ უახლესი და კლასიკური ტრეკები ერთ ადგილზე.">
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" type="image/png" href="images/smallcube.png">
 </head>
@@ -13,7 +16,8 @@
       <div class="header-inner">
         <div id="header-left">
           <div id="header-badge" aria-hidden="false">
-            <img src="images/midcube.png" alt="midcube">
+            <!-- ИЗМЕНЕНО: Более осмысленный alt для логотипа -->
+            <img src="images/midcube.png" alt="Cube Cubic ლოგო">
           </div>
           <h1>
             <a id="brand-link" href="index.html" aria-label="Home">Cube Cubic</a>
@@ -57,7 +61,9 @@
       </div>
     </header>
 
-    <main class="new-main-layout">
+    <main class="new-main-layout" aria-labelledby="main-content-heading">
+      <!-- НОВОЕ: Скрытый, но семантически правильный H1 для основного контента -->
+      <h1 id="main-content-heading" class="visually-hidden">Cube Cubic მუსიკალური კოლექცია</h1>
       <aside class="albums-sidebar">
         <div class="controls">
           <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
@@ -91,7 +97,7 @@
 
     <!-- Кнопка "Наверх" (между контентом и футером) -->
     <div class="back-to-top-wrapper">
-      <button id="back-to-top" type="button" aria-label="Back to top">↑ ზევით</button>
+      <button id="back-to-top" type="button" aria-label="Back to top">ზევით</button>
     </div>
   </div>
 
@@ -145,6 +151,7 @@
       </span>
       <button id="share-site-btn" type="button" aria-label="Share website">Share Site</button>
       <!-- --- -->
+
     </p>
   </footer>
 

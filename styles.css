@@ -357,7 +357,7 @@ header h1 a#brand-link {
   text-align: center;
 }
 
-/* --- НОВОЕ: Явное задание стиля для кнопки "უახლესი ტრეკები" для соответствия кнопкам альбомов --- */
+/* --- Явное задание стиля для кнопки "უახლესი ტრეკები" для соответствия кнопкам альбомов --- */
 /* Цель: сделать #latest-tracks-btn визуально идентичной .album-list-vertical .album-list-button */
 #latest-tracks-btn {
   /* Копируем стили из .album-list-vertical .album-list-button */
@@ -1176,4 +1176,17 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
 #back-to-top:hover {
   transform: translateY(-3px);
   filter: brightness(0.95);
+}
+
+/* === Скрытый заголовок для SEO и доступности === */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }

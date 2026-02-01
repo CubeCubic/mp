@@ -164,7 +164,9 @@
     if (modalCoverImg) {
       modalCoverImg.style.visibility = 'hidden';
       modalCoverImg.src = ''; // сброс старого src
-      modalCoverImg.alt = track.title || 'Cover';
+      // --- ИЗМЕНЕНО: Более осмысленный alt для обложек в модалке ---
+      modalCoverImg.alt = safeStr(track.title) + ' - ' + getAlbumNameForTrack(track) + ' ალბომის გარეკანი';
+      // ---
       // --- lazy loading для обложки в модалке ---
       modalCoverImg.loading = 'lazy';
       // ---
@@ -409,7 +411,9 @@
       const img = document.createElement('img');
       img.className = 'track-cover';
       img.src = getCoverUrl(t);
-      img.alt = safeStr(t.title) + ' cover';
+      // --- ИЗМЕНЕНО: Более осмысленный alt для обложек в списке треков ---
+      img.alt = safeStr(t.title) + ' - ' + getAlbumNameForTrack(t) + ' ალბომის გარეკანი';
+      // ---
       // --- lazy loading для обложки трека ---
       img.loading = 'lazy';
       // ---
@@ -544,6 +548,9 @@
       if (playerArtistSidebar) playerArtistSidebar.textContent = '';
       if (playerCoverImg) {
         playerCoverImg.src = 'images/midcube.png';
+        // --- ИЗМЕНЕНО: Более осмысленный alt для логотипа в плеере ---
+        playerCoverImg.alt = 'Cube Cubic ლოგო';
+        // ---
         // --- lazy loading для обложки в плеере ---
         playerCoverImg.loading = 'lazy';
         // ---
@@ -557,6 +564,9 @@
     if (playerArtistSidebar) playerArtistSidebar.textContent = safeStr(t.artist);
     if (playerCoverImg) {
       playerCoverImg.src = getCoverUrl(t);
+      // --- ИЗМЕНЕНО: Более осмысленный alt для обложек в плеере ---
+      playerCoverImg.alt = safeStr(t.title) + ' - ' + getAlbumNameForTrack(t) + ' ალბომის გარეკანი';
+      // ---
       // --- lazy loading для обложки в плеере ---
       playerCoverImg.loading = 'lazy';
       // ---
