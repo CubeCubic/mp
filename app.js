@@ -467,7 +467,7 @@
   audio.addEventListener('playing',  () => { if (playBtn) playBtn.textContent = '❚❚'; });
   audio.addEventListener('pause',    () => { if (playBtn) playBtn.textContent = '▶';  });
   audio.addEventListener('ended',    playNext);
-  audio.addEventListener('error',    () => { updatePlayer(null); showToast('შეცდომა: ტრეკი ვერ ჩამოტვირთვ
+  audio.addEventListener('error',    () => { updatePlayer(null); showToast('შეცდომა: ტრეკი ვერ ჩამოიტვირთა
 '); });
 
   // Player button listeners
