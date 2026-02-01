@@ -357,6 +357,65 @@ header h1 a#brand-link {
   text-align: center;
 }
 
+/* --- НОВОЕ: Явное задание стиля для кнопки "უახლესი ტრეკები" для соответствия кнопкам альбомов --- */
+/* Цель: сделать #latest-tracks-btn визуально идентичной .album-list-vertical .album-list-button */
+#latest-tracks-btn {
+  /* Копируем стили из .album-list-vertical .album-list-button */
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #f2f9f8;
+  border: 1px solid rgba(15,179,166,0.06);
+  padding: 14px 16px; /* Убедитесь, что отступы такие же */
+  border-radius: calc(var(--card-radius) - 2px);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left; /* Важно для выравнивания содержимого */
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  width: 100%; /* Занимает всю ширину контейнера, как и кнопки альбомов */
+  box-sizing: border-box; /* Включает padding и border в ширину */
+  display: flex; /* Используем flexbox */
+  justify-content: space-between; /* Распределяем содержимое по краям */
+  align-items: center; /* Выравниваем по центру по вертикали */
+  gap: 12px; /* Промежуток между текстом и счётчиком */
+  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
+  /* Убираем любые стили, которые могут отличаться */
+  margin: 0;
+  /* Убираем стили reset, если они были */
+  appearance: none;
+  /* Убираем outline по умолчанию, если нужно */
+  outline: none;
+}
+
+#latest-tracks-btn:hover {
+  /* Копируем стили hover из .album-list-vertical .album-list-button */
+  transform: translateY(-6px);
+  box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
+  color: #000;
+}
+
+/* Стили для span'ов внутри #latest-tracks-btn */
+#latest-tracks-btn > span:first-child {
+  /* Стили для текста "უახლესი ტრეკები" */
+  /* Наследует color, font-size, font-weight от кнопки */
+  /* Может потребоваться выравнивание */
+  text-align: left; /* Убедитесь, что текст слева */
+  flex: 1; /* Занимает доступное пространство */
+}
+
+#latest-tracks-btn > span.track-count {
+  /* Стили для счётчика */
+  /* Копируем стили из .album-list-vertical .album-list-button .track-count */
+  background: rgba(0,0,0,0.10);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #fff;
+  min-width: 44px; /* Минимальная ширина для консистентности */
+  text-align: center; /* Центрируем текст внутри счётчика */
+}
+/* --- */
+
+
 /* Main layout */
 .new-main-layout {
   display: flex;
@@ -525,7 +584,7 @@ header h1 a#brand-link {
   box-sizing: border-box;
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f2f9f8' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-image: url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f2f9f8' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
   padding-right: 40px;
@@ -983,7 +1042,7 @@ button.save-btn {
   outline-offset: 4px !important;
 }
 
-/* --- НОВОЕ: Универсальный стиль фокуса --- */
+/* --- Универсальный стиль фокуса --- */
 *:focus {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
