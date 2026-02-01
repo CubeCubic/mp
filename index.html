@@ -19,7 +19,6 @@
       <a href="index.html" aria-label="index.html">მთავარი</a>
       <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
     </header>
-
     <main class="new-main-layout">
       <aside class="albums-sidebar">
         <div class="controls">
@@ -29,12 +28,11 @@
           <div id="album-list" class="album-list-vertical"></div>
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
           <select id="subalbum-select" style="display:none;">
-            <option value="">— ყველა ქვეალბომი —</option>
+            <option value="">— —</option>
           </select>
           <button id="refresh-btn" type="button">Refresh</button>
         </div>
       </aside>
-
       <section class="tracks-section">
         <div class="tracks-header">
           <h2>ტრეკები</h2>
@@ -54,7 +52,7 @@
     </div>
   </div>
 
-  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="toast" class="hidden" role="status" aria-live="polite"></div>
 
   <script src="app.js"></script>
 </body>
