@@ -1,8 +1,8 @@
 /* styles.css
-   Полный файл стилей — Deep ocean variant с тонким бирюзовым кантом по нижнему краю шапки.
-   Добавлены улучшенные адаптивные стили для мобильных устройств.
+   Deep ocean variant with mobile-friendly adjustments and player/album/track styles.
 */
-/* Переменные палитры и визуальные переменные */
+
+/* Root variables */
 :root{
   /* Deep ocean palette */
   --ocean-deep: #071428;
@@ -23,8 +23,12 @@
   --soft-shadow-neutral: 0 12px 36px rgba(2,8,14,0.55);
   --warm-accent-glow: 0 8px 28px rgba(255,122,102,0.14);
   --cover-border: 1px solid rgba(255,255,255,0.04);
+
+  /* Позиционирование кнопки Refresh: подберите значение в px, чтобы кнопка попала между вашими красными линиями */
+  --refresh-left: 18px;
 }
-/* Базовый фон страницы — глубокий морской градиент */
+
+/* Base layout and background */
 html, body {
   height: 100%;
   margin: 0;
@@ -33,9 +37,8 @@ html, body {
   color: #fff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--ocean-deep); /* fallback */
+  background-color: var(--ocean-deep);
 }
-/* BACKGROUND (Deep ocean gradient) */
 body::before {
   content: "";
   position: fixed;
@@ -48,7 +51,6 @@ body::before {
   filter: saturate(1.06) contrast(1.04) brightness(0.96);
   will-change: filter;
 }
-/* Overlay для читаемости */
 body::after {
   content: "";
   position: fixed;
@@ -57,7 +59,8 @@ body::after {
   background: linear-gradient(180deg, rgba(3,6,10,0.40), rgba(6,10,14,0.46));
   pointer-events: none;
 }
-/* Контейнер контента */
+
+/* Site wrapper */
 .site-wrapper {
   position: relative;
   z-index: 0;
@@ -68,6 +71,7 @@ body::after {
   padding-right: 20px;
   box-sizing: border-box;
 }
+
 /* Header */
 header {
   position: fixed;
@@ -89,7 +93,6 @@ header {
   border-bottom: 1px solid rgba(255,255,255,0.03);
   overflow: visible;
 }
-/* Тонкий бирюзовый кант по нижнему краю шапки */
 header::after {
   content: "";
   position: absolute;
@@ -102,7 +105,8 @@ header::after {
   pointer-events: none;
   box-shadow: 0 4px 12px rgba(15,179,166,0.12);
 }
-/* Левый блок */
+
+/* Header left block */
 #header-left {
   display: flex;
   align-items: center;
@@ -121,7 +125,6 @@ header::after {
   border-radius: 6px;
   box-shadow: 0 12px 34px rgba(2,8,14,0.6), 0 6px 18px rgba(15,179,166,0.06);
 }
-/* Бренд */
 header h1 {
   margin: 0;
   font-size: var(--title-font-size);
@@ -147,7 +150,8 @@ header h1 a#brand-link {
   font-weight: inherit;
   line-height: inherit;
 }
-/* Плеер (в header) */
+
+/* Header player */
 #header-player {
   grid-column: 2;
   display: flex;
@@ -155,7 +159,7 @@ header h1 a#brand-link {
   gap: 12px;
   justify-content: center;
   min-width: 320px;
-  max-width: 70%;
+  max-width: 1000%;
   box-sizing: border-box;
 }
 .header-player-cover {
@@ -200,6 +204,8 @@ header h1 a#brand-link {
   align-items: center;
   gap: 8px;
 }
+
+/* Player controls buttons */
 .player-controls-header button {
   width: var(--header-player-controls-size);
   height: var(--header-player-controls-size);
@@ -218,7 +224,8 @@ header h1 a#brand-link {
   transform: translateY(-2px);
   box-shadow: 0 10px 26px rgba(2,8,14,0.44), 0 3px 10px rgba(15,179,166,0.04);
 }
-/* Поиск и контейнеры */
+
+/* Global search */
 #global-search {
   margin-top: 12px;
   margin-bottom: 20px;
@@ -231,26 +238,50 @@ header h1 a#brand-link {
   width: 100%;
   box-sizing: border-box;
 }
+
+/* Controls and album header */
 .controls {
   border-bottom: none;
   padding-bottom: 0;
   margin-bottom: 0;
 }
-/* album header: label и кнопка в одну строку */
+
+/* Album header: контейнер относительный, чтобы кнопка могла позиционироваться внутри */
 .album-header {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin: 8px 0 12px 0;
 }
+
+/* Метка "ალბომები" — по умолчанию справа от кнопки, но позиция подстраивается ниже */
 .album-header label {
   margin: 0;
   font-size: 16px;
   font-weight: bold;
   color: var(--accent-2);
+  /* Сдвиг вправо, чтобы не перекрывать абсолютную кнопку; подгоняйте при необходимости */
+  margin-left: calc(var(--refresh-left) + 140px);
 }
-/* Refresh button — коралловый акцент */
+
+/* Album header controls: кнопка Refresh и счётчик — визуально остаются внутри контейнера,
+   но кнопка будет абсолютной и показана слева в пределах .album-header */
+.album-header-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  order: 1;
+  margin-left: 0;
+}
+
+/* Refresh button — абсолютное позиционирование внутри .album-header */
 #refresh-btn {
+  position: absolute;
+  left: var(--refresh-left);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
   background: var(--accent-color);
   color: #000;
   border: none;
@@ -262,21 +293,36 @@ header h1 a#brand-link {
   transition: transform 140ms ease, filter 140ms ease;
 }
 #refresh-btn:hover {
-  transform: translateY(-3px);
+  transform: translateY(-50%) translateY(-3px);
   filter: brightness(0.98);
 }
-/* Скрываем старую метку (если есть) */
+
+/* Tracks count — позиционируем относительно, чтобы не улетать при абсолютной кнопке.
+   Подгоните значение (86px) под реальную ширину кнопки + желаемый gap */
+.tracks-count {
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(255,255,255,0.06);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.03);
+  position: relative;
+  margin-left: calc(var(--refresh-left) + 86px);
+}
+
+/* Hide redundant label for album-select */
 .controls label[for="album-select"] {
   display: none;
 }
-/* Список альбомов контейнер */
+
+/* Album list vertical */
 .album-list-vertical {
   margin-top: 6px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-/* Большие кнопки альбомов (scoped) */
 .album-list-vertical .album-list-button {
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   color: #f2f9f8;
@@ -310,7 +356,8 @@ header h1 a#brand-link {
   min-width: 44px;
   text-align: center;
 }
-/* Новый layout */
+
+/* Main layout */
 .new-main-layout {
   display: flex;
   gap: 24px;
@@ -330,15 +377,17 @@ header h1 a#brand-link {
 .tracks-section {
   flex: 1;
   min-width: 0;
+  padding-top: 12px;
 }
 .tracks-header {
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 .tracks-header h2 {
   color: var(--accent-2);
   margin: 0 0 8px 0;
 }
-/* === Треки в три колонки === */
+
+/* Tracks grid and cards */
 #tracks.tracks-list-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -346,7 +395,6 @@ header h1 a#brand-link {
   padding: 0 10px;
   box-sizing: border-box;
 }
-/* Карточки треков */
 .tracks-list-grid .card {
   display: flex;
   flex-direction: column;
@@ -362,7 +410,6 @@ header h1 a#brand-link {
   transform: translateY(-6px);
   box-shadow: 0 22px 52px rgba(2,8,14,0.28), var(--warm-accent-glow);
 }
-/* Усиленный эффект для проигрываемой карточки */
 .tracks-list-grid .card.playing-track {
   background: linear-gradient(180deg, rgba(15,179,166,0.22), rgba(11,43,69,0.16));
   border: 2.5px solid rgba(255,122,102,0.30);
@@ -389,7 +436,6 @@ header h1 a#brand-link {
 .tracks-list-grid .card.playing-track.animate-deepocean {
   animation: deepOceanPulseBright 1800ms ease-in-out infinite;
 }
-/* Обложка трека */
 .tracks-list-grid .track-cover {
   width: 100%;
   height: 180px;
@@ -403,7 +449,7 @@ header h1 a#brand-link {
   border: var(--cover-border);
   box-shadow: 0 12px 36px rgba(2,8,14,0.22), 0 6px 20px rgba(255,122,102,0.08), 0 4px 14px rgba(15,179,166,0.06);
 }
-/* Track info */
+
 .tracks-list-grid .track-info {
   padding: 12px;
   flex: 1;
@@ -421,7 +467,6 @@ header h1 a#brand-link {
   color: var(--muted-ice);
   margin-bottom: 8px;
 }
-/* Track actions */
 .tracks-list-grid .track-actions {
   display: flex;
   justify-content: space-between;
@@ -456,22 +501,23 @@ header h1 a#brand-link {
   height: 18px;
   fill: white;
 }
-
-/* Надпись "ქვეალბომი" */
+/* Subalbum container and select */
+.subalbum-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 #subalbum-label {
   font-size: 16px;
   font-weight: bold;
-  color: #f2f9f8;
-  margin: 10px 0 0 0;
-  text-align: left;
+  color: var(--accent-2);
+  margin: 0;
 }
-
-/* Раскрывающийся список подальбомов — как кнопка альбома */
 #subalbum-select {
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   color: #f2f9f8;
   border: 1px solid rgba(15,179,166,0.06);
-  padding: 14px 40px 14px 16px;
+  padding: 11.9px 16px;
   border-radius: calc(var(--card-radius) - 2px);
   font-size: 16px;
   font-weight: 700;
@@ -482,32 +528,43 @@ header h1 a#brand-link {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f2f9f8' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
+  padding-right: 40px;
   transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
   box-shadow: 0 10px 28px rgba(2,8,14,0.18);
-  margin-top: 10px;
-  text-align: left;
 }
-
 #subalbum-select:hover {
   transform: translateY(-6px);
   box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
   color: #000;
 }
-
 #subalbum-select option {
   background: #111;
   color: #fff;
   padding: 10px;
 }
 
-/* Адаптивные стили */
+/* Responsive: up to 1024px */
 @media (max-width: 1024px) {
-  .new-main-layout { flex-direction: column; gap: 20px; }
-  .albums-sidebar { position: static; flex: none; max-height: none; overflow: visible; }
-  #tracks.tracks-list-grid { grid-template-columns: repeat(2, 1fr); }
-  #header-player { max-width: 60%; min-width: 280px; }
+  .new-main-layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .albums-sidebar {
+    position: static;
+    flex: none;
+    max-height: none;
+    overflow: visible;
+  }
+  #tracks.tracks-list-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  #header-player {
+    max-width: 60%;
+    min-width: 280px;
+  }
 }
 
+/* Responsive: up to 768px */
 @media (max-width: 768px) {
   :root {
     --header-height: 56px;
@@ -516,35 +573,120 @@ header h1 a#brand-link {
     --header-player-cover-size: 42px;
     --title-font-size: 24px;
   }
-  header { padding: 8px 12px; gap: 8px; }
-  #header-left { gap: 8px; }
-  #header-player { gap: 8px; min-width: 0; max-width: 55%; }
-  .player-title { font-size: 12px; }
-  .player-artist { font-size: 11px; }
-  .player-controls-header button { width: 36px; height: 36px; font-size: 15px; }
-  .site-wrapper { padding-left: 12px; padding-right: 12px; }
-  #global-search { font-size: 16px; padding: 12px; }
+
+  header {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  #header-left {
+    gap: 8px;
+  }
+
+  #header-player {
+    gap: 8px;
+    min-width: 0;
+    max-width: 55%;
+  }
+
+  .player-title {
+    font-size: 12px;
+  }
+  .player-artist {
+    font-size: 11px;
+  }
+
+  .player-controls-header button {
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+  }
+
+  .site-wrapper {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  #global-search {
+    font-size: 16px;
+    padding: 12px;
+  }
+
   .album-list-vertical .album-list-button,
-  #subalbum-select { padding: 16px; font-size: 17px; }
-  .tracks-header h2 { font-size: 20px; }
-  #tracks.tracks-list-grid { grid-template-columns: 1fr; gap: 16px; }
-  .tracks-list-grid .track-cover { height: 200px; }
-  .tracks-list-grid .track-info h4 { font-size: 17px; }
-  .tracks-list-grid .track-info div { font-size: 14px; }
-  .tracks-list-grid .track-actions button { padding: 12px; font-size: 14px; }
-  button, .album-list-button, .card, #subalbum-select { min-height: 48px; }
+  #subalbum-select {
+    padding: 16px;
+    font-size: 17px;
+  }
+
+  .tracks-header h2 {
+    font-size: 20px;
+  }
+
+  #tracks.tracks-list-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .tracks-list-grid .track-cover {
+    height: 200px;
+  }
+
+  .tracks-list-grid .track-info h4 {
+    font-size: 17px;
+  }
+
+  .tracks-list-grid .track-info div {
+    font-size: 14px;
+  }
+
+  .tracks-list-grid .track-actions button {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  button, .album-list-button, .card, #subalbum-select {
+    min-height: 48px;
+  }
+
+  /* На мобильных возвращаем потоковое расположение кнопки Refresh и сбрасываем смещения */
+  #refresh-btn {
+    position: static;
+    transform: none;
+    margin-right: 8px;
+  }
+  .tracks-count {
+    margin-left: 0;
+  }
+  .album-header label {
+    margin-left: 0;
+  }
 }
 
+/* Responsive: up to 480px */
 @media (max-width: 480px) {
-  header { grid-template-columns: auto 1fr; }
-  #header-player { grid-column: 1 / -1; justify-content: flex-start; margin-top: 8px; }
-  .player-controls-header { margin-left: auto; }
-  #global-search { margin-bottom: 16px; }
+  header {
+    grid-template-columns: auto 1fr;
+  }
+  #header-player {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    margin-top: 8px;
+  }
+
+  .player-controls-header {
+    margin-left: auto;
+  }
+  #global-search {
+    margin-bottom: 16px;
+  }
   .album-list-vertical .album-list-button,
-  #subalbum-select { padding: 18px 16px; font-size: 18px; }
+  #subalbum-select {
+    padding: 18px 16px;
+    font-size: 18px;
+  }
 }
 
-/* Admin: правый угол */
+/* Admin: hidden admin link */
 #hidden-admin-link {
   position: absolute;
   right: 12px;
@@ -574,8 +716,10 @@ header h1 a#brand-link {
   font-size: 14px;
   white-space: nowrap;
 }
-/* Модалки */
-#lyrics-modal.hidden { display: none !important; }
+/* Modals: improved rules to ensure modal overlay sits above header and cover is positioned inside modal */
+#lyrics-modal.hidden {
+  display: none !important;
+}
 #lyrics-modal {
   position: fixed;
   inset: 0;
@@ -583,20 +727,55 @@ header h1 a#brand-link {
   align-items: center;
   justify-content: center;
   background: rgba(0,0,0,0.36);
-  z-index: 2000;
+  z-index: 4000; /* выше header и всех элементов интерфейса */
+  pointer-events: auto;
 }
+
+/* Modal box: positioned container for absolute children (cover) */
 .modal-box {
-  background: white;
+  position: relative;
+  background: #ffffff;
   color: #000;
-  padding: 16px;
-  border-radius: 6px;
-  max-width: 420px;
+  padding: 18px;
+  border-radius: 8px;
+  max-width: 720px;
   width: 92%;
-  max-height: 70vh;
-  overflow-y: auto;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
 }
-.modal-box h3 { margin-top: 0; font-size: 16px; }
-.modal-box pre { white-space: pre-wrap; font-size: 13px; }
+.modal-box h3 {
+  margin-top: 0;
+  font-size: 16px;
+}
+.modal-box pre {
+  white-space: pre-wrap;
+  font-size: 13px;
+  margin-bottom: 0;
+}
+
+/* Маленькая обложка трека в модальном окне */
+.modal-cover {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 72px;
+  height: 72px;
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 10;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+  background: #eee; /* placeholder пока картинка не загрузится */
+  flex: 0 0 auto;
+}
+.modal-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  visibility: visible;
+}
+
 /* Toast */
 #toast {
   position: fixed;
@@ -612,4 +791,323 @@ header h1 a#brand-link {
   opacity: 0;
   transition: opacity 180ms ease;
 }
-#toast.visible { opacity: 1; }
+#toast.visible {
+  opacity: 1;
+}
+
+/* === ADMIN: blinking animation for save button === */
+@keyframes adminSaveBlink {
+  0%   { box-shadow: 0 10px 28px rgba(198,40,40,0.18); filter: brightness(1); background: #c62828; }
+  25%  { box-shadow: 0 10px 40px rgba(255,80,80,0.28); filter: brightness(1.06); background: linear-gradient(90deg,#c62828,#ff5252); }
+  50%  { box-shadow: 0 10px 28px rgba(198,40,40,0.18); filter: brightness(0.92); background: #c62828; }
+  75%  { box-shadow: 0 10px 40px rgba(255,80,80,0.28); filter: brightness(1.06); background: linear-gradient(90deg,#c62828,#ff5252); }
+  100% { box-shadow: 0 10px 28px rgba(198,40,40,0.18); filter: brightness(1); background: #c62828; }
+}
+
+#btn-save-all.save-btn.blinking {
+  animation: adminSaveBlink 1.2s linear infinite;
+}
+
+#btn-save-all.save-btn:focus-visible {
+  outline: 3px solid rgba(255,255,255,0.12);
+  outline-offset: 4px;
+}
+
+/* === Deep Ocean Footer === */
+.site-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(90deg, #001f3f, #003366, #004466);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #cce7ff;
+  z-index: 1000;
+}
+
+.site-footer a {
+  color: #4dd0e1;
+  text-decoration: none;
+  margin: 0 12px;
+  font-weight: 500;
+}
+.site-footer a:hover {
+  color: #80deea;
+  text-decoration: underline;
+}
+.site-footer p {
+  margin: 0;
+  display: inline-block;
+}
+.site-footer .icon {
+  vertical-align: middle;
+  margin: 0 4px;
+}
+.site-footer .icon svg {
+  fill: #4dd0e1;
+}
+
+/* === Additional responsive rules (repeated blocks consolidated) === */
+
+/* Small phones: до 480px */
+@media (max-width: 480px) {
+  .albums-sidebar {
+    width: 100%;
+    order: 2;
+  }
+  .tracks-section {
+    width: 100%;
+    order: 1;
+  }
+  header h1 {
+    font-size: 18px;
+  }
+}
+
+/* Medium devices: телефоны в горизонтали и небольшие планшеты (481px–768px) */
+@media (max-width: 768px) {
+  .albums-sidebar {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  .tracks-section {
+    width: 100%;
+  }
+  header h1 {
+    font-size: 20px;
+  }
+  #header-player {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .player-controls-header button {
+    font-size: 14px;
+  }
+}
+
+/* Tablets: 769px–1024px */
+@media (max-width: 1024px) {
+  .site-wrapper {
+    padding: 0 12px;
+  }
+  .albums-sidebar {
+    flex: 1 1 100%;
+    max-width: 300px;
+  }
+  .tracks-section {
+    flex: 1 1 calc(100% - 320px);
+  }
+  header h1 {
+    font-size: 22px;
+  }
+  #global-search {
+    font-size: 14px;
+  }
+}
+
+/* Modal cover as card-like */
+.modal-cover {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 12px 36px rgba(2,8,14,0.22),
+              0 6px 20px rgba(255,122,102,0.08),
+              0 4px 14px rgba(15,179,166,0.06);
+  background: #eee;
+}
+.modal-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+/* === ADMIN: Reliable override for #btn-save-all ===
+   This block must be last or near the end to ensure it overrides other rules.
+   It intentionally targets the wrapper and the button with high specificity
+   and uses !important only where necessary. */
+
+/* Ensure wrapper centers its content */
+.save-btn-wrapper {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Highest-priority override for the save button itself */
+#btn-save-all.save-btn,
+.save-btn-wrapper #btn-save-all,
+button.save-btn {
+  display: inline-block !important;
+  width: auto !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  padding: 8px 12px !important;
+  background: #c62828 !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+  border: none !important;
+  cursor: pointer !important;
+  height: 36px !important;
+  line-height: 20px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  box-shadow: 0 10px 28px rgba(198,40,40,0.18) !important;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease !important;
+  overflow: visible !important;
+}
+
+/* Ensure inner text is not affected by other transforms */
+#btn-save-all.save-btn .inner-text {
+  display: inline-block !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+  transform: none !important;
+}
+
+/* Keep blinking and focus styles intact */
+#btn-save-all.save-btn.blinking {
+  animation: adminSaveBlink 1.2s linear infinite !important;
+}
+#btn-save-all.save-btn:focus-visible {
+  outline: 3px solid rgba(255,255,255,0.12) !important;
+  outline-offset: 4px !important;
+}
+
+/* Accessibility helpers */
+.hidden {
+  display: none !important;
+}
+
+/* Large monitors: от 1200px и выше */
+@media (min-width: 1200px) {
+  .site-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .tracks-section {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header h1 {
+    font-size: 26px;
+  }
+  #header-player {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 2 * 160px);
+    max-width: none;
+    margin: 0;
+    padding: 10px 16px;
+    box-sizing: border-box;
+    z-index: 1002;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+  }
+  header {
+    position: fixed;
+    overflow: visible;
+    height: var(--header-height);
+  }
+}
+
+/* Force header player to sit visually inside the header on all viewports */
+header #header-player {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: min(920px, 82%) !important;
+  max-width: calc(100% - 140px) !important;
+  box-sizing: border-box !important;
+  z-index: 1003 !important;
+  pointer-events: auto !important;
+  margin: 0 !important;
+  gap: 10px !important;
+}
+
+/* Reduce internal sizes if needed */
+header #header-player .player-info-header { max-width: 36% !important; min-width: 0 !important; }
+header #header-player .player-title { max-width: 100% !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+header #header-player .player-artist { max-width: 100% !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Responsive tweaks */
+@media (max-width: 1024px) {
+  header #header-player {
+    width: min(760px, 84%) !important;
+    max-width: calc(100% - 110px) !important;
+  }
+  header #header-player .player-info-header { max-width: 40% !important; }
+}
+
+@media (max-width: 768px) {
+  header #header-player {
+    width: calc(100% - 28px) !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    max-width: none !important;
+    padding: 0 8px !important;
+    gap: 8px !important;
+  }
+  header #header-player .player-info-header { max-width: 52% !important; }
+  header #header-player .player-title { font-size: 13px !important; }
+  header #header-player .player-artist { font-size: 12px !important; }
+}
+
+@media (max-width: 480px) {
+  header #header-player {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: calc(100% - 24px) !important;
+    padding: 0 6px !important;
+    gap: 6px !important;
+  }
+  header #header-player .player-info-header { display: none !important; }
+  header #header-player .header-player-cover { margin-right: 6px !important; }
+  header h1 { padding-right: 10px; }
+}
+/* === Extra scroll space to avoid footer overlap === */
+.site-wrapper,
+.tracks-section {
+  padding-bottom: 80px; /* запас под фиксированный футер */
+}
+/* Back-to-top button */
+.back-to-top-wrapper {
+  text-align: center;
+  margin: 30px 0; /* отступ сверху и снизу */
+}
+
+#back-to-top {
+  background: var(--accent-color);
+  color: #071428; /* темный текст для контраста на светлом акценте */
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  transition: transform 140ms ease, filter 140ms ease;
+}
+
+#back-to-top:hover {
+  transform: translateY(-3px);
+  filter: brightness(0.95);
+}
