@@ -1,0 +1,23 @@
+{
+  "name": "cube-cubic-site",
+  "version": "1.0.0",
+  "description": "Static Cube Cubic site served via a lightweight Node server for Render.com",
+  "private": true,
+  "scripts": {
+    "start": "serve -s . -l $PORT",
+    "dev": "serve -s . -l 3000",
+    "prestart": "node -e \"console.log('Starting Cube Cubic site')\""
+  },
+  "dependencies": {
+    "serve": "^14.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CubeCubic/mp.git"
+  },
+  "author": "Cube Cubic",
+  "license": "MIT"
+}
