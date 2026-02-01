@@ -1,58 +1,14 @@
-// admin.js — статическая версия for GitHub Pages
-// Поддержка подальбомов (создание и редактирование), пароль 230470,
-// батч-режим (скачивание tracks.json вручную),
-// + вход по Enter
-// + редактирование треков (модалка)
-// + новая кнопка сохранения под шапкой
-(async function() {
-  if (!document.getElementById('admin-app')) return;
-  // Elements
-  const loginForm = document.getElementById('login-form');
-  const adminPanel = document.getElementById('admin-panel');
-  const loginBtn = document.getElementById('login-btn');
-  const loginMsg = document.getElementById('login-msg');
-  const passwordInput = document.getElementById('admin-password');
-  const albumName = document.getElementById('album-name');
-  const albumParent = document.getElementById('album-parent');
-  const btnCreateAlbum = document.getElementById('btn-create-album');
-  const btnRefreshAlbums = document.getElementById('btn-refresh-albums');
-  const btnSaveAll = document.getElementById('btn-save-all'); // новая кнопка
-  const albumsList = document.getElementById('albums-list');
-  const addForm = document.getElementById('add-track-form');
-  const trackAlbumSelect = document.getElementById('track-album-select');
-  const btnRefreshTracks = document.getElementById('btn-refresh-tracks');
-  const adminTracks = document.getElementById('admin-tracks');
-  const trackSearchInput = document.getElementById('track-search');
-  const trackSearchClear = document.getElementById('track-search-clear');
-  const logoutBtn = document.getElementById('logout-btn');
+(function () {
+  const albumsAdmin = document.getElementById('albums-admin');
+  const tracksAdmin = document.getElementById('tracks-admin');
+  const btnAddAlbum = document.getElementById('btn-add-album');
+  const btnAddTrack = document.getElementById('btn-add-track');
+  const btnSaveAll = document.getElementById('btn-save-all');
 
-  // Modal elements
-  const albumModal = document.getElementById('album-edit-modal');
-  const modalTitle = document.getElementById('modal-title');
-  const modalAlbumName = document.getElementById('modal-album-name');
-  const modalAlbumParent = document.getElementById('modal-album-parent');
-  const modalCancel = document.getElementById('modal-cancel');
-  const modalSave = document.getElementById('modal-save');
-
-  let loggedIn = false;
   let albums = [];
   let tracks = [];
-  let editingAlbumId = null;
 
-  // --- Login ---
-  function tryLogin() {
-    const pass = passwordInput.value.trim();
-    if (pass === '230470') {
-      loggedIn = true;
-      loginForm.classList.add('hidden');
-      adminPanel.classList.remove('hidden');
-      loadData();
-    } else {
-      loginMsg.textContent = 'არასწორი პაროლი';
-    }
-  }
-
-  // --- Data load ---
+  // --- Загрузка данных ---
   async function loadData() {
     try {
       const res = await fetch('tracks.json', { cache: 'no-store' });
@@ -61,155 +17,90 @@
       albums = data.albums || [];
       tracks = data.tracks || [];
       renderAlbums();
-      renderAlbumSelects();
       renderTracks();
     } catch (err) {
-      console.error(err);
-      alert('tracks.json არ მოიძებნა');
+      console.error('Ошибка загрузки tracks.json:', err);
     }
   }
 
-  // --- Render albums ---
+  // --- Рендер альбомов ---
   function renderAlbums() {
-    albumsList.innerHTML = '';
-    const mains = albums.filter(a => !a.parentId);
-    mains.forEach(a => {
-      const item = document.createElement('div');
-      item.className = 'list-item';
-      item.innerHTML = `
-        <span>${a.name} ${a.parentId ? '(ქვეალბომი)' : ''}</span>
-        <div>
-          <button data-id="${a.id}" class="edit-album">რედაქტირება</button>
-          <button data-id="${a.id}" class="delete-album">წაშლა</button>
-        </div>
+    albumsAdmin.innerHTML = '';
+    albums.forEach((a, idx) => {
+      const div = document.createElement('div');
+      div.className = 'admin-album';
+      div.innerHTML = `
+        <input type="text" value="${a.name || ''}" data-idx="${idx}" class="album-name-input">
+        <button type="button" class="btn-delete-album" data-idx="${idx}">Delete</button>
       `;
-      albumsList.appendChild(item);
-    });
-
-    albumsList.querySelectorAll('.edit-album').forEach(btn => {
-      btn.addEventListener('click', () => editAlbum(btn.dataset.id));
-    });
-    albumsList.querySelectorAll('.delete-album').forEach(btn => {
-      btn.addEventListener('click', () => deleteAlbum(btn.dataset.id));
+      albumsAdmin.appendChild(div);
     });
   }
 
-  function renderAlbumSelects() {
-    [albumParent, trackAlbumSelect, modalAlbumParent].forEach(sel => {
-      sel.innerHTML = '<option value="">— ძირითადი —</option>';
-      albums.forEach(a => {
-        const opt = document.createElement('option');
-        opt.value = a.id;
-        opt.textContent = a.name + (a.parentId ? ' (ქვეალბომი)' : '');
-        sel.appendChild(opt);
+  // --- Рендер треков ---
+  function renderTracks() {
+    tracksAdmin.innerHTML = '';
+    tracks.forEach((t, idx) => {
+      const div = document.createElement('div');
+      div.className = 'admin-track';
+      div.innerHTML = `
+        <input type="text" value="${t.title || ''}" data-idx="${idx}" class="track-title-input">
+        <input type="text" value="${t.artist || ''}" data-idx="${idx}" class="track-artist-input">
+        <button type="button" class="btn-delete-track" data-idx="${idx}">Delete</button>
+      `;
+      tracksAdmin.appendChild(div);
+    });
+  }
+
+  // --- Добавление альбома ---
+  btnAddAlbum.addEventListener('click', () => {
+    albums.push({ id: Date.now(), name: 'New Album' });
+    renderAlbums();
+  });
+
+  // --- Добавление трека ---
+  btnAddTrack.addEventListener('click', () => {
+    tracks.push({ id: Date.now(), title: 'New Track', artist: '' });
+    renderTracks();
+  });
+
+  // --- Удаление альбома ---
+  albumsAdmin.addEventListener('click', (ev) => {
+    if (ev.target.classList.contains('btn-delete-album')) {
+      const idx = parseInt(ev.target.dataset.idx, 10);
+      albums.splice(idx, 1);
+      renderAlbums();
+    }
+  });
+
+  // --- Удаление трека ---
+  tracksAdmin.addEventListener('click', (ev) => {
+    if (ev.target.classList.contains('btn-delete-track')) {
+      const idx = parseInt(ev.target.dataset.idx, 10);
+      tracks.splice(idx, 1);
+      renderTracks();
+    }
+  });
+
+  // --- Сохранение всех изменений ---
+  btnSaveAll.addEventListener('click', async () => {
+    btnSaveAll.classList.add('blinking');
+    const payload = { albums, tracks };
+    try {
+      await fetch('tracks.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload, null, 2)
       });
-    });
-  }
-
-  // --- Album CRUD ---
-  btnCreateAlbum.addEventListener('click', () => {
-    const name = albumName.value.trim();
-    if (!name) return alert('შეიყვანეთ სახელი');
-    const parentId = albumParent.value || null;
-    const newAlbum = { id: Date.now(), name, parentId };
-    albums.push(newAlbum);
-    albumName.value = '';
-    renderAlbums();
-    renderAlbumSelects();
-  });
-
-  function editAlbum(id) {
-    const album = albums.find(a => a.id == id);
-    if (!album) return;
-    editingAlbumId = id;
-    modalTitle.textContent = 'ალბომის რედაქტირება';
-    modalAlbumName.value = album.name;
-    modalAlbumParent.value = album.parentId || '';
-    albumModal.classList.remove('hidden');
-  }
-
-  function deleteAlbum(id) {
-    if (!confirm('დარწმუნებული ხართ?')) return;
-    albums = albums.filter(a => a.id != id);
-    tracks = tracks.filter(t => t.albumId != id);
-    renderAlbums();
-    renderAlbumSelects();
-    renderTracks();
-  }
-
-  modalCancel.addEventListener('click', () => {
-    albumModal.classList.add('hidden');
-    editingAlbumId = null;
-  });
-
-  modalSave.addEventListener('click', () => {
-    const name = modalAlbumName.value.trim();
-    if (!name) return alert('შეიყვანეთ სახელი');
-    const album = albums.find(a => a.id === editingAlbumId);
-    if (album) {
-      album.name = name;
-      album.parentId = modalAlbumParent.value || null;
+      btnSaveAll.classList.remove('blinking');
+      alert('Changes saved!');
+    } catch (err) {
+      console.error('Ошибка сохранения:', err);
+      btnSaveAll.classList.remove('blinking');
+      alert('Save failed!');
     }
-    albumModal.classList.add('hidden');
-    editingAlbumId = null;
-    renderAlbums();
-    renderAlbumSelects();
-    renderTracks();
   });
 
-  // --- Track add ---
-  document.getElementById('btn-add-track').addEventListener('click', () => {
-    const title = document.getElementById('track-title').value.trim();
-    const artist = document.getElementById('track-artist').value.trim();
-    const albumId = trackAlbumSelect.value;
-    const audioUrl = document.getElementById('track-audio').value.trim();
-    const coverUrl = document.getElementById('track-cover').value.trim();
-    const lyrics = document.getElementById('track-lyrics').value.trim();
-
-    if (!title || !artist || !albumId || !audioUrl) {
-      return alert('შეავსეთ საჭირო ველები');
-    }
-
-    const newTrack = {
-      id: Date.now(),
-      title,
-      artist,
-      albumId,
-      audioUrl,
-      coverUrl: coverUrl || null,
-      lyrics: lyrics || null
-    };
-
-    tracks.push(newTrack);
-    document.getElementById('track-title').value = '';
-    document.getElementById('track-artist').value = '';
-    document.getElementById('track-audio').value = '';
-    document.getElementById('track-cover').value = '';
-    document.getElementById('track-lyrics').value = '';
-
-    renderTracks();
-  });
-
-  // --- Render tracks ---
-  function renderTracks(query = '') {
-    adminTracks.innerHTML = '';
-    let filtered = tracks;
-    if (query) {
-      const q = query.toLowerCase();
-      filtered = tracks.filter(t =>
-        t.title.toLowerCase().includes(q) ||
-        t.artist.toLowerCase().includes(q)
-      );
-    }
-    filtered.forEach(t => {
-      const album = albums.find(a => a.id == t.albumId);
-      const albumName = album ? album.name : 'უცნობი';
-      const item = document.createElement('div');
-      item.className = 'list-item';
-      item.innerHTML = `
-        <div>
-          <strong>${t.title}</strong> — ${t.artist}<br>
-          <small>${albumName}</small>
-        </div>
-        <div>
-          <button data-id="${
+  // --- Инициализация ---
+  document.addEventListener('DOMContentLoaded', loadData);
+})();
