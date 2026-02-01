@@ -1,87 +1,273 @@
+index.html:
 <!doctype html>
 <html lang="ka">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cube Cubic</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" type="image/png" href="images/smallcube.png">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — Cube Cubic</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* --- Layout variables --- */
+    :root{
+      --site-header-height: 64px;
+      --site-header-safety: 12px;
+      --site-header-total: calc(var(--site-header-height) + var(--site-header-safety));
+      --compact-gap: 8px;
+      --compact-padding: 10px;
+      --compact-font-size: 13px;
+      --panel-radius: 8px;
+      --admin-max-width: 980px; /* narrowed admin area */
+    }
+
+    /* Ensure header doesn't cover content */
+    html { scroll-padding-top: var(--site-header-total); }
+    body {
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background: #111;
+      /* top padding accounts for the fixed site header */
+      padding: calc(var(--site-header-total)) 12px 12px 12px;
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+    input, textarea, select, button { scroll-margin-top: var(--site-header-total); }
+
+    /* Centered, narrower admin area */
+    main#admin-app {
+      max-width: var(--admin-max-width);
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Header */
+    header { margin: 0 0 8px 0; padding: 6px 0; }
+    h1 { color: #ffcc00; margin: 0 0 6px 0; font-size: 18px; line-height: 1.1; }
+    .hidden { display: none; }
+
+    /* Panels — compact */
+    .panel {
+      background: rgba(0,0,0,0.6);
+      padding: var(--compact-padding);
+      border-radius: var(--panel-radius);
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      font-size: var(--compact-font-size);
+    }
+
+    label { display:block; margin:6px 0 4px; color:#ffd; font-weight:600; font-size:13px; }
+
+    input[type="text"], input[type="password"], select, textarea {
+      width:100%;
+      padding:8px;
+      border-radius:6px;
+      border:1px solid #333;
+      background:#111;
+      color:#fff;
+      box-sizing: border-box;
+      font-size: 13px;
+    }
+
+    .row { display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; }
+    .col { flex:1; min-width:200px; }
+    .small { width:180px; flex:0 0 180px; min-width:140px; }
+
+    button {
+      background:#444;
+      color:#fff;
+      padding:8px 10px;
+      border-radius:6px;
+      border:none;
+      cursor:pointer;
+      font-size: 13px;
+    }
+    button:hover { background:#667; }
+
+    .list {
+      margin-top:8px;
+      max-height:300px;
+      overflow:auto;
+      border-top:1px dashed rgba(255,255,255,0.06);
+      padding-top:8px;
+    }
+    .item {
+      padding:6px;
+      border-radius:6px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      background:rgba(255,255,255,0.02);
+      margin-bottom:8px;
+      font-size: 13px;
+    }
+    .meta { flex:1; color:#ddd; font-size: 13px; }
+    .muted { color:#999; font-size:12px; }
+    .note { color:#ccc; font-size:12px; margin-top:6px; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-backdrop.hidden { display: none !important; }
+    .modal {
+      background: #fff; color: #000;
+      border-radius: 8px; width: 420px; max-width: 95%;
+      padding: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      font-size: 13px;
+    }
+    .modal h3 { margin-top: 0; font-size: 16px; }
+    .modal .actions { display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
+
+    #logout-btn { margin-top: 8px; padding: 8px 10px; background: #333; border-radius: 6px; }
+
+    #add-track-form textarea { min-height: 80px; }
+    #albums-list .item, #admin-tracks .item { padding: 6px; }
+    .small button { width:100%; box-sizing:border-box; }
+
+    /* Lower the login block so it sits clearly below the header */
+    /* You can adjust the value below if you need it lower/higher */
+    #login-form {
+      margin-top: 48px; /* increased margin to ensure the whole block is below header */
+    }
+
+    @media (max-width: 720px) {
+      :root { --site-header-height: 56px; --site-header-safety: 12px; }
+      .row { gap:8px; }
+      .small { width: 100%; flex: 1 1 100%; }
+      .col { min-width: 100%; }
+      body { padding-left: 10px; padding-right: 10px; }
+      #login-form { margin-top: 56px; } /* slightly larger on mobile */
+    }
+
+    /* Search input styling for tracks */
+    .track-search-wrap { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+    #track-search { flex:1; padding:8px; border-radius:6px; border:1px solid #333; background:#0f0f0f; color:#fff; }
+    #track-search-clear { background: transparent; border: 1px solid rgba(255,255,255,0.06); color:#fff; padding:6px 8px; border-radius:6px; cursor:pointer; }
+    #track-search-clear:hover { background: rgba(255,255,255,0.02); }
+
+    /* === Override only for the save-all button to make it shrink to text and be centered === */
+    /* This targets the specific button and overrides the .small button { width:100% } rule */
+    .save-btn-wrapper #btn-save-all {
+      display: inline-block !important;
+      width: auto !important;
+      box-sizing: border-box !important;
+    }
+    /* ================================================================================ */
+  </style>
 </head>
 <body>
-  <div class="site-wrapper">
+  <header>
+    <h1>ადმინისტრატორი</h1>
+    <a href="index.html" style="color:#fff; font-size:13px">მთავარი გვერდი</a>
+  </header>
 
-    <!-- ═══ HEADER + PLAYER ═══ -->
-    <header>
-      <div id="header-badge" aria-hidden="true">
-        <img src="images/midcube.png" alt="Cube Cubic">
+  <main id="admin-app">
+    <div id="login-form" class="panel">
+      <h2 style="margin:0 0 8px 0; font-size:16px">შესვლა</h2>
+      <form id="login-form-wrapper" style="margin:0">
+        <input id="admin-password" type="password" placeholder="პაროლი" />
+        <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+          <button id="login-btn" type="button">შესვლა</button>
+          <span id="login-msg" class="muted" style="margin-left:6px"></span>
+        </div>
+      </form>
+    </div>
+
+    <div id="admin-panel" class="hidden">
+      <div class="panel">
+        <h2 style="margin:0 0 8px 0; font-size:15px">ალბომები</h2>
+        <div class="row">
+          <div class="col">
+            <label for="album-name">სახელი</label>
+            <input id="album-name" type="text" />
+          </div>
+          <div class="small">
+            <label for="album-parent">Parent</label>
+            <select id="album-parent"><option value="">— მთავარი ალბომი —</option></select>
+          </div>
+          <div class="small" style="display:flex;flex-direction:column;gap:8px;">
+            <button id="btn-create-album" type="button">Create album</button>
+            <button id="btn-refresh-albums" type="button">Refresh</button>
+
+            <!-- Обёртка для центрирования кнопки -->
+            <div class="save-btn-wrapper" aria-hidden="false" style="width:100%; display:flex; justify-content:center;">
+              <!-- Изменено: ширина по тексту и центрирование в пределах строки -->
+              <button id="btn-save-all" type="button" style="width:auto; padding:8px 10px;">არ დაგავიწყდეს დამახსოვრება</button>
+            </div>
+
+          </div>
+        </div>
+        <div class="list" id="albums-list"></div>
       </div>
 
-      <h1>Cube Cubic</h1>
-
-      <!-- Header Player (visible when a track is playing) -->
-      <div id="header-player">
-        <div class="header-player-cover">
-          <img id="player-cover-img" src="images/midcube.png" alt="ამდირ План">
-        </div>
-        <div class="player-info-header">
-          <span class="player-title" id="player-title-header">აირჩიეთ ტრეკი</span>
-          <span class="player-artist" id="player-artist-header"></span>
-        </div>
-        <div class="player-controls-header">
-          <button id="prev-sidebar" type="button" aria-label="წარჩი ტრეკი">◀</button>
-          <button id="play-sidebar" type="button" aria-label="დაკვა / დაჩერება">▶</button>
-          <button id="next-sidebar" type="button" aria-label="შემდეგი ტრეკი">▶▶</button>
-        </div>
+      <div class="panel">
+        <h2 style="margin:0 0 8px 0; font-size:15px">ტრეკის დამატება</h2>
+        <form id="add-track-form">
+          <div class="row">
+            <div class="col">
+              <label>Title</label>
+              <input name="title" required>
+              <label>Artist</label>
+              <input name="artist">
+              <label>Lyrics</label>
+              <textarea name="lyrics"></textarea>
+            </div>
+            <div class="small">
+              <label>Album</label>
+              <select id="track-album-select" name="album"></select>
+              <label>Audio URL</label>
+              <input name="audioUrl">
+              <label>Cover URL</label>
+              <input name="coverUrl">
+              <button type="submit">დამატება</button>
+            </div>
+          </div>
+        </form>
       </div>
 
-      <a href="admin.html" id="hidden-admin-link" aria-label="ককვ">Admin</a>
-    </header>
+      <div class="panel">
+        <h2 style="margin:0 0 8px 0; font-size:15px">არსებული ტრეკები</h2>
 
-    <!-- ═══ MAIN LAYOUT ═══ -->
-    <main class="new-main-layout">
-
-      <!-- Left sidebar: albums + search -->
-      <aside class="albums-sidebar">
-        <div class="controls">
-          <input id="global-search" type="text" placeholder="გამდი ალბომი, ტრეკი..." aria-label="გამდი">
-          <label for="album-list">ალბომები</label>
-          <input type="hidden" id="album-select" value="">
-          <div id="album-list" class="album-list-vertical"></div>
-
-          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
-          <select id="subalbum-select" style="display:none;">
-            <option value="">— ყველა ქვეალბომი —</option>
-          </select>
-
-          <button id="refresh-btn" type="button">გამდი</button>
+        <!-- Search tracks -->
+        <div class="track-search-wrap">
+          <input id="track-search" type="text" placeholder="Поиск по названию, исполнителю или альбому..." aria-label="Search tracks">
+          <button id="track-search-clear" type="button" title="Очистить поиск">✕</button>
         </div>
-      </aside>
 
-      <!-- Right: track cards -->
-      <section class="tracks-section">
-        <div class="tracks-header">
-          <h2>ტრეკები</h2>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+          <button id="btn-refresh-tracks" type="button">Refresh tracks</button>
+          <span class="muted" style="font-size:12px">(Use Edit to change)</span>
         </div>
-        <div id="tracks" class="tracks-list-grid"></div>
-      </section>
-    </main>
-  </div>
+        <div id="admin-tracks" class="list"></div>
+      </div>
 
-  <!-- Hidden audio element -->
-  <audio id="audio" preload="none"></audio>
+      <div style="display:flex; justify-content:flex-end;">
+        <button id="logout-btn" type="button">გასვლა</button>
+      </div>
+    </div>
+  </main>
 
-  <!-- ═══ LYRICS MODAL ═══ -->
-  <div id="lyrics-modal" class="hidden" aria-hidden="true">
-    <div class="modal-box" tabindex="-1">
-      <button id="modal-close" type="button">✕ დაიდი</button>
-      <h3 id="modal-title">ტექსტი</h3>
-      <pre id="modal-lyrics"></pre>
+  <!-- Modal for editing album -->
+  <div id="album-edit-modal" class="modal-backdrop hidden" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h3 id="modal-title">Edit album</h3>
+      <label>Name</label>
+      <input id="modal-album-name">
+      <label>Parent album</label>
+      <select id="modal-album-parent"></select>
+      <div class="actions">
+        <button id="modal-cancel" type="button">Cancel</button>
+        <button id="modal-save" type="button">Save</button>
+      </div>
     </div>
   </div>
 
-  <!-- ═══ TOAST ═══ -->
-  <div id="toast" class="hidden" role="status" aria-live="polite"></div>
-
-  <script src="app.js"></script>
+  <script src="admin.js"></script>
 </body>
 </html>
