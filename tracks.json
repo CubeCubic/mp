@@ -1,39 +1,70 @@
 {
-  "albums": [
-    {
-      "id": "1",
-      "name": "Instrumental",
-      "parentId": null
-    },
-    {
-      "id": "2",
-      "name": "Songs",
-      "parentId": null
-    },
-    {
-      "id": "3",
-      "name": "Piano",
-      "parentId": "1"
-    }
-  ],
   "tracks": [
     {
-      "id": "1001",
-      "title": "Calm Piano",
-      "artist": "Studio A",
-      "albumId": "3",
-      "audioUrl": "https://archive.org/download/YourUploadID/calm-piano.mp3",
-      "coverUrl": "https://archive.org/download/YourUploadID/cover-piano.jpg",
-      "lyrics": "Instrumental — no lyrics."
+      "id": "a1b2c3d4-1111-2222-3333-aaaaaaaaaaaa",
+      "title": "First Track",
+      "artist": "Artist Name",
+      "filename": "f1e2d3c4-aaaa.mp3",
+      "originalName": "first.mp3",
+      "audioUrl": null,
+      "cover": "cover1.jpg",
+      "coverUrl": null,
+      "lyrics": "Some lyrics...",
+      "albumId": "11111111-2222-3333-4444-555555555555",
+      "likes": 0,
+      "createdAt": "2025-12-08T12:00:00.000Z"
     },
     {
-      "id": "1002",
-      "title": "Morning Light",
-      "artist": "Jane",
-      "albumId": "2",
-      "audioUrl": "https://archive.org/download/YourUploadID/morning-light.wav",
-      "coverUrl": "https://archive.org/download/YourUploadID/cover-morning.png",
-      "lyrics": "Wake up to the morning light,\nShining bright, a brand new sight.\nEvery day's a chance to grow,\nLet the golden sunrise show."
+      "id": "b2c3d4e5-2222-3333-4444-bbbbbbbbbbbb",
+      "title": "Second Track",
+      "artist": "Another Artist",
+      "filename": null,
+      "originalName": null,
+      "audioUrl": "https://example.com/stream/second.mp3",
+      "cover": null,
+      "coverUrl": "https://example.com/images/cover2.jpg",
+      "lyrics": "",
+      "albumId": "22222222-3333-4444-5555-666666666666",
+      "likes": 3,
+      "createdAt": "2025-11-01T09:30:00.000Z"
+    },
+    {
+      "id": "c3d4e5f6-3333-4444-5555-cccccccccccc",
+      "title": "Orphan Track",
+      "artist": "Unknown",
+      "filename": "orphan.mp3",
+      "originalName": "orphan.mp3",
+      "audioUrl": null,
+      "cover": null,
+      "coverUrl": null,
+      "lyrics": "",
+      "albumId": "11111111-2222-3333-4444-555555555555",
+      "likes": 0,
+      "createdAt": "2025-10-10T10:10:10.000Z"
+    },
+    {
+      "id": "d4e5f6g7-4444-5555-6666-dddddddddddd",
+      "title": "New Track Title",
+      "artist": "New Artist",
+      "filename": null,
+      "originalName": null,
+      "audioUrl": "https://archive.org/download/tracks_202512/newtrack.mp3",
+      "cover": null,
+      "coverUrl": "https://archive.org/download/tracks_202512/newcover.jpg",
+      "lyrics": "Текст песни...",
+      "albumId": "11111111-2222-3333-4444-555555555555",
+      "likes": 0,
+      "createdAt": "2025-12-10T11:20:00.000Z"
+    }
+  ],
+  "albums": [
+    {
+      "id": "11111111-2222-3333-4444-555555555555",
+      "name": "სინგლი"
+    },
+    {
+      "id": "22222222-3333-4444-5555-666666666666",
+      "name": "Some Album"
     }
   ]
 }
