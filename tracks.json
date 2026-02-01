@@ -54,6 +54,11 @@
       "id": "1768906315515",
       "name": "Experimental Rock",
       "parentId": "1767100972913"
+    },
+    {
+      "id": "1769966514846",
+      "name": "Neo-Classical",
+      "parentId": "1767100972913"
     }
   ],
   "tracks": [
@@ -470,6 +475,69 @@
       "albumId": "1767101030017",
       "audioUrl": "https://archive.org/download/silence_202601/Silence.wav",
       "coverUrl": "https://archive.org/download/silence_202601/2.png"
+    },
+    {
+      "id": "1769966029274",
+      "title": "After",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/silence_202601/After.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/After.png"
+    },
+    {
+      "id": "1769966216401",
+      "title": "Brooding Lady",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/silence_202601/Brooding%20Lady.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/Brooding%20Lady.wav"
+    },
+    {
+      "id": "1769966349664",
+      "title": "Gentle Dreams",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767101030017",
+      "audioUrl": "https://archive.org/download/silence_202601/Gentle%20Dreams.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/Gentle%20Dreams.png"
+    },
+    {
+      "id": "1769966556974",
+      "title": "House of Sun",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1769966514846",
+      "audioUrl": "https://archive.org/download/silence_202601/House%20of%20Sun.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/House%20of%20Sun.png"
+    },
+    {
+      "id": "1769966677893",
+      "title": "Hush",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/silence_202601/Hush.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/Hush.png"
+    },
+    {
+      "id": "1769966778212",
+      "title": "Voices of Summer",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/silence_202601/Voices%20of%20Summer.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/Voices%20of%20Summer.png"
+    },
+    {
+      "id": "1769966985739",
+      "title": "Why Not",
+      "artist": "Cube Cubic",
+      "lyrics": "This track is a lyrical instrumental composition with elements of modern rock and synth-pop. It creates a relaxed yet slightly melancholy mood, perfect for background music or atmospheric scenes.",
+      "albumId": "1768906315515",
+      "audioUrl": "https://archive.org/download/silence_202601/Why%20Not.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/Why%20Not%20.png"
     }
   ]
 }
