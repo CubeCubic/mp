@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ka">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cube Cubic Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="site-wrapper">
+    <header>
+      <h1>Admin Panel</h1>
+    </header>
+
+    <main>
+      <section class="admin-section">
+        <h2>Manage Albums</h2>
+        <div id="albums-admin"></div>
+        <button id="btn-add-album" type="button">Add Album</button>
+      </section>
+
+      <section class="admin-section">
+        <h2>Manage Tracks</h2>
+        <div id="tracks-admin"></div>
+        <button id="btn-add-track" type="button">Add Track</button>
+      </section>
+
+      <section class="admin-section">
+        <h2>Save Changes</h2>
+        <div class="save-btn-wrapper">
+          <button id="btn-save-all" class="save-btn" type="button">
+            <span class="inner-text">Save All</span>
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

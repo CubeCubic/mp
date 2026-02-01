@@ -1,0 +1,75 @@
+{
+  "albums": [
+    {
+      "id": 1,
+      "name": "Instrumental Music",
+      "parentId": null
+    },
+    {
+      "id": 2,
+      "name": "Songs in English",
+      "parentId": null
+    },
+    {
+      "id": 3,
+      "name": "Songs in Georgian",
+      "parentId": null
+    }
+  ],
+  "tracks": [
+    {
+      "id": 101,
+      "title": "Calm Piano",
+      "artist": "Unknown Artist",
+      "albumId": 1,
+      "audioUrl": "media/calm-piano.mp3",
+      "coverUrl": "images/midcube.png",
+      "lyrics": "Instrumental track — no lyrics."
+    },
+    {
+      "id": 102,
+      "title": "Guitar Flow",
+      "artist": "Studio Band",
+      "albumId": 1,
+      "audioUrl": "media/guitar-flow.mp3",
+      "coverUrl": "images/midcube.png",
+      "lyrics": "Instrumental track — no lyrics."
+    },
+    {
+      "id": 201,
+      "title": "Morning Light",
+      "artist": "John Doe",
+      "albumId": 2,
+      "audioUrl": "media/morning-light.mp3",
+      "coverUrl": "images/midcube.png",
+      "lyrics": "Wake up to the morning light,\nShining bright, a brand new sight..."
+    },
+    {
+      "id": 202,
+      "title": "Dream Away",
+      "artist": "Jane Smith",
+      "albumId": 2,
+      "audioUrl": "media/dream-away.mp3",
+      "coverUrl": "images/midcube.png",
+      "lyrics": "Dream away, let the stars guide,\nThrough the night, with hope inside..."
+    },
+    {
+      "id": 301,
+      "title": "ქართული სიმღერა",
+      "artist": "გიორგი",
+      "albumId": 3,
+      "audioUrl": "media/georgian-song.mp3",
+      "coverUrl": "images/midcube.png",
+      "lyrics": "ეს არის ქართული სიმღერა,\nსითბო და სიყვარული გულში..."
+    },
+    {
+      "id": 302,
+      "title": "მეგობრობა",
+      "artist": "ნინო",
+      "albumId": 3,
+      "audioUrl": "media/friendship.mp3",
+      "coverUrl": "images/midcube.png",
+      "lyrics": "მეგობრობა არის ძალა,\nგულში სითბო და ნათება..."
+    }
+  ]
+}
