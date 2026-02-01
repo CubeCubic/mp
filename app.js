@@ -30,7 +30,6 @@
 
   const toast = document.getElementById('toast');
   const refreshBtn = document.getElementById('refresh-btn');
-  const tracksCountEl = document.getElementById('tracks-count');
 
   // --- Состояние ---
   let albums = [];
@@ -73,21 +72,6 @@
     setTimeout(() => toast.classList.remove('visible'), 3000);
   }
 
-  // Fisher-Yates shuffle
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-
-  function updateTracksCount() {
-    if (!tracksCountEl) return;
-    const total = Array.isArray(tracks) ? tracks.length : 0;
-    tracksCountEl.textContent = `სულ ${total}`;
-  }
-
   async function triggerDownload(url, filename = 'track.mp3') {
     if (!url || url.trim() === '') {
       showToast('ფაილი არ არის ხელმისაწვდომი');
@@ -121,62 +105,6 @@
     if (!t || !t.albumId) return '';
     const album = albums.find(a => String(a.id) === String(t.albumId));
     return album ? album.name || '' : '';
-  }
-
-  // === Модальное окно с текстом и обложкой ===
-  // Улучшенная версия: показывает модалку корректно, ждёт загрузки обложки и предотвращает смещения
-  function openLyricsModal(track) {
-    if (!lyricsModal) return;
-
-    const modalTitleEl = document.getElementById('modal-title');
-    const modalLyricsEl = document.getElementById('modal-lyrics');
-    const modalCoverImg = document.getElementById('modal-cover-img');
-    const modalBox = lyricsModal.querySelector('.modal-box');
-
-    // Заполняем текстовые поля
-    modalTitleEl.textContent = track.title || 'Untitled';
-    modalLyricsEl.textContent = track.lyrics || 'Текст отсутствует';
-
-    // Подготовка к загрузке обложки
-    if (modalCoverImg) {
-      modalCoverImg.style.visibility = 'hidden';
-      modalCoverImg.src = ''; // сброс старого src
-      modalCoverImg.alt = track.title || 'Cover';
-    }
-
-    // Показываем модалку (фон и контейнер)
-    lyricsModal.classList.remove('hidden');
-    lyricsModal.setAttribute('aria-hidden', 'false');
-
-    // Если есть coverSrc — устанавливаем и ждём onload/onerror
-    if (modalCoverImg) {
-      modalCoverImg.onload = function() {
-        modalCoverImg.style.visibility = 'visible';
-      };
-      modalCoverImg.onerror = function() {
-        modalCoverImg.style.visibility = 'hidden';
-        console.warn('Cover image failed to load:', track.coverSrc || track.coverUrl || track.cover);
-      };
-
-      if (track.coverSrc) {
-        modalCoverImg.src = track.coverSrc;
-      } else {
-        // Попробуем получить через getCoverUrl
-        const url = getCoverUrl(track);
-        if (url) {
-          modalCoverImg.src = url;
-        } else {
-          modalCoverImg.style.visibility = 'hidden';
-        }
-      }
-    }
-  }
-
-  // Закрытие модалки (единственный обработчик, используется в нескольких местах)
-  function closeLyricsModal() {
-    if (!lyricsModal) return;
-    lyricsModal.classList.add('hidden');
-    lyricsModal.setAttribute('aria-hidden', 'true');
   }
 
   // --- Подсветка и автоскролл текущего трека ---
@@ -325,7 +253,7 @@
     });
   }
 
-  // --- Рендер треков (ИЗМЕНЕНО: перемешивание при каждой загрузке) ---
+  // --- Рендер треков ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -352,12 +280,10 @@
 
     if (!toRender.length) {
       tracksContainer.innerHTML = '<div class="muted">ტრეკები არ მოიძებნა</div>';
-      filteredTracks = [];
       return;
     }
 
-    // Перемешиваем треки случайным образом при каждой загрузке
-    toRender = shuffle(toRender);
+    toRender = toRender.sort((a, b) => (b.id || 0) - (a.id || 0));
 
     toRender.forEach(t => {
       const card = document.createElement('div');
@@ -377,7 +303,7 @@
       title.textContent = safeStr(t.title);
       info.appendChild(title);
 
-      // ИЗМЕНЕНО: вместо artist — название альбома/подальбома
+      // Вместо артиста — название альбома / подальбома
       const albumDiv = document.createElement('div');
       albumDiv.textContent = getAlbumNameForTrack(t);
       info.appendChild(albumDiv);
@@ -392,7 +318,10 @@
         lyricsBtn.textContent = 'ტექსტი';
         lyricsBtn.addEventListener('click', (ev) => {
           ev.stopPropagation();
-          openLyricsModal(t);
+          modalTitle.textContent = t.title || 'Lyrics';
+          modalLyrics.textContent = t.lyrics;
+          lyricsModal.classList.remove('hidden');
+          lyricsModal.setAttribute('aria-hidden', 'false');
         });
         actions.appendChild(lyricsBtn);
       }
@@ -466,10 +395,6 @@
       const data = await res.json();
       tracks = data.tracks || [];
       albums = data.albums || [];
-
-      // Обновляем счётчик треков рядом с кнопкой Refresh
-      updateTracksCount();
-
       buildAlbumSelectors();
       applySearch();
       renderTracks();
@@ -515,10 +440,10 @@
     audio.load();
 
     audio.play().catch(e => {
-      if (e && e.name === 'NotAllowedError' && userHasInteracted) {
+      if (e.name === 'NotAllowedError' && userHasInteracted) {
         if (playBtnSidebar) playBtnSidebar.textContent = '▶';
         showToast('დააჭირეთ ▶ დაკვრისთვის');
-      } else if (e && e.name !== 'NotAllowedError') {
+      } else if (e.name !== 'NotAllowedError') {
         console.error('Play error:', e);
       }
     });
@@ -550,33 +475,31 @@
   }
 
   // Обработчики аудио
-  if (audio) {
-    audio.addEventListener('playing', () => {
-      if (playBtnSidebar) playBtnSidebar.textContent = '❚❚';
-    });
-    audio.addEventListener('pause', () => {
-      if (playBtnSidebar) playBtnSidebar.textContent = '▶';
-    });
-    audio.addEventListener('ended', playNext);
-    audio.addEventListener('timeupdate', () => {
-      if (audio.duration && progressSidebar) {
-        progressSidebar.value = audio.currentTime;
-        progressSidebar.max = audio.duration;
-        if (timeCurrentSidebar) timeCurrentSidebar.textContent = formatTime(audio.currentTime);
-      }
-    });
-    audio.addEventListener('loadedmetadata', () => {
-      if (timeDurationSidebar) timeDurationSidebar.textContent = formatTime(audio.duration);
-      if (progressSidebar) progressSidebar.max = audio.duration || 0;
-    });
-    audio.addEventListener('volumechange', () => {
-      if (volumeSidebar) volumeSidebar.value = audio.volume;
-    });
-    audio.addEventListener('error', (e) => {
-      console.error('Audio error:', e);
-      updateSidebarPlayer(null);
-    });
-  }
+  audio.addEventListener('playing', () => {
+    if (playBtnSidebar) playBtnSidebar.textContent = '❚❚';
+  });
+  audio.addEventListener('pause', () => {
+    if (playBtnSidebar) playBtnSidebar.textContent = '▶';
+  });
+  audio.addEventListener('ended', playNext);
+  audio.addEventListener('timeupdate', () => {
+    if (audio.duration && progressSidebar) {
+      progressSidebar.value = audio.currentTime;
+      progressSidebar.max = audio.duration;
+      if (timeCurrentSidebar) timeCurrentSidebar.textContent = formatTime(audio.currentTime);
+    }
+  });
+  audio.addEventListener('loadedmetadata', () => {
+    if (timeDurationSidebar) timeDurationSidebar.textContent = formatTime(audio.duration);
+    if (progressSidebar) progressSidebar.max = audio.duration || 0;
+  });
+  audio.addEventListener('volumechange', () => {
+    if (volumeSidebar) volumeSidebar.value = audio.volume;
+  });
+  audio.addEventListener('error', (e) => {
+    console.error('Audio error:', e);
+    updateSidebarPlayer(null);
+  });
 
   // Управление плеером
   if (playBtnSidebar) playBtnSidebar.addEventListener('click', togglePlayPause);
@@ -587,20 +510,25 @@
 
   // Закрытие модалки текстов
   if (modalClose) {
-    modalClose.addEventListener('click', closeLyricsModal);
+    modalClose.addEventListener('click', () => {
+      lyricsModal.classList.add('hidden');
+      lyricsModal.setAttribute('aria-hidden', 'true');
+    });
   }
 
   if (lyricsModal) {
     lyricsModal.addEventListener('click', (ev) => {
       if (ev.target === lyricsModal) {
-        closeLyricsModal();
+        lyricsModal.classList.add('hidden');
+        lyricsModal.setAttribute('aria-hidden', 'true');
       }
     });
   }
 
   document.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape' && lyricsModal && !lyricsModal.classList.contains('hidden')) {
-      closeLyricsModal();
+      lyricsModal.classList.add('hidden');
+      lyricsModal.setAttribute('aria-hidden', 'true');
     }
   });
 
@@ -620,5 +548,4 @@
     if (audio && volumeSidebar) audio.volume = parseFloat(volumeSidebar.value || 1);
     updateSidebarPlayer(null);
   });
-
 })();
