@@ -552,6 +552,15 @@
       "albumId": "1767101022145",
       "audioUrl": "https://archive.org/download/silence_202601/I%20Dont%20Know.wav",
       "coverUrl": "https://archive.org/download/silence_202601/I%20Dont%20Know.png"
+    },
+    {
+      "id": "1770039764122",
+      "title": "Thoughts of Silence",
+      "artist": "Cube Cubic",
+      "lyrics": "New Age-Rock",
+      "albumId": "1767340968092",
+      "audioUrl": "https://archive.org/download/silence_202601/Thoughts%20of%20Silence.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/Thoughts%20of%20Silence.png"
     }
   ]
 }
