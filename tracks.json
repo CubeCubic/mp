@@ -543,6 +543,15 @@
       "albumId": "1768906315515",
       "audioUrl": "https://archive.org/download/silence_202601/Why%20Not.wav",
       "coverUrl": "https://archive.org/download/silence_202601/Why%20Not%20.png"
+    },
+    {
+      "id": "1770038523842",
+      "title": "I Dont Know",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767101022145",
+      "audioUrl": "https://archive.org/download/silence_202601/I%20Dont%20Know.wav",
+      "coverUrl": "https://archive.org/download/silence_202601/I%20Dont%20Know.png"
     }
   ]
 }
