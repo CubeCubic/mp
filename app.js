@@ -333,7 +333,7 @@
     return (
       safeStr(track.title).toLowerCase().includes(q) ||
       safeStr(track.artist).toLowerCase().includes(q) ||
-      safeStr(track.lyrics).toLowerCase().includes(q) ||
+      safeStr(track.lyrics).toLowerCase().includes(q) || // <-- Добавлена эта строка
       (albums.find(a => String(a.id) === String(track.albumId)) || {}).name?.toLowerCase().includes(q)
     );
   }
@@ -424,6 +424,13 @@
 
       const title = document.createElement('h4');
       title.textContent = safeStr(t.title);
+      // --- Индикация "Идет воспроизведение" ---
+      if (currentTrackIndex >= 0 && filteredTracks[currentTrackIndex]?.id === t.id) {
+        const playingIcon = document.createElement('span');
+        playingIcon.textContent = ' 🔊'; // Или используйте SVG-иконку
+        title.appendChild(playingIcon);
+      }
+      // ---
       info.appendChild(title);
 
       // ИЗМЕНЕНО: вместо artist — название альбома/подальбома

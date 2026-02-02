@@ -497,7 +497,9 @@ header h1 a#brand-link {
 }
 .tracks-list-grid .track-cover {
   width: 100%;
-  height: 180px;
+  /* height: 180px; */
+  aspect-ratio: 1 / 1;
+  height: auto;
   object-fit: contain;
   object-position: center;
   background-color: rgba(255,255,255,0.02);
@@ -520,11 +522,21 @@ header h1 a#brand-link {
   margin: 0 0 6px 0;
   font-size: 15px;
   line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .tracks-list-grid .track-info div {
   font-size: 13px;
   color: var(--muted-ice);
   margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .tracks-list-grid .track-actions {
   display: flex;
@@ -809,8 +821,10 @@ header h1 a#brand-link {
 }
 .modal-box pre {
   white-space: pre-wrap;
-  font-size: 13px;
+  font-size: 16px;
+  line-height: 1.6;
   margin-bottom: 0;
+  padding: 18px 18px 18px 100px;
 }
 
 /* Маленькая обложка трека в модальном окне */
@@ -1189,4 +1203,13 @@ header #header-player .player-artist { max-width: 100% !important; white-space: 
   clip: rect(0, 0, 0, 0) !important;
   white-space: nowrap !important;
   border: 0 !important;
+}
+
+/* Визуальная обратная связь для кнопок */
+button:active,
+.album-list-button:active,
+.download-button:active,
+.btn-has-lyrics:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
 }
