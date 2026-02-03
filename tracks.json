@@ -557,7 +557,7 @@
       "id": "1770039764122",
       "title": "Thoughts of Silence",
       "artist": "Cube Cubic",
-      "lyrics": "New Age-Rock",
+      "lyrics": "",
       "albumId": "1767340968092",
       "audioUrl": "https://archive.org/download/silence_202601/Thoughts%20of%20Silence.wav",
       "coverUrl": "https://archive.org/download/silence_202601/Thoughts%20of%20Silence.png"
@@ -570,6 +570,15 @@
       "albumId": "1767162208459",
       "audioUrl": "https://archive.org/download/rise-up_202512/Rivulet.wav",
       "coverUrl": "https://archive.org/download/rise-up_202512/Rivulet.png"
+    },
+    {
+      "id": "1770109505972",
+      "title": "The Last Secret",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767101022145",
+      "audioUrl": "https://archive.org/download/the-last-secret/The%20Last%20Secret.wav",
+      "coverUrl": "https://archive.org/download/the-last-secret/The%20Last%20Secret.png"
     }
   ]
 }
