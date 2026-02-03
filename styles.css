@@ -1,166 +1,188 @@
-/* =========================================
-   Cube Cubic — Deep Ocean Theme  v3.0
-   ========================================= */
+/* styles.css
+   Deep ocean variant with mobile-friendly adjustments and player/album/track styles.
+*/
 
-/* ═══ CSS Variables ═══ */
-:root {
-  --color-deep:   #071428;
-  --color-navy:   #0f2b45;
-  --color-teal:   #0fb3a6;
-  --color-sea:    #2bb7a4;
-  --color-coral:  #ff7a66;
-  --color-ice:    #dbeff0;
-  --accent:       var(--color-coral);
-  --accent-2:     var(--color-teal);
-  --text-muted:   var(--color-ice);
-  --header-h:     64px;
-  --padding-side: 20px;
-  --radius-sm:    6px;
-  --radius-md:    8px;
-  --radius-lg:    12px;
-  --shadow-soft:  0 12px 36px rgba(2,8,14,.55);
-  --shadow-strong:0 22px 52px rgba(2,8,14,.28);
-  --shadow-accent:0 8px 28px rgba(255,122,102,.14);
-  --t-fast:       180ms ease;
-  --t-med:        260ms cubic-bezier(.2,.9,.2,1);
+/* Root variables */
+:root{
+  /* Deep ocean palette */
+  --ocean-deep: #071428;
+  --ocean-navy: #0f2b45;
+  --ocean-teal: #0fb3a6;
+  --ocean-sea: #2bb7a4;
+  --ocean-coral: #ff7a66;
+  --muted-ice: #dbeff0;
+  --accent-color: var(--ocean-coral);
+  --accent-2: var(--ocean-teal);
+  --header-height: 64px;
+  --header-padding-vertical: 6px;
+  --badge-size: calc(var(--header-height) - 18px);
+  --title-font-size: calc(var(--header-height) * 0.36);
+  --header-player-controls-size: 36px;
+  --header-player-cover-size: calc(var(--header-height) - 18px);
+  --card-radius: 12px;
+  --soft-shadow-neutral: 0 12px 36px rgba(2,8,14,0.55);
+  --warm-accent-glow: 0 8px 28px rgba(255,122,102,0.14);
+  --cover-border: 1px solid rgba(255,255,255,0.04);
+
+  /* Позиционирование кнопки Refresh: подберите значение в px, чтобы кнопка попала между вашими красными линиями */
+  --refresh-left: 18px;
 }
 
-/* ═══ Reset / Base ═══ */
+/* Base layout and background */
 html, body {
   height: 100%;
   margin: 0;
-  font-family: 'Inter', Arial, sans-serif;
+  padding: 0;
+  font-family: Arial, sans-serif;
   color: #fff;
-  background-color: var(--color-deep);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--ocean-deep);
 }
-
-/* Deep gradient background (fixed, behind everything) */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -3;
-  background: linear-gradient(135deg,
-    var(--color-deep) 0%,
-    var(--color-navy) 35%,
-    var(--color-teal) 70%,
-    var(--color-sea)  100%
-  );
-  background-attachment: fixed;
-  filter: saturate(1.06) contrast(1.04) brightness(.96);
+  background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean-navy) 35%, var(--ocean-teal) 70%, var(--ocean-sea) 100%);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  filter: saturate(1.06) contrast(1.04) brightness(0.96);
+  will-change: filter;
 }
-/* Dark overlay so text stays readable */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -2;
-  background: linear-gradient(180deg, rgba(3,6,10,.42), rgba(6,10,14,.48));
+  background: linear-gradient(180deg, rgba(3,6,10,0.40), rgba(6,10,14,0.46));
+  pointer-events: none;
 }
 
-/* ═══ Layout wrapper ═══ */
+/* Site wrapper */
 .site-wrapper {
   position: relative;
   z-index: 0;
-  padding-top: calc(var(--header-h) + 16px);
-  max-width: min(92vw, 1440px);
+  padding-top: calc(var(--header-height) + 12px);
+  max-width: 1440px;
   margin: 0 auto;
-  padding-inline: var(--padding-side);
+  padding-left: 20px;
+  padding-right: 20px;
   box-sizing: border-box;
-  min-height: calc(100vh - var(--header-h) - 16px);
 }
 
-/* ═══ Header ═══ */
+/* Header */
 header {
   position: fixed;
-  top: 0; left: 0; right: 0;
-  height: var(--header-h);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  padding: var(--header-padding-vertical) 16px;
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 12px;
-  padding: 6px 18px;
-  background: linear-gradient(180deg,
-    rgba(11,43,69,.88),
-    rgba(15,47,74,.80)
-  );
-  border-bottom: 1px solid rgba(255,255,255,.04);
-  backdrop-filter: blur(6px) saturate(1.04);
-  -webkit-backdrop-filter: blur(6px) saturate(1.04);
+  background: linear-gradient(180deg, rgba(11,43,69,0.86), rgba(15,47,74,0.78));
+  color: var(--accent-color);
   z-index: 1001;
   box-sizing: border-box;
+  backdrop-filter: blur(6px) saturate(1.04);
+  -webkit-backdrop-filter: blur(6px) saturate(1.04);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  overflow: visible;
+}
+header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  z-index: 1002;
+  background: linear-gradient(90deg, rgba(15,179,166,1) 0%, rgba(43,183,164,0.95) 50%, rgba(11,43,69,0.0) 100%);
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(15,179,166,0.12);
 }
 
-header h1 {
-  margin: 0;
-  font-size: calc(var(--header-h) * .36);
-  font-weight: 800;
-  color: var(--accent);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-shadow: 0 1px 0 rgba(0,0,0,.14),
-               0 3px 8px rgba(0,0,0,.12),
-               0 0 8px rgba(255,122,102,.06);
-}
-
-/* Badge (logo image in header) */
-#header-badge {
-  width:  calc(var(--header-h) - 20px);
-  height: calc(var(--header-h) - 20px);
-  flex-shrink: 0;
-}
-#header-badge img {
-  width: 100%; height: 100%;
-  object-fit: contain;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 12px 34px rgba(2,8,14,.6),
-              0 6px 18px rgba(15,179,166,.06);
-}
-
-/* Hidden admin link (top-right corner, tiny) */
-#hidden-admin-link {
-  color: rgba(255,255,255,.18);
-  font-size: 11px;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color var(--t-fast);
-}
-#hidden-admin-link:hover { color: rgba(255,255,255,.55); }
-
-/* ═══ Header Player ═══ */
-#header-player {
-  display: none;           /* hidden until a track plays */
+/* Header left block */
+#header-left {
+  display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
-  max-width: 420px;
-  width: 100%;
+  grid-column: 1;
 }
-#header-player.playing { display: flex; }
-
-.header-player-cover {
-  width:  calc(var(--header-h) - 20px);
-  height: calc(var(--header-h) - 20px);
-  flex-shrink: 0;
-  border-radius: var(--radius-sm);
+#header-badge {
+  width: var(--badge-size);
+  height: var(--badge-size);
+}
+#header-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 12px 34px rgba(2,8,14,0.6), 0 6px 18px rgba(15,179,166,0.06);
+}
+header h1 {
+  margin: 0;
+  font-size: var(--title-font-size);
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(15,179,166,.12), rgba(11,43,69,.08));
-  box-shadow: 0 12px 34px rgba(2,8,14,.6),
-              0 6px 18px rgba(15,179,166,.05);
+  color: var(--accent-color);
+  -webkit-text-stroke: 0.4px rgba(0,0,0,0.18);
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.14),
+    0 3px 8px rgba(0,0,0,0.12),
+    0 0 8px rgba(255,122,102,0.06);
+  filter: drop-shadow(0 6px 12px rgba(255,122,102,0.05));
+  transition: text-shadow 160ms ease, transform 160ms ease;
+}
+header h1 a#brand-link {
+  color: var(--accent-color) !important;
+  text-decoration: none;
+  display: inline-block;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+/* Header player */
+#header-player {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  min-width: 320px;
+  max-width: 1000%;
+  box-sizing: border-box;
+}
+.header-player-cover {
+  width: var(--header-player-cover-size);
+  height: var(--header-player-cover-size);
+  border-radius: 6px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(15,179,166,0.10), rgba(11,43,69,0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 34px rgba(2,8,14,0.6), 0 6px 18px rgba(15,179,166,0.05);
 }
 .header-player-cover img {
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
-
 .player-info-header {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  flex: 1;
+  max-width: 260px;
 }
 .player-title {
   font-size: 13px;
@@ -172,426 +194,1022 @@ header h1 {
 }
 .player-artist {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--muted-ice);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .player-controls-header {
   display: flex;
-  gap: 6px;
-  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
 }
+
+/* Player controls buttons */
 .player-controls-header button {
-  width: 34px; height: 34px;
+  width: var(--header-player-controls-size);
+  height: var(--header-player-controls-size);
   border-radius: 50%;
   border: none;
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
   color: var(--accent-2);
   cursor: pointer;
-  font-size: 13px;
-  display: flex; align-items: center; justify-content: center;
-  transition: transform var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
 }
 .player-controls-header button:hover {
-  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-  transform: scale(1.1);
-  box-shadow: 0 4px 14px rgba(15,179,166,.2);
-}
-.player-controls-header button:active {
-  transform: scale(.95);
-}
-
-/* ═══ Main layout: sidebar + tracks ═══ */
-.new-main-layout {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 24px;
-  align-items: start;
-}
-
-/* ─── Sidebar ─── */
-.albums-sidebar {
-  position: sticky;
-  top: calc(var(--header-h) + 20px);
-  max-height: calc(100vh - var(--header-h) - 40px);
-  overflow-y: auto;
-  padding-right: 8px;
-}
-.albums-sidebar .controls {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.albums-sidebar label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  margin-bottom: -6px;  /* tighten gap above list */
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(2,8,14,0.44), 0 3px 10px rgba(15,179,166,0.04);
 }
 
 /* Global search */
 #global-search {
-  width: 100%;
-  padding: 9px 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(255,255,255,.06);
+  margin-top: 12px;
+  margin-bottom: 20px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   color: #fff;
-  font-size: 13px;
+  font-size: 15px;
+  width: 100%;
   box-sizing: border-box;
-  transition: border-color var(--t-fast), background var(--t-fast);
-}
-#global-search::placeholder { color: rgba(255,255,255,.35); }
-#global-search:focus {
-  outline: none;
-  border-color: var(--accent-2);
-  background: rgba(255,255,255,.09);
 }
 
-/* Album buttons (vertical list) */
-.album-list-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+/* Controls and album header */
+.controls {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
-.album-list-button {
+
+/* Album header: контейнер относительный, чтобы кнопка могла позиционироваться внутри */
+.album-header {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 9px 12px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  background: rgba(255,255,255,.04);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: left;
-  transition: background var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
-  min-height: auto;
-  box-sizing: border-box;
-}
-.album-list-button:hover {
-  background: rgba(255,255,255,.09);
-  border-color: rgba(255,255,255,.08);
-}
-.album-list-button:active { transform: scale(.97); }
-.album-list-button.selected {
-  background: linear-gradient(135deg, rgba(15,179,166,.18), rgba(255,122,102,.12));
-  border-color: rgba(15,179,166,.35);
-  color: #fff;
-}
-.album-list-button .track-count {
-  font-size: 11px;
-  font-weight: 400;
-  color: rgba(255,255,255,.38);
+  gap: 12px;
+  margin: 8px 0 12px 0;
 }
 
-/* Subalbum select */
-#subalbum-select {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(255,255,255,.06);
-  color: #fff;
-  font-size: 13px;
-  box-sizing: border-box;
-  cursor: pointer;
+/* Метка "ალბომები" — по умолчанию справа от кнопки, но позиция подстраивается ниже */
+.album-header label {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--accent-2);
+  /* Сдвиг вправо, чтобы не перекрывать абсолютную кнопку; подгоняйте при необходимости */
+  margin-left: calc(var(--refresh-left) + 140px);
 }
-#subalbum-select:focus { outline: none; border-color: var(--accent-2); }
 
-/* Refresh button (sidebar) */
+/* Album header controls: кнопка Refresh и счётчик — визуально остаются внутри контейнера,
+   но кнопка будет абсолютной и показана слева в пределах .album-header */
+.album-header-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 88px;
+  order: 1;
+  margin-left: 0;
+}
+
+/* Refresh button — абсолютное позиционирование внутри .album-header */
 #refresh-btn {
-  align-self: flex-start;
-  padding: 7px 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(255,255,255,.06);
-  color: rgba(255,255,255,.6);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  min-height: auto;
-  transition: background var(--t-fast), color var(--t-fast);
-}
-#refresh-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
-
-/* ─── Tracks Section ─── */
-.tracks-section { min-width: 0; }
-.tracks-header h2 {
-  margin: 0 0 14px 0;
-  font-size: 18px;
+  position: absolute;
+  left: var(--refresh-left);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  background: var(--accent-color);
+  color: #000;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
   font-weight: 700;
-  color: var(--text-muted);
-}
-
-/* Track grid */
-.tracks-list-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: clamp(12px, 2vw, 20px);
-}
-.tracks-list-grid .muted {
-  color: rgba(255,255,255,.35);
-  font-size: 14px;
-  padding: 20px 0;
-}
-
-/* ═══ Track Card ═══ */
-.card {
-  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
-  border: 1px solid rgba(255,255,255,.05);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
   cursor: pointer;
-  box-shadow: var(--shadow-soft);
-  transition: transform var(--t-med), box-shadow var(--t-med);
+  box-shadow: 0 10px 28px rgba(255,122,102,0.12);
+  transition: transform 140ms ease, filter 140ms ease;
+}
+#refresh-btn:hover {
+  transform: translateY(-50%) translateY(-3px);
+  filter: brightness(0.98);
+}
+
+/* Tracks count — позиционируем относительно, чтобы не улетать при абсолютной кнопке.
+   Подгоните значение (86px) под реальную ширину кнопки + желаемый gap */
+.tracks-count {
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(255,255,255,0.06);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.03);
+  position: relative;
+  margin-left: calc(var(--refresh-left) + 86px);
+}
+
+/* Hide redundant label for album-select */
+.controls label[for="album-select"] {
+  display: none;
+}
+
+/* Album list vertical */
+.album-list-vertical {
+  margin-top: 6px;
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-strong), var(--shadow-accent);
-}
-.card:active { transform: translateY(-2px); }
-
-/* Playing card highlight + pulse */
-.card.playing-track {
-  background: linear-gradient(180deg, rgba(15,179,166,.22), rgba(11,43,69,.16));
-  border: 2px solid rgba(255,122,102,.32);
-  box-shadow: 0 36px 96px rgba(2,8,14,.62),
-              0 16px 48px rgba(255,140,120,.26),
-              0 10px 30px rgba(15,179,166,.16);
-  transform: translateY(-6px) scale(1.03);
-  animation: cardPulse 2s ease-in-out infinite;
-}
-@keyframes cardPulse {
-  0%,100% { transform: translateY(-6px) scale(1.03); }
-  50%     { transform: translateY(-8px) scale(1.04); }
-}
-
-/* Cover image inside card */
-.track-cover {
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  display: block;
-  background-color: var(--color-navy);
-}
-
-/* Info row */
-.track-info {
-  padding: 10px 12px 6px;
-  flex: 1;
-}
-.track-info h4 {
-  margin: 0 0 4px;
-  font-size: 14px;
+.album-list-vertical .album-list-button {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #f2f9f8;
+  border: 1px solid rgba(15,179,166,0.06);
+  padding: 14px 16px;
+  border-radius: calc(var(--card-radius) - 2px);
+  font-size: 16px;
   font-weight: 700;
-  color: #fff;
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.track-info > div {
-  font-size: 12px;
-  color: rgba(255,255,255,.45);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Action buttons row */
-.track-actions {
-  display: flex;
-  gap: 6px;
-  padding: 0 10px 10px;
-  justify-content: flex-end;
-}
-.track-actions button {
-  min-height: auto;
-  height: 32px;
-  padding: 0 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(255,255,255,.07);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
+  text-align: left;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  gap: 5px;
-  transition: background var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
+}
+.album-list-vertical .album-list-button:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
+  color: #000;
+}
+.album-list-vertical .album-list-button .track-count {
+  background: rgba(0,0,0,0.10);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #fff;
+  min-width: 44px;
+  text-align: center;
+}
+
+/* --- Явное задание стиля для кнопки "უახლესი ტრეკები" для соответствия кнопкам альбомов --- */
+/* Цель: сделать #latest-tracks-btn визуально идентичной .album-list-vertical .album-list-button */
+#latest-tracks-btn {
+  /* Копируем стили из .album-list-vertical .album-list-button */
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #f2f9f8;
+  border: 1px solid rgba(15,179,166,0.06);
+  padding: 14px 16px; /* Убедитесь, что отступы такие же */
+  border-radius: calc(var(--card-radius) - 2px);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left; /* Важно для выравнивания содержимого */
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  width: 100%; /* Занимает всю ширину контейнера, как и кнопки альбомов */
+  box-sizing: border-box; /* Включает padding и border в ширину */
+  display: flex; /* Используем flexbox */
+  justify-content: space-between; /* Распределяем содержимое по краям */
+  align-items: center; /* Выравниваем по центру по вертикали */
+  gap: 12px; /* Промежуток между текстом и счётчиком */
+  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
+  /* Убираем любые стили, которые могут отличаться */
+  margin: 0;
+  /* Убираем стили reset, если они были */
+  appearance: none;
+  /* Убираем outline по умолчанию, если нужно */
+  outline: none;
+}
+
+#latest-tracks-btn:hover {
+  /* Копируем стили hover из .album-list-vertical .album-list-button */
+  transform: translateY(-6px);
+  box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
+  color: #000;
+}
+
+/* Стили для span'ов внутри #latest-tracks-btn */
+#latest-tracks-btn > span:first-child {
+  /* Стили для текста "უახლესი ტრეკები" */
+  /* Наследует color, font-size, font-weight от кнопки */
+  /* Может потребоваться выравнивание */
+  text-align: left; /* Убедитесь, что текст слева */
+  flex: 1; /* Занимает доступное пространство */
+}
+
+#latest-tracks-btn > span.track-count {
+  /* Стили для счётчика */
+  /* Копируем стили из .album-list-vertical .album-list-button .track-count */
+  background: rgba(0,0,0,0.10);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #fff;
+  min-width: 44px; /* Минимальная ширина для консистентности */
+  text-align: center; /* Центрируем текст внутри счётчика */
+}
+/* --- */
+
+
+/* Main layout */
+.new-main-layout {
+  display: flex;
+  gap: 24px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+.albums-sidebar {
+  flex: 0 0 260px;
+  position: sticky;
+  top: calc(var(--header-height) + 12px);
+  align-self: flex-start;
+  max-height: calc(100vh - (var(--header-height) + 40px));
+  overflow-y: auto;
+}
+.tracks-section {
+  flex: 1;
+  min-width: 0;
+  padding-top: 12px;
+}
+.tracks-header {
+  margin-bottom: 0;
+}
+.tracks-header h2 {
+  color: var(--accent-2);
+  margin: 0 0 8px 0;
+}
+
+/* Tracks grid and cards */
+#tracks.tracks-list-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+.tracks-list-grid .card {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  box-shadow: var(--soft-shadow-neutral);
+}
+.tracks-list-grid .card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 52px rgba(2,8,14,0.28), var(--warm-accent-glow);
+}
+.tracks-list-grid .card.playing-track {
+  background: linear-gradient(180deg, rgba(15,179,166,0.22), rgba(11,43,69,0.16));
+  border: 2.5px solid rgba(255,122,102,0.30);
+  box-shadow:
+    0 36px 96px rgba(2,8,14,0.62),
+    0 16px 48px rgba(255,140,120,0.26),
+    0 10px 30px rgba(15,179,166,0.16);
+  transform: translateY(-10px) scale(1.05);
+  transition: all 260ms cubic-bezier(.2,.9,.2,1);
+  position: relative;
+  z-index: 6;
+  filter: drop-shadow(0 20px 60px rgba(255,140,120,0.18));
+}
+@keyframes deepOceanPulseBright {
+  0%, 100% {
+    box-shadow: 0 36px 96px rgba(2,8,14,0.62), 0 16px 48px rgba(255,140,120,0.26), 0 10px 30px rgba(15,179,166,0.16);
+    transform: translateY(-10px) scale(1.05);
+  }
+  50% {
+    box-shadow: 0 48px 120px rgba(2,8,14,0.68), 0 24px 64px rgba(255,160,140,0.34), 0 14px 40px rgba(15,179,166,0.22);
+    transform: translateY(-12px) scale(1.06);
+  }
+}
+.tracks-list-grid .card.playing-track.animate-deepocean {
+  animation: deepOceanPulseBright 1800ms ease-in-out infinite;
+}
+.tracks-list-grid .track-cover {
+  width: 100%;
+  /* height: 180px; */
+  aspect-ratio: 1 / 1;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  background-color: rgba(255,255,255,0.02);
+  display: block;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: var(--cover-border);
+  box-shadow: 0 12px 36px rgba(2,8,14,0.22), 0 6px 20px rgba(255,122,102,0.08), 0 4px 14px rgba(15,179,166,0.06);
+}
+
+.tracks-list-grid .track-info {
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.tracks-list-grid .track-info h4 {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tracks-list-grid .track-info div {
+  font-size: 13px;
+  color: var(--muted-ice);
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tracks-list-grid .track-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tracks-list-grid .track-actions button {
+  flex: 1;
+  padding: 8px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.tracks-list-grid .track-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(2,8,14,0.16), 0 3px 10px rgba(15,179,166,0.05);
+}
+.tracks-list-grid .btn-has-lyrics {
+  background: linear-gradient(90deg, var(--ocean-coral, #ff7a66), #ff8f78);
+  color: #000;
+  font-weight: 700;
+}
+.tracks-list-grid .download-button {
+  width: auto;
+  height: auto;
+  padding: 8px;
+  background: #2ecc71;
+}
+.tracks-list-grid .download-button svg {
+  width: 18px;
+  height: 18px;
+  fill: white;
+}
+/* Subalbum container and select */
+.subalbum-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#subalbum-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--accent-2);
+  margin: 0;
+}
+#subalbum-select {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #f2f9f8;
+  border: 1px solid rgba(15,179,166,0.06);
+  padding: 11.9px 16px;
+  border-radius: calc(var(--card-radius) - 2px);
+  font-size: 16px;
+  font-weight: 700;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f2f9f8' d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  box-shadow: 0 10px 28px rgba(2,8,14,0.18);
+}
+#subalbum-select:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 44px rgba(2,8,14,0.24), 0 6px 20px rgba(15,179,166,0.06);
+  color: #000;
+}
+#subalbum-select option {
+  background: #111;
+  color: #fff;
+  padding: 10px;
+}
+
+/* Responsive: up to 1024px */
+@media (max-width: 1024px) {
+  .new-main-layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .albums-sidebar {
+    position: static;
+    flex: none;
+    max-height: none;
+    overflow: visible;
+  }
+  #tracks.tracks-list-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  #header-player {
+    max-width: 60%;
+    min-width: 280px;
+  }
+}
+
+/* Responsive: up to 768px */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 56px;
+    --badge-size: 42px;
+    --header-player-controls-size: 36px;
+    --header-player-cover-size: 42px;
+    --title-font-size: 24px;
+  }
+
+  header {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  #header-left {
+    gap: 8px;
+  }
+
+  #header-player {
+    gap: 8px;
+    min-width: 0;
+    max-width: 55%;
+  }
+
+  .player-title {
+    font-size: 12px;
+  }
+  .player-artist {
+    font-size: 11px;
+  }
+
+  .player-controls-header button {
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+  }
+
+  .site-wrapper {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  #global-search {
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  .album-list-vertical .album-list-button,
+  #subalbum-select {
+    padding: 16px;
+    font-size: 17px;
+  }
+
+  .tracks-header h2 {
+    font-size: 20px;
+  }
+
+  #tracks.tracks-list-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .tracks-list-grid .track-cover {
+    height: 200px;
+  }
+
+  .tracks-list-grid .track-info h4 {
+    font-size: 17px;
+  }
+
+  .tracks-list-grid .track-info div {
+    font-size: 14px;
+  }
+
+  .tracks-list-grid .track-actions button {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  button, .album-list-button, .card, #subalbum-select {
+    min-height: 48px;
+  }
+
+  /* На мобильных возвращаем потоковое расположение кнопки Refresh и сбрасываем смещения */
+  #refresh-btn {
+    position: static;
+    transform: none;
+    margin-right: 8px;
+  }
+  .tracks-count {
+    margin-left: 0;
+  }
+  .album-header label {
+    margin-left: 0;
+  }
+}
+
+/* Responsive: up to 480px */
+@media (max-width: 480px) {
+  header {
+    grid-template-columns: auto 1fr;
+  }
+  #header-player {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    margin-top: 8px;
+  }
+
+  .player-controls-header {
+    margin-left: auto;
+  }
+  #global-search {
+    margin-bottom: 16px;
+  }
+  .album-list-vertical .album-list-button,
+  #subalbum-select {
+    padding: 18px 16px;
+    font-size: 18px;
+  }
+}
+
+/* Admin: hidden admin link */
+#hidden-admin-link {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 32px;
+  z-index: 1202;
+  color: transparent;
+  font-size: 0;
+  text-indent: -9999px;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+#hidden-admin-link:hover::after {
+  content: "Admin";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(0,0,0,0.8);
+  color: var(--accent-color);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
   white-space: nowrap;
 }
-.track-actions button:hover {
-  background: rgba(255,255,255,.14);
-  border-color: rgba(255,255,255,.2);
+/* Modals: improved rules to ensure modal overlay sits above header and cover is positioned inside modal */
+#lyrics-modal.hidden {
+  display: none !important;
 }
-.track-actions button:active { transform: scale(.94); }
-.track-actions button:disabled {
-  opacity: .35;
-  cursor: not-allowed;
-}
-
-/* Lyrics button accent */
-.btn-has-lyrics {
-  color: var(--accent-2) !important;
-  border-color: rgba(15,179,166,.25) !important;
-}
-.btn-has-lyrics:hover {
-  background: rgba(15,179,166,.12) !important;
-  border-color: rgba(15,179,166,.4) !important;
-}
-
-/* Download button SVG icon */
-.download-button svg {
-  width: 14px; height: 14px;
-  fill: currentColor;
-}
-
-/* ═══ Lyrics Modal ═══ */
-body.modal-open { overflow: hidden; }
-
 #lyrics-modal {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,.52);
-  z-index: 2000;
+  background: rgba(0,0,0,0.36);
+  z-index: 4000; /* выше header и всех элементов интерфейса */
+  pointer-events: auto;
 }
-#lyrics-modal.hidden { display: none; }
 
+/* Modal box: positioned container for absolute children (cover) */
 .modal-box {
-  background: #fff;
-  color: #111;
-  padding: 22px;
-  border-radius: var(--radius-lg);
-  max-width: 440px;
-  width: 92%;
-  max-height: 78vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-strong);
   position: relative;
+  background: #ffffff;
+  color: #000;
+  padding: 18px;
+  border-radius: 8px;
+  max-width: 720px;
+  width: 92%;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
 }
 .modal-box h3 {
-  margin: 0 0 12px;
-  font-size: 18px;
-  color: #000;
+  margin-top: 0;
+  font-size: 16px;
 }
 .modal-box pre {
-  margin: 0;
   white-space: pre-wrap;
-  word-break: break-word;
-  font-family: inherit;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
-  color: #333;
+  margin-bottom: 0;
+  padding: 18px 18px 18px 100px;
 }
 
-#modal-close {
+/* Маленькая обложка трека в модальном окне */
+.modal-cover {
   position: absolute;
-  top: 12px; right: 12px;
-  background: rgba(0,0,0,.06);
-  border: none;
-  color: #555;
-  font-size: 13px;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  min-height: auto;
-  height: auto;
-  line-height: 1.4;
-  transition: background var(--t-fast);
+  top: 12px;
+  right: 12px;
+  width: 72px;
+  height: 72px;
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 10;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+  background: #eee; /* placeholder пока картинка не загрузится */
+  flex: 0 0 auto;
 }
-#modal-close:hover { background: rgba(0,0,0,.13); }
+.modal-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  visibility: visible;
+}
 
-/* ═══ Toast ═══ */
+/* Toast */
 #toast {
   position: fixed;
-  bottom: 28px;
   left: 50%;
-  transform: translateX(-50%) translateY(60px);
-  background: rgba(15,40,65,.92);
+  transform: translateX(-50%);
+  bottom: 90px;
+  background: rgba(0,0,0,0.72);
   color: #fff;
-  padding: 10px 22px;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
+  padding: 8px 12px;
+  border-radius: 6px;
   z-index: 3000;
-  transition: transform .3s cubic-bezier(.2,.9,.2,1), opacity .3s ease;
+  font-size: 13px;
   opacity: 0;
-  pointer-events: none;
-  box-shadow: 0 6px 20px rgba(0,0,0,.3);
+  transition: opacity 180ms ease;
 }
 #toast.visible {
-  transform: translateX(-50%) translateY(0);
   opacity: 1;
 }
-#toast.hidden { display: none; }
 
-/* ═══ Focus ring ═══ */
-:focus-visible {
-  outline: 2px solid var(--accent-2);
-  outline-offset: 2px;
+/* === ADMIN: blinking animation for save button === */
+@keyframes adminSaveBlink {
+  0%   { box-shadow: 0 10px 28px rgba(198,40,40,0.18); filter: brightness(1); background: #c62828; }
+  25%  { box-shadow: 0 10px 40px rgba(255,80,80,0.28); filter: brightness(1.06); background: linear-gradient(90deg,#c62828,#ff5252); }
+  50%  { box-shadow: 0 10px 28px rgba(198,40,40,0.18); filter: brightness(0.92); background: #c62828; }
+  75%  { box-shadow: 0 10px 40px rgba(255,80,80,0.28); filter: brightness(1.06); background: linear-gradient(90deg,#c62828,#ff5252); }
+  100% { box-shadow: 0 10px 28px rgba(198,40,40,0.18); filter: brightness(1); background: #c62828; }
 }
 
-/* ═══ Accessibility: reduce motion ═══ */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation: none !important;
-    transition: none !important;
+#btn-save-all.save-btn.blinking {
+  animation: adminSaveBlink 1.2s linear infinite;
+}
+
+#btn-save-all.save-btn:focus-visible {
+  outline: 3px solid rgba(255,255,255,0.12);
+  outline-offset: 4px;
+}
+
+/* === Deep Ocean Footer === */
+.site-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(90deg, #001f3f, #003366, #004466);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #cce7ff;
+  z-index: 1000;
+}
+
+.site-footer a {
+  color: #4dd0e1;
+  text-decoration: none;
+  margin: 0 12px;
+  font-weight: 500;
+}
+.site-footer a:hover {
+  color: #80deea;
+  text-decoration: underline;
+}
+.site-footer p {
+  margin: 0;
+  display: inline-block;
+}
+.site-footer .icon {
+  vertical-align: middle;
+  margin: 0 4px;
+}
+.site-footer .icon svg {
+  fill: #4dd0e1;
+}
+
+/* === Additional responsive rules (repeated blocks consolidated) === */
+
+/* Small phones: до 480px */
+@media (max-width: 480px) {
+  .albums-sidebar {
+    width: 100%;
+    order: 2;
+  }
+  .tracks-section {
+    width: 100%;
+    order: 1;
+  }
+  header h1 {
+    font-size: 18px;
   }
 }
 
-/* ═══ Responsive ═══ */
-@media (max-width: 900px) {
-  .new-main-layout {
-    grid-template-columns: 200px 1fr;
-    gap: 16px;
+/* Medium devices: телефоны в горизонтали и небольшие планшеты (481px–768px) */
+@media (max-width: 768px) {
+  .albums-sidebar {
+    width: 100%;
+    margin-bottom: 16px;
   }
-}
-
-@media (max-width: 680px) {
-  :root { --header-h: 56px; }
-
-  header {
-    grid-template-columns: auto 1fr auto;
-    padding: 6px 12px;
+  .tracks-section {
+    width: 100%;
+  }
+  header h1 {
+    font-size: 20px;
+  }
+  #header-player {
+    flex-wrap: wrap;
     gap: 8px;
   }
-  #header-player { display: none !important; } /* hide player on mobile */
+  .player-controls-header button {
+    font-size: 14px;
+  }
+}
 
-  .new-main-layout {
-    grid-template-columns: 1fr;
-    gap: 16px;
+/* Tablets: 769px–1024px */
+@media (max-width: 1024px) {
+  .site-wrapper {
+    padding: 0 12px;
   }
   .albums-sidebar {
-    position: static;
-    max-height: none;
+    flex: 1 1 100%;
+    max-width: 300px;
+  }
+  .tracks-section {
+    flex: 1 1 calc(100% - 320px);
+  }
+  header h1 {
+    font-size: 22px;
+  }
+  #global-search {
+    font-size: 14px;
+  }
+}
+
+/* Modal cover as card-like */
+.modal-cover {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 12px 36px rgba(2,8,14,0.22),
+              0 6px 20px rgba(255,122,102,0.08),
+              0 4px 14px rgba(15,179,166,0.06);
+  background: #eee;
+}
+.modal-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+/* === ADMIN: Reliable override for #btn-save-all ===
+   This block must be last or near the end to ensure it overrides other rules.
+   It intentionally targets the wrapper and the button with high specificity
+   and uses !important only where necessary. */
+
+/* Ensure wrapper centers its content */
+.save-btn-wrapper {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Highest-priority override for the save button itself */
+#btn-save-all.save-btn,
+.save-btn-wrapper #btn-save-all,
+button.save-btn {
+  display: inline-block !important;
+  width: auto !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  padding: 8px 12px !important;
+  background: #c62828 !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+  border: none !important;
+  cursor: pointer !important;
+  height: 36px !important;
+  line-height: 20px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  box-shadow: 0 10px 28px rgba(198,40,40,0.18) !important;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease !important;
+  overflow: visible !important;
+}
+
+/* Ensure inner text is not affected by other transforms */
+#btn-save-all.save-btn .inner-text {
+  display: inline-block !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+  transform: none !important;
+}
+
+/* Keep blinking and focus styles intact */
+#btn-save-all.save-btn.blinking {
+  animation: adminSaveBlink 1.2s linear infinite !important;
+}
+#btn-save-all.save-btn:focus-visible {
+  outline: 3px solid rgba(255,255,255,0.12) !important;
+  outline-offset: 4px !important;
+}
+
+/* --- Универсальный стиль фокуса --- */
+*:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+/* --- */
+
+/* Accessibility helpers */
+.hidden {
+  display: none !important;
+}
+
+/* Large monitors: от 1200px и выше */
+@media (min-width: 1200px) {
+  .site-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .tracks-section {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header h1 {
+    font-size: 26px;
+  }
+  #header-player {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 2 * 160px);
+    max-width: none;
+    margin: 0;
+    padding: 10px 16px;
+    box-sizing: border-box;
+    z-index: 1002;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+  }
+  header {
+    position: fixed;
     overflow: visible;
+    height: var(--header-height);
   }
-  .album-list-vertical {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
+}
+
+/* Force header player to sit visually inside the header on all viewports */
+header #header-player {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: min(920px, 82%) !important;
+  max-width: calc(100% - 140px) !important;
+  box-sizing: border-box !important;
+  z-index: 1003 !important;
+  pointer-events: auto !important;
+  margin: 0 !important;
+  gap: 10px !important;
+}
+
+/* Reduce internal sizes if needed */
+header #header-player .player-info-header { max-width: 36% !important; min-width: 0 !important; }
+header #header-player .player-title { max-width: 100% !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+header #header-player .player-artist { max-width: 100% !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Responsive tweaks */
+@media (max-width: 1024px) {
+  header #header-player {
+    width: min(760px, 84%) !important;
+    max-width: calc(100% - 110px) !important;
   }
-  .album-list-button {
-    width: auto;
-    flex: 0 0 auto;
+  header #header-player .player-info-header { max-width: 40% !important; }
+}
+
+@media (max-width: 768px) {
+  header #header-player {
+    width: calc(100% - 28px) !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    max-width: none !important;
+    padding: 0 8px !important;
+    gap: 8px !important;
   }
-  .tracks-list-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
+  header #header-player .player-info-header { max-width: 52% !important; }
+  header #header-player .player-title { font-size: 13px !important; }
+  header #header-player .player-artist { font-size: 12px !important; }
+}
+
+@media (max-width: 480px) {
+  header #header-player {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: calc(100% - 24px) !important;
+    padding: 0 6px !important;
+    gap: 6px !important;
   }
+  header #header-player .player-info-header { display: none !important; }
+  header #header-player .header-player-cover { margin-right: 6px !important; }
+  header h1 { padding-right: 10px; }
+}
+/* === Extra scroll space to avoid footer overlap === */
+.site-wrapper,
+.tracks-section {
+  padding-bottom: 80px; /* запас под фиксированный футер */
+}
+/* Back-to-top button */
+.back-to-top-wrapper {
+  text-align: center;
+  margin: 30px 0; /* отступ сверху и снизу */
+}
+
+#back-to-top {
+  background: var(--accent-color);
+  color: #071428; /* темный текст для контраста на светлом акценте */
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  transition: transform 140ms ease, filter 140ms ease;
+}
+
+#back-to-top:hover {
+  transform: translateY(-3px);
+  filter: brightness(0.95);
+}
+
+/* === Скрытый заголовок для SEO и доступности === */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Визуальная обратная связь для кнопок */
+button:active,
+.album-list-button:active,
+.download-button:active,
+.btn-has-lyrics:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
 }

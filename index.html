@@ -3,85 +3,225 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cube Cubic</title>
+  <!-- ИЗМЕНЕНО: Улучшенный title для SEO -->
+  <title>Cube Cubic | მუსიკალური პლეერი ქართული ტექსტებით</title>
+  <!-- НОВОЕ: Мета-описание для SEO -->
+  <meta name="description" content="Cube Cubic — უნიკალური მუსიკალური პლეერი ქართული ლირიკით, ჯაზით, ფანკით და ინსტრუმენტული მუსიკით. მოისმინეთ უახლესი და კლასიკური ტრეკები ერთ ადგილზე.">
+  <!-- Open Graph теги для соцсетей -->
+  <meta property="og:title" content="Cube Cubic | მუსიკალური პლეერი ქართული ტექსტებით">
+  <meta property="og:description" content="Cube Cubic — უნიკალური მუსიკალური პლეერი ქართული ლირიკით, ჯაზით, ფანკით და ინსტრუმენტული მუსიკით.">
+  <meta property="og:image" content="https://cubecubic.github.io/mp/images/midcube.png">
+  <meta property="og:url" content="https://cubecubic.github.io/mp/">
+  <meta property="og:type" content="website">
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" type="image/png" href="images/smallcube.png">
 </head>
 <body>
   <div class="site-wrapper">
-
-    <!-- ═══ HEADER + PLAYER ═══ -->
     <header>
-      <div id="header-badge" aria-hidden="true">
-        <img src="images/midcube.png" alt="Cube Cubic">
+      <div class="header-inner">
+        <div id="header-left">
+          <div id="header-badge" aria-hidden="false">
+            <!-- ИЗМЕНЕНО: Более осмысленный alt для логотипа -->
+            <img src="images/midcube.png" alt="Cube Cubic ლოგო">
+          </div>
+          <h1>
+            <a id="brand-link" href="index.html" aria-label="Home">Cube Cubic</a>
+          </h1>
+        </div>
+
+        <!-- Header player -->
+        <div id="header-player" aria-label="Header player">
+          <div id="player-cover" class="header-player-cover">
+            <img id="player-cover-img" src="images/midcube.png" alt="Cover">
+          </div>
+          <div id="player-info-header" class="player-info-header">
+            <div id="player-title-header" class="player-title">აირჩიეთ ტრეკი</div>
+            <div id="player-artist-header" class="player-artist"></div>
+          </div>
+          <div id="player-controls-header" class="player-controls-header">
+            <button id="prev-sidebar" type="button" aria-label="Previous">⏮</button>
+            <button id="play-sidebar" type="button" aria-label="Play">▶</button>
+            <button id="next-sidebar" type="button" aria-label="Next">⏭</button>
+          </div>
+          <div id="player-progress-header" class="player-progress-header" aria-hidden="true">
+            <span id="time-current-sidebar">0:00</span>
+            <input id="progress-sidebar" type="range" min="0" max="100" value="0"
+                   aria-label="Progress"
+                   aria-valuenow="0"
+                   aria-valuemin="0"
+                   aria-valuemax="100"
+                   aria-describedby="time-current-sidebar time-duration-sidebar">
+            <span id="time-duration-sidebar">0:00</span>
+          </div>
+          <div id="player-volume-header" class="player-volume-header" aria-hidden="true">
+            <input id="volume-sidebar" type="range" min="0" max="1" step="0.01" value="1"
+                   aria-label="Volume"
+                   aria-valuenow="1"
+                   aria-valuemin="0"
+                   aria-valuemax="1">
+          </div>
+        </div>
+
+        <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
       </div>
-
-      <h1>Cube Cubic</h1>
-
-      <!-- Header Player (visible when a track is playing) -->
-      <div id="header-player">
-        <div class="header-player-cover">
-          <img id="player-cover-img" src="images/midcube.png" alt="ამდირ План">
-        </div>
-        <div class="player-info-header">
-          <span class="player-title" id="player-title-header">აირჩიეთ ტრეკი</span>
-          <span class="player-artist" id="player-artist-header"></span>
-        </div>
-        <div class="player-controls-header">
-          <button id="prev-sidebar" type="button" aria-label="წარჩი ტრეკი">◀</button>
-          <button id="play-sidebar" type="button" aria-label="დაკვა / დაჩერება">▶</button>
-          <button id="next-sidebar" type="button" aria-label="შემდეგი ტრეკი">▶▶</button>
-        </div>
-      </div>
-
-      <a href="admin.html" id="hidden-admin-link" aria-label="ককვ">Admin</a>
     </header>
 
-    <!-- ═══ MAIN LAYOUT ═══ -->
-    <main class="new-main-layout">
-
-      <!-- Left sidebar: albums + search -->
+    <main class="new-main-layout" aria-labelledby="main-content-heading">
+      <!-- НОВОЕ: Скрытый, но семантически правильный H1 для основного контента -->
+      <h1 id="main-content-heading" class="visually-hidden">Cube Cubic მუსიკალური კოლექცია</h1>
       <aside class="albums-sidebar">
         <div class="controls">
-          <input id="global-search" type="text" placeholder="გამდი ალბომი, ტრეკი..." aria-label="გამდი">
-          <label for="album-list">ალბომები</label>
+          <input id="global-search" type="text" placeholder="Search albums, subalbums, tracks..." aria-label="Global search">
+          <div class="album-header">
+            <label for="album-select">ალბომები</label>
+            <div class="album-header-controls">
+              <button id="refresh-btn" type="button">Refresh</button>
+              <span id="tracks-count" class="tracks-count" aria-live="polite">სულ ტრეკი: 0</span>
+            </div>
+          </div>
           <input type="hidden" id="album-select" value="">
+          <!-- --- Кнопка "უახლესი ტრეკები" (обновлённая структура) --- -->
+          <button id="latest-tracks-btn" type="button" class="album-list-button">
+              <span>უახლესი ტრეკები</span>
+              <span class="track-count" id="latest-tracks-count"></span> <!-- Пустой span для счётчика, как у других кнопок -->
+          </button>
+          <!-- --- -->
           <div id="album-list" class="album-list-vertical"></div>
-
           <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
           <select id="subalbum-select" style="display:none;">
-            <option value="">— ყველა ქვეალბომი —</option>
+            <option value="">— —</option>
           </select>
-
-          <button id="refresh-btn" type="button">გამდი</button>
         </div>
       </aside>
 
-      <!-- Right: track cards -->
       <section class="tracks-section">
-        <div class="tracks-header">
-          <h2>ტრეკები</h2>
-        </div>
+        <div class="tracks-header"></div>
         <div id="tracks" class="tracks-list-grid"></div>
       </section>
     </main>
+
+    <!-- Кнопка "Наверх" (между контентом и футером) -->
+    <div class="back-to-top-wrapper">
+      <button id="back-to-top" type="button" aria-label="Back to top">ზევით</button>
+    </div>
   </div>
 
-  <!-- Hidden audio element -->
   <audio id="audio" preload="none"></audio>
 
-  <!-- ═══ LYRICS MODAL ═══ -->
+  <!-- Модальное окно с обложкой трека (обязательно вне header, перед закрывающим body) -->
   <div id="lyrics-modal" class="hidden" aria-hidden="true">
-    <div class="modal-box" tabindex="-1">
-      <button id="modal-close" type="button">✕ დაიდი</button>
-      <h3 id="modal-title">ტექსტი</h3>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <!-- маленькая обложка трека -->
+      <div class="modal-cover" aria-hidden="true">
+        <img id="modal-cover-img" src="" alt="Track cover">
+      </div>
+
+      <button id="modal-close" type="button" aria-label="Close lyrics">Close</button>
+      <h3 id="modal-title">Lyrics</h3>
       <pre id="modal-lyrics"></pre>
     </div>
   </div>
 
-  <!-- ═══ TOAST ═══ -->
   <div id="toast" class="hidden" role="status" aria-live="polite"></div>
 
+  <footer class="site-footer">
+    <p>
+      <span class="icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+          <path d="M2 4h20v16H2V4zm2 2v12h16V6l-8 5-8-5z"/>
+        </svg>
+      </span>
+      <a href="mailto:ikakoba@gmail.com">ikakoba@gmail.com</a>
+
+      <span class="icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+          <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.21c1.2.48 2.53.74 3.91.74a1 1 0 011 1V21a1 1 0 01-1 1C10.07 22 2 13.93 2 3a1 1 0 011-1h4.5a1 1 0 011 1c0 1.38.26 2.71.74 3.91a1 1 0 01-.21 1.11l-2.41 2.77z"/>
+        </svg>
+      </span>
+      <a href="tel:+995501223704">+995 501 223 704</a>
+
+      <!-- Facebook
+      <span class="icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+          <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.86 8 9.8v-6.93H7.9v-2.87H10V9.75c0-2.07 1.23-3.22 3.1-3.22.9 0 1.84.16 1.84.16v2.02h-1.04c-1.03 0-1.35.64-1.35 1.3v1.56h2.3l-.37 2.87h-1.93V21.8c4.56-.94 8-4.96 8-9.8z"/>
+        </svg>
+      </span>
+      <a href="https://facebook.com/yourprofile  " target="_blank" rel="noopener">Facebook</a> -->
+
+      <!-- --- Кнопка Share --- -->
+      <span class="icon share-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3-3s1.34-3 3-3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+        </svg>
+      </span>
+      <button id="share-site-btn" type="button" aria-label="Share website">Share Site</button>
+      <!-- --- -->
+
+    </p>
+  </footer>
+
   <script src="app.js"></script>
+  <script>
+    // Обработчик кнопки "ზევით"
+    const backBtn = document.getElementById('back-to-top');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // --- Обработчик кнопки Share с улучшенной отладкой ---
+    const shareSiteBtn = document.getElementById('share-site-btn');
+    if (shareSiteBtn) {
+        shareSiteBtn.addEventListener('click', async () => {
+            const shareData = {
+                title: 'Cube Cubic',
+                text: 'Check out this music player!',
+                url: window.location.href, // текущий URL сайта
+            };
+
+            try {
+                if (navigator.share) {
+                    // Пытаемся использовать Web Share API
+                    await navigator.share(shareData);
+                    console.log('Website shared successfully via Web Share API');
+                    // Уведомление об успехе (опционально)
+                    const toast = document.getElementById('toast');
+                    if (toast) {
+                        toast.textContent = 'Shared successfully!';
+                        toast.classList.add('visible');
+                        setTimeout(() => toast.classList.remove('visible'), 3000);
+                    }
+                } else {
+                    // Если Web Share API недоступна, копируем ссылку в буфер обмена
+                    await navigator.clipboard.writeText(shareData.url);
+                    // Показываем toast уведомление
+                    const toast = document.getElementById('toast');
+                    if (toast) {
+                        toast.textContent = 'Link copied to clipboard!';
+                        toast.classList.add('visible');
+                        setTimeout(() => toast.classList.remove('visible'), 3000);
+                    } else {
+                        alert('Link copied to clipboard!');
+                    }
+                    console.log('Website URL copied to clipboard');
+                }
+            } catch (err) {
+                console.error('Error sharing website:', err);
+                // Опционально: показать сообщение об ошибке пользователю
+                 const toast = document.getElementById('toast');
+                 if (toast) {
+                     toast.textContent = 'Failed to share or copy link.';
+                     toast.classList.add('visible');
+                     setTimeout(() => toast.classList.remove('visible'), 3000);
+                 } else {
+                     alert('Failed to share or copy link.');
+                 }
+            }
+        });
+    }
+    // ---
+  </script>
 </body>
 </html>
