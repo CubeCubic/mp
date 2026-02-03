@@ -579,6 +579,15 @@
       "albumId": "1767101022145",
       "audioUrl": "https://archive.org/download/the-last-secret/The%20Last%20Secret.wav",
       "coverUrl": "https://archive.org/download/the-last-secret/The%20Last%20Secret.png"
+    },
+    {
+      "id": "1770115287385",
+      "title": "Smiling Soul",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767101002065",
+      "audioUrl": "https://archive.org/download/the-last-secret/Smiling%20Soul.wav",
+      "coverUrl": "https://archive.org/download/the-last-secret/Smiling%20Soul.png"
     }
   ]
 }
