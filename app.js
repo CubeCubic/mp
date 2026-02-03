@@ -7,7 +7,13 @@
   const globalSearchInput = document.getElementById('global-search');
   const albumListContainer = document.getElementById('album-list');
 
-  // Плеер элементы
+  // --- Элементы для "последних треков" ---
+  const latestTracksBtn = document.getElementById('latest-tracks-btn');
+  const latestTracksCountEl = document.getElementById('latest-tracks-count');
+  // ---
+
+
+  // Плеер элементы — поддерживаем старые и новые id (fallback)
   const headerPlayer = document.getElementById('header-player') || document.getElementById('player-sidebar') || null;
   const playerCoverImg = document.getElementById('player-cover-img') || null;
   const playerTitleSidebar = document.getElementById('player-title-sidebar') || document.getElementById('player-title-header') || null;
@@ -22,7 +28,7 @@
 
   const audio = document.getElementById('audio');
 
-  // Модалки и уведомления
+  // Модалки
   const lyricsModal = document.getElementById('lyrics-modal');
   const modalClose = document.getElementById('modal-close');
   const modalTitle = document.getElementById('modal-title');
@@ -34,9 +40,9 @@
 
   // --- Состояние ---
   let albums = [];
-  let tracks = [];
+  let tracks = []; // Теперь это глобальный список всех треков
   let currentTrackIndex = -1;
-  let filteredTracks = [];
+  let filteredTracks = []; // Этот массив будет содержать отфильтрованные/отсортированные треки для отображения
   let pendingTrackToOpen = null;
   let userHasInteracted = false;
 
@@ -85,8 +91,25 @@
   function updateTracksCount() {
     if (!tracksCountEl) return;
     const total = Array.isArray(tracks) ? tracks.length : 0;
-    tracksCountEl.textContent = `სულ ${total}`;
+    tracksCountEl.textContent = `სულ ტრეკი: ${total}`;
+    // --- НОВОЕ: Добавлен атрибут aria-live ---
+    tracksCountEl.setAttribute('aria-live', 'polite');
+    // ---
   }
+
+  // --- ИЗМЕНЕНО: Функция для получения последних N треков (или всех, если n не указан или null) ---
+  function getLatestTracks(n = null) {
+    // Сортируем треки по ID в порядке убывания (предполагаем, что ID - timestamp)
+    const sortedTracks = tracks.slice().sort((a, b) => parseInt(b.id) - parseInt(a.id));
+    // Если n не указано или null, возвращаем все отсортированные треки
+    if (n === null || typeof n === 'undefined') {
+        return sortedTracks;
+    }
+    // Иначе возвращаем первые n треков из отсортированного массива
+    return sortedTracks.slice(0, n);
+  }
+  // ---
+
 
   async function triggerDownload(url, filename = 'track.mp3') {
     if (!url || url.trim() === '') {
@@ -116,32 +139,44 @@
     }
   }
 
+  // НОВАЯ ФУНКЦИЯ: получить название альбома/подальбома для трека
   function getAlbumNameForTrack(t) {
     if (!t || !t.albumId) return '';
     const album = albums.find(a => String(a.id) === String(t.albumId));
     return album ? album.name || '' : '';
   }
 
-  // --- Модалка с текстом ---
+  // === Модальное окно с текстом и обложкой ===
+  // Улучшенная версия: показывает модалку корректно, ждёт загрузки обложки и предотвращает смещения
   function openLyricsModal(track) {
     if (!lyricsModal) return;
 
     const modalTitleEl = document.getElementById('modal-title');
     const modalLyricsEl = document.getElementById('modal-lyrics');
     const modalCoverImg = document.getElementById('modal-cover-img');
+    const modalBox = lyricsModal.querySelector('.modal-box');
 
+    // Заполняем текстовые поля
     modalTitleEl.textContent = track.title || 'Untitled';
     modalLyricsEl.textContent = track.lyrics || 'Текст отсутствует';
 
+    // Подготовка к загрузке обложки
     if (modalCoverImg) {
       modalCoverImg.style.visibility = 'hidden';
-      modalCoverImg.src = '';
-      modalCoverImg.alt = track.title || 'Cover';
+      modalCoverImg.src = ''; // сброс старого src
+      // --- ИЗМЕНЕНО: Более осмысленный alt для обложек в модалке ---
+      modalCoverImg.alt = safeStr(track.title) + ' - ' + getAlbumNameForTrack(track) + ' ალბომის გარეკანი';
+      // ---
+      // --- lazy loading для обложки в модалке ---
+      modalCoverImg.loading = 'lazy';
+      // ---
     }
 
+    // Показываем модалку (фон и контейнер)
     lyricsModal.classList.remove('hidden');
     lyricsModal.setAttribute('aria-hidden', 'false');
 
+    // Если есть coverSrc — устанавливаем и ждём onload/onerror
     if (modalCoverImg) {
       modalCoverImg.onload = function() {
         modalCoverImg.style.visibility = 'visible';
@@ -151,11 +186,21 @@
         console.warn('Cover image failed to load:', track.coverSrc || track.coverUrl || track.cover);
       };
 
-      const url = getCoverUrl(track);
-      if (url) modalCoverImg.src = url;
+      if (track.coverSrc) {
+        modalCoverImg.src = track.coverSrc;
+      } else {
+        // Попробуем получить через getCoverUrl
+        const url = getCoverUrl(track);
+        if (url) {
+          modalCoverImg.src = url;
+        } else {
+          modalCoverImg.style.visibility = 'hidden';
+        }
+      }
     }
   }
 
+  // Закрытие модалки (единственный обработчик, используется в нескольких местах)
   function closeLyricsModal() {
     if (!lyricsModal) return;
     lyricsModal.classList.add('hidden');
@@ -177,7 +222,7 @@
     }
   }
 
-  // --- Рендер списка альбомов (без привязки обработчиков) ---
+  // --- Рендер списка альбомов ---
   function renderAlbumList() {
     if (!albumListContainer) return;
     albumListContainer.innerHTML = '';
@@ -213,25 +258,19 @@
       countSpan.textContent = `(${trackCount})`;
       btn.appendChild(countSpan);
 
-      if (String(albumSelect ? albumSelect.value : '') === String(a.id || '')) {
-        btn.classList.add('selected');
-      }
+      // --- Удаление класса 'selected' при отображении альбомов ---
+      btn.classList.remove('selected');
+      // ---
+
+      btn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (albumSelect) albumSelect.value = String(a.id || '');
+        renderAlbumList();
+        onAlbumChange();
+      });
 
       albumListContainer.appendChild(btn);
-    });
-  }
-
-  // --- Делегирование кликов по списку альбомов (устойчиво к перерисовке) ---
-  if (albumListContainer) {
-    albumListContainer.addEventListener('click', (ev) => {
-      const btn = ev.target.closest('.album-list-button');
-      if (!btn) return;
-      ev.preventDefault();
-      ev.stopPropagation();
-      const albumId = btn.getAttribute('data-album-id') || '';
-      if (albumSelect) albumSelect.value = String(albumId);
-      renderAlbumList();
-      onAlbumChange();
     });
   }
 
@@ -280,18 +319,11 @@
       subalbumSelect.value = '';
     }
 
-    // При смене альбома — рендерим треки, но сохраняем текущий трек, если он остаётся в новом наборе
     renderTracks();
     renderAlbumList();
 
-    // Если текущий трек не входит в новый filteredTracks — останавливаем
-    if (currentTrackIndex >= 0) {
-      const cur = filteredTracks[currentTrackIndex];
-      if (!cur) {
-        currentTrackIndex = -1;
-        updateSidebarPlayer(null);
-      }
-    }
+    currentTrackIndex = -1;
+    updateSidebarPlayer(null);
   }
 
   // --- Поиск ---
@@ -301,7 +333,7 @@
     return (
       safeStr(track.title).toLowerCase().includes(q) ||
       safeStr(track.artist).toLowerCase().includes(q) ||
-      safeStr(track.lyrics).toLowerCase().includes(q) ||
+      safeStr(track.lyrics).toLowerCase().includes(q) || // <-- Добавлена эта строка
       (albums.find(a => String(a.id) === String(track.albumId)) || {}).name?.toLowerCase().includes(q)
     );
   }
@@ -316,26 +348,26 @@
       applySearch();
       renderTracks();
       renderAlbumList();
-      // не сбрасываем currentTrackIndex автоматически — сохраняем воспроизведение, если возможно
-      updateSidebarPlayer(filteredTracks[currentTrackIndex] || null);
+      currentTrackIndex = -1;
+      updateSidebarPlayer(null);
     });
   }
 
-  // --- Рендер треков (с сохранением текущего трека при перерисовке) ---
+  // --- Рендер треков (ИЗМЕНЕНО: теперь учитывает фильтрацию, поиск и "последние треки") ---
   function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
 
-    // Сохраняем id текущего трека (если есть)
-    const currentTrackId = (currentTrackIndex >= 0 && filteredTracks[currentTrackIndex]) ? String(filteredTracks[currentTrackIndex].id) : null;
-
+    // Начинаем с массива всех треков
     let toRender = tracks.slice();
 
+    // Применяем фильтрацию по поисковому запросу
     const searchQuery = globalSearchInput ? globalSearchInput.value.trim() : '';
     if (searchQuery) {
       toRender = toRender.filter(t => matchesQuery(t, searchQuery));
     }
 
+    // Применяем фильтрацию по альбому/подальбому
     const selectedAlbumId = albumSelect ? albumSelect.value : '';
     const selectedSubalbumId = subalbumSelect ? subalbumSelect.value : '';
 
@@ -349,18 +381,29 @@
       });
     }
 
+    // --- ИЗМЕНЕНО: Проверяем, отображаются ли "последние треки" ---
+    // Это состояние нужно как-то отслеживать. Добавим глобальную переменную.
+    if (window.showingLatestTracks) {
+        toRender = getLatestTracks(); // Получаем ВСЕ последние треки, отсортированные по ID
+    }
+    // ---
+
+
     if (!toRender.length) {
       tracksContainer.innerHTML = '<div class="muted">ტრეკები არ მოიძებნა</div>';
-      filteredTracks = [];
-      currentTrackIndex = -1;
-      updateSidebarPlayer(null);
+      filteredTracks = []; // Обновляем глобальный фильтрованный массив
       return;
     }
 
-    // Перемешиваем треки случайным образом при каждой загрузке
-    toRender = shuffle(toRender);
+    // Перемешиваем треки только если НЕ отображаются "последние треки" и НЕ производится поиск
+    if (!window.showingLatestTracks && !searchQuery) {
+      toRender = shuffle(toRender);
+    }
 
-    toRender.forEach(t => {
+    // Сохраняем отфильтрованный и отсортированный массив в глобальной переменной
+    filteredTracks = toRender;
+
+    filteredTracks.forEach(t => {
       const card = document.createElement('div');
       card.className = 'card';
       card.setAttribute('data-track-id', t.id || '');
@@ -368,15 +411,29 @@
       const img = document.createElement('img');
       img.className = 'track-cover';
       img.src = getCoverUrl(t);
-      img.alt = safeStr(t.title) + ' cover';
+      // --- ИЗМЕНЕНО: Более осмысленный alt для обложек в списке треков ---
+      img.alt = safeStr(t.title) + ' - ' + getAlbumNameForTrack(t) + ' ალბომის გარეკანი';
+      // ---
+      // --- lazy loading для обложки трека ---
+      img.loading = 'lazy';
+      // ---
+      card.appendChild(img);
 
       const info = document.createElement('div');
       info.className = 'track-info';
 
       const title = document.createElement('h4');
       title.textContent = safeStr(t.title);
+      // --- Индикация "Идет воспроизведение" ---
+      if (currentTrackIndex >= 0 && filteredTracks[currentTrackIndex]?.id === t.id) {
+        const playingIcon = document.createElement('span');
+        playingIcon.textContent = ' 🔊'; // Или используйте SVG-иконку
+        title.appendChild(playingIcon);
+      }
+      // ---
       info.appendChild(title);
 
+      // ИЗМЕНЕНО: вместо artist — название альбома/подальбома
       const albumDiv = document.createElement('div');
       albumDiv.textContent = getAlbumNameForTrack(t);
       info.appendChild(albumDiv);
@@ -416,7 +473,7 @@
           }, 1000);
           let filename = 'track.mp3';
           try {
-            const u = new URL(stream, window.location.href);
+            const u = new URL(stream);
             filename = decodeURIComponent(u.pathname.split('/').pop() || 'track.mp3');
           } catch {}
           await triggerDownload(stream, filename);
@@ -436,30 +493,14 @@
 
       card.addEventListener('click', () => {
         userHasInteracted = true;
-        // индекс в текущем toRender
-        const idx = toRender.indexOf(t);
+        const idx = filteredTracks.indexOf(t);
         playTrackByIndex(idx);
       });
 
       tracksContainer.appendChild(card);
     });
 
-    // Обновляем filteredTracks и пытаемся восстановить текущий индекс по id
-    filteredTracks = toRender;
-
-    if (currentTrackId) {
-      const newIdx = filteredTracks.findIndex(t => String(t.id) === currentTrackId);
-      if (newIdx >= 0) {
-        // Если трек был воспроизводим, обновляем индекс, но не перезапускаем источник
-        currentTrackIndex = newIdx;
-      } else {
-        // Текущий трек больше не в списке — останавливаем
-        currentTrackIndex = -1;
-        audio.pause();
-        updateSidebarPlayer(null);
-      }
-    }
-
+    // highlightCurrentTrack вызывается в playTrackByIndex, но можно вызвать и здесь при смене списка
     highlightCurrentTrack();
 
     if (pendingTrackToOpen) {
@@ -481,24 +522,46 @@
       tracks = data.tracks || [];
       albums = data.albums || [];
 
+      // Обновляем счётчик треков рядом с кнопкой Refresh
       updateTracksCount();
+
       buildAlbumSelectors();
-      applySearch();
-      renderTracks();
+      applySearch(); // Применяем поиск, если он был
+      renderTracks(); // Отображаем треки (в зависимости от текущего состояния)
     } catch (err) {
       console.error('Ошибка загрузки tracks.json:', err);
       if (tracksContainer) tracksContainer.innerHTML = '<div class="muted">Не удалось загрузить треки</div>';
     }
   }
 
-  if (refreshBtn) refreshBtn.addEventListener('click', loadData);
+  // --- Обработчик кнопки Refresh с перемешиванием ---
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+        loadData(); // Загружаем данные заново
+        // renderTracks(); // Перемешивание происходит внутри renderTracks, вызывается из loadData
+        // --- Сброс состояния "последние треки" при обновлении ---
+        window.showingLatestTracks = false;
+        if (latestTracksBtn) latestTracksBtn.classList.remove('selected');
+        // ---
+    });
+  }
+  // ---
+
 
   // --- Плеер ---
   function updateSidebarPlayer(t = null) {
     if (!t) {
       if (playerTitleSidebar) playerTitleSidebar.textContent = 'აირჩიეთ ტრეკი';
       if (playerArtistSidebar) playerArtistSidebar.textContent = '';
-      if (playerCoverImg) playerCoverImg.src = 'images/midcube.png';
+      if (playerCoverImg) {
+        playerCoverImg.src = 'images/midcube.png';
+        // --- ИЗМЕНЕНО: Более осмысленный alt для логотипа в плеере ---
+        playerCoverImg.alt = 'Cube Cubic ლოგო';
+        // ---
+        // --- lazy loading для обложки в плеере ---
+        playerCoverImg.loading = 'lazy';
+        // ---
+      }
       if (playBtnSidebar) playBtnSidebar.textContent = '▶';
       if (headerPlayer) headerPlayer.classList.remove('playing');
       return;
@@ -506,7 +569,15 @@
 
     if (playerTitleSidebar) playerTitleSidebar.textContent = safeStr(t.title);
     if (playerArtistSidebar) playerArtistSidebar.textContent = safeStr(t.artist);
-    if (playerCoverImg) playerCoverImg.src = getCoverUrl(t);
+    if (playerCoverImg) {
+      playerCoverImg.src = getCoverUrl(t);
+      // --- ИЗМЕНЕНО: Более осмысленный alt для обложек в плеере ---
+      playerCoverImg.alt = safeStr(t.title) + ' - ' + getAlbumNameForTrack(t) + ' ალბომის გარეკანი';
+      // ---
+      // --- lazy loading для обложки в плеере ---
+      playerCoverImg.loading = 'lazy';
+      // ---
+    }
     if (headerPlayer) headerPlayer.classList.add('playing');
   }
 
@@ -523,38 +594,15 @@
     const t = filteredTracks[idx];
     updateSidebarPlayer(t);
 
-    const src = getStreamUrl(t) || '';
-    if (!src) {
-      showToast('Audio source not available');
-      return;
-    }
-
-    // Если уже играет тот же src — просто продолжить/переключить время
-    if (audio.src && audio.src.endsWith(src)) {
-      audio.play().catch(e => {
-        console.error('Play error:', e);
-        showToast('Playback failed');
-      });
-      highlightCurrentTrack();
-      return;
-    }
-
-    // Устанавливаем новый источник
-    audio.src = src;
+    audio.src = getStreamUrl(t) || '';
     audio.load();
 
     audio.play().catch(e => {
-      console.error('Play error:', e);
-      if (e && e.name === 'NotAllowedError') {
+      if (e && e.name === 'NotAllowedError' && userHasInteracted) {
         if (playBtnSidebar) playBtnSidebar.textContent = '▶';
         showToast('დააჭირეთ ▶ დაკვრისთვის');
-      } else if (e && e.name === 'NotSupportedError') {
-        showToast('ფაილის ფორმატი არ მხარდაჭერილია, пропускаем трек');
-        // Попробуем перейти к следующему треку
-        setTimeout(playNext, 600);
-      } else {
-        // Общая обработка: попробуем перейти к следующему треку
-        setTimeout(playNext, 800);
+      } else if (e && e.name !== 'NotAllowedError') {
+        console.error('Play error:', e);
       }
     });
 
@@ -564,10 +612,7 @@
   function togglePlayPause() {
     userHasInteracted = true;
     if (audio.paused || audio.ended) {
-      audio.play().catch(err => {
-        console.error('Play error on toggle:', err);
-        showToast('Playback failed');
-      });
+      audio.play().catch(console.error);
     } else {
       audio.pause();
     }
@@ -595,46 +640,37 @@
     audio.addEventListener('pause', () => {
       if (playBtnSidebar) playBtnSidebar.textContent = '▶';
     });
-    audio.addEventListener('ended', () => {
-      // Нормальный конец трека — переходим к следующему
-      playNext();
-    });
-
+    audio.addEventListener('ended', playNext);
     audio.addEventListener('timeupdate', () => {
       if (audio.duration && progressSidebar) {
         progressSidebar.value = audio.currentTime;
         progressSidebar.max = audio.duration;
+        // --- Обновление aria-valuenow для прогресса ---
+        progressSidebar.setAttribute('aria-valuenow', audio.currentTime);
+        // ---
         if (timeCurrentSidebar) timeCurrentSidebar.textContent = formatTime(audio.currentTime);
       }
     });
     audio.addEventListener('loadedmetadata', () => {
       if (timeDurationSidebar) timeDurationSidebar.textContent = formatTime(audio.duration);
-      if (progressSidebar) progressSidebar.max = audio.duration || 0;
+      if (progressSidebar) {
+        progressSidebar.max = audio.duration || 0;
+        // --- Обновление aria-valuemax для прогресса ---
+        progressSidebar.setAttribute('aria-valuemax', audio.duration || 0);
+        // ---
+      }
     });
     audio.addEventListener('volumechange', () => {
-      if (volumeSidebar) volumeSidebar.value = audio.volume;
+      if (volumeSidebar) {
+        volumeSidebar.value = audio.volume;
+        // --- Обновление aria-valuenow для громкости ---
+        volumeSidebar.setAttribute('aria-valuenow', audio.volume);
+        // ---
+      }
     });
-
-    // Ошибка загрузки/воспроизведения — логируем и пытаемся перейти дальше
     audio.addEventListener('error', (e) => {
       console.error('Audio error:', e);
-      showToast('Ошибка воспроизведения, пропускаем трек');
-      // Попробуем перейти к следующему треку через небольшую задержку
-      setTimeout(() => {
-        try {
-          playNext();
-        } catch (err) {
-          console.error('Error while skipping to next after audio error:', err);
-        }
-      }, 700);
       updateSidebarPlayer(null);
-    });
-
-    // Событие stalled/suspend — тоже можно попытаться переподключиться или перейти дальше
-    audio.addEventListener('stalled', () => {
-      console.warn('Audio stalled');
-      showToast('Загрузка трека прервана, пробуем следующий');
-      setTimeout(playNext, 800);
     });
   }
 
@@ -642,20 +678,8 @@
   if (playBtnSidebar) playBtnSidebar.addEventListener('click', togglePlayPause);
   if (prevBtnSidebar) prevBtnSidebar.addEventListener('click', playPrev);
   if (nextBtnSidebar) nextBtnSidebar.addEventListener('click', playNext);
-  if (progressSidebar) progressSidebar.addEventListener('input', () => {
-    try {
-      audio.currentTime = progressSidebar.value;
-    } catch (err) {
-      console.error('Failed to set currentTime:', err);
-    }
-  });
-  if (volumeSidebar) volumeSidebar.addEventListener('input', () => {
-    try {
-      audio.volume = parseFloat(volumeSidebar.value);
-    } catch (err) {
-      console.error('Failed to set volume:', err);
-    }
-  });
+  if (progressSidebar) progressSidebar.addEventListener('input', () => audio.currentTime = progressSidebar.value);
+  if (volumeSidebar) volumeSidebar.addEventListener('input', () => audio.volume = parseFloat(volumeSidebar.value));
 
   // Закрытие модалки текстов
   if (modalClose) {
@@ -680,19 +704,85 @@
   if (subalbumSelect) {
     subalbumSelect.addEventListener('change', () => {
       renderTracks();
-      // Сохраняем воспроизведение, если текущий трек остался в списке
-      if (currentTrackIndex >= 0 && filteredTracks[currentTrackIndex]) {
-        updateSidebarPlayer(filteredTracks[currentTrackIndex]);
-      } else {
-        currentTrackIndex = -1;
-        updateSidebarPlayer(null);
-      }
+      currentTrackIndex = -1;
+      updateSidebarPlayer(null);
     });
   }
+
+  // --- Обработчик кнопки "უახლესი ტრეკები" ---
+  if (latestTracksBtn) {
+    // Изначально кнопка не выбрана
+    latestTracksBtn.classList.remove('selected');
+
+    latestTracksBtn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        // Сбрасываем выбор альбома
+        if (albumSelect) albumSelect.value = '';
+        // Сбрасываем подальбом
+        if (subalbumSelect) {
+             subalbumSelect.value = '';
+             subalbumSelect.style.display = 'none';
+             if (subalbumLabel) subalbumLabel.style.display = 'none';
+        }
+        // Сбрасываем поиск
+        if (globalSearchInput) globalSearchInput.value = '';
+
+        // Устанавливаем флаг "показываются последние треки"
+        window.showingLatestTracks = true;
+
+        // Обновляем отображение альбомов (убираем выделение)
+        renderAlbumList();
+        // Обновляем отображение треков
+        renderTracks();
+        // Сбрасываем индекс текущего трека
+        currentTrackIndex = -1;
+        // Обновляем плеер
+        updateSidebarPlayer(null);
+
+         // Добавляем класс 'selected' к кнопке "უახლესი ტრეკები"
+        latestTracksBtn.classList.add('selected');
+        // Убираем класс 'selected' с других кнопок альбомов (уже в renderAlbumList)
+    });
+  }
+  // ---
+
 
   // --- Инициализация ---
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
+
+    // --- Обработчик клавиш ---
+    document.addEventListener('keydown', (e) => {
+      // Проверяем, что фокус не на поле ввода (чтобы не мешать вводу)
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      switch(e.key) {
+        case ' ':
+          e.preventDefault(); // Предотвратить прокрутку страницы
+          togglePlayPause();
+          break;
+        case 'ArrowRight':
+          if (e.ctrlKey) { // Ctrl + ->
+            e.preventDefault();
+            playNext();
+          }
+          break;
+        case 'ArrowLeft':
+          if (e.ctrlKey) { // Ctrl + <-
+            e.preventDefault();
+            playPrev();
+          }
+          break;
+        // Можно добавить и другие, например '+' для увеличения громкости
+        default:
+          break;
+      }
+    });
+    // ---
 
     if (audio && volumeSidebar) audio.volume = parseFloat(volumeSidebar.value || 1);
     updateSidebarPlayer(null);
