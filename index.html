@@ -9,55 +9,70 @@
 </head>
 <body>
   <div class="site-wrapper">
-
-    <!-- ═══ HEADER + PLAYER ═══ -->
+    <!-- ═══ HEADER (logo + title only) ═══ -->
     <header>
-      <div id="header-badge" aria-hidden="true">
+      <div id="header-badge" aria-hidden="false">
         <img src="images/midcube.png" alt="Cube Cubic">
       </div>
-
       <h1>Cube Cubic</h1>
-
-      <!-- Header Player (visible when a track is playing) -->
-      <div id="header-player">
-        <div class="header-player-cover">
-          <img id="player-cover-img" src="images/midcube.png" alt="ამდირ План">
-        </div>
-        <div class="player-info-header">
-          <span class="player-title" id="player-title-header">აირჩიეთ ტრეკი</span>
-          <span class="player-artist" id="player-artist-header"></span>
-        </div>
-        <div class="player-controls-header">
-          <button id="prev-sidebar" type="button" aria-label="წარჩი ტრეკი">◀</button>
-          <button id="play-sidebar" type="button" aria-label="დაკვა / დაჩერება">▶</button>
-          <button id="next-sidebar" type="button" aria-label="შემდეგი ტრეკი">▶▶</button>
-        </div>
-      </div>
-
-      <a href="admin.html" id="hidden-admin-link" aria-label="ককვ">Admin</a>
+      <!-- Hidden admin link (invisible unless you hover the exact spot) -->
+      <a href="admin.html" id="hidden-admin-link" aria-label="Admin" style="opacity:0.01;font-size:1px;position:absolute;right:0;top:0;width:20px;height:20px;">·</a>
     </header>
 
-    <!-- ═══ MAIN LAYOUT ═══ -->
     <main class="new-main-layout">
-
-      <!-- Left sidebar: albums + search -->
+      <!-- ═══ LEFT SIDEBAR: Player + Albums ═══ -->
       <aside class="albums-sidebar">
+        <!-- PLAYER SECTION -->
+        <div id="player-sidebar" class="player-sidebar-block">
+          <div class="player-cover-wrapper">
+            <img id="player-cover-img" src="images/midcube.png" alt="Cover">
+          </div>
+          <div class="player-info">
+            <div id="player-title-sidebar" class="player-title">აირჩიეთ ტრეკი</div>
+            <div id="player-artist-sidebar" class="player-artist"></div>
+          </div>
+          <div class="player-controls">
+            <button id="prev-sidebar" type="button" title="წინა">⏮</button>
+            <button id="play-sidebar" type="button" title="დაკვრა">▶</button>
+            <button id="next-sidebar" type="button" title="შემდეგი">⏭</button>
+          </div>
+          <div class="player-progress-wrapper">
+            <input type="range" id="progress-sidebar" min="0" max="100" value="0" step="0.1">
+            <div class="player-times">
+              <span id="time-current-sidebar">0:00</span>
+              <span id="time-duration-sidebar">0:00</span>
+            </div>
+          </div>
+          <div class="player-volume-wrapper">
+            <span>🔊</span>
+            <input type="range" id="volume-sidebar" min="0" max="1" step="0.01" value="1">
+          </div>
+        </div>
+
+        <!-- CONTROLS SECTION -->
         <div class="controls">
-          <input id="global-search" type="text" placeholder="გამდი ალბომი, ტრეკი..." aria-label="გამდი">
+          <input id="global-search" type="text" placeholder="გამძებარი ალბომები, ტრეკები..." aria-label="Search">
+          
+          <!-- Refresh + Track Count + Newest Button -->
+          <div class="control-row">
+            <button id="refresh-btn" type="button">Refresh</button>
+            <div id="track-count-display" class="track-count">სულ ტრეკი: 0</div>
+          </div>
+          
+          <button id="newest-tracks-btn" type="button" class="newest-btn">უახლესი ტრეკები</button>
+
           <label for="album-list">ალბომები</label>
           <input type="hidden" id="album-select" value="">
           <div id="album-list" class="album-list-vertical"></div>
 
-          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი</label>
-          <select id="subalbum-select" style="display:none;">
-            <option value="">— ყველა ქვეალბომი —</option>
+          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომები</label>
+          <select id="subalbum-select" style="display:none;" size="4">
+            <option value="">— ყველა ქვეალბომები —</option>
           </select>
-
-          <button id="refresh-btn" type="button">გამდი</button>
         </div>
       </aside>
 
-      <!-- Right: track cards -->
+      <!-- ═══ RIGHT: Track Cards ═══ -->
       <section class="tracks-section">
         <div class="tracks-header">
           <h2>ტრეკები</h2>
@@ -67,13 +82,12 @@
     </main>
   </div>
 
-  <!-- Hidden audio element -->
   <audio id="audio" preload="none"></audio>
 
   <!-- ═══ LYRICS MODAL ═══ -->
   <div id="lyrics-modal" class="hidden" aria-hidden="true">
-    <div class="modal-box" tabindex="-1">
-      <button id="modal-close" type="button">✕ დაიდი</button>
+    <div class="modal-box">
+      <button id="modal-close" type="button">✕ დახურვა</button>
       <h3 id="modal-title">ტექსტი</h3>
       <pre id="modal-lyrics"></pre>
     </div>
