@@ -514,8 +514,8 @@
       "artist": "Cube Cubic",
       "lyrics": "",
       "albumId": "1769966514846",
-      "audioUrl": "https://archive.org/download/silence_202601/House%20of%20Sun.wav",
-      "coverUrl": "https://archive.org/download/silence_202601/House%20of%20Sun.png"
+      "audioUrl": "https://archive.org/download/silence_202601/House%20of%20Sun.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_House%20of%20Sun.png"
     },
     {
       "id": "1769966677893",
@@ -523,8 +523,8 @@
       "artist": "Cube Cubic",
       "lyrics": "",
       "albumId": "1767162208459",
-      "audioUrl": "https://archive.org/download/silence_202601/Hush.wav",
-      "coverUrl": "https://archive.org/download/silence_202601/Hush.png"
+      "audioUrl": "https://archive.org/download/silence_202601/Hush.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_Hush.png"
     },
     {
       "id": "1769966778212",
