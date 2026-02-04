@@ -577,7 +577,7 @@
       "artist": "Cube Cubic",
       "lyrics": "",
       "albumId": "1767101022145",
-      "audioUrl": "https://archive.org/download/the-last-secret/The%20Last%20Secret.wav",
+      "audioUrl": "https://archive.org/download/the-last-secret/The%20Last%20Secret.flac",
       "coverUrl": "https://archive.org/download/the-last-secret/300_The%20Last%20Secret.png"
     },
     {
@@ -586,8 +586,8 @@
       "artist": "Cube Cubic",
       "lyrics": "",
       "albumId": "1767101002065",
-      "audioUrl": "https://archive.org/download/the-last-secret/Smiling%20Soul.wav",
-      "coverUrl": "https://archive.org/download/the-last-secret/Smiling%20Soul.png"
+      "audioUrl": "https://archive.org/download/the-last-secret/Smiling%20Soul.flac",
+      "coverUrl": "https://archive.org/download/the-last-secret/300_Smiling%20Soul.png"
     }
   ]
 }
