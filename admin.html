@@ -88,6 +88,9 @@
       font-size: 15px;
       font-weight: 700;
       color: #e8d44d;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     label {
@@ -149,18 +152,21 @@
 
     /* Save button — blinking accent */
     .save-btn {
-      background: linear-gradient(135deg, #0fb3a6, #2bb7a4);
+      background: linear-gradient(135deg, #ff4444, #ff2222);
       border-color: transparent;
       color: #fff;
       font-weight: 700;
+      padding: 10px 16px;
+      font-size: 14px;
+      min-width: 180px;
     }
     .save-btn:hover { filter: brightness(1.15); }
     .save-btn.blinking {
       animation: savePulse 1.6s ease-in-out infinite;
     }
     @keyframes savePulse {
-      0%,100% { box-shadow: 0 0 0 0 rgba(15,179,166,.4); }
-      50%     { box-shadow: 0 0 14px 4px rgba(15,179,166,.25); }
+      0%,100% { box-shadow: 0 0 0 0 rgba(255, 68, 68,.4); }
+      50%     { box-shadow: 0 0 14px 4px rgba(255, 68, 68,.25); }
     }
 
     /* ─── Lists (albums / tracks) ─── */
@@ -295,10 +301,10 @@
     <!-- ═══ LOGIN ═══ -->
     <div id="login-form" class="panel">
       <h2>შესვლი</h2>
-      <label for="admin-password">პარול</label>
-      <input id="admin-password" type="password" placeholder="შეტივი პარול…" autocomplete="off">
+      <label for="admin-password">პაროლი</label>
+      <input id="admin-password" type="password" placeholder="შეიყვანეთ პაროლი…" autocomplete="off">
       <div style="margin-top:10px; display:flex; align-items:center;">
-        <button id="login-btn" type="button">შესვლი</button>
+        <button id="login-btn" type="button">შესვლა</button>
         <span id="login-msg"></span>
       </div>
     </div>
@@ -308,7 +314,12 @@
 
       <!-- Albums section -->
       <div class="panel">
-        <h2>ალბომები</h2>
+        <h2>
+          ალბომები
+          <button id="btn-save-all" type="button" class="save-btn blinking">
+            <span class="inner-text">არ დაგავიწყდეს დამახსოვრება</span>
+          </button>
+        </h2>
         <div class="row">
           <div class="col">
             <label for="album-name">სახელი</label>
@@ -328,8 +339,7 @@
 
       <!-- Add Track section -->
       <div class="panel">
-        <h2>ტრეკის დამატება
-</h2>
+        <h2>ტრეკის დამატება</h2>
         <form id="add-track-form">
           <div class="row">
             <div class="col">
@@ -347,7 +357,7 @@
               <input name="audioUrl" placeholder="https://archive.org/…">
               <label>Cover URL</label>
               <input name="coverUrl" placeholder="https://archive.org/…">
-              <button type="submit" style="margin-top:12px; background:#0fb3a6; border-color:transparent; width:100%;">+ დამატი ტრეკი</button>
+              <button type="submit" style="margin-top:12px; background:#0fb3a6; border-color:transparent; width:100%;">+ დამატება ტრეკი</button>
             </div>
           </div>
         </form>
@@ -358,7 +368,7 @@
         <h2>ტრეკების სია</h2>
         <div class="search-wrap">
           <input id="track-search" type="text" placeholder="მოძებნე ტრეკი…">
-          <button id="track-search-clear" class="clear-btn" type="button" title="წაშლაგა">✕</button>
+          <button id="track-search-clear" class="clear-btn" type="button" title="წაშლა">✕</button>
         </div>
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
           <button id="btn-refresh-tracks" type="button">ტრეკების Refresh</button>
@@ -366,11 +376,8 @@
         <div id="admin-tracks" class="list"></div>
       </div>
 
-      <!-- Save + Logout -->
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
-        <button id="btn-save-all" type="button" class="save-btn blinking">
-          <span class="inner-text">არ დაგავიწყდეს დამახსოვრება</span>
-        </button>
+      <!-- Logout -->
+      <div style="display:flex; justify-content:flex-end;">
         <button id="logout-btn" type="button">გასვლა</button>
       </div>
     </div>
@@ -385,8 +392,8 @@
       <label>ქვე ალბომი</label>
       <select id="modal-album-parent"></select>
       <div class="actions">
-        <button id="modal-cancel" type="button">გამდი</button>
-        <button id="modal-save" type="button">შემং</button>
+        <button id="modal-cancel" type="button">გაუქმება</button>
+        <button id="modal-save" type="button">შენახვა</button>
       </div>
     </div>
   </div>
