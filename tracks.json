@@ -433,8 +433,8 @@
       "artist": "Cube Cubic",
       "lyrics": "",
       "albumId": "1767101002065",
-      "audioUrl": "https://archive.org/download/saxs-history/Sax%27s%20History.wav",
-      "coverUrl": "https://archive.org/download/saxs-history/1_Sax%27s%20History.png"
+      "audioUrl": "https://archive.org/download/saxs-history/Sax%27s%20History.flac",
+      "coverUrl": "https://archive.org/download/saxs-history/300_Sax%27s%20History.png"
     },
     {
       "id": "1768905870413",
@@ -442,8 +442,8 @@
       "artist": "Cube Cubic",
       "lyrics": "",
       "albumId": "1769973332848",
-      "audioUrl": "https://archive.org/download/dont-leave-me-alone_202601/1_Don%27t%20Leave%20Me%20Alone.wav",
-      "coverUrl": "https://archive.org/download/dont-leave-me-alone_202601/Don%27t%20Leave%20Me%20Alone.png"
+      "audioUrl": "https://archive.org/download/dont-leave-me-alone_202601/1_Don%27t%20Leave%20Me%20Alone.flac",
+      "coverUrl": "https://archive.org/download/dont-leave-me-alone_202601/300_Don%27t%20Leave%20Me%20Alone.png"
     },
     {
       "id": "1768906709323",
@@ -451,8 +451,8 @@
       "artist": "Cube Cubic",
       "lyrics": "",
       "albumId": "1767340968092",
-      "audioUrl": "https://archive.org/download/melancholy_202601/Melancholy.wav",
-      "coverUrl": "https://archive.org/download/melancholy_202601/Melancholy.png"
+      "audioUrl": "https://archive.org/download/melancholy_202601/Melancholy.flac",
+      "coverUrl": "https://archive.org/download/melancholy_202601/300_Melancholy.png"
     },
     {
       "id": "1768907704243",
@@ -460,8 +460,8 @@
       "artist": "Cube Cubic",
       "lyrics": "",
       "albumId": "1767340968092",
-      "audioUrl": "https://archive.org/download/journey-to-a-dream/Journey%20to%20a%20Dream.wav",
-      "coverUrl": "https://archive.org/download/journey-to-a-dream/Journey%20to%20a%20Dream.png"
+      "audioUrl": "https://archive.org/download/journey-to-a-dream/Journey%20to%20a%20Dream.flac",
+      "coverUrl": "https://archive.org/download/journey-to-a-dream/300_Journey%20to%20a%20Dream.png"
     },
     {
       "id": "1768908312700",
@@ -532,8 +532,8 @@
       "artist": "Cube Cubic",
       "lyrics": "",
       "albumId": "1767162208459",
-      "audioUrl": "https://archive.org/download/silence_202601/Voices%20of%20Summer.wav",
-      "coverUrl": "https://archive.org/download/silence_202601/Voices%20of%20Summer.png"
+      "audioUrl": "https://archive.org/download/silence_202601/Voices%20of%20Summer.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_Voices%20of%20Summer.png"
     },
     {
       "id": "1769966985739",
@@ -541,8 +541,8 @@
       "artist": "Cube Cubic",
       "lyrics": "This track is a lyrical instrumental composition with elements of modern rock and synth-pop. It creates a relaxed yet slightly melancholy mood, perfect for background music or atmospheric scenes.",
       "albumId": "1768906315515",
-      "audioUrl": "https://archive.org/download/silence_202601/Why%20Not.wav",
-      "coverUrl": "https://archive.org/download/silence_202601/Why%20Not%20.png"
+      "audioUrl": "https://archive.org/download/silence_202601/Why%20Not.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_Why%20Not%20.png"
     },
     {
       "id": "1770038523842",
