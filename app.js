@@ -531,8 +531,22 @@
     }
   }
 
-  // REFRESH button
-  if (refreshBtn) refreshBtn.addEventListener('click', loadData);
+  // REFRESH button — reset album selection and reload
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      // Сбросить выбор альбома
+      if (albumSelect) albumSelect.value = '';
+      if (subalbumSelect) {
+        subalbumSelect.innerHTML = '<option value="">— ყველა ქვეალბომები —</option>';
+        subalbumSelect.disabled = true;
+        subalbumSelect.style.display = 'none';
+      }
+      if (subalbumLabel) subalbumLabel.style.display = 'none';
+      
+      // Перезагрузить данные
+      loadData();
+    });
+  }
 
   // NEWEST TRACKS button (toggle)
   if (newestBtn) {
@@ -544,6 +558,31 @@
         newestBtn.classList.remove('active');
       }
       renderTracks();
+    });
+  }
+
+  // ════════════════════════════════
+  //  Scroll to Top Button
+  // ════════════════════════════════
+
+  const scrollToTopBtn = document.getElementById('scroll-to-top');
+  
+  if (scrollToTopBtn) {
+    // Show/hide based on scroll position
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        scrollToTopBtn.classList.add('visible');
+      } else {
+        scrollToTopBtn.classList.remove('visible');
+      }
+    });
+
+    // Scroll to top on click
+    scrollToTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     });
   }
 

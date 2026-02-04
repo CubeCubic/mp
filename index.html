@@ -15,8 +15,8 @@
         <img src="images/midcube.png" alt="Cube Cubic">
       </div>
       <h1>Cube Cubic</h1>
-      <!-- Hidden admin link (invisible unless you hover the exact spot) -->
-      <a href="admin.html" id="hidden-admin-link" aria-label="Admin" style="opacity:0.01;font-size:1px;position:absolute;right:0;top:0;width:20px;height:20px;">·</a>
+      <!-- Admin link (subtle) -->
+      <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
     </header>
 
     <main class="new-main-layout">
@@ -95,6 +95,13 @@
 
   <!-- ═══ TOAST ═══ -->
   <div id="toast" class="hidden" role="status" aria-live="polite"></div>
+
+  <!-- ═══ SCROLL TO TOP BUTTON ═══ -->
+  <button id="scroll-to-top" type="button" title="ზემოთ აწევა" aria-label="Scroll to top">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M12 4l-8 8h5v8h6v-8h5z"/>
+    </svg>
+  </button>
 
   <script src="app.js"></script>
 </body>
