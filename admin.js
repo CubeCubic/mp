@@ -1,3 +1,5 @@
+admin.js:
+
 // admin.js — статическая версия for GitHub Pages
 // Поддержка подальбомов (создание и редактирование), пароль 230470,
 // батч-режим (скачивание tracks.json вручную),
@@ -476,26 +478,13 @@
       }
     });
   }
-  // --- ИЗМЕНЕНО: Обработчик кнопки выхода с подтверждением ---
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
-      // --- НОВОЕ: Проверка на изменения ---
-      if (isDirty) {
-        const confirmLogout = confirm('У вас есть несохранённые изменения. Вы уверены, что хотите выйти?');
-        if (!confirmLogout) {
-          return; // Не выходить, если пользователь нажал "Отмена"
-        }
-      }
-      // ---
       loggedIn = false;
       adminPanel.classList.add('hidden');
       loginForm.classList.remove('hidden');
-      // Возможно, сбросить isDirty после выхода, если не планируется скачивание
-      // clearDirty(); // <- раскомментируйте, если хотите сбрасывать при выходе
     });
   }
-  // ---
-
 
   // --- Search logic (debounced) ---
   function debounce(fn, wait) {
