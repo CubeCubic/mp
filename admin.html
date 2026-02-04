@@ -287,7 +287,7 @@
   <!-- Sticky top bar -->
   <div class="admin-topbar">
     <h1>ადმინი</h1>
-    <a href="index.html">← გამდი გვერდი</a>
+    <a href="index.html">← მთავარი გვერდი</a>
   </div>
 
   <main id="admin-app">
@@ -315,12 +315,12 @@
             <input id="album-name" type="text" placeholder="ალბომის სახელი…">
           </div>
           <div class="small">
-            <label for="album-parent">შიდა ალბომი (ijaneti)</label>
+            <label for="album-parent">ქვე ალბომი (ijaneti)</label>
             <select id="album-parent">
-              <option value="">— გამდი ალბომი —</option>
+              <option value="">— მთავარი ალბომი —</option>
             </select>
             <button id="btn-create-album" type="button">+ ალბომი</button>
-            <button id="btn-refresh-albums" type="button">გამდი</button>
+            <button id="btn-refresh-albums" type="button">Refresh</button>
           </div>
         </div>
         <div class="list" id="albums-list"></div>
@@ -328,7 +328,7 @@
 
       <!-- Add Track section -->
       <div class="panel">
-        <h2>ტრეკი დამატ
+        <h2>ტრეკის დამატება
 </h2>
         <form id="add-track-form">
           <div class="row">
@@ -357,11 +357,11 @@
       <div class="panel">
         <h2>ტრეკების სია</h2>
         <div class="search-wrap">
-          <input id="track-search" type="text" placeholder="გამდი ტრეკი…">
-          <button id="track-search-clear" class="clear-btn" type="button" title="გამდი">✕</button>
+          <input id="track-search" type="text" placeholder="მოძებნე ტრეკი…">
+          <button id="track-search-clear" class="clear-btn" type="button" title="წაშლაგა">✕</button>
         </div>
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-          <button id="btn-refresh-tracks" type="button">გამდი ტრეკი</button>
+          <button id="btn-refresh-tracks" type="button">ტრეკების Refresh</button>
         </div>
         <div id="admin-tracks" class="list"></div>
       </div>
@@ -369,7 +369,7 @@
       <!-- Save + Logout -->
       <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
         <button id="btn-save-all" type="button" class="save-btn blinking">
-          <span class="inner-text">დამახსოვი შsrednj</span>
+          <span class="inner-text">დაიმახსოვრე</span>
         </button>
         <button id="logout-btn" type="button">გამდი</button>
       </div>
@@ -379,10 +379,10 @@
   <!-- ═══ Album edit modal ═══ -->
   <div id="album-edit-modal" class="modal-backdrop hidden" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true">
-      <h3>ალბომი რედაქტი</h3>
+      <h3>ალბომის რედაქტირება</h3>
       <label>სახელი</label>
       <input id="modal-album-name" type="text">
-      <label>შიდა ალბომი</label>
+      <label>ქვე ალბომი</label>
       <select id="modal-album-parent"></select>
       <div class="actions">
         <button id="modal-cancel" type="button">გამდი</button>
