@@ -1,8 +1,3 @@
-// admin.js — статическая версия for GitHub Pages
-// Поддержка подальбомов (создание и редактирование), пароль 230470,
-// батч-режим (скачивание tracks.json вручную),
-// + вход по Enter
-// + редактирование треков (модалка)
 (async function() {
   if (!document.getElementById('admin-app')) return;
   // Elements
@@ -514,4 +509,5 @@
     adminPanel.classList.add('hidden');
     loginForm.classList.remove('hidden');
   });
+
 })();
