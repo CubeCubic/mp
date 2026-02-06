@@ -9,6 +9,8 @@ Cube Cubic — Main App Logic  v3.0 FIXED
 - Random сортировка при загрузке
 - Видимый subalbum dropdown (size=4)
 - Клик на карточку продолжает играть, не убирает плеер
+- Добавлена кнопка контакта с отправкой писем
+- Восстановлена кнопка Admin
 ═══════════════════════════════════════════════════ */
 // ─── DOM элементы ───
 const albumSelect = document.getElementById('album-select');
@@ -535,7 +537,6 @@ scrollToTopBtn.addEventListener('click', () => {
 // ════════════════════════════════
 // Contact Modal & Email Form
 // ════════════════════════════════
-
 const contactBtn = document.getElementById('contact-btn');
 const contactModal = document.getElementById('contact-modal');
 const contactCloseBtn = document.getElementById('contact-modal-close');
