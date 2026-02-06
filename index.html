@@ -1,100 +1,102 @@
 <!DOCTYPE html>
 <html lang="ka">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cube Cubic</title>
-
-    <!-- Favicon -->
-    <link rel="icon" href="images/favicon.ico">
-
-    <!-- Inter Font -->
-    <link rel="preconnect" href="https://rsms.me/">
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-
-    <!-- Main CSS -->
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cube Cubic</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="images/smallcube.png">
 </head>
 <body>
-
-<div class="site-wrapper">
-    <header class="header">
-        <div class="header-content">
-            <h1>Cube Cubic</h1>
-            <a href="admin.html" class="admin-link">ადმინი</a>
-        </div>
+  <div class="site-wrapper">
+    <!-- ═══ HEADER (logo + title only) ═══ -->
+    <header>
+      <div id="header-badge" aria-hidden="false">
+        <img src="images/midcube.png" alt="Cube Cubic">
+      </div>
+      <h1>Cube Cubic</h1>
+      <!-- Admin link (subtle) -->
+      <a href="admin.html" id="hidden-admin-link" aria-label="Admin">ადმინი</a>
     </header>
 
-    <main class="main-content">
-        <aside class="sidebar">
-            <div class="filters">
-                <select id="album-select">
-                    <option value="">აირჩიეთ ტრეკი</option>
-                </select>
-                <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომი:</label>
-                <select id="subalbum-select" size="4" style="display:none;" disabled>
-                    <option value="">— ყველა ქვეალბომები —</option>
-                </select>
+    <main class="new-main-layout">
+      <!-- ═══ LEFT SIDEBAR: Player + Albums ═══ -->
+      <aside class="albums-sidebar">
+        <!-- PLAYER SECTION -->
+        <div id="player-sidebar" class="player-sidebar-block">
+          <div class="player-cover-wrapper">
+            <img id="player-cover-img" src="images/smallcube.png" alt="Cover">
+          </div>
+          <div class="player-info">
+            <div id="player-title-sidebar" class="player-title">აირჩიეთ ტრეკი</div>
+            <div id="player-artist-sidebar" class="player-artist"></div>
+          </div>
+          <div class="player-controls">
+            <button id="prev-sidebar" type="button" title="წინა">⏮</button>
+            <button id="play-sidebar" type="button" title="დაკვრა">▶</button>
+            <button id="next-sidebar" type="button" title="შემდეგი">⏭</button>
+          </div>
+          <div class="player-progress-wrapper">
+            <input type="range" id="progress-sidebar" min="0" max="100" value="0" step="0.1">
+            <div class="player-times">
+              <span id="time-current-sidebar">0:00</span>
+              <span id="time-duration-sidebar">0:00</span>
             </div>
+          </div>
+          <div class="player-volume-wrapper">
+            <span>🔊</span>
+            <input type="range" id="volume-sidebar" min="0" max="1" step="0.01" value="1">
+          </div>
+        </div>
 
-            <div class="controls">
-                <button id="refresh-btn">Refresh</button>
-                <button id="newest-tracks-btn">უახლესი ტრეკები</button>
-            </div>
+        <!-- CONTROLS SECTION -->
+        <div class="controls">
+          <label for="global-search">ძიება</label>
+          <input id="global-search" type="text" placeholder="შეიყვანეთ სათაური, შემსრულებელი ან ალბომი">
 
-            <div class="track-counter">
-                სულ ტრეკი: <span id="track-count-display">0</span>
-            </div>
+          <!-- Refresh + Track Count + Newest Button -->
+          <div class="control-row">
+            <button id="refresh-btn" type="button">Refresh</button>
+            <div id="track-count-display" class="track-count">სულ ტრეკი: 0</div>
+          </div>
+          
+          <button id="newest-tracks-btn" type="button" class="">უახლესი ტრეკები</button>
 
-            <div id="album-list" class="album-list"></div>
-        </aside>
+          <div id="album-list" class="album-list-vertical"></div>
+        </div>
+      </aside>
 
-        <section class="content">
-            <div class="search-container">
-                <input type="text" id="global-search" placeholder="ძიება...">
-            </div>
-            <div id="tracks" class="tracks-list-grid"></div>
-        </section>
+      <!-- ═══ RIGHT: Track Cards ═══ -->
+      <section class="tracks-section">
+        <div class="tracks-header">
+          <h2>აირჩიეთ ტრეკი</h2>
+        </div>
+        <div id="tracks" class="tracks-list-grid"></div>
+      </section>
     </main>
-</div>
+  </div>
 
-<!-- Lyrics Modal -->
-<div id="lyrics-modal" class="modal hidden">
+  <audio id="audio" preload="none"></audio>
+
+  <!-- ═══ LYRICS MODAL ═══ -->
+  <div id="lyrics-modal" class="modal hidden" aria-hidden="true">
     <div class="modal-box">
-        <h3>ტექსტი</h3>
-        <pre id="lyrics-content"></pre>
+      <button id="modal-close" type="button" aria-label="დახურვა">×</button>
+      <h3 id="modal-title"></h3>
+      <pre id="modal-lyrics"></pre>
     </div>
-</div>
+  </div>
 
-<!-- Audio Player (Hidden initially) -->
-<audio id="audio"></audio>
+  <!-- ═══ TOAST ═══ -->
+  <div id="toast" class="hidden" role="status" aria-live="polite"></div>
 
-<!-- Player Sidebar -->
-<aside id="player-sidebar" class="player-sidebar hidden">
-    <img id="player-cover-img" src="" alt="Cover" class="player-cover">
-    <div class="player-info">
-        <div id="player-title-sidebar" class="player-title"></div>
-        <div id="player-artist-sidebar" class="player-artist"></div>
-    </div>
-    <div class="player-controls">
-        <button id="prev-sidebar" class="control-btn">⏮</button>
-        <button id="play-sidebar" class="control-btn">⏸</button>
-        <button id="next-sidebar" class="control-btn">⏭</button>
-    </div>
-    <div class="progress-container">
-        <span id="time-current-sidebar" class="time">0:00</span>
-        <input type="range" id="progress-sidebar" class="progress-bar" min="0" max="100" value="0">
-        <span id="time-total-sidebar" class="time">0:00</span>
-    </div>
-    <div class="volume-control">
-        <label for="volume-slider">🔊</label>
-        <input type="range" id="volume-slider" class="volume-slider" min="0" max="1" step="0.01" value="1">
-    </div>
-</aside>
+  <!-- ═══ SCROLL TO TOP BUTTON ═══ -->
+  <button id="scroll-to-top" type="button" title="ზემოთ აწევა" aria-label="Scroll to top">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+      <path d="M12 4l-8 8h5v8h6v-8h5z"/>
+    </svg>
+  </button>
 
-<!-- Toast Notification -->
-<div id="toast" class="toast hidden"></div>
-
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
