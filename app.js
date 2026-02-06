@@ -592,5 +592,60 @@
     if (audio && volumeSlider) audio.volume = parseFloat(volumeSlider.value || 1);
     loadData();
   });
+  // ════════════════════════════════
+//  Share Button (Web Share API)
+// ════════════════════════════════
+const shareBtn = document.getElementById('share-btn');
+
+function canShare() {
+  return typeof navigator.share !== 'undefined';
+}
+
+function showToastShare(msg) {
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.remove('hidden');
+  toast.classList.add('visible');
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.classList.add('hidden'), 350);
+  }, 3000);
+}
+
+if (shareBtn) {
+  // Update button text based on support
+  if (!canShare()) {
+    shareBtn.innerHTML = `
+      <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+      </svg>
+      <span>კოპირება</span>
+    `;
+  }
+
+  shareBtn.addEventListener('click', async () => {
+    const shareData = {
+      title: 'Cube Cubic',
+      text: 'Cube Cubic — მუსიკალური საიტი',
+      url: window.location.href
+    };
+
+    try {
+      if (canShare()) {
+        await navigator.share(shareData);
+        showToastShare('გაზიარებულია!');
+      } else {
+        // Fallback: copy URL to clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        showToastShare('ლინკი დაკოპირებულია!');
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Share error:', err);
+        showToastShare('შეცდომა გაზიარებისას');
+      }
+    }
+  });
+}
 
 })();
