@@ -742,3 +742,709 @@ body.modal-open { overflow: hidden; }
     gap: 12px;
   }
 }
+/* =========================================
+   Contact Modal Styles — Deep Ocean Theme
+   ========================================= */
+
+/* Кнопка контакта в шапке */
+.contact-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(15, 179, 166, 0.18), rgba(11, 43, 69, 0.12));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  min-height: auto;
+  z-index: 1002;
+}
+
+.contact-button:hover {
+  background: linear-gradient(135deg, rgba(15, 179, 166, 0.28), rgba(11, 43, 69, 0.20));
+  border-color: rgba(15, 179, 166, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 179, 166, 0.18);
+}
+
+.contact-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.contact-button svg {
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* Модальное окно контакта */
+.contact-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.62);
+  z-index: 2100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.contact-modal:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+}
+
+.contact-modal-box {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  max-width: 480px;
+  width: 92%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-strong), 0 12px 48px rgba(15, 179, 166, 0.22);
+  position: relative;
+  animation: modalSlideUp 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.contact-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--t-fast);
+  z-index: 10;
+}
+
+.contact-modal-close:hover {
+  background: rgba(255, 122, 102, 0.18);
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+
+.contact-modal h3 {
+  margin: 0 0 24px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Форма контакта */
+#contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all var(--t-fast);
+  box-sizing: border-box;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-2);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 2px rgba(15, 179, 166, 0.15);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Кнопка отправки */
+.contact-submit-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent), rgba(255, 122, 102, 0.85));
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  margin-top: 8px;
+  box-shadow: 0 6px 20px rgba(255, 122, 102, 0.3);
+}
+
+.contact-submit-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 122, 102, 0.95), var(--accent));
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(255, 122, 102, 0.4);
+}
+
+.contact-submit-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 4px 16px rgba(255, 122, 102, 0.3);
+}
+
+.contact-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Статус отправки */
+.contact-status {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  display: none;
+}
+
+.contact-status.success {
+  display: block;
+  background: rgba(43, 183, 164, 0.15);
+  border: 1px solid rgba(43, 183, 164, 0.3);
+  color: #2bb7a4;
+  animation: statusFadeIn 0.4s ease;
+}
+
+.contact-status.error {
+  display: block;
+  background: rgba(255, 122, 102, 0.15);
+  border: 1px solid rgba(255, 122, 102, 0.4);
+  color: var(--accent);
+  animation: statusFadeIn 0.4s ease;
+}
+
+@keyframes statusFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 680px) {
+  .contact-button {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  
+  .contact-modal-box {
+    padding: 22px 18px;
+    margin: 16px;
+  }
+  
+  .contact-modal h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .contact-submit-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+}
+/* =========================================
+   Contact Modal Styles — Deep Ocean Theme
+   ========================================= */
+
+/* Кнопка контакта в шапке */
+.contact-button {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(15, 179, 166, 0.18), rgba(11, 43, 69, 0.12));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  z-index: 1002;
+}
+
+.contact-button:hover {
+  background: linear-gradient(135deg, rgba(15, 179, 166, 0.28), rgba(11, 43, 69, 0.20));
+  border-color: rgba(15, 179, 166, 0.4);
+  transform: translateY(-50%) translateY(-1px);
+}
+
+.contact-button svg {
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* Модальное окно контакта */
+.contact-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.62);
+  z-index: 2100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.contact-modal:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+}
+
+.contact-modal-box {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  max-width: 480px;
+  width: 92%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-strong), 0 12px 48px rgba(15, 179, 166, 0.22);
+  position: relative;
+  animation: modalSlideUp 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.contact-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--t-fast);
+}
+
+.contact-modal-close:hover {
+  background: rgba(255, 122, 102, 0.18);
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+
+.contact-modal h3 {
+  margin: 0 0 24px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all var(--t-fast);
+  box-sizing: border-box;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-2);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 2px rgba(15, 179, 166, 0.15);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.contact-submit-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent), rgba(255, 122, 102, 0.85));
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  margin-top: 8px;
+  box-shadow: 0 6px 20px rgba(255, 122, 102, 0.3);
+}
+
+.contact-submit-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 122, 102, 0.95), var(--accent));
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(255, 122, 102, 0.4);
+}
+
+.contact-submit-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.contact-status {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  display: none;
+}
+
+.contact-status.success {
+  display: block;
+  background: rgba(43, 183, 164, 0.15);
+  border: 1px solid rgba(43, 183, 164, 0.3);
+  color: #2bb7a4;
+}
+
+.contact-status.error {
+  display: block;
+  background: rgba(255, 122, 102, 0.15);
+  border: 1px solid rgba(255, 122, 102, 0.4);
+  color: var(--accent);
+}
+
+@media (max-width: 680px) {
+  .contact-button {
+    right: 12px;
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  
+  .contact-modal-box {
+    padding: 22px 18px;
+    margin: 16px;
+  }
+}
+/* =========================================
+   Contact Modal Styles — Deep Ocean Theme
+   ========================================= */
+
+/* Кнопка контакта в шапке */
+.contact-button {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(15, 179, 166, 0.18), rgba(11, 43, 69, 0.12));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  z-index: 1002;
+}
+
+.contact-button:hover {
+  background: linear-gradient(135deg, rgba(15, 179, 166, 0.28), rgba(11, 43, 69, 0.20));
+  border-color: rgba(15, 179, 166, 0.4);
+  transform: translateY(-50%) translateY(-1px);
+}
+
+.contact-button svg {
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* Модальное окно контакта */
+.contact-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.62);
+  z-index: 2100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.contact-modal:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+}
+
+.contact-modal-box {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  max-width: 480px;
+  width: 92%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-strong), 0 12px 48px rgba(15, 179, 166, 0.22);
+  position: relative;
+  animation: modalSlideUp 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.contact-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--t-fast);
+}
+
+.contact-modal-close:hover {
+  background: rgba(255, 122, 102, 0.18);
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+
+.contact-modal h3 {
+  margin: 0 0 24px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all var(--t-fast);
+  box-sizing: border-box;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-2);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 2px rgba(15, 179, 166, 0.15);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.contact-submit-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent), rgba(255, 122, 102, 0.85));
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  margin-top: 8px;
+  box-shadow: 0 6px 20px rgba(255, 122, 102, 0.3);
+}
+
+.contact-submit-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 122, 102, 0.95), var(--accent));
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(255, 122, 102, 0.4);
+}
+
+.contact-submit-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.contact-status {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  display: none;
+}
+
+.contact-status.success {
+  display: block;
+  background: rgba(43, 183, 164, 0.15);
+  border: 1px solid rgba(43, 183, 164, 0.3);
+  color: #2bb7a4;
+}
+
+.contact-status.error {
+  display: block;
+  background: rgba(255, 122, 102, 0.15);
+  border: 1px solid rgba(255, 122, 102, 0.4);
+  color: var(--accent);
+}
+
+@media (max-width: 680px) {
+  .contact-button {
+    right: 12px;
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  
+  .contact-modal-box {
+    padding: 22px 18px;
+    margin: 16px;
+  }
+}
