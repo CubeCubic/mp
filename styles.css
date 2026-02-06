@@ -284,7 +284,7 @@ body::after {
     fill: #fff;
 }
 
-/* --- Rating Stars Styles --- */
+/* --- Rating Stars Styles (NEW) --- */
 .rating-stars {
     display: flex;
     align-items: center;

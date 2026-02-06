@@ -1,17 +1,6 @@
 (function () {
-/* ═══════════════════════════════════════════════════
-Cube Cubic — Main App Logic v3.0 FIXED
-Исправлено:
-- Плеер в SIDEBAR (не в header)
-- Refresh работает
-- Показывает счётчик треков "სულ ტრეკი: N"
-- Кнопка "უახლესი ტრეკები" (сортировка newest first toggle)
-- Random сортировка при загрузке
-- Видимый subalbum dropdown (size=4)
-- Клик на карточку продолжает играть, не убирает плеер
-═══════════════════════════════════════════════════ */
-
-// ─── DOM элементы ───
+/* Cube Cubic — Main App Logic */
+// DOM Elements
 const albumSelect = document.getElementById('album-select');
 const subalbumSelect = document.getElementById('subalbum-select');
 const subalbumLabel = document.getElementById('subalbum-label');
@@ -49,9 +38,53 @@ let currentTrackIndex = -1;
 let userInteracted = false;
 let sortNewest = false; // toggle for "უახლესი ტრეკები" button
 
-// ════════════════════════════════
+// --- NEW: Rating Functions ---
+/**
+ * Загружает оценку для трека из localStorage
+ * @param {string} trackId - ID трека
+ * @returns {number|null} - Оценка (1-5) или null, если нет
+ */
+function loadRating(trackId) {
+    const ratings = JSON.parse(localStorage.getItem('trackRatings')) || {};
+    return ratings[trackId] || null;
+}
+
+/**
+ * Сохраняет оценку для трека в localStorage
+ * @param {string} trackId - ID трека
+ * @param {number} rating - Оценка (1-5)
+ */
+function saveRating(trackId, rating) {
+    let ratings = JSON.parse(localStorage.getItem('trackRatings')) || {};
+    ratings[trackId] = rating;
+    localStorage.setItem('trackRatings', JSON.stringify(ratings));
+}
+
+/**
+ * Обновляет отображение звёзд для конкретного блока ratingDiv
+ * @param {HTMLElement} ratingDiv - DOM-элемент .rating-stars
+ * @param {number|null} rating - Текущая оценка
+ */
+function updateStarDisplay(ratingDiv, rating) {
+    const stars = ratingDiv.querySelectorAll('.star');
+    const display = ratingDiv.querySelector('.rating-display');
+
+    // Сброс классов
+    stars.forEach(star => star.classList.remove('selected'));
+
+    if (rating !== null && rating >= 1 && rating <= 5) {
+        // Выделяем звёзды до текущей оценки
+        for (let i = 0; i < rating; i++) {
+            stars[i].classList.add('selected');
+        }
+        display.textContent = rating;
+    } else {
+        display.textContent = '--';
+    }
+}
+// --- END NEW: Rating Functions ---
+
 // Load Data
-// ════════════════════════════════
 async function loadData() {
     try {
         const res = await fetch('tracks.json');
@@ -71,9 +104,7 @@ async function loadData() {
     }
 }
 
-// ════════════════════════════════
 // Album Select Handling
-// ════════════════════════════════
 if (albumSelect) {
     albumSelect.addEventListener('change', () => {
         const selectedAlbumId = albumSelect.value;
@@ -114,9 +145,7 @@ function updateSubalbumDropdown(parentId) {
     subalbumSelect.value = '';
 }
 
-// ════════════════════════════════
 // Track cards rendering
-// ════════════════════════════════
 function renderTracks() {
     if (!tracksContainer) return;
     tracksContainer.innerHTML = '';
@@ -237,7 +266,7 @@ function renderTracks() {
 
         card.appendChild(actions);
 
-        // --- ADD RATING SECTION ---
+        // --- NEW: ADD RATING SECTION TO CARD ---
         const ratingDiv = document.createElement('div');
         ratingDiv.className = 'rating-stars';
         ratingDiv.dataset.trackId = t.id; // Привязываем к ID трека
@@ -274,8 +303,7 @@ function renderTracks() {
         });
 
         card.appendChild(ratingDiv); // Добавляем блок с оценкой в конец карточки
-        // --- END ADD RATING SECTION ---
-
+        // --- END NEW: ADD RATING SECTION ---
 
         card.addEventListener('click', () => {
             userInteracted = true;
@@ -288,9 +316,7 @@ function renderTracks() {
     highlightCurrent();
 }
 
-// ════════════════════════════════
 // Search
-// ════════════════════════════════
 function matchesQuery(track, q) {
     if (!q) return true;
     const low = q.toLowerCase();
@@ -312,9 +338,7 @@ if (globalSearchInput) {
     });
 }
 
-// ════════════════════════════════
 // Highlight playing card
-// ════════════════════════════════
 function highlightCurrent() {
     if (!tracksContainer) return;
     tracksContainer.querySelectorAll('.card').forEach(c => c.classList.remove('playing-track'));
@@ -329,9 +353,7 @@ function highlightCurrent() {
     }
 }
 
-// ════════════════════════════════
 // Player Controls
-// ════════════════════════════════
 function updatePlayer(track) {
     if (!playerSidebar || !track) {
         playerSidebar?.classList.add('hidden');
@@ -441,9 +463,7 @@ if (volumeSlider) {
     audio.volume = volumeSlider.value;
 }
 
-// ════════════════════════════════
 // Album sidebar rendering
-// ════════════════════════════════
 function renderAlbumList() {
     if (!albumListContainer) return;
     albumListContainer.innerHTML = '';
@@ -494,9 +514,7 @@ function renderAlbumList() {
     albumListContainer.appendChild(rootFrag);
 }
 
-// ════════════════════════════════
 // Modals
-// ════════════════════════════════
 function openLyricsModal(track) {
     if (!lyricsModal || !lyricsContent || !track.lyrics) return;
     lyricsContent.textContent = track.lyrics;
@@ -513,9 +531,7 @@ if (lyricsModal) {
     });
 }
 
-// ════════════════════════════════
 // Buttons
-// ════════════════════════════════
 // REFRESH button — reset album selection and reload
 if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
@@ -541,58 +557,7 @@ if (newestBtn) {
     });
 }
 
-
-// ════════════════════════════════
-// Rating Functions
-// ════════════════════════════════
-
-/**
- * Загружает оценку для трека из localStorage
- * @param {string} trackId - ID трека
- * @returns {number|null} - Оценка (1-5) или null, если нет
- */
-function loadRating(trackId) {
-    const ratings = JSON.parse(localStorage.getItem('trackRatings')) || {};
-    return ratings[trackId] || null;
-}
-
-/**
- * Сохраняет оценку для трека в localStorage
- * @param {string} trackId - ID трека
- * @param {number} rating - Оценка (1-5)
- */
-function saveRating(trackId, rating) {
-    let ratings = JSON.parse(localStorage.getItem('trackRatings')) || {};
-    ratings[trackId] = rating;
-    localStorage.setItem('trackRatings', JSON.stringify(ratings));
-}
-
-/**
- * Обновляет отображение звёзд для конкретного блока ratingDiv
- * @param {HTMLElement} ratingDiv - DOM-элемент .rating-stars
- * @param {number|null} rating - Текущая оценка
- */
-function updateStarDisplay(ratingDiv, rating) {
-    const stars = ratingDiv.querySelectorAll('.star');
-    const display = ratingDiv.querySelector('.rating-display');
-
-    // Сброс классов
-    stars.forEach(star => star.classList.remove('selected'));
-
-    if (rating !== null && rating >= 1 && rating <= 5) {
-        // Выделяем звёзды до текущей оценки
-        for (let i = 0; i < rating; i++) {
-            stars[i].classList.add('selected');
-        }
-        display.textContent = rating;
-    } else {
-        display.textContent = '--';
-    }
-}
-
-// ════════════════════════════════
 // Utilities
-// ════════════════════════════════
 function formatTime(sec) {
     if (!isFinite(sec)) return '0:00';
     const m = Math.floor(sec / 60);
@@ -664,15 +629,13 @@ function shuffleArray(arr) {
     return copy;
 }
 
-// ════════════════════════════════
 // Update track counter
-// ════════════════════════════════
 function updateTrackCount() {
     if (!trackCountDisplay) return;
     trackCountDisplay.textContent = `სულ ტრეკი: ${tracks.length}`;
 }
 
-// ─── Init ───
+// Init
 document.addEventListener('DOMContentLoaded', () => {
     updatePlayer(null);
     if (audio && volumeSlider) audio.volume = parseFloat(volumeSlider.value || 1);
