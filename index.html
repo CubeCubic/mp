@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ka">
 <head>
   <meta charset="utf-8" />
@@ -6,6 +6,19 @@
   <title>Cube Cubic</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" type="image/png" href="images/smallcube.png">
+  <style>
+    /* ═══ Track section alignment ═══ */
+    .tracks-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding-top: 0;
+    }
+    #tracks {
+      flex: 1;
+      margin-top: 1mm;
+    }
+  </style>
 </head>
 <body>
   <div class="site-wrapper">
@@ -16,7 +29,7 @@
       </div>
       <h1>Cube Cubic</h1>
       <!-- Admin link (subtle) -->
-      <a href="admin.html" id="hidden-admin-link" aria-label="Admin">ადმინი</a>
+      <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
     </header>
 
     <main class="new-main-layout">
@@ -51,26 +64,29 @@
 
         <!-- CONTROLS SECTION -->
         <div class="controls">
-          <label for="global-search">ძიება</label>
-          <input id="global-search" type="text" placeholder="შეიყვანეთ სათაური, შემსრულებელი ან ალბომი">
-
+          <input id="global-search" type="text" placeholder="გამძებარი ალბომები, ტრეკები..." aria-label="Search">
+          
           <!-- Refresh + Track Count + Newest Button -->
           <div class="control-row">
             <button id="refresh-btn" type="button">Refresh</button>
             <div id="track-count-display" class="track-count">სულ ტრეკი: 0</div>
           </div>
           
-          <button id="newest-tracks-btn" type="button" class="">უახლესი ტრეკები</button>
+          <button id="newest-tracks-btn" type="button" class="newest-btn">უახლესი ტრეკები</button>
 
+          <label for="album-list">ალბომები</label>
+          <input type="hidden" id="album-select" value="">
           <div id="album-list" class="album-list-vertical"></div>
+
+          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომები</label>
+          <select id="subalbum-select" style="display:none;" size="4">
+            <option value="">— ყველა ქვეალბომები —</option>
+          </select>
         </div>
       </aside>
 
       <!-- ═══ RIGHT: Track Cards ═══ -->
       <section class="tracks-section">
-        <div class="tracks-header">
-          <h2>აირჩიეთ ტრეკი</h2>
-        </div>
         <div id="tracks" class="tracks-list-grid"></div>
       </section>
     </main>
@@ -79,10 +95,10 @@
   <audio id="audio" preload="none"></audio>
 
   <!-- ═══ LYRICS MODAL ═══ -->
-  <div id="lyrics-modal" class="modal hidden" aria-hidden="true">
+  <div id="lyrics-modal" class="hidden" aria-hidden="true">
     <div class="modal-box">
-      <button id="modal-close" type="button" aria-label="დახურვა">×</button>
-      <h3 id="modal-title"></h3>
+      <button id="modal-close" type="button">✕ დახურვა</button>
+      <h3 id="modal-title">ტექსტი</h3>
       <pre id="modal-lyrics"></pre>
     </div>
   </div>
