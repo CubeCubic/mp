@@ -741,4 +741,34 @@ body.modal-open { overflow: hidden; }
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 12px;
   }
+   /* --- Rating Stars Styles --- */
+.rating-stars {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 1.1em; /* Размер звёзд */
+}
+
+.rating-stars .star {
+  color: #ccc; /* Цвет неоценённой звезды */
+  cursor: pointer;
+  padding: 0 1px;
+  transition: color 0.2s ease;
+}
+
+.rating-stars .star:hover {
+  color: #fcd217; /* Цвет при наведении */
+}
+
+.rating-stars .star.active,
+.rating-stars .star.selected {
+  color: #ffcc00; /* Цвет оценённой звезды */
+}
+
+.rating-stars .rating-display {
+  margin-left: 8px;
+  font-size: 0.9em;
+  color: #aaa; /* Цвет текста оценки */
+}
+/* --- End Rating Stars Styles --- */
 }
