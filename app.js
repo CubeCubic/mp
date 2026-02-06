@@ -532,12 +532,6 @@ scrollToTopBtn.addEventListener('click', () => {
   });
 });
 }
-// ─── Init ───
-document.addEventListener('DOMContentLoaded', () => {
-updatePlayer(null);
-if (audio && volumeSlider) audio.volume = parseFloat(volumeSlider.value || 1);
-loadData();
-});
 // ════════════════════════════════
 // Contact Modal & Email Form
 // ════════════════════════════════
@@ -671,4 +665,10 @@ if (contactForm) {
     }
   });
 }
+// ─── Init ───
+document.addEventListener('DOMContentLoaded', () => {
+updatePlayer(null);
+if (audio && volumeSlider) audio.volume = parseFloat(volumeSlider.value || 1);
+loadData();
+});
 })();
