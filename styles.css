@@ -392,7 +392,7 @@ font-weight: 400;
 color: rgba(255,255,255,0.4);
 text-align: right;
 }
-/* Subalbum select - VISIBLE dropdown /
+/* Subalbum select - VISIBLE dropdown */
 #subalbum-select {
 width: 100%;
 padding: 8px 10px;
@@ -403,8 +403,6 @@ color: #fff;
 font-size: 13px;
 box-sizing: border-box;
 cursor: pointer;
-/ Make all options visible */
-overflow-y: auto;
 }
 #subalbum-select option {
 background: #0f2b45;

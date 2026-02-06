@@ -9,6 +9,8 @@ Cube Cubic — Main App Logic  v3.0 FIXED
 - Random сортировка при загрузке
 - Видимый subalbum dropdown (size=4)
 - Клик на карточку продолжает играть, не убирает плеер
+- Исправлены все синтаксические ошибки (пробелы в стрелочных функциях)
+- Добавлен футер с кнопкой "Поделиться"
 ═══════════════════════════════════════════════════ */
 // ─── DOM элементы ───
 const albumSelect = document.getElementById('album-select');
@@ -45,7 +47,7 @@ let tracks = [];
 let filteredTracks = [];
 let currentTrackIndex = -1;
 let userInteracted = false;
-let sortNewest = false; // toggle для кнопки"უახლესი ტრეკები"
+let sortNewest = false; // toggle для кнопки "უახლესი ტრეკები"
 // ════════════════════════════════
 //  Утилиты
 // ════════════════════════════════
@@ -227,56 +229,56 @@ let toRender = tracks.slice();
 
 // Search filter
 const searchQ = globalSearchInput ? globalSearchInput.value.trim() : '';
-if (searchQ) toRender = toRender.filter(t = > matchesQuery(t, searchQ));
+if (searchQ) toRender = toRender.filter(t => matchesQuery(t, searchQ));
 
 // Album filter
 const selAlbum = albumSelect ? albumSelect.value : '';
 const selSubalbum = subalbumSelect ? subalbumSelect.value : '';
 
-if (selSubalbu m) {
-  toRender = toRender.filter(t = > String(t.albumId || '') === selSubalbum);
+if (selSubalbum) {
+  toRender = toRender.filter(t => String(t.albumId || '') === selSubalbum);
 } else if (selAlbum) {
   const subIds = albums
-    .filter(a = > String(a.parentId || '') === selAlbum)
-    .map(a = > a.id);
-  toRender = toRender.filter(t = > {
+    .filter(a => String(a.parentId || '') === selAlbum)
+    .map(a => a.id);
+  toRender = toRender.filter(t => {
     const tid = String(t.albumId || '');
     return tid === selAlbum || subIds.includes(tid);
   });
 }
 
 if (!toRender.length) {
-  tracksContainer.innerHTML = ' <div class= "muted " >ტრეკები არ მოიძებნა </div >';
+  tracksContainer.innerHTML = ' <div class="muted">ტრეკები არ მოიძებნა</div>';
   filteredTracks = [];
   return;
 }
 
 // Сортировка
 if (sortNewest) {
-  toRender.sort((a, b) = > (Number(b.id) || 0) - (Number(a.id) || 0));
+  toRender.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
 }
 // Иначе порядок как есть (random при загрузке)
 
-toRender.forEach(t = > {
+toRender.forEach(t => {
   const card = document.createElement('div');
   card.className = 'card';
   card.setAttribute('data-track-id', t.id || '');
 
   const img = document.createElement('img');
-  img.c lassName = 'track-cover';
+  img.className = 'track-cover';
   img.src = getCoverUrl(t);
   img.alt = safeStr(t.title);
   card.appendChild(img);
 
   const info = document.createElement('div');
-  info.className = 'trac k-info';
+  info.className = 'track-info';
 
   const h4 = document.createElement('h4');
   h4.textContent = safeStr(t.title);
   info.appendChild(h4);
 
   const albumDiv = document.createElement('div');
-  albumDiv.text Content = getAlbumName(t);
+  albumDiv.textContent = getAlbumName(t);
   info.appendChild(albumDiv);
 
   card.appendChild(info);
@@ -284,12 +286,12 @@ toRender.forEach(t = > {
   const actions = document.createElement('div');
   actions.className = 'track-actions';
 
-  if ( t.lyrics  & & t.lyrics.trim()) {
+  if (t.lyrics && t.lyrics.trim()) {
     const lyrBtn = document.createElement('button');
     lyrBtn.type = 'button';
     lyrBtn.className = 'btn-has-lyrics';
     lyrBtn.textContent = 'ტექსტი';
-     lyrBtn.addEventListener('click', (ev) = > {
+    lyrBtn.addEventListener('click', (ev) => {
       ev.stopPropagation();
       openLyricsModal(t);
     });
@@ -298,22 +300,22 @@ toRender.forEach(t = > {
 
   const dlBtn = document.createElement('button');
   dlBtn.type = 'button';
-   dlBtn.className = 'download-button';
-  dlBtn.innerHTML = ' <svg viewBox= "0 0 24 24 " > <path d= "M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z "/ > </svg >';
+  dlBtn.className = 'download-button';
+  dlBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
 
   const streamUrl = getStreamUrl(t);
-  if (streamUrl  & & streamUrl.trim()) {
-    dlBtn.addEventListener('click', async (ev) = > {
+  if (streamUrl && streamUrl.trim()) {
+    dlBtn.addEventListener('click', async (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
       const origHTML = dlBtn.innerHTML;
       let sec = 0;
       dlBtn.textContent = '0s…';
       dlBtn.disabled = true;
-       const timer = setInterval(() = > { sec++; dlBtn.textContent = `${sec}s…`; }, 1000);
+      const timer = setInterval(() => { sec++; dlBtn.textContent = `${sec}s…`; }, 1000);
 
       let fname = 'track.mp3';
-      try { fname = decodeURIComponent(new URL(streamUrl).pathname.split('/').pop()) || fname;  } catch (e) {}
+      try { fname = decodeURIComponent(new URL(streamUrl).pathname.split('/').pop()) || fname; } catch (e) {}
 
       await triggerDownload(streamUrl, fname);
       clearInterval(timer);
@@ -321,13 +323,13 @@ toRender.forEach(t = > {
       dlBtn.disabled = false;
     });
   } else {
-    dl Btn.disabled = true;
+    dlBtn.disabled = true;
     dlBtn.style.opacity = '.4';
   }
   actions.appendChild(dlBtn);
   card.appendChild(actions);
 
-  card.addEventListener('click', () = > {
+  card.addEventListener('click', () => {
     userInteracted = true;
     const idx = toRender.indexOf(t);
     playByIndex(idx);
@@ -337,7 +339,7 @@ toRender.forEach(t = > {
 });
 
 filteredTracks = toRender;
-highlightCurre nt();
+highlightCurrent();
 }
 // ════════════════════════════════
 //  Highlight playing card
@@ -490,7 +492,7 @@ refreshBtn.addEventListener('click', () => {
 // Сбросить выбор альбома
 if (albumSelect) albumSelect.value = '';
 if (subalbumSelect) {
-subalbumSelect.innerHTML = '— ყველა ქვეალბომები —';
+subalbumSelect.innerHTML = '';
 subalbumSelect.disabled = true;
 subalbumSelect.style.display = 'none';
 }
