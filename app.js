@@ -614,8 +614,8 @@ if (contactForm) {
     const formData = new FormData(contactForm);
     const data = Object.fromEntries(formData.entries());
     
-    // FormSubmit endpoint
-    const formSubmitUrl = 'https://formsubmit.co/ikakoba@gmail.com';
+    // FormSubmit endpoint с токеном
+    const formSubmitUrl = 'https://formsubmit.co/9c8d5d7b859609715eb03e854c0ec2e2';
     
     try {
       const response = await fetch(formSubmitUrl, {
@@ -627,8 +627,6 @@ if (contactForm) {
         body: JSON.stringify({
           ...data,
           '_subject': `Cube Cubic: ${data.subject}`,
-          '_template': 'table',
-          '_next': window.location.href,
           '_captcha': 'false'
         })
       });
