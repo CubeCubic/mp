@@ -1,56 +1,43 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ka">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cube Cubic</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" type="image/png" href="images/smallcube.png">
-  <style>
-    /* ═══ Track section alignment ═══ */
-    .tracks-section {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      padding-top: 0;
-    }
-    #tracks {
-      flex: 1;
-      margin-top: 1mm;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="site-wrapper">
-    <!-- ═══ HEADER (logo + title only) ═══ -->
     <header>
-      <div id="header-badge" aria-hidden="false">
+      <a href="index.html" id="header-badge">
         <img src="images/midcube.png" alt="Cube Cubic">
-      </div>
+      </a>
       <h1>Cube Cubic</h1>
-      <!-- Admin link (subtle) -->
-      <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
+      <a id="hidden-admin-link" href="admin.html">ადმინი</a>
     </header>
 
     <main class="new-main-layout">
-      <!-- ═══ LEFT SIDEBAR: Player + Albums ═══ -->
+      <!-- SIDEBAR -->
       <aside class="albums-sidebar">
-        <!-- PLAYER SECTION -->
-        <div id="player-sidebar" class="player-sidebar-block">
+        <!-- Player -->
+        <div class="player-sidebar-block">
           <div class="player-cover-wrapper">
-            <img id="player-cover-img" src="images/smallcube.png" alt="Cover">
+            <img id="player-cover-img" src="images/midcube.png" alt="აირჩიეთ ტრეკი">
           </div>
           <div class="player-info">
             <div id="player-title-sidebar" class="player-title">აირჩიეთ ტრეკი</div>
             <div id="player-artist-sidebar" class="player-artist"></div>
           </div>
           <div class="player-controls">
-            <button id="prev-sidebar" type="button" title="წინა">⏮</button>
-            <button id="play-sidebar" type="button" title="დაკვრა">▶</button>
-            <button id="next-sidebar" type="button" title="შემდეგი">⏭</button>
+            <button id="prev-sidebar" aria-label="წინა">⏮</button>
+            <button id="play-sidebar" aria-label="დაკვრა">▶</button>
+            <button id="next-sidebar" aria-label="შემდეგი">⏭</button>
           </div>
           <div class="player-progress-wrapper">
-            <input type="range" id="progress-sidebar" min="0" max="100" value="0" step="0.1">
+            <input type="range" id="progress-sidebar" min="0" max="100" value="0">
             <div class="player-times">
               <span id="time-current-sidebar">0:00</span>
               <span id="time-duration-sidebar">0:00</span>
@@ -62,82 +49,86 @@
           </div>
         </div>
 
-        <!-- CONTROLS SECTION -->
+        <!-- Controls -->
         <div class="controls">
-          <input id="global-search" type="text" placeholder="გამძებარი ალბომები, ტრეკები..." aria-label="Search">
-          
-          <!-- Refresh + Track Count + Newest Button -->
+          <label for="global-search">ძიება</label>
+          <input type="text" id="global-search" placeholder="მოძებნე ტრეკი, ალბომი, ავტორი">
+
           <div class="control-row">
-            <button id="refresh-btn" type="button">Refresh</button>
-            <div id="track-count-display" class="track-count">სულ ტრეკი: 0</div>
+            <button id="refresh-btn">Refresh</button>
+            <span id="track-count-display" class="track-count">სულ ტრეკი: 0</span>
           </div>
-          
-          <button id="newest-tracks-btn" type="button" class="newest-btn">უახლესი ტრეკები</button>
 
-          <label for="album-list">ალბომები</label>
-          <input type="hidden" id="album-select" value="">
-          <div id="album-list" class="album-list-vertical"></div>
+          <button id="newest-tracks-btn" class="newest-btn">უახლესი ტრეკები</button>
 
-          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომები</label>
-          <select id="subalbum-select" style="display:none;" size="4">
+          <label for="album-select">ალბომები</label>
+          <select id="album-select" class="hidden">
+            <option value="">— ყველა ალბომი —</option>
+          </select>
+
+          <label id="subalbum-label" for="subalbum-select" style="display: none;">ქვეალბომები</label>
+          <select id="subalbum-select" style="display: none;">
             <option value="">— ყველა ქვეალბომები —</option>
           </select>
+
+          <div id="album-list" class="album-list-vertical"></div>
         </div>
       </aside>
 
-      <!-- ═══ RIGHT: Track Cards ═══ -->
+      <!-- TRACKS -->
       <section class="tracks-section">
+        <div class="tracks-header">
+          <h2>ტრეკები</h2>
+        </div>
         <div id="tracks" class="tracks-list-grid"></div>
       </section>
     </main>
   </div>
 
-  <audio id="audio" preload="none"></audio>
+  <!-- AUDIO PLAYER -->
+  <audio id="audio" preload="metadata"></audio>
 
-  <!-- ═══ LYRICS MODAL ═══ -->
-  <div id="lyrics-modal" class="hidden" aria-hidden="true">
+  <!-- LYRICS MODAL -->
+  <div id="lyrics-modal" class="hidden">
     <div class="modal-box">
-      <button id="modal-close" type="button">✕ დახურვა</button>
-      <h3 id="modal-title">ტექსტი</h3>
-      <pre id="modal-lyrics"></pre>
+      <button id="modal-close">✕ დახურვა</button>
+      <h3 id="modal-title"></h3>
+      <pre id="modal-lyrics">ტექსტი</pre>
     </div>
   </div>
 
-  <!-- ═══ TOAST ═══ -->
-  <div id="toast" class="hidden" role="status" aria-live="polite"></div>
+  <!-- TOAST -->
+  <div id="toast" class="hidden"></div>
 
-  <!-- ═══ SCROLL TO TOP BUTTON ═══ -->
-  <button id="scroll-to-top" type="button" title="ზემოთ აწევა" aria-label="Scroll to top">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-      <path d="M12 4l-8 8h5v8h6v-8h5z"/>
-    </svg>
-  </button>
+  <!-- SCROLL TO TOP -->
+  <button id="scroll-to-top" aria-label="ზემოთ">↑</button>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-contact">
+        <a href="tel:+995-501-223-704" class="footer-link phone-link">
+          <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+          </svg>
+          <span>+995-501-223-704</span>
+        </a>
+        <a href="mailto:ikakoba@gmail.com" class="footer-link email-link">
+          <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+          </svg>
+          <span>ikakoba@gmail.com</span>
+        </a>
+      </div>
+      <button id="share-btn" class="footer-share-btn" aria-label="გააზიარე საიტი">
+        <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+        </svg>
+        <span>გააზიარე</span>
+      </button>
+    </div>
+  </footer>
 
   <script src="app.js"></script>
-  <!-- Footer -->
-<footer class="site-footer">
-  <div class="footer-content">
-    <div class="footer-contact">
-      <a href="tel:+995-501-223-704" class="footer-link phone-link">
-        <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
-        </svg>
-        <span>+995-501-223-704</span>
-      </a>
-      <a href="mailto:ikakoba@gmail.com" class="footer-link email-link">
-        <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-        </svg>
-        <span>ikakoba@gmail.com</span>
-      </a>
-    </div>
-    <button id="share-btn" class="footer-share-btn" aria-label="გააზიარე საიტი">
-      <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
-      </svg>
-      <span>გააზიარე</span>
-    </button>
-  </div>
-</footer>
 </body>
 </html>
