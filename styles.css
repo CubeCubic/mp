@@ -436,24 +436,50 @@ header h1 {
   text-align: right;
 }
 
-/* Subalbum buttons - slightly indented and smaller */
+/* Album arrow for expandable albums */
+.album-arrow {
+  display: inline-block;
+  color: var(--accent-2);
+  font-size: 11px;
+  margin-right: 4px;
+  transition: transform var(--t-fast);
+}
+
+/* Subalbum buttons - accordion style (indented, compact) */
 .subalbum-button {
-  padding: 8px 10px 8px 20px;
+  padding: 7px 10px 7px 28px;
   font-size: 12px;
   background: rgba(255,255,255,0.02);
-  border-left: 2px solid rgba(15,179,166,0.2);
-  margin-left: 8px;
+  border-left: 3px solid rgba(15,179,166,0.25);
+  border-radius: var(--radius-sm);
+  margin-left: 12px;
+  margin-top: 2px;
+  animation: slideDown 0.2s ease-out;
 }
 .subalbum-button:hover {
   background: rgba(255,255,255,0.06);
-  border-left-color: rgba(15,179,166,0.4);
+  border-left-color: rgba(15,179,166,0.45);
 }
 .subalbum-button.selected {
-  background: linear-gradient(135deg, rgba(15,179,166,0.15), rgba(255,122,102,0.10));
-  border-left-color: rgba(15,179,166,0.6);
+  background: linear-gradient(135deg, rgba(15,179,166,0.18), rgba(255,122,102,0.12));
+  border-left-color: rgba(15,179,166,0.7);
 }
 .subalbum-button .track-count {
   font-size: 10px;
+}
+
+/* Accordion animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 100px;
+  }
 }
 
 /* === Universal Buttons === */
