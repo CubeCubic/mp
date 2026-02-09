@@ -22,12 +22,16 @@
 </head>
 <body>
   <div class="site-wrapper">
-    <!-- ═══ HEADER (logo + title only) ═══ -->
+    <!-- ═══ HEADER (logo + title + contact button) ═══ -->
     <header>
       <div id="header-badge" aria-hidden="false">
         <img src="images/midcube.png" alt="Cube Cubic">
       </div>
       <h1>Cube Cubic</h1>
+      <!-- Contact button (NEW) -->
+      <button id="contact-btn" type="button" title="კონტაქტი" aria-label="Contact">
+        ✉ კონტაქტი
+      </button>
       <!-- Admin link (subtle) -->
       <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
     </header>
@@ -45,9 +49,9 @@
             <div id="player-artist-sidebar" class="player-artist"></div>
           </div>
           <div class="player-controls">
-            <button id="prev-sidebar" type="button" title="წინა">⏮</button>
+            <button id="prev-sidebar" type="button" title="წინა">⮜</button>
             <button id="play-sidebar" type="button" title="დაკვრა">▶</button>
-            <button id="next-sidebar" type="button" title="შემდეგი">⏭</button>
+            <button id="next-sidebar" type="button" title="შემდეგი">⮞</button>
           </div>
           <div class="player-progress-wrapper">
             <input type="range" id="progress-sidebar" min="0" max="100" value="0" step="0.1">
@@ -64,7 +68,7 @@
 
         <!-- CONTROLS SECTION -->
         <div class="controls">
-          <input id="global-search" type="text" placeholder="გამძებარი ალბომები, ტრეკები..." aria-label="Search">
+          <input id="global-search" type="text" placeholder="გამძებარი ალბამები, ტრეკები..." aria-label="Search">
           
           <!-- Refresh + Track Count + Newest Button -->
           <div class="control-row">
@@ -74,13 +78,13 @@
           
           <button id="newest-tracks-btn" type="button" class="newest-btn">უახლესი ტრეკები</button>
 
-          <label for="album-list">ალბომები</label>
+          <label for="album-list">ალბამები</label>
           <input type="hidden" id="album-select" value="">
           <div id="album-list" class="album-list-vertical"></div>
 
-          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბომები</label>
+          <label id="subalbum-label" for="subalbum-select" style="display:none;">ქვეალბამები</label>
           <select id="subalbum-select" style="display:none;" size="4">
-            <option value="">— ყველა ქვეალბომები —</option>
+            <option value="">— ყველა ქვეალბამები —</option>
           </select>
         </div>
       </aside>
@@ -100,6 +104,35 @@
       <button id="modal-close" type="button">✕ დახურვა</button>
       <h3 id="modal-title">ტექსტი</h3>
       <pre id="modal-lyrics"></pre>
+    </div>
+  </div>
+
+  <!-- ═══ CONTACT MODAL (NEW) ═══ -->
+  <div id="contact-modal" class="hidden" aria-hidden="true">
+    <div class="modal-box contact-modal-box">
+      <button id="contact-modal-close" type="button">✕ დახურვა</button>
+      <h3>✉ კონტაქტი</h3>
+      <p class="contact-description">გამოგვიგზავნეთ შეტყობინება</p>
+      <form id="contact-form">
+        <input type="hidden" name="access_key" value="f3679964-6401-44e1-8b3d-94e4a2945879">
+        <input type="hidden" name="subject" value="ახალი შეტყობინება Cube Cubic-დან">
+        <input type="hidden" name="from_name" value="Cube Cubic Contact Form">
+        
+        <label for="contact-name">თქვენი სახელი *</label>
+        <input type="text" id="contact-name" name="name" required placeholder="სახელი...">
+        
+        <label for="contact-email">თქვენი ელ-ფოსტა *</label>
+        <input type="email" id="contact-email" name="email" required placeholder="example@gmail.com">
+        
+        <label for="contact-message">შეტყობინება *</label>
+        <textarea id="contact-message" name="message" required placeholder="ჩაწერეთ თქვენი შეტყობინება..."></textarea>
+        
+        <div class="contact-actions">
+          <button type="button" id="contact-cancel">გაუქმება</button>
+          <button type="submit" id="contact-submit">გაგზავნა</button>
+        </div>
+      </form>
+      <div id="contact-status" class="contact-status hidden"></div>
     </div>
   </div>
 

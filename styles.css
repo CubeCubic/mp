@@ -72,7 +72,7 @@ header {
   right: 0;
   height: var(--header-h);
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 12px;
   padding: 6px 16px;
@@ -103,6 +103,34 @@ header h1 {
   object-fit: contain;
   border-radius: var(--radius-sm);
   box-shadow: 0 12px 34px rgba(2,8,14,0.6), 0 6px 18px rgba(15,179,166,0.06);
+}
+
+/* Contact button in header (NEW) */
+#contact-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(135deg, rgba(255,122,102,0.18), rgba(15,179,166,0.12));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+  white-space: nowrap;
+  justify-self: end;
+}
+#contact-btn:hover {
+  background: linear-gradient(135deg, rgba(255,122,102,0.28), rgba(15,179,166,0.20));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255,122,102,0.25);
+}
+#contact-btn:active {
+  transform: scale(0.96);
 }
 
 /* Hidden admin link - subtle but functional */
@@ -350,31 +378,26 @@ header h1 {
   white-space: nowrap;
 }
 
-/* Newest Tracks Button */
+/* Newest Tracks button */
 .newest-btn {
   width: 100%;
   padding: 10px 14px;
   border-radius: var(--radius-md);
   border: 1px solid rgba(255,255,255,0.12);
-  background: linear-gradient(135deg, rgba(15,179,166,0.18), rgba(11,43,69,0.12));
+  background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
   color: #fff;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   min-height: auto;
   transition: background var(--t-fast), transform var(--t-fast);
-  box-sizing: border-box;
 }
 .newest-btn:hover {
-  background: linear-gradient(135deg, rgba(15,179,166,0.28), rgba(11,43,69,0.20));
+  background: linear-gradient(135deg, rgba(43,183,164,0.28), rgba(15,179,166,0.20));
   transform: translateY(-1px);
 }
-.newest-btn.active {
-  background: linear-gradient(135deg, rgba(255,122,102,0.30), rgba(15,179,166,0.22));
-  border-color: rgba(255,122,102,0.4);
-}
 
-/* Album list */
+/* Album list - vertical buttons */
 .album-list-vertical {
   display: flex;
   flex-direction: column;
@@ -383,18 +406,18 @@ header h1 {
 .album-list-button {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid transparent;
   border-radius: var(--radius-md);
-  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.03);
   color: #fff;
   font-size: 13px;
   font-weight: 600;
   text-align: left;
   cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background var(--t-fast), border-color var(--t-fast);
   min-height: auto;
   box-sizing: border-box;
 }
@@ -647,6 +670,138 @@ body.modal-open { overflow: hidden; }
 }
 #modal-close:hover { background: rgba(0,0,0,0.13); }
 
+/* === Contact Modal (NEW) === */
+#contact-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.62);
+  z-index: 2001;
+}
+#contact-modal.hidden { display: none; }
+
+.contact-modal-box {
+  max-width: 480px;
+  padding: 26px;
+}
+.contact-modal-box h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+  color: #000;
+}
+.contact-description {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 18px;
+}
+
+#contact-form label {
+  display: block;
+  margin: 12px 0 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+#contact-form input,
+#contact-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  color: #111;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+#contact-form input:focus,
+#contact-form textarea:focus {
+  outline: none;
+  border-color: var(--accent-2);
+  background: #fff;
+}
+#contact-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.contact-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+.contact-actions button {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: auto;
+  height: auto;
+  transition: background var(--t-fast), transform var(--t-fast);
+}
+#contact-cancel {
+  background: #e0e0e0;
+  color: #555;
+  border: 1px solid #ccc;
+}
+#contact-cancel:hover {
+  background: #d0d0d0;
+}
+#contact-submit {
+  background: linear-gradient(135deg, var(--accent-2), var(--color-sea));
+  color: #fff;
+  border: none;
+}
+#contact-submit:hover {
+  filter: brightness(1.1);
+}
+#contact-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.contact-status {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+.contact-status.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+.contact-status.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+#contact-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(0,0,0,0.06);
+  border: none;
+  color: #555;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  min-height: auto;
+  height: auto;
+  line-height: 1.4;
+  transition: background var(--t-fast);
+}
+#contact-modal-close:hover { background: rgba(0,0,0,0.13); }
+
 /* === Toast === */
 #toast {
   position: fixed;
@@ -725,9 +880,20 @@ body.modal-open { overflow: hidden; }
 @media (max-width: 680px) {
   :root { --header-h: 56px; }
   header {
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto 1fr auto;
     padding: 6px 12px;
     gap: 8px;
+  }
+  #contact-btn {
+    font-size: 0;
+    padding: 8px 12px;
+  }
+  #contact-btn::before {
+    content: "✉";
+    font-size: 16px;
+  }
+  #hidden-admin-link {
+    display: none;
   }
   .new-main-layout {
     grid-template-columns: 1fr;
@@ -740,5 +906,8 @@ body.modal-open { overflow: hidden; }
   .tracks-list-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 12px;
+  }
+  .contact-modal-box {
+    max-width: 94%;
   }
 }

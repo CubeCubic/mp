@@ -586,6 +586,131 @@
     });
   }
 
+  // ════════════════════════════════
+  //  Contact Form Modal (NEW)
+  // ════════════════════════════════
+
+  const contactBtn = document.getElementById('contact-btn');
+  const contactModal = document.getElementById('contact-modal');
+  const contactModalClose = document.getElementById('contact-modal-close');
+  const contactCancel = document.getElementById('contact-cancel');
+  const contactForm = document.getElementById('contact-form');
+  const contactStatus = document.getElementById('contact-status');
+
+  function openContactModal() {
+    if (contactModal) {
+      contactModal.classList.remove('hidden');
+      contactModal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+      // Focus on first input
+      const firstInput = contactForm.querySelector('input[type="text"]');
+      if (firstInput) setTimeout(() => firstInput.focus(), 100);
+    }
+  }
+
+  function closeContactModal() {
+    if (contactModal) {
+      contactModal.classList.add('hidden');
+      contactModal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+      // Reset form and status
+      if (contactForm) contactForm.reset();
+      if (contactStatus) {
+        contactStatus.textContent = '';
+        contactStatus.className = 'contact-status hidden';
+      }
+    }
+  }
+
+  // Open modal button
+  if (contactBtn) {
+    contactBtn.addEventListener('click', openContactModal);
+  }
+
+  // Close modal buttons
+  if (contactModalClose) {
+    contactModalClose.addEventListener('click', closeContactModal);
+  }
+  if (contactCancel) {
+    contactCancel.addEventListener('click', closeContactModal);
+  }
+
+  // Close on backdrop click
+  if (contactModal) {
+    contactModal.addEventListener('click', (e) => {
+      if (e.target === contactModal) {
+        closeContactModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (contactModal && !contactModal.classList.contains('hidden')) {
+        closeContactModal();
+      }
+    }
+  });
+
+  // Handle form submission
+  if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('contact-submit');
+      const formData = new FormData(contactForm);
+
+      // Disable submit button
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'იგზავნება...';
+      }
+
+      // Hide previous status
+      if (contactStatus) {
+        contactStatus.className = 'contact-status hidden';
+      }
+
+      try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Success
+          if (contactStatus) {
+            contactStatus.textContent = '✓ შეტყობინება გაგზავნილია!';
+            contactStatus.className = 'contact-status success';
+          }
+          showToast('შეტყობინება გაგზავნილია!');
+          
+          // Close modal after 2 seconds
+          setTimeout(() => {
+            closeContactModal();
+          }, 2000);
+        } else {
+          throw new Error('Form submission failed');
+        }
+      } catch (error) {
+        console.error('Contact form error:', error);
+        if (contactStatus) {
+          contactStatus.textContent = '✗ შეცდომა. გთხოვთ სცადოთ თავიდან.';
+          contactStatus.className = 'contact-status error';
+        }
+      } finally {
+        // Re-enable submit button
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'გაგზავნა';
+        }
+      }
+    });
+  }
+
   // ─── Init ───
   document.addEventListener('DOMContentLoaded', () => {
     updatePlayer(null);
