@@ -436,32 +436,25 @@ header h1 {
   text-align: right;
 }
 
-/* Subalbum select - VISIBLE dropdown */
-#subalbum-select {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255,255,255,0.12);
+/* Subalbum buttons - slightly indented and smaller */
+.subalbum-button {
+  padding: 8px 10px 8px 20px;
+  font-size: 12px;
+  background: rgba(255,255,255,0.02);
+  border-left: 2px solid rgba(15,179,166,0.2);
+  margin-left: 8px;
+}
+.subalbum-button:hover {
   background: rgba(255,255,255,0.06);
-  color: #fff;
-  font-size: 13px;
-  box-sizing: border-box;
-  cursor: pointer;
-  /* Make all options visible */
-  overflow-y: auto;
+  border-left-color: rgba(15,179,166,0.4);
 }
-#subalbum-select option {
-  background: #0f2b45;
-  color: #fff;
-  padding: 6px 8px;
+.subalbum-button.selected {
+  background: linear-gradient(135deg, rgba(15,179,166,0.15), rgba(255,122,102,0.10));
+  border-left-color: rgba(15,179,166,0.6);
 }
-#subalbum-select option:hover,
-#subalbum-select option:focus,
-#subalbum-select option:checked {
-  background: rgba(15,179,166,0.25);
-  color: #fff;
+.subalbum-button .track-count {
+  font-size: 10px;
 }
-#subalbum-select:focus { outline: none; border-color: var(--accent-2); }
 
 /* === Universal Buttons === */
 button {

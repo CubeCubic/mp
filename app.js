@@ -15,6 +15,7 @@
   const albumSelect = document.getElementById('album-select');
   const subalbumSelect = document.getElementById('subalbum-select');
   const subalbumLabel = document.getElementById('subalbum-label');
+  const subalbumListContainer = document.getElementById('subalbum-list');
   const tracksContainer = document.getElementById('tracks');
   const globalSearchInput = document.getElementById('global-search');
   const albumListContainer = document.getElementById('album-list');
@@ -187,35 +188,104 @@
     });
   }
 
+  function renderSubalbumList() {
+    if (!subalbumListContainer) return;
+    subalbumListContainer.innerHTML = '';
+
+    const currentAlbumId = albumSelect ? albumSelect.value : '';
+    if (!currentAlbumId) {
+      subalbumListContainer.style.display = 'none';
+      if (subalbumLabel) subalbumLabel.style.display = 'none';
+      return;
+    }
+
+    const subs = albums.filter(a => String(a.parentId || '') === currentAlbumId)
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+    if (!subs.length) {
+      subalbumListContainer.style.display = 'none';
+      if (subalbumLabel) subalbumLabel.style.display = 'none';
+      return;
+    }
+
+    // Show container and label
+    subalbumListContainer.style.display = '';
+    if (subalbumLabel) subalbumLabel.style.display = '';
+
+    // "All subalbums" button
+    const allBtn = document.createElement('button');
+    allBtn.type = 'button';
+    allBtn.className = 'album-list-button subalbum-button';
+    allBtn.setAttribute('data-subalbum-id', '');
+    
+    const allNameSpan = document.createElement('span');
+    allNameSpan.textContent = '— ყველა ქვეალბომები —';
+    allBtn.appendChild(allNameSpan);
+
+    // Count all tracks in parent + subalbums
+    const subIds = subs.map(s => s.id);
+    const totalCount = tracks.filter(t => {
+      const tid = String(t.albumId || '');
+      return tid === currentAlbumId || subIds.includes(tid);
+    }).length;
+    
+    const allCountSpan = document.createElement('span');
+    allCountSpan.className = 'track-count';
+    allCountSpan.textContent = `(${totalCount})`;
+    allBtn.appendChild(allCountSpan);
+
+    if (!subalbumSelect || !subalbumSelect.value) {
+      allBtn.classList.add('selected');
+    }
+
+    allBtn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      if (subalbumSelect) subalbumSelect.value = '';
+      renderSubalbumList();
+      renderTracks();
+    });
+
+    subalbumListContainer.appendChild(allBtn);
+
+    // Individual subalbum buttons
+    subs.forEach(sub => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'album-list-button subalbum-button';
+      btn.setAttribute('data-subalbum-id', sub.id || '');
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = sub.name || 'Unnamed';
+      btn.appendChild(nameSpan);
+
+      const count = tracks.filter(t => String(t.albumId || '') === String(sub.id)).length;
+      const countSpan = document.createElement('span');
+      countSpan.className = 'track-count';
+      countSpan.textContent = `(${count})`;
+      btn.appendChild(countSpan);
+
+      if (subalbumSelect && String(subalbumSelect.value) === String(sub.id || '')) {
+        btn.classList.add('selected');
+      }
+
+      btn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        if (subalbumSelect) subalbumSelect.value = String(sub.id || '');
+        renderSubalbumList();
+        renderTracks();
+      });
+
+      subalbumListContainer.appendChild(btn);
+    });
+  }
+
   function onAlbumChange() {
     const currentAlbumId = albumSelect ? albumSelect.value : '';
 
-    if (subalbumSelect) {
-      const subs = albums.filter(a => String(a.parentId || '') === currentAlbumId);
-      subalbumSelect.innerHTML = '';
-      const opt = document.createElement('option');
-      opt.value = '';
-      opt.textContent = '— ყველა ქვეალბომები —';
-      subalbumSelect.appendChild(opt);
+    // Reset subalbum selection when album changes
+    if (subalbumSelect) subalbumSelect.value = '';
 
-      if (subs.length) {
-        subs.forEach(s => {
-          const o = document.createElement('option');
-          o.value = s.id;
-          o.textContent = s.name;
-          subalbumSelect.appendChild(o);
-        });
-        subalbumSelect.disabled = false;
-        subalbumSelect.style.display = '';
-        if (subalbumLabel) subalbumLabel.style.display = '';
-      } else {
-        subalbumSelect.disabled = true;
-        subalbumSelect.style.display = 'none';
-        if (subalbumLabel) subalbumLabel.style.display = 'none';
-      }
-      subalbumSelect.value = '';
-    }
-
+    renderSubalbumList();
     renderTracks();
     renderAlbumList();
   }
@@ -501,12 +571,6 @@
   if (progressBar) progressBar.addEventListener('input', () => audio.currentTime = progressBar.value);
   if (volumeSlider) volumeSlider.addEventListener('input', () => audio.volume = parseFloat(volumeSlider.value));
 
-  if (subalbumSelect) {
-    subalbumSelect.addEventListener('change', () => {
-      renderTracks();
-    });
-  }
-
   // ════════════════════════════════
   //  Data loading
   // ════════════════════════════════
@@ -536,11 +600,9 @@
     refreshBtn.addEventListener('click', () => {
       // Сбросить выбор альбома
       if (albumSelect) albumSelect.value = '';
-      if (subalbumSelect) {
-        subalbumSelect.innerHTML = '<option value="">— ყველა ქვეალბომები —</option>';
-        subalbumSelect.disabled = true;
-        subalbumSelect.style.display = 'none';
-      }
+      if (subalbumSelect) subalbumSelect.value = '';
+      if (subalbumListContainer) subalbumListContainer.innerHTML = '';
+      if (subalbumListContainer) subalbumListContainer.style.display = 'none';
       if (subalbumLabel) subalbumLabel.style.display = 'none';
       
       // Перезагрузить данные
