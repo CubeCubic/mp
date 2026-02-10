@@ -454,9 +454,9 @@ header h1 {
   border-radius: var(--radius-sm);
   margin-left: 8px;
   margin-top: 2px;
-  max-width: calc(100% - 8px);
-  text-overflow: ellipsis;
   animation: slideDown 0.2s ease-out;
+  max-width: calc(100% - 8px);
+  box-sizing: border-box;
 }
 .subalbum-button:hover {
   background: rgba(255,255,255,0.06);
@@ -468,6 +468,15 @@ header h1 {
 }
 .subalbum-button .track-count {
   font-size: 10px;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+.subalbum-button span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 /* Accordion animation */
