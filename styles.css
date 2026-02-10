@@ -447,13 +447,15 @@ header h1 {
 
 /* Subalbum buttons - accordion style (indented, compact) */
 .subalbum-button {
-  padding: 7px 10px 7px 28px;
-  font-size: 12px;
+  padding: 6px 8px 6px 18px;
+  font-size: 11.5px;
   background: rgba(255,255,255,0.02);
   border-left: 3px solid rgba(15,179,166,0.25);
   border-radius: var(--radius-sm);
-  margin-left: 12px;
+  margin-left: 8px;
   margin-top: 2px;
+  max-width: calc(100% - 8px);
+  text-overflow: ellipsis;
   animation: slideDown 0.2s ease-out;
 }
 .subalbum-button:hover {
