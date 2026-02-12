@@ -437,6 +437,48 @@
         dlBtn.style.opacity = '.4';
       }
       actions.appendChild(dlBtn);
+      
+      // Share button
+      const shareBtn = document.createElement('button');
+      shareBtn.type = 'button';
+      shareBtn.className = 'share-button';
+      shareBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>';
+      shareBtn.title = 'გაზიარება';
+      shareBtn.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        
+        const trackUrl = `${window.location.origin}${window.location.pathname}#track-${t.id}`;
+        const shareData = {
+          title: safeStr(t.title),
+          text: `${safeStr(t.title)}${t.artist ? ` - ${safeStr(t.artist)}` : ''}`,
+          url: trackUrl
+        };
+        
+        try {
+          // Try Web Share API first (mobile devices)
+          if (navigator.share) {
+            await navigator.share(shareData);
+            showToast('გაზიარებულია!');
+          } else {
+            // Fallback: copy to clipboard
+            await navigator.clipboard.writeText(trackUrl);
+            showToast('ბმული დაკოპირებულია!');
+          }
+        } catch (err) {
+          // If share cancelled or failed, try clipboard
+          if (err.name !== 'AbortError') {
+            try {
+              await navigator.clipboard.writeText(trackUrl);
+              showToast('ბმული დაკოპირებულია!');
+            } catch (clipErr) {
+              showToast('შეცდომა გაზიარებისას');
+            }
+          }
+        }
+      });
+      actions.appendChild(shareBtn);
+      
       card.appendChild(actions);
 
       card.addEventListener('click', () => {
@@ -785,11 +827,35 @@
     });
   }
 
+  // ════════════════════════════════
+  //  Handle shared track links (#track-id)
+  // ════════════════════════════════
+  
+  function handleSharedTrackLink() {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#track-')) {
+      const trackId = hash.replace('#track-', '');
+      setTimeout(() => {
+        const card = tracksContainer?.querySelector(`[data-track-id="${trackId}"]`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Highlight the shared track
+          card.style.boxShadow = '0 0 0 3px rgba(15,179,166,0.5)';
+          setTimeout(() => {
+            card.style.boxShadow = '';
+          }, 3000);
+        }
+      }, 500);
+    }
+  }
+
   // ─── Init ───
   document.addEventListener('DOMContentLoaded', () => {
     updatePlayer(null);
     if (audio && volumeSlider) audio.volume = parseFloat(volumeSlider.value || 1);
-    loadData();
+    loadData().then(() => {
+      handleSharedTrackLink();
+    });
   });
 
 })();

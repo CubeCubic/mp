@@ -643,6 +643,19 @@ button:active {
   height: 14px;
   fill: currentColor;
 }
+.share-button svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+.share-button {
+  color: var(--accent-2) !important;
+  border-color: rgba(15,179,166,0.2) !important;
+}
+.share-button:hover {
+  background: rgba(15,179,166,0.10) !important;
+  border-color: rgba(15,179,166,0.35) !important;
+}
 
 /* === Modal === */
 body.modal-open { overflow: hidden; }
