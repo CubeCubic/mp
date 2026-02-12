@@ -134,17 +134,17 @@
   function fillAlbumSelects() {
     if (albumParent) {
       albumParent.innerHTML = '';
-      albumParent.appendChild(el('option', { value: '' }, '— главный альбом —'));
+      albumParent.appendChild(el('option', { value: '' }, '— მთავარი ალბომი —'));
       albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => albumParent.appendChild(el('option', { value: a.id }, a.name)));
     }
     if (trackAlbumSelect) {
       trackAlbumSelect.innerHTML = '';
-      trackAlbumSelect.appendChild(el('option', { value: '' }, '— без альбома —'));
+      trackAlbumSelect.appendChild(el('option', { value: '' }, '— ალბომის გარეშე —'));
       albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => trackAlbumSelect.appendChild(el('option', { value: a.id }, a.name)));
     }
     if (trackEditRefs && trackEditRefs.album) {
       trackEditRefs.album.innerHTML = '';
-      trackEditRefs.album.appendChild(el('option', { value: '' }, '— без альбома —'));
+      trackEditRefs.album.appendChild(el('option', { value: '' }, '— ალბომის გარეშე —'));
       albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => trackEditRefs.album.appendChild(el('option', { value: a.id }, a.name)));
     }
   }
@@ -169,7 +169,7 @@
         const descendants = getDescendantIds(a.id);
         const exclude = new Set([a.id, ...descendants]);
         modalAlbumParent.innerHTML = '';
-        modalAlbumParent.appendChild(el('option', { value: '' }, '— нет родителя —'));
+        modalAlbumParent.appendChild(el('option', { value: '' }, '— მთავარი ალბომი —'));
         albums.filter(al => !exclude.has(al.id)).slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(al => modalAlbumParent.appendChild(el('option', { value: al.id }, al.name)));
         modalAlbumParent.value = a.parentId || '';
         albumEditModal.style.display = 'flex';
