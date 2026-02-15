@@ -1008,27 +1008,8 @@
   // ════════════════════════════════
 
   function refreshSite() {
-    // Clear search
-    if (globalSearchInput) {
-      globalSearchInput.value = '';
-    }
-    
-    // Reset album selection
-    if (albumSelect) albumSelect.value = '';
-    if (subalbumSelect) subalbumSelect.value = '';
-    
-    // Reset newest toggle
-    sortNewest = false;
-    if (newestBtn) {
-      newestBtn.classList.remove('active');
-    }
-    
-    // Reload data
-    loadData().then(() => {
-      showToast('განახლდა! 🔄');
-      // Scroll to top
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    // Full page reload (like pressing F5)
+    location.reload();
   }
 
   // Header elements
