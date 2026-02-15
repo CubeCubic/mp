@@ -828,6 +828,57 @@
   }
 
   // ════════════════════════════════
+  //  Share Button (NEW)
+  // ════════════════════════════════
+
+  const shareBtn = document.getElementById('share-btn');
+
+  async function handleShare() {
+    const shareData = {
+      title: 'Cube Cubic',
+      text: 'შეამოწმე ეს მუსიკალური საიტი! 🎵',
+      url: window.location.href.split('#')[0] // Remove any hash from URL
+    };
+
+    try {
+      // Check if Web Share API is supported
+      if (navigator.share) {
+        await navigator.share(shareData);
+        showToast('გაზიარება წარმატებული იყო!');
+      } else {
+        // Fallback: Copy to clipboard
+        await navigator.clipboard.writeText(shareData.url);
+        showToast('ბმული დაკოპირდა! 🔗');
+      }
+    } catch (error) {
+      // User cancelled share or clipboard failed
+      if (error.name !== 'AbortError') {
+        console.error('Share error:', error);
+        // Try alternative clipboard method
+        try {
+          const textArea = document.createElement('textarea');
+          textArea.value = shareData.url;
+          textArea.style.position = 'fixed';
+          textArea.style.opacity = '0';
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          showToast('ბმული დაკოპირდა! 🔗');
+        } catch (fallbackError) {
+          console.error('Fallback share error:', fallbackError);
+          showToast('გაზიარება ვერ მოხერხდა');
+        }
+      }
+    }
+  }
+
+  // Share button click handler
+  if (shareBtn) {
+    shareBtn.addEventListener('click', handleShare);
+  }
+
+  // ════════════════════════════════
   //  Handle shared track links (#track-id)
   // ════════════════════════════════
   

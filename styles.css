@@ -133,6 +133,34 @@ header h1 {
   transform: scale(0.96);
 }
 
+/* Share button in header (NEW) */
+#share-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(135deg, rgba(15,179,166,0.18), rgba(43,183,164,0.12));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+  white-space: nowrap;
+  justify-self: end;
+}
+#share-btn:hover {
+  background: linear-gradient(135deg, rgba(15,179,166,0.28), rgba(43,183,164,0.20));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15,179,166,0.25);
+}
+#share-btn:active {
+  transform: scale(0.96);
+}
+
 /* Hidden admin link - subtle but functional */
 #hidden-admin-link {
   font-size: 10px;
@@ -923,7 +951,7 @@ body.modal-open { overflow: hidden; }
 @media (max-width: 680px) {
   :root { --header-h: 56px; }
   header {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr auto auto;
     padding: 6px 12px;
     gap: 8px;
   }
@@ -933,6 +961,14 @@ body.modal-open { overflow: hidden; }
   }
   #contact-btn::before {
     content: "✉";
+    font-size: 16px;
+  }
+  #share-btn {
+    font-size: 0;
+    padding: 8px 12px;
+  }
+  #share-btn::before {
+    content: "🔗";
     font-size: 16px;
   }
   #hidden-admin-link {
