@@ -52,6 +52,74 @@
   let sortNewest = false; // toggle для кнопки "უახლესი ტრეკები"
 
   // ════════════════════════════════
+  //  Like System (localStorage)
+  // ════════════════════════════════
+  
+  const LIKES_STORAGE_KEY = 'cubeCubicLikes';
+  
+  function getLikes() {
+    try {
+      const stored = localStorage.getItem(LIKES_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : {};
+    } catch (e) {
+      console.error('Error loading likes:', e);
+      return {};
+    }
+  }
+  
+  function saveLikes(likes) {
+    try {
+      localStorage.setItem(LIKES_STORAGE_KEY, JSON.stringify(likes));
+    } catch (e) {
+      console.error('Error saving likes:', e);
+    }
+  }
+  
+  function getLikeCount(trackId) {
+    const likes = getLikes();
+    return likes[trackId] || 0;
+  }
+  
+  function isLikedByUser(trackId) {
+    const userLikesKey = `${LIKES_STORAGE_KEY}_user`;
+    try {
+      const stored = localStorage.getItem(userLikesKey);
+      const userLikes = stored ? JSON.parse(stored) : {};
+      return userLikes[trackId] === true;
+    } catch (e) {
+      return false;
+    }
+  }
+  
+  function toggleLike(trackId) {
+    const likes = getLikes();
+    const userLikesKey = `${LIKES_STORAGE_KEY}_user`;
+    
+    try {
+      const stored = localStorage.getItem(userLikesKey);
+      const userLikes = stored ? JSON.parse(stored) : {};
+      
+      if (userLikes[trackId]) {
+        // Unlike
+        userLikes[trackId] = false;
+        likes[trackId] = Math.max(0, (likes[trackId] || 0) - 1);
+      } else {
+        // Like
+        userLikes[trackId] = true;
+        likes[trackId] = (likes[trackId] || 0) + 1;
+      }
+      
+      localStorage.setItem(userLikesKey, JSON.stringify(userLikes));
+      saveLikes(likes);
+      
+      return userLikes[trackId];
+    } catch (e) {
+      console.error('Error toggling like:', e);
+      return false;
+    }
+  }
+
+  // ════════════════════════════════
   //  Утилиты
   // ════════════════════════════════
 
@@ -407,6 +475,41 @@
         });
         actions.appendChild(lyrBtn);
       }
+
+      // Like button
+      const likeBtn = document.createElement('button');
+      likeBtn.type = 'button';
+      likeBtn.className = 'like-button';
+      
+      const likeCount = getLikeCount(t.id);
+      const isLiked = isLikedByUser(t.id);
+      
+      likeBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" class="heart-icon ${isLiked ? 'liked' : ''}">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <span class="like-count">${likeCount > 0 ? likeCount : ''}</span>
+      `;
+      
+      likeBtn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const nowLiked = toggleLike(t.id);
+        const heartIcon = likeBtn.querySelector('.heart-icon');
+        const countSpan = likeBtn.querySelector('.like-count');
+        const newCount = getLikeCount(t.id);
+        
+        if (nowLiked) {
+          heartIcon.classList.add('liked');
+          likeBtn.classList.add('liked-animation');
+          setTimeout(() => likeBtn.classList.remove('liked-animation'), 600);
+        } else {
+          heartIcon.classList.remove('liked');
+        }
+        
+        countSpan.textContent = newCount > 0 ? newCount : '';
+      });
+      
+      actions.appendChild(likeBtn);
 
       const dlBtn = document.createElement('button');
       dlBtn.type = 'button';
