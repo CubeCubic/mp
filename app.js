@@ -1003,6 +1003,46 @@
     }
   }
 
+  // ════════════════════════════════
+  //  Header Logo & Title Refresh
+  // ════════════════════════════════
+
+  function refreshSite() {
+    // Clear search
+    if (globalSearchInput) {
+      globalSearchInput.value = '';
+    }
+    
+    // Reset album selection
+    if (albumSelect) albumSelect.value = '';
+    if (subalbumSelect) subalbumSelect.value = '';
+    
+    // Reset newest toggle
+    sortNewest = false;
+    if (newestBtn) {
+      newestBtn.classList.remove('active');
+    }
+    
+    // Reload data
+    loadData().then(() => {
+      showToast('განახლდა! 🔄');
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // Header elements
+  const headerBadge = document.getElementById('header-badge');
+  const headerTitle = document.querySelector('header h1');
+
+  if (headerBadge) {
+    headerBadge.addEventListener('click', refreshSite);
+  }
+
+  if (headerTitle) {
+    headerTitle.addEventListener('click', refreshSite);
+  }
+
   // ─── Init ───
   document.addEventListener('DOMContentLoaded', () => {
     updatePlayer(null);

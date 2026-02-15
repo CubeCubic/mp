@@ -92,10 +92,29 @@ header h1 {
   overflow: hidden;
   text-overflow: ellipsis;
   text-shadow: 0 1px 0 rgba(0,0,0,0.14), 0 3px 8px rgba(0,0,0,0.12), 0 0 8px rgba(255,122,102,0.06);
+  cursor: pointer;
+  transition: transform var(--t-fast), opacity var(--t-fast);
+  user-select: none;
+}
+header h1:hover {
+  transform: scale(1.02);
+  opacity: 0.9;
+}
+header h1:active {
+  transform: scale(0.98);
 }
 #header-badge {
   width: calc(var(--header-h) - 18px);
   height: calc(var(--header-h) - 18px);
+  cursor: pointer;
+  transition: transform var(--t-fast);
+  user-select: none;
+}
+#header-badge:hover {
+  transform: scale(1.05) rotate(5deg);
+}
+#header-badge:active {
+  transform: scale(0.95);
 }
 #header-badge img {
   width: 100%;
