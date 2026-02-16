@@ -43,7 +43,17 @@ body::before {
   z-index: -3;
   background: linear-gradient(135deg, var(--color-deep) 0%, var(--color-navy) 35%, var(--color-teal) 70%, var(--color-sea) 100%);
   background-attachment: fixed;
+  background-size: 200% 200%;
   filter: saturate(1.06) contrast(1.04) brightness(0.96);
+  transition: filter 0.5s ease;
+}
+body.audio-playing::before {
+  animation: audioBackgroundPulse 4s ease-in-out infinite;
+  filter: saturate(1.15) contrast(1.08) brightness(1.02);
+}
+@keyframes audioBackgroundPulse {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 body::after {
   content: "";
@@ -229,11 +239,28 @@ header h1:active {
   overflow: hidden;
   background: linear-gradient(135deg, rgba(15,179,166,0.12), rgba(11,43,69,0.08));
   box-shadow: 0 6px 18px rgba(2,8,14,0.5);
+  position: relative;
 }
 .player-cover-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Audio Visualizer Canvas */
+.audio-visualizer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.audio-visualizer.active {
+  opacity: 0.85;
 }
 
 .player-info {
@@ -596,12 +623,30 @@ button:active {
   transition: transform var(--t-med), box-shadow var(--t-med);
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 .tracks-list-grid .card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-strong), var(--shadow-accent);
 }
 .tracks-list-grid .card:active { transform: translateY(-2px); }
+
+/* Card Progress Bar */
+.card-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-2), var(--color-sea));
+  width: 0%;
+  transition: width 0.1s linear;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+.card.playing-track .card-progress-bar {
+  opacity: 1;
+}
 
 .tracks-list-grid .card.playing-track {
   background: linear-gradient(180deg, rgba(15,179,166,0.22), rgba(11,43,69,0.16));

@@ -35,6 +35,10 @@
   const timeDuration = document.getElementById('time-duration-sidebar');
   const volumeSlider = document.getElementById('volume-sidebar');
 
+  // Audio Visualizer
+  const visualizerCanvas = document.getElementById('audio-visualizer');
+  const visualizerCtx = visualizerCanvas ? visualizerCanvas.getContext('2d') : null;
+
   // Модалка
   const lyricsModal = document.getElementById('lyrics-modal');
   const modalClose = document.getElementById('modal-close');
@@ -117,6 +121,96 @@
       console.error('Error toggling like:', e);
       return false;
     }
+  }
+
+  // ════════════════════════════════
+  //  Audio Visualizer (Web Audio API)
+  // ════════════════════════════════
+
+  let audioContext = null;
+  let analyser = null;
+  let dataArray = null;
+  let bufferLength = 0;
+  let animationId = null;
+  let isVisualizerActive = false;
+
+  function initAudioContext() {
+    if (audioContext) return;
+    
+    try {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+      
+      const source = audioContext.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+    } catch (e) {
+      console.error('Web Audio API not supported:', e);
+    }
+  }
+
+  function drawVisualizer() {
+    if (!visualizerCanvas || !visualizerCtx || !analyser || !isVisualizerActive) return;
+    
+    animationId = requestAnimationFrame(drawVisualizer);
+    
+    analyser.getByteFrequencyData(dataArray);
+    
+    const width = visualizerCanvas.width;
+    const height = visualizerCanvas.height;
+    
+    visualizerCtx.clearRect(0, 0, width, height);
+    
+    const barWidth = (width / bufferLength) * 2.5;
+    let barHeight;
+    let x = 0;
+    
+    for (let i = 0; i < bufferLength; i++) {
+      barHeight = (dataArray[i] / 255) * height * 0.8;
+      
+      const gradient = visualizerCtx.createLinearGradient(0, height - barHeight, 0, height);
+      gradient.addColorStop(0, `rgba(15, 179, 166, ${0.8 + dataArray[i] / 512})`);
+      gradient.addColorStop(1, `rgba(43, 183, 164, ${0.4 + dataArray[i] / 512})`);
+      
+      visualizerCtx.fillStyle = gradient;
+      visualizerCtx.fillRect(x, height - barHeight, barWidth - 1, barHeight);
+      
+      x += barWidth;
+    }
+  }
+
+  function startVisualizer() {
+    if (!audio.paused && audioContext && !isVisualizerActive) {
+      isVisualizerActive = true;
+      if (visualizerCanvas) {
+        visualizerCanvas.classList.add('active');
+        // Set canvas size
+        const rect = visualizerCanvas.getBoundingClientRect();
+        visualizerCanvas.width = rect.width * window.devicePixelRatio || rect.width;
+        visualizerCanvas.height = rect.height * window.devicePixelRatio || rect.height;
+        visualizerCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+      }
+      document.body.classList.add('audio-playing');
+      drawVisualizer();
+    }
+  }
+
+  function stopVisualizer() {
+    isVisualizerActive = false;
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+    if (visualizerCanvas) {
+      visualizerCanvas.classList.remove('active');
+      if (visualizerCtx) {
+        visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+      }
+    }
+    document.body.classList.remove('audio-playing');
   }
 
   // ════════════════════════════════
@@ -584,6 +678,11 @@
       
       card.appendChild(actions);
 
+      // Add progress bar to card
+      const progressBar = document.createElement('div');
+      progressBar.className = 'card-progress-bar';
+      card.appendChild(progressBar);
+
       card.addEventListener('click', () => {
         userInteracted = true;
         const idx = toRender.indexOf(t);
@@ -705,10 +804,34 @@
     playByIndex(p);
   }
 
-  audio.addEventListener('playing', () => { if (playBtn) playBtn.textContent = '❚❚'; });
-  audio.addEventListener('pause', () => { if (playBtn) playBtn.textContent = '▶'; });
-  audio.addEventListener('ended', playNext);
-  audio.addEventListener('error', () => { updatePlayer(null); showToast('შეცდომა: ტრეკი ვერ ჩაიტვირთა'); });
+  audio.addEventListener('playing', () => { 
+    if (playBtn) playBtn.textContent = '❚❚';
+    // Initialize audio context on first play
+    if (!audioContext) {
+      initAudioContext();
+    }
+    // Resume audio context if suspended
+    if (audioContext && audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    startVisualizer();
+  });
+  
+  audio.addEventListener('pause', () => { 
+    if (playBtn) playBtn.textContent = '▶';
+    stopVisualizer();
+  });
+  
+  audio.addEventListener('ended', () => {
+    stopVisualizer();
+    playNext();
+  });
+  
+  audio.addEventListener('error', () => { 
+    updatePlayer(null); 
+    showToast('შეცდომა: ტრეკი ვერ ჩაიტვირთა');
+    stopVisualizer();
+  });
 
   audio.addEventListener('timeupdate', () => {
     if (audio.duration && progressBar) {
@@ -716,7 +839,27 @@
       progressBar.max = audio.duration;
       if (timeCurrent) timeCurrent.textContent = formatTime(audio.currentTime);
     }
+    
+    // Update card progress bar
+    updateCardProgress();
   });
+  
+  function updateCardProgress() {
+    if (!tracksContainer || currentTrackIndex < 0 || !audio.duration) return;
+    
+    const currentTrack = filteredTracks[currentTrackIndex];
+    if (!currentTrack) return;
+    
+    const card = tracksContainer.querySelector(`[data-track-id="${currentTrack.id}"]`);
+    if (card) {
+      const cardProgressBar = card.querySelector('.card-progress-bar');
+      if (cardProgressBar) {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        cardProgressBar.style.width = `${progress}%`;
+      }
+    }
+  }
+  
   audio.addEventListener('loadedmetadata', () => {
     if (timeDuration) timeDuration.textContent = formatTime(audio.duration);
     if (progressBar) progressBar.max = audio.duration || 0;
