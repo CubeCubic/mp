@@ -358,39 +358,6 @@ header h1:active {
   border: none;
 }
 
-/* Shuffle & Repeat buttons in volume row */
-.player-volume-wrapper .extra-control-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.4);
-  font-size: 13px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform var(--t-fast), background var(--t-fast), color var(--t-fast);
-  min-height: auto;
-  flex-shrink: 0;
-}
-.player-volume-wrapper .extra-control-btn:hover {
-  background: rgba(255,255,255,0.10);
-  color: rgba(255,255,255,0.6);
-  transform: scale(1.08);
-}
-.player-volume-wrapper .extra-control-btn:active { 
-  transform: scale(0.95); 
-}
-.player-volume-wrapper .extra-control-btn.active {
-  background: linear-gradient(135deg, rgba(15,179,166,0.25), rgba(43,183,164,0.15));
-  color: var(--accent-2);
-}
-.player-volume-wrapper .extra-control-btn.active:hover {
-  background: linear-gradient(135deg, rgba(15,179,166,0.35), rgba(43,183,164,0.25));
-}
-
 /* ─── CONTROLS SECTION ─── */
 .controls {
   display: flex;

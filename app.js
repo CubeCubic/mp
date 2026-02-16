@@ -50,11 +50,6 @@
   let currentTrackIndex = -1;
   let userInteracted = false;
   let sortNewest = false; // toggle для кнопки "უახლესი ტრეკები"
-  
-  // Shuffle & Repeat state
-  let isShuffleOn = false;
-  let repeatMode = 'off'; // 'off' | 'all' | 'one'
-  let shuffledIndices = []; // for shuffle mode
 
   // ════════════════════════════════
   //  Like System (localStorage)
@@ -599,12 +594,6 @@
     });
 
     filteredTracks = toRender;
-    
-    // Update shuffle indices if shuffle is on
-    if (isShuffleOn) {
-      generateShuffledIndices();
-    }
-    
     highlightCurrent();
   }
 
@@ -704,74 +693,15 @@
 
   function playNext() {
     if (!filteredTracks.length) return;
-    
-    // Repeat one mode
-    if (repeatMode === 'one') {
-      playByIndex(currentTrackIndex);
-      return;
-    }
-    
-    // Shuffle mode
-    if (isShuffleOn) {
-      const currentShuffleIdx = shuffledIndices.indexOf(currentTrackIndex);
-      if (currentShuffleIdx >= 0 && currentShuffleIdx < shuffledIndices.length - 1) {
-        playByIndex(shuffledIndices[currentShuffleIdx + 1]);
-      } else {
-        // End of shuffle list
-        if (repeatMode === 'all') {
-          playByIndex(shuffledIndices[0]);
-        } else {
-          audio.pause();
-        }
-      }
-      return;
-    }
-    
-    // Normal mode
     let n = currentTrackIndex + 1;
-    if (n >= filteredTracks.length) {
-      if (repeatMode === 'all') {
-        n = 0;
-      } else {
-        audio.pause();
-        return;
-      }
-    }
+    if (n >= filteredTracks.length) n = 0;
     playByIndex(n);
   }
 
   function playPrev() {
     if (!filteredTracks.length) return;
-    
-    // Repeat one mode
-    if (repeatMode === 'one') {
-      playByIndex(currentTrackIndex);
-      return;
-    }
-    
-    // Shuffle mode
-    if (isShuffleOn) {
-      const currentShuffleIdx = shuffledIndices.indexOf(currentTrackIndex);
-      if (currentShuffleIdx > 0) {
-        playByIndex(shuffledIndices[currentShuffleIdx - 1]);
-      } else {
-        // Start of shuffle list
-        if (repeatMode === 'all') {
-          playByIndex(shuffledIndices[shuffledIndices.length - 1]);
-        }
-      }
-      return;
-    }
-    
-    // Normal mode
     let p = currentTrackIndex - 1;
-    if (p < 0) {
-      if (repeatMode === 'all') {
-        p = filteredTracks.length - 1;
-      } else {
-        p = 0;
-      }
-    }
+    if (p < 0) p = filteredTracks.length - 1;
     playByIndex(p);
   }
 
@@ -800,82 +730,6 @@
   if (nextBtn) nextBtn.addEventListener('click', playNext);
   if (progressBar) progressBar.addEventListener('input', () => audio.currentTime = progressBar.value);
   if (volumeSlider) volumeSlider.addEventListener('input', () => audio.volume = parseFloat(volumeSlider.value));
-
-  // ════════════════════════════════
-  //  Shuffle & Repeat Controls
-  // ════════════════════════════════
-
-  const shuffleBtn = document.getElementById('shuffle-btn');
-  const repeatBtn = document.getElementById('repeat-btn');
-
-  function generateShuffledIndices() {
-    shuffledIndices = [...Array(filteredTracks.length).keys()];
-    // Fisher-Yates shuffle
-    for (let i = shuffledIndices.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
-    }
-    // Move current track to front if playing
-    if (currentTrackIndex >= 0) {
-      const currentIdx = shuffledIndices.indexOf(currentTrackIndex);
-      if (currentIdx > 0) {
-        [shuffledIndices[0], shuffledIndices[currentIdx]] = [shuffledIndices[currentIdx], shuffledIndices[0]];
-      }
-    }
-  }
-
-  function toggleShuffle() {
-    isShuffleOn = !isShuffleOn;
-    if (shuffleBtn) {
-      if (isShuffleOn) {
-        shuffleBtn.classList.add('active');
-        generateShuffledIndices();
-        showToast('შემთხვევითი ჩართულია 🔀');
-      } else {
-        shuffleBtn.classList.remove('active');
-        shuffledIndices = [];
-        showToast('შემთხვევითი გამორთულია');
-      }
-    }
-  }
-
-  function cycleRepeat() {
-    if (repeatMode === 'off') {
-      repeatMode = 'all';
-      if (repeatBtn) {
-        repeatBtn.classList.add('active');
-        repeatBtn.textContent = '🔁';
-        repeatBtn.title = 'გამეორება: ყველა';
-      }
-      showToast('გამეორება: ყველა ტრეკი 🔁');
-    } else if (repeatMode === 'all') {
-      repeatMode = 'one';
-      if (repeatBtn) {
-        repeatBtn.textContent = '🔂';
-        repeatBtn.title = 'გამეორება: ერთი';
-      }
-      showToast('გამეორება: ერთი ტრეკი 🔂');
-    } else {
-      repeatMode = 'off';
-      if (repeatBtn) {
-        repeatBtn.classList.remove('active');
-        repeatBtn.textContent = '🔁';
-        repeatBtn.title = 'გამეორება';
-      }
-      showToast('გამეორება გამორთულია');
-    }
-    if (repeatBtn) {
-      repeatBtn.setAttribute('data-mode', repeatMode);
-    }
-  }
-
-  if (shuffleBtn) {
-    shuffleBtn.addEventListener('click', toggleShuffle);
-  }
-
-  if (repeatBtn) {
-    repeatBtn.addEventListener('click', cycleRepeat);
-  }
 
   // ════════════════════════════════
   //  Data loading
@@ -1128,6 +982,27 @@
   }
 
   // ════════════════════════════════
+  //  Header Logo & Title Refresh
+  // ════════════════════════════════
+
+  function refreshSite() {
+    // Full page reload (like pressing F5)
+    location.reload();
+  }
+
+  // Header elements
+  const headerBadge = document.getElementById('header-badge');
+  const headerTitle = document.querySelector('header h1');
+
+  if (headerBadge) {
+    headerBadge.addEventListener('click', refreshSite);
+  }
+
+  if (headerTitle) {
+    headerTitle.addEventListener('click', refreshSite);
+  }
+
+  // ════════════════════════════════
   //  Handle shared track links (#track-id)
   // ════════════════════════════════
   
@@ -1147,27 +1022,6 @@
         }
       }, 500);
     }
-  }
-
-  // ════════════════════════════════
-  //  Header Logo & Title Refresh
-  // ════════════════════════════════
-
-  function refreshSite() {
-    // Full page reload (like pressing F5)
-    location.reload();
-  }
-
-  // Header elements
-  const headerBadge = document.getElementById('header-badge');
-  const headerTitle = document.querySelector('header h1');
-
-  if (headerBadge) {
-    headerBadge.addEventListener('click', refreshSite);
-  }
-
-  if (headerTitle) {
-    headerTitle.addEventListener('click', refreshSite);
   }
 
   // ─── Init ───
