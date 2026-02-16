@@ -202,20 +202,18 @@
 
   let animationId = null;
   let isVisualizerActive = false;
+  let canvasWidth = 0;
+  let canvasHeight = 0;
 
   function drawVisualizer() {
     if (!visualizerCanvas || !visualizerCtx || !isVisualizerActive) return;
     
     animationId = requestAnimationFrame(drawVisualizer);
     
-    const width = visualizerCanvas.width;
-    const height = visualizerCanvas.height;
+    visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
     
-    visualizerCtx.clearRect(0, 0, width, height);
-    
-    const barCount = 80; // Increased for denser visualization
-    const barWidth = width / barCount; // Fill entire width
-    const barSpacing = 0;
+    const barCount = 100; // More bars for smoother visualization
+    const barWidth = canvasWidth / barCount; // Use CSS width
     
     const time = Date.now() / 1000;
     
@@ -225,14 +223,14 @@
       // Create pseudo-random but smooth bar heights
       const frequency = 0.5 + i * 0.04;
       const amplitude = Math.sin(time * frequency + i * 0.3) * 0.5 + 0.5;
-      const barHeight = amplitude * height * 0.85; // Use more of the height
+      const barHeight = amplitude * canvasHeight * 0.9; // Use CSS height
       
-      const gradient = visualizerCtx.createLinearGradient(0, height - barHeight, 0, height);
+      const gradient = visualizerCtx.createLinearGradient(0, canvasHeight - barHeight, 0, canvasHeight);
       gradient.addColorStop(0, `rgba(15, 179, 166, ${0.7 + amplitude * 0.3})`);
       gradient.addColorStop(1, `rgba(43, 183, 164, ${0.4 + amplitude * 0.4})`);
       
       visualizerCtx.fillStyle = gradient;
-      visualizerCtx.fillRect(x, height - barHeight, barWidth - barSpacing, barHeight);
+      visualizerCtx.fillRect(x, canvasHeight - barHeight, barWidth, barHeight);
     }
   }
 
@@ -243,10 +241,19 @@
         visualizerCanvas.classList.add('active');
         // Set canvas size
         const rect = visualizerCanvas.getBoundingClientRect();
-        visualizerCanvas.width = rect.width * window.devicePixelRatio || rect.width;
-        visualizerCanvas.height = rect.height * window.devicePixelRatio || rect.height;
+        const dpr = window.devicePixelRatio || 1;
+        
+        // Store CSS dimensions for drawing
+        canvasWidth = rect.width;
+        canvasHeight = rect.height;
+        
+        // Set physical size for sharp rendering
+        visualizerCanvas.width = rect.width * dpr;
+        visualizerCanvas.height = rect.height * dpr;
+        
+        // Scale context to match
         if (visualizerCtx) {
-          visualizerCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+          visualizerCtx.scale(dpr, dpr);
         }
       }
       document.body.classList.add('audio-playing');
