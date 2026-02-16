@@ -475,20 +475,38 @@ header h1:active {
   border-color: rgba(255,122,102,0.3);
 }
 
-/* Liked tracks button */
+/* Filter buttons row */
+.filter-buttons-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+/* Newest and Liked buttons */
+.newest-btn,
 .liked-btn {
-  width: 100%;
-  padding: 10px 14px;
+  flex: 1;
+  padding: 10px 8px;
   border-radius: var(--radius-md);
   border: 1px solid rgba(255,255,255,0.12);
-  background: linear-gradient(135deg, rgba(255,122,102,0.18), rgba(255,140,120,0.12));
   color: #fff;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   min-height: auto;
   transition: background var(--t-fast), transform var(--t-fast);
-  margin-top: 6px;
+}
+
+.newest-btn {
+  background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
+}
+.newest-btn:hover {
+  background: linear-gradient(135deg, rgba(43,183,164,0.28), rgba(15,179,166,0.20));
+  transform: translateY(-1px);
+}
+
+.liked-btn {
+  background: linear-gradient(135deg, rgba(255,122,102,0.18), rgba(255,140,120,0.12));
 }
 .liked-btn:hover {
   background: linear-gradient(135deg, rgba(255,122,102,0.28), rgba(255,140,120,0.20));
@@ -497,126 +515,6 @@ header h1:active {
 .liked-btn.active {
   background: linear-gradient(135deg, rgba(255,122,102,0.35), rgba(255,140,120,0.25));
   border-color: rgba(255,122,102,0.4);
-}
-
-/* Playlists section */
-.playlists-controls {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-.playlists-controls input {
-  flex: 1;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.05);
-  color: #fff;
-  font-size: 12px;
-  box-sizing: border-box;
-}
-.playlists-controls input::placeholder { color: rgba(255,255,255,0.35); }
-.playlists-controls input:focus {
-  outline: none;
-  border-color: var(--accent-2);
-  background: rgba(255,255,255,0.08);
-}
-.playlists-controls button {
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background var(--t-fast);
-}
-.playlists-controls button:hover {
-  background: rgba(255,255,255,0.14);
-}
-
-/* Playlists list */
-.playlists-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.playlist-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,0.06);
-  background: rgba(255,255,255,0.03);
-  color: #fff;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background var(--t-fast), border-color var(--t-fast);
-}
-.playlist-item:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.12);
-}
-.playlist-item.selected {
-  background: linear-gradient(135deg, rgba(15,179,166,0.15), rgba(43,183,164,0.10));
-  border-color: rgba(15,179,166,0.3);
-}
-.playlist-name {
-  flex: 1;
-  font-weight: 600;
-}
-.playlist-count {
-  color: rgba(255,255,255,0.45);
-  font-size: 11px;
-}
-.playlist-delete {
-  padding: 2px 6px;
-  border-radius: 3px;
-  border: none;
-  background: rgba(255,122,102,0.2);
-  color: rgba(255,122,102,0.9);
-  font-size: 11px;
-  cursor: pointer;
-  transition: background var(--t-fast);
-}
-.playlist-delete:hover {
-  background: rgba(255,122,102,0.35);
-}
-
-/* Playlist modal */
-.playlist-modal-box {
-  max-width: 380px;
-}
-.playlist-select-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 400px;
-  overflow-y: auto;
-}
-.playlist-select-item {
-  padding: 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid #ccc;
-  background: #f5f5f5;
-  cursor: pointer;
-  transition: background var(--t-fast), border-color var(--t-fast);
-}
-.playlist-select-item:hover {
-  background: #e8f5f4;
-  border-color: var(--accent-2);
-}
-.playlist-select-item strong {
-  color: #000;
-  font-size: 13px;
-}
-.playlist-select-item span {
-  color: #666;
-  font-size: 11px;
-  margin-left: 8px;
 }
 
 /* Album list - vertical buttons */
@@ -935,18 +833,6 @@ button:active {
   background: rgba(15,179,166,0.10) !important;
   border-color: rgba(15,179,166,0.35) !important;
 }
-.playlist-add-button {
-  color: #ffcc00 !important;
-  border-color: rgba(255,204,0,0.25) !important;
-  font-size: 16px !important;
-  font-weight: 700;
-  padding: 0 10px !important;
-}
-.playlist-add-button:hover {
-  background: rgba(255,204,0,0.12) !important;
-  border-color: rgba(255,204,0,0.4) !important;
-}
-
 /* === Modal === */
 body.modal-open { overflow: hidden; }
 #lyrics-modal {
