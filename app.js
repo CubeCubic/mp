@@ -133,9 +133,12 @@
   let bufferLength = 0;
   let animationId = null;
   let isVisualizerActive = false;
+  let audioSource = null; // Store the source node
+  let audioContextInitAttempted = false; // Flag to prevent multiple init attempts
 
   function initAudioContext() {
-    if (audioContext) return;
+    if (audioContextInitAttempted) return; // Already tried to initialize
+    audioContextInitAttempted = true;
     
     try {
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -144,11 +147,19 @@
       bufferLength = analyser.frequencyBinCount;
       dataArray = new Uint8Array(bufferLength);
       
-      const source = audioContext.createMediaElementSource(audio);
-      source.connect(analyser);
+      // Create source only once!
+      audioSource = audioContext.createMediaElementSource(audio);
+      audioSource.connect(analyser);
       analyser.connect(audioContext.destination);
+      
+      console.log('Audio visualizer initialized successfully');
     } catch (e) {
-      console.error('Web Audio API not supported:', e);
+      console.error('Web Audio API initialization failed:', e);
+      // Disable visualizer if initialization fails
+      audioContext = null;
+      analyser = null;
+      audioSource = null;
+      // Note: audio element will continue to play normally without Web Audio API
     }
   }
 
@@ -807,14 +818,17 @@
   audio.addEventListener('playing', () => { 
     if (playBtn) playBtn.textContent = '❚❚';
     // Initialize audio context on first play
-    if (!audioContext) {
+    if (!audioContextInitAttempted) {
       initAudioContext();
     }
     // Resume audio context if suspended
     if (audioContext && audioContext.state === 'suspended') {
       audioContext.resume();
     }
-    startVisualizer();
+    // Start visualizer only if audio context is available
+    if (audioContext) {
+      startVisualizer();
+    }
   });
   
   audio.addEventListener('pause', () => { 
