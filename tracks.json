@@ -606,6 +606,15 @@
       "albumId": "1767343222772",
       "audioUrl": "https://archive.org/download/girl-from-my-street/It%27s%20a%20Beautiful%20Day.flac",
       "coverUrl": "https://archive.org/download/girl-from-my-street/300_It%27s%20a%20Beautiful%20Day.png"
+    },
+    {
+      "id": "1771253204426",
+      "title": "Bring It On",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767340968092",
+      "audioUrl": "https://archive.org/download/girl-from-my-street/Bring%20It%20On.flac",
+      "coverUrl": "https://archive.org/download/girl-from-my-street/300_Bring%20It%20On.png"
     }
   ]
 }
