@@ -82,11 +82,19 @@
           </div>
           
           <button id="newest-tracks-btn" type="button" class="newest-btn">უახლესი ტრეკები</button>
+          <button id="liked-tracks-btn" type="button" class="liked-btn">რა მომეწონა</button>
 
           <label for="album-list">ალბამები</label>
           <input type="hidden" id="album-select" value="">
           <input type="hidden" id="subalbum-select" value="">
           <div id="album-list" class="album-list-vertical"></div>
+
+          <label for="playlists-section">პლეილისტები</label>
+          <div class="playlists-controls">
+            <input id="new-playlist-name" type="text" placeholder="ახალი პლეილისტი...">
+            <button id="create-playlist-btn" type="button">+ შექმნა</button>
+          </div>
+          <div id="playlists-list" class="playlists-list"></div>
         </div>
       </aside>
 
@@ -105,6 +113,15 @@
       <button id="modal-close" type="button">✕ დახურვა</button>
       <h3 id="modal-title">ტექსტი</h3>
       <pre id="modal-lyrics"></pre>
+    </div>
+  </div>
+
+  <!-- ═══ ADD TO PLAYLIST MODAL ═══ -->
+  <div id="playlist-modal" class="hidden" aria-hidden="true">
+    <div class="modal-box playlist-modal-box">
+      <button id="playlist-modal-close" type="button">✕ დახურვა</button>
+      <h3>დაამატე პლეილისტში</h3>
+      <div id="playlist-select-list" class="playlist-select-list"></div>
     </div>
   </div>
 

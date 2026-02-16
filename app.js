@@ -124,6 +124,141 @@
   }
 
   // ════════════════════════════════
+  //  Playlist System (localStorage)
+  // ════════════════════════════════
+  
+  const PLAYLISTS_STORAGE_KEY = 'cubeCubicPlaylists';
+  
+  function getPlaylists() {
+    try {
+      const stored = localStorage.getItem(PLAYLISTS_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      console.error('Error loading playlists:', e);
+      return [];
+    }
+  }
+  
+  function savePlaylists(playlists) {
+    try {
+      localStorage.setItem(PLAYLISTS_STORAGE_KEY, JSON.stringify(playlists));
+    } catch (e) {
+      console.error('Error saving playlists:', e);
+    }
+  }
+  
+  function createPlaylist(name) {
+    if (!name || !name.trim()) return null;
+    const playlists = getPlaylists();
+    const newPlaylist = {
+      id: Date.now().toString(),
+      name: name.trim(),
+      tracks: []
+    };
+    playlists.push(newPlaylist);
+    savePlaylists(playlists);
+    return newPlaylist;
+  }
+  
+  function deletePlaylist(playlistId) {
+    const playlists = getPlaylists();
+    const filtered = playlists.filter(p => p.id !== playlistId);
+    savePlaylists(filtered);
+  }
+  
+  function addTrackToPlaylist(playlistId, trackId) {
+    const playlists = getPlaylists();
+    const playlist = playlists.find(p => p.id === playlistId);
+    if (playlist && !playlist.tracks.includes(trackId)) {
+      playlist.tracks.push(trackId);
+      savePlaylists(playlists);
+      return true;
+    }
+    return false;
+  }
+  
+  function removeTrackFromPlaylist(playlistId, trackId) {
+    const playlists = getPlaylists();
+    const playlist = playlists.find(p => p.id === playlistId);
+    if (playlist) {
+      playlist.tracks = playlist.tracks.filter(id => id !== trackId);
+      savePlaylists(playlists);
+      return true;
+    }
+    return false;
+  }
+  
+  function getUserLikedTracks() {
+    const userLikesKey = `${LIKES_STORAGE_KEY}_user`;
+    try {
+      const stored = localStorage.getItem(userLikesKey);
+      const userLikes = stored ? JSON.parse(stored) : {};
+      return Object.keys(userLikes).filter(trackId => userLikes[trackId] === true);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // ════════════════════════════════
+  //  Keyboard Shortcuts
+  // ════════════════════════════════
+  
+  document.addEventListener('keydown', (e) => {
+    // Ignore if typing in input/textarea
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    
+    // Ignore if modal is open
+    const isModalOpen = !lyricsModal.classList.contains('hidden') || 
+                        !document.getElementById('contact-modal').classList.contains('hidden') ||
+                        !document.getElementById('playlist-modal').classList.contains('hidden');
+    if (isModalOpen) return;
+    
+    switch(e.key) {
+      case ' ': // Space - play/pause
+        e.preventDefault();
+        if (playBtn) playBtn.click();
+        break;
+      
+      case 'ArrowLeft': // Previous track
+        e.preventDefault();
+        if (prevBtn) prevBtn.click();
+        break;
+      
+      case 'ArrowRight': // Next track
+        e.preventDefault();
+        if (nextBtn) nextBtn.click();
+        break;
+      
+      case 'ArrowUp': // Volume up
+        e.preventDefault();
+        if (audio.volume < 1) {
+          audio.volume = Math.min(1, audio.volume + 0.1);
+          if (volumeSlider) volumeSlider.value = audio.volume;
+        }
+        break;
+      
+      case 'ArrowDown': // Volume down
+        e.preventDefault();
+        if (audio.volume > 0) {
+          audio.volume = Math.max(0, audio.volume - 0.1);
+          if (volumeSlider) volumeSlider.value = audio.volume;
+        }
+        break;
+      
+      case 'l':
+      case 'L': // Like current track
+        if (currentTrackIndex >= 0 && filteredTracks[currentTrackIndex]) {
+          const track = filteredTracks[currentTrackIndex];
+          toggleLike(track.id);
+          // Re-render to update like button
+          renderTracks();
+          showToast(isLikedByUser(track.id) ? 'ლაიქი დაემატა ❤️' : 'ლაიქი წაიშალა');
+        }
+        break;
+    }
+  });
+
+  // ════════════════════════════════
   //  Audio Visualizer (Pure Visual Animation)
   // ════════════════════════════════
 
@@ -502,6 +637,20 @@
       });
     }
 
+    // Playlist filter
+    if (selectedPlaylistId) {
+      const playlist = getPlaylists().find(p => p.id === selectedPlaylistId);
+      if (playlist) {
+        toRender = toRender.filter(t => playlist.tracks.includes(t.id));
+      }
+    }
+
+    // Liked tracks filter
+    if (showLikedOnly) {
+      const likedTrackIds = getUserLikedTracks();
+      toRender = toRender.filter(t => likedTrackIds.includes(t.id));
+    }
+
     if (!toRender.length) {
       tracksContainer.innerHTML = '<div class="muted">ტრეკები არ მოიძებნა</div>';
       filteredTracks = [];
@@ -658,6 +807,19 @@
         }
       });
       actions.appendChild(shareBtn);
+      
+      // Add to playlist button
+      const playlistBtn = document.createElement('button');
+      playlistBtn.type = 'button';
+      playlistBtn.className = 'playlist-add-button';
+      playlistBtn.innerHTML = '+';
+      playlistBtn.title = 'დაამატე პლეილისტში';
+      playlistBtn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        openPlaylistModal(t);
+      });
+      actions.appendChild(playlistBtn);
       
       card.appendChild(actions);
 
@@ -895,6 +1057,192 @@
         newestBtn.classList.remove('active');
       }
       renderTracks();
+    });
+  }
+
+  // ════════════════════════════════
+  //  Liked Tracks Button
+  // ════════════════════════════════
+
+  const likedBtn = document.getElementById('liked-tracks-btn');
+  let showLikedOnly = false;
+
+  if (likedBtn) {
+    likedBtn.addEventListener('click', () => {
+      showLikedOnly = !showLikedOnly;
+      if (showLikedOnly) {
+        likedBtn.classList.add('active');
+        sortNewest = false;
+        if (newestBtn) newestBtn.classList.remove('active');
+      } else {
+        likedBtn.classList.remove('active');
+      }
+      renderTracks();
+    });
+  }
+
+  // ════════════════════════════════
+  //  Playlist Management
+  // ════════════════════════════════
+
+  const newPlaylistNameInput = document.getElementById('new-playlist-name');
+  const createPlaylistBtn = document.getElementById('create-playlist-btn');
+  const playlistsList = document.getElementById('playlists-list');
+  let selectedPlaylistId = null;
+
+  function renderPlaylists() {
+    if (!playlistsList) return;
+    playlistsList.innerHTML = '';
+    
+    const playlists = getPlaylists();
+    
+    if (playlists.length === 0) {
+      playlistsList.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:11px;padding:8px;">პლეილისტები არ არის</div>';
+      return;
+    }
+    
+    playlists.forEach(playlist => {
+      const item = document.createElement('div');
+      item.className = 'playlist-item';
+      if (selectedPlaylistId === playlist.id) {
+        item.classList.add('selected');
+      }
+      
+      const name = document.createElement('span');
+      name.className = 'playlist-name';
+      name.textContent = playlist.name;
+      item.appendChild(name);
+      
+      const count = document.createElement('span');
+      count.className = 'playlist-count';
+      count.textContent = `(${playlist.tracks.length})`;
+      item.appendChild(count);
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'playlist-delete';
+      deleteBtn.textContent = '✕';
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm(`წაშალოთ პლეილისტი "${playlist.name}"?`)) {
+          deletePlaylist(playlist.id);
+          if (selectedPlaylistId === playlist.id) {
+            selectedPlaylistId = null;
+          }
+          renderPlaylists();
+          renderTracks();
+        }
+      });
+      item.appendChild(deleteBtn);
+      
+      item.addEventListener('click', () => {
+        if (selectedPlaylistId === playlist.id) {
+          selectedPlaylistId = null;
+          showLikedOnly = false;
+          if (likedBtn) likedBtn.classList.remove('active');
+        } else {
+          selectedPlaylistId = playlist.id;
+          showLikedOnly = false;
+          if (likedBtn) likedBtn.classList.remove('active');
+          sortNewest = false;
+          if (newestBtn) newestBtn.classList.remove('active');
+        }
+        renderPlaylists();
+        renderTracks();
+      });
+      
+      playlistsList.appendChild(item);
+    });
+  }
+
+  if (createPlaylistBtn) {
+    createPlaylistBtn.addEventListener('click', () => {
+      const name = newPlaylistNameInput.value.trim();
+      if (name) {
+        createPlaylist(name);
+        newPlaylistNameInput.value = '';
+        renderPlaylists();
+        showToast('პლეილისტი შეიქმნა!');
+      }
+    });
+  }
+
+  if (newPlaylistNameInput) {
+    newPlaylistNameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        createPlaylistBtn.click();
+      }
+    });
+  }
+
+  // ════════════════════════════════
+  //  Playlist Modal
+  // ════════════════════════════════
+
+  const playlistModal = document.getElementById('playlist-modal');
+  const playlistModalClose = document.getElementById('playlist-modal-close');
+  const playlistSelectList = document.getElementById('playlist-select-list');
+  let currentTrackForPlaylist = null;
+
+  function openPlaylistModal(track) {
+    if (!playlistModal || !playlistSelectList) return;
+    currentTrackForPlaylist = track;
+    
+    const playlists = getPlaylists();
+    playlistSelectList.innerHTML = '';
+    
+    if (playlists.length === 0) {
+      playlistSelectList.innerHTML = '<div style="padding:20px;text-align:center;color:#666;">პლეილისტები არ არის<br><small>შექმენით პირველი პლეილისტი სიდბარში</small></div>';
+    } else {
+      playlists.forEach(playlist => {
+        const item = document.createElement('div');
+        item.className = 'playlist-select-item';
+        
+        const isInPlaylist = playlist.tracks.includes(track.id);
+        
+        item.innerHTML = `
+          <strong>${playlist.name}</strong>
+          <span>(${playlist.tracks.length} ტრეკი)</span>
+          ${isInPlaylist ? '<span style="color:green;margin-left:8px;">✓</span>' : ''}
+        `;
+        
+        item.addEventListener('click', () => {
+          if (isInPlaylist) {
+            removeTrackFromPlaylist(playlist.id, track.id);
+            showToast(`წაშლილია "${playlist.name}"-დან`);
+          } else {
+            addTrackToPlaylist(playlist.id, track.id);
+            showToast(`დაემატა "${playlist.name}"-ში`);
+          }
+          renderPlaylists();
+          closePlaylistModal();
+        });
+        
+        playlistSelectList.appendChild(item);
+      });
+    }
+    
+    playlistModal.classList.remove('hidden');
+    playlistModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  }
+
+  function closePlaylistModal() {
+    if (!playlistModal) return;
+    playlistModal.classList.add('hidden');
+    playlistModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    currentTrackForPlaylist = null;
+  }
+
+  if (playlistModalClose) {
+    playlistModalClose.addEventListener('click', closePlaylistModal);
+  }
+
+  if (playlistModal) {
+    playlistModal.addEventListener('click', (e) => {
+      if (e.target === playlistModal) {
+        closePlaylistModal();
+      }
     });
   }
 
@@ -1146,6 +1494,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     updatePlayer(null);
     if (audio && volumeSlider) audio.volume = parseFloat(volumeSlider.value || 1);
+    renderPlaylists(); // Initialize playlists UI
     loadData().then(() => {
       handleSharedTrackLink();
     });
