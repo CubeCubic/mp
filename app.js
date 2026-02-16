@@ -124,67 +124,37 @@
   }
 
   // ════════════════════════════════
-  //  Audio Visualizer (Web Audio API)
+  //  Audio Visualizer (Pure Visual Animation)
   // ════════════════════════════════
 
-  let audioContext = null;
-  let analyser = null;
-  let dataArray = null;
-  let bufferLength = 0;
   let animationId = null;
   let isVisualizerActive = false;
-  let audioSource = null; // Store the source node
-  let audioContextInitAttempted = false; // Flag to prevent multiple init attempts
-
-  function initAudioContext() {
-    if (audioContextInitAttempted) return; // Already tried to initialize
-    audioContextInitAttempted = true;
-    
-    try {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      analyser = audioContext.createAnalyser();
-      analyser.fftSize = 256;
-      bufferLength = analyser.frequencyBinCount;
-      dataArray = new Uint8Array(bufferLength);
-      
-      // Create source only once!
-      audioSource = audioContext.createMediaElementSource(audio);
-      audioSource.connect(analyser);
-      analyser.connect(audioContext.destination);
-      
-      console.log('Audio visualizer initialized successfully');
-    } catch (e) {
-      console.error('Web Audio API initialization failed:', e);
-      // Disable visualizer if initialization fails
-      audioContext = null;
-      analyser = null;
-      audioSource = null;
-      // Note: audio element will continue to play normally without Web Audio API
-    }
-  }
 
   function drawVisualizer() {
-    if (!visualizerCanvas || !visualizerCtx || !analyser || !isVisualizerActive) return;
+    if (!visualizerCanvas || !visualizerCtx || !isVisualizerActive) return;
     
     animationId = requestAnimationFrame(drawVisualizer);
-    
-    analyser.getByteFrequencyData(dataArray);
     
     const width = visualizerCanvas.width;
     const height = visualizerCanvas.height;
     
     visualizerCtx.clearRect(0, 0, width, height);
     
-    const barWidth = (width / bufferLength) * 2.5;
-    let barHeight;
+    const barCount = 64;
+    const barWidth = (width / barCount) * 2.5;
     let x = 0;
     
-    for (let i = 0; i < bufferLength; i++) {
-      barHeight = (dataArray[i] / 255) * height * 0.8;
+    const time = Date.now() / 1000;
+    
+    for (let i = 0; i < barCount; i++) {
+      // Create pseudo-random but smooth bar heights
+      const frequency = 0.5 + i * 0.05;
+      const amplitude = Math.sin(time * frequency + i * 0.3) * 0.5 + 0.5;
+      const barHeight = amplitude * height * 0.7;
       
       const gradient = visualizerCtx.createLinearGradient(0, height - barHeight, 0, height);
-      gradient.addColorStop(0, `rgba(15, 179, 166, ${0.8 + dataArray[i] / 512})`);
-      gradient.addColorStop(1, `rgba(43, 183, 164, ${0.4 + dataArray[i] / 512})`);
+      gradient.addColorStop(0, `rgba(15, 179, 166, ${0.6 + amplitude * 0.4})`);
+      gradient.addColorStop(1, `rgba(43, 183, 164, ${0.3 + amplitude * 0.3})`);
       
       visualizerCtx.fillStyle = gradient;
       visualizerCtx.fillRect(x, height - barHeight, barWidth - 1, barHeight);
@@ -194,7 +164,7 @@
   }
 
   function startVisualizer() {
-    if (!audio.paused && audioContext && !isVisualizerActive) {
+    if (!audio.paused && !isVisualizerActive) {
       isVisualizerActive = true;
       if (visualizerCanvas) {
         visualizerCanvas.classList.add('active');
@@ -202,7 +172,9 @@
         const rect = visualizerCanvas.getBoundingClientRect();
         visualizerCanvas.width = rect.width * window.devicePixelRatio || rect.width;
         visualizerCanvas.height = rect.height * window.devicePixelRatio || rect.height;
-        visualizerCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+        if (visualizerCtx) {
+          visualizerCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+        }
       }
       document.body.classList.add('audio-playing');
       drawVisualizer();
@@ -817,18 +789,7 @@
 
   audio.addEventListener('playing', () => { 
     if (playBtn) playBtn.textContent = '❚❚';
-    // Initialize audio context on first play
-    if (!audioContextInitAttempted) {
-      initAudioContext();
-    }
-    // Resume audio context if suspended
-    if (audioContext && audioContext.state === 'suspended') {
-      audioContext.resume();
-    }
-    // Start visualizer only if audio context is available
-    if (audioContext) {
-      startVisualizer();
-    }
+    startVisualizer();
   });
   
   audio.addEventListener('pause', () => { 
