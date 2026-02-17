@@ -783,14 +783,17 @@
 
   function playNext() {
     if (!filteredTracks.length) return;
-    let n = currentTrackIndex + 1;
+    // Always find current position by ID, not by stored index
+    const idx = currentTrackId ? filteredTracks.findIndex(t => t.id === currentTrackId) : currentTrackIndex;
+    let n = idx + 1;
     if (n >= filteredTracks.length) n = 0;
     playByIndex(n);
   }
 
   function playPrev() {
     if (!filteredTracks.length) return;
-    let p = currentTrackIndex - 1;
+    const idx = currentTrackId ? filteredTracks.findIndex(t => t.id === currentTrackId) : currentTrackIndex;
+    let p = idx - 1;
     if (p < 0) p = filteredTracks.length - 1;
     playByIndex(p);
   }
