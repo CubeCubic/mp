@@ -615,6 +615,24 @@
       "albumId": "1767340968092",
       "audioUrl": "https://archive.org/download/girl-from-my-street/Bring%20It%20On.flac",
       "coverUrl": "https://archive.org/download/girl-from-my-street/300_Bring%20It%20On.png"
+    },
+    {
+      "id": "1771310218473",
+      "title": "My Little Angel",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/silence_202601/My%20Little%20Angel.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_My%20Little%20Angel.png"
+    },
+    {
+      "id": "1771314915771",
+      "title": "Dual Horizons",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1768902768071",
+      "audioUrl": "https://archive.org/download/silence_202601/Dual%20Horizons.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/3000_Dual%20Horizons.png"
     }
   ]
 }
