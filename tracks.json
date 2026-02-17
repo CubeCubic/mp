@@ -647,6 +647,15 @@
       "albumId": "1767162208459",
       "audioUrl": "https://archive.org/download/silence_202601/Sunrise.flac",
       "coverUrl": "https://archive.org/download/silence_202601/3000_Sunrise.png"
+    },
+    {
+      "id": "1771318833290",
+      "title": "Loneliness",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1771316175987",
+      "audioUrl": "https://archive.org/download/silence_202601/Loneliness.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_Loneliness.png"
     }
   ]
 }
