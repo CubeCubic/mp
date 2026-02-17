@@ -69,6 +69,11 @@
       "id": "1771316175987",
       "name": "Lo-Fi",
       "parentId": "1767100972913"
+    },
+    {
+      "id": "1771323664000",
+      "name": "Blues",
+      "parentId": "1767100972913"
     }
   ],
   "tracks": [
@@ -683,6 +688,15 @@
       "albumId": "1767340968092",
       "audioUrl": "https://archive.org/download/silence_202601/Broken%20Soul.flac",
       "coverUrl": "https://archive.org/download/silence_202601/300_Broken%20Soul.png"
+    },
+    {
+      "id": "1771323868768",
+      "title": "I Know Shes Missing Me",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1771323664000",
+      "audioUrl": "https://archive.org/download/silence_202601/I%20Know%20Shes%20Missing%20Me.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_I%20Know%20Shes%20Missing%20Me.png"
     }
   ]
 }
