@@ -35,10 +35,6 @@
   const timeDuration = document.getElementById('time-duration-sidebar');
   const volumeSlider = document.getElementById('volume-sidebar');
 
-  // Audio Visualizer
-  const visualizerCanvas = document.getElementById('audio-visualizer');
-  const visualizerCtx = visualizerCanvas ? visualizerCanvas.getContext('2d') : null;
-
   // Модалка
   const lyricsModal = document.getElementById('lyrics-modal');
   const modalClose = document.getElementById('modal-close');
@@ -52,6 +48,7 @@
   let tracks = [];
   let filteredTracks = [];
   let currentTrackIndex = -1;
+  let currentTrackId = null; // Always identify the playing track by ID, not index
   let userInteracted = false;
   let sortNewest = false; // toggle для кнопки "უახლესი ტრეკები"
 
@@ -185,96 +182,14 @@
       
       case 'l':
       case 'L': // Like current track
-        if (currentTrackIndex >= 0 && filteredTracks[currentTrackIndex]) {
-          const track = filteredTracks[currentTrackIndex];
-          toggleLike(track.id);
-          // Re-render to update like button
+        if (currentTrackId) {
+          toggleLike(currentTrackId);
           renderTracks();
-          showToast(isLikedByUser(track.id) ? 'ლაიქი დაემატა ❤️' : 'ლაიქი წაიშალა');
+          showToast(isLikedByUser(currentTrackId) ? 'ლაიქი დაემატა ❤️' : 'ლაიქი წაიშალა');
         }
         break;
     }
   });
-
-  // ════════════════════════════════
-  //  Audio Visualizer (Pure Visual Animation)
-  // ════════════════════════════════
-
-  let animationId = null;
-  let isVisualizerActive = false;
-  let canvasWidth = 0;
-  let canvasHeight = 0;
-
-  function drawVisualizer() {
-    if (!visualizerCanvas || !visualizerCtx || !isVisualizerActive) return;
-    
-    animationId = requestAnimationFrame(drawVisualizer);
-    
-    visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-    
-    const barCount = 100; // More bars for smoother visualization
-    const barWidth = canvasWidth / barCount; // Use CSS width
-    
-    const time = Date.now() / 1000;
-    
-    for (let i = 0; i < barCount; i++) {
-      const x = i * barWidth;
-      
-      // Create pseudo-random but smooth bar heights
-      const frequency = 0.5 + i * 0.04;
-      const amplitude = Math.sin(time * frequency + i * 0.3) * 0.5 + 0.5;
-      const barHeight = amplitude * canvasHeight * 0.9; // Use CSS height
-      
-      const gradient = visualizerCtx.createLinearGradient(0, canvasHeight - barHeight, 0, canvasHeight);
-      gradient.addColorStop(0, `rgba(15, 179, 166, ${0.7 + amplitude * 0.3})`);
-      gradient.addColorStop(1, `rgba(43, 183, 164, ${0.4 + amplitude * 0.4})`);
-      
-      visualizerCtx.fillStyle = gradient;
-      visualizerCtx.fillRect(x, canvasHeight - barHeight, barWidth, barHeight);
-    }
-  }
-
-  function startVisualizer() {
-    if (!audio.paused && !isVisualizerActive) {
-      isVisualizerActive = true;
-      if (visualizerCanvas) {
-        visualizerCanvas.classList.add('active');
-        // Set canvas size
-        const rect = visualizerCanvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        
-        // Store CSS dimensions for drawing
-        canvasWidth = rect.width;
-        canvasHeight = rect.height;
-        
-        // Set physical size for sharp rendering
-        visualizerCanvas.width = rect.width * dpr;
-        visualizerCanvas.height = rect.height * dpr;
-        
-        // Scale context to match
-        if (visualizerCtx) {
-          visualizerCtx.scale(dpr, dpr);
-        }
-      }
-      document.body.classList.add('audio-playing');
-      drawVisualizer();
-    }
-  }
-
-  function stopVisualizer() {
-    isVisualizerActive = false;
-    if (animationId) {
-      cancelAnimationFrame(animationId);
-      animationId = null;
-    }
-    if (visualizerCanvas) {
-      visualizerCanvas.classList.remove('active');
-      if (visualizerCtx) {
-        visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-      }
-    }
-    document.body.classList.remove('audio-playing');
-  }
 
   // ════════════════════════════════
   //  Утилиты
@@ -762,6 +677,13 @@
     });
 
     filteredTracks = toRender;
+
+    // Sync currentTrackIndex to new position of the playing track by ID
+    if (currentTrackId) {
+      const newIdx = filteredTracks.findIndex(t => t.id === currentTrackId);
+      currentTrackIndex = newIdx; // -1 if not visible in current filter — that's fine
+    }
+
     highlightCurrent();
   }
 
@@ -772,12 +694,10 @@
   function highlightCurrent() {
     if (!tracksContainer) return;
     tracksContainer.querySelectorAll('.card').forEach(c => c.classList.remove('playing-track'));
-    if (currentTrackIndex >= 0 && currentTrackIndex < filteredTracks.length) {
-      const id = filteredTracks[currentTrackIndex].id;
-      const card = tracksContainer.querySelector(`[data-track-id="${id}"]`);
+    if (currentTrackId) {
+      const card = tracksContainer.querySelector(`[data-track-id="${currentTrackId}"]`);
       if (card) {
         card.classList.add('playing-track');
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
   }
@@ -835,12 +755,14 @@
     if (idx < 0 || idx >= filteredTracks.length) {
       audio.pause();
       currentTrackIndex = -1;
+      currentTrackId = null;
       updatePlayer(null);
       highlightCurrent();
       return;
     }
     currentTrackIndex = idx;
     const t = filteredTracks[idx];
+    currentTrackId = t.id; // Save ID — survives re-renders
     updatePlayer(t);
     audio.src = getStreamUrl(t) || '';
     audio.load();
@@ -906,12 +828,9 @@
   });
   
   function updateCardProgress() {
-    if (!tracksContainer || currentTrackIndex < 0 || !audio.duration) return;
+    if (!tracksContainer || !currentTrackId || !audio.duration) return;
     
-    const currentTrack = filteredTracks[currentTrackIndex];
-    if (!currentTrack) return;
-    
-    const card = tracksContainer.querySelector(`[data-track-id="${currentTrack.id}"]`);
+    const card = tracksContainer.querySelector(`[data-track-id="${currentTrackId}"]`);
     if (card) {
       const cardProgressBar = card.querySelector('.card-progress-bar');
       if (cardProgressBar) {
