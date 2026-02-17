@@ -656,6 +656,15 @@
       "albumId": "1771316175987",
       "audioUrl": "https://archive.org/download/silence_202601/Loneliness.flac",
       "coverUrl": "https://archive.org/download/silence_202601/300_Loneliness.png"
+    },
+    {
+      "id": "1771320712944",
+      "title": "I Am Madman",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767340968092",
+      "audioUrl": "https://archive.org/download/silence_202601/I%20Am%20Madman.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_I%20Am%20Madman.png"
     }
   ]
 }
