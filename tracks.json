@@ -665,6 +665,15 @@
       "albumId": "1767340968092",
       "audioUrl": "https://archive.org/download/silence_202601/I%20Am%20Madman.flac",
       "coverUrl": "https://archive.org/download/silence_202601/300_I%20Am%20Madman.png"
+    },
+    {
+      "id": "1771322092745",
+      "title": "3 Minutes of Happiness",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767101030017",
+      "audioUrl": "https://archive.org/download/silence_202601/3%20Minutes%20of%20Happiness.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_Happiness.png"
     }
   ]
 }
