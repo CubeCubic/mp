@@ -715,6 +715,15 @@
       "albumId": "1767162208459",
       "audioUrl": "https://archive.org/download/silence_202601/City%20Were%20In%20Love_Tbilisi.flac",
       "coverUrl": "https://archive.org/download/silence_202601/300_City%20Were%20In%20Love_Tbilisi.png"
+    },
+    {
+      "id": "1771328848736",
+      "title": "Morning With You",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/silence_202601/Morning%20with%20You.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_Morning%20with%20You.png"
     }
   ]
 }
