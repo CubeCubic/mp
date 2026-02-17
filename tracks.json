@@ -64,6 +64,11 @@
       "id": "1769973332848",
       "name": "New Age",
       "parentId": "1767100972913"
+    },
+    {
+      "id": "1771316175987",
+      "name": "Lo-Fi",
+      "parentId": "1767100972913"
     }
   ],
   "tracks": [
@@ -618,7 +623,7 @@
     },
     {
       "id": "1771310218473",
-      "title": "My Little Angel",
+      "title": "My Little Angel (For my dear granddaughter - with all my love)",
       "artist": "Cube Cubic",
       "lyrics": "",
       "albumId": "1767162208459",
@@ -633,6 +638,15 @@
       "albumId": "1768902768071",
       "audioUrl": "https://archive.org/download/silence_202601/Dual%20Horizons.flac",
       "coverUrl": "https://archive.org/download/silence_202601/3000_Dual%20Horizons.png"
+    },
+    {
+      "id": "1771316312136",
+      "title": "Sunruse (Dedicated to my mother)",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/silence_202601/Sunrise.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_Sunrise.png"
     }
   ]
 }
