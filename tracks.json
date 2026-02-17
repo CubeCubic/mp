@@ -674,6 +674,15 @@
       "albumId": "1767101030017",
       "audioUrl": "https://archive.org/download/silence_202601/3%20Minutes%20of%20Happiness.flac",
       "coverUrl": "https://archive.org/download/silence_202601/300_Happiness.png"
+    },
+    {
+      "id": "1771323202504",
+      "title": "Broken Soul",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767340968092",
+      "audioUrl": "https://archive.org/download/silence_202601/Broken%20Soul.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_Broken%20Soul.png"
     }
   ]
 }
