@@ -697,6 +697,24 @@
       "albumId": "1771323664000",
       "audioUrl": "https://archive.org/download/silence_202601/I%20Know%20Shes%20Missing%20Me.flac",
       "coverUrl": "https://archive.org/download/silence_202601/300_I%20Know%20Shes%20Missing%20Me.png"
+    },
+    {
+      "id": "1771325347688",
+      "title": "The Whisper of Hearts",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/silence_202601/Whisper%20of%20the%20Hearts.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_Whisper%20of%20the%20Hearts.png"
+    },
+    {
+      "id": "1771325841696",
+      "title": "City Were In Love (Tbilisi)",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/silence_202601/City%20Were%20In%20Love_Tbilisi.flac",
+      "coverUrl": "https://archive.org/download/silence_202601/300_City%20Were%20In%20Love_Tbilisi.png"
     }
   ]
 }
