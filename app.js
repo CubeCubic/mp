@@ -35,6 +35,10 @@
   const timeDuration = document.getElementById('time-duration-sidebar');
   const volumeSlider = document.getElementById('volume-sidebar');
 
+  // Audio Visualizer
+  const visualizerCanvas = document.getElementById('audio-visualizer');
+  const visualizerCtx = visualizerCanvas ? visualizerCanvas.getContext('2d') : null;
+
   // Модалка
   const lyricsModal = document.getElementById('lyrics-modal');
   const modalClose = document.getElementById('modal-close');
