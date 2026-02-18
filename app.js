@@ -35,9 +35,8 @@
   const timeDuration = document.getElementById('time-duration-sidebar');
   const volumeSlider = document.getElementById('volume-sidebar');
 
-  // Audio Visualizer
-  const visualizerCanvas = document.getElementById('audio-visualizer');
-  const visualizerCtx = visualizerCanvas ? visualizerCanvas.getContext('2d') : null;
+  // Player cover for vinyl spinning effect
+  const playerCoverWrapper = document.querySelector('.player-cover-wrapper');
 
   // Модалка
   const lyricsModal = document.getElementById('lyrics-modal');
@@ -140,83 +139,21 @@
   }
 
   // ════════════════════════════════
-  //  Audio Visualizer (Pure Visual Animation)
+  //  Vinyl Spinning Effect
   // ════════════════════════════════
 
-  let animationId = null;
-  let isVisualizerActive = false;
-  let canvasWidth = 0;
-  let canvasHeight = 0;
-
-  function drawVisualizer() {
-    if (!visualizerCanvas || !visualizerCtx || !isVisualizerActive) return;
-    
-    animationId = requestAnimationFrame(drawVisualizer);
-    
-    visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-    
-    const barCount = 100; // More bars for smoother visualization
-    const barWidth = canvasWidth / barCount; // Use CSS width
-    
-    const time = Date.now() / 1000;
-    
-    for (let i = 0; i < barCount; i++) {
-      const x = i * barWidth;
-      
-      // Create pseudo-random but smooth bar heights
-      const frequency = 0.5 + i * 0.04;
-      const amplitude = Math.sin(time * frequency + i * 0.3) * 0.5 + 0.5;
-      const barHeight = amplitude * canvasHeight * 0.9; // Use CSS height
-      
-      const gradient = visualizerCtx.createLinearGradient(0, canvasHeight - barHeight, 0, canvasHeight);
-      gradient.addColorStop(0, `rgba(15, 179, 166, ${0.7 + amplitude * 0.3})`);
-      gradient.addColorStop(1, `rgba(43, 183, 164, ${0.4 + amplitude * 0.4})`);
-      
-      visualizerCtx.fillStyle = gradient;
-      visualizerCtx.fillRect(x, canvasHeight - barHeight, barWidth, barHeight);
-    }
-  }
-
-  function startVisualizer() {
-    if (!audio.paused && !isVisualizerActive) {
-      isVisualizerActive = true;
-      if (visualizerCanvas) {
-        visualizerCanvas.classList.add('active');
-        // Set canvas size
-        const rect = visualizerCanvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        
-        // Store CSS dimensions for drawing
-        canvasWidth = rect.width;
-        canvasHeight = rect.height;
-        
-        // Set physical size for sharp rendering
-        visualizerCanvas.width = rect.width * dpr;
-        visualizerCanvas.height = rect.height * dpr;
-        
-        // Scale context to match
-        if (visualizerCtx) {
-          visualizerCtx.scale(dpr, dpr);
-        }
-      }
+  function startVinylSpin() {
+    if (playerCoverWrapper && audio && !audio.paused) {
+      playerCoverWrapper.classList.add('spinning');
       document.body.classList.add('audio-playing');
-      drawVisualizer();
     }
   }
 
-  function stopVisualizer() {
-    isVisualizerActive = false;
-    if (animationId) {
-      cancelAnimationFrame(animationId);
-      animationId = null;
+  function stopVinylSpin() {
+    if (playerCoverWrapper) {
+      playerCoverWrapper.classList.remove('spinning');
+      document.body.classList.remove('audio-playing');
     }
-    if (visualizerCanvas) {
-      visualizerCanvas.classList.remove('active');
-      if (visualizerCtx) {
-        visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-      }
-    }
-    document.body.classList.remove('audio-playing');
   }
 
   // ════════════════════════════════
@@ -910,23 +847,23 @@
 
   audio.addEventListener('playing', () => { 
     if (playBtn) playBtn.textContent = '❚❚';
-    startVisualizer();
+    startVinylSpin();
   });
   
   audio.addEventListener('pause', () => { 
     if (playBtn) playBtn.textContent = '▶';
-    stopVisualizer();
+    stopVinylSpin();
   });
   
   audio.addEventListener('ended', () => {
-    stopVisualizer();
+    stopVinylSpin();
     playNext();
   });
   
   audio.addEventListener('error', () => { 
     updatePlayer(null); 
     showToast('შეცდომა: ტრეკი ვერ ჩაიტვირთა');
-    stopVisualizer();
+    stopVinylSpin();
   });
 
   audio.addEventListener('timeupdate', () => {
