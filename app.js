@@ -136,6 +136,86 @@
   }
 
   // ════════════════════════════════
+  //  Audio Visualizer (Pure Visual Animation)
+  // ════════════════════════════════
+
+  let animationId = null;
+  let isVisualizerActive = false;
+  let canvasWidth = 0;
+  let canvasHeight = 0;
+
+  function drawVisualizer() {
+    if (!visualizerCanvas || !visualizerCtx || !isVisualizerActive) return;
+    
+    animationId = requestAnimationFrame(drawVisualizer);
+    
+    visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+    
+    const barCount = 100; // More bars for smoother visualization
+    const barWidth = canvasWidth / barCount; // Use CSS width
+    
+    const time = Date.now() / 1000;
+    
+    for (let i = 0; i < barCount; i++) {
+      const x = i * barWidth;
+      
+      // Create pseudo-random but smooth bar heights
+      const frequency = 0.5 + i * 0.04;
+      const amplitude = Math.sin(time * frequency + i * 0.3) * 0.5 + 0.5;
+      const barHeight = amplitude * canvasHeight * 0.9; // Use CSS height
+      
+      const gradient = visualizerCtx.createLinearGradient(0, canvasHeight - barHeight, 0, canvasHeight);
+      gradient.addColorStop(0, `rgba(15, 179, 166, ${0.7 + amplitude * 0.3})`);
+      gradient.addColorStop(1, `rgba(43, 183, 164, ${0.4 + amplitude * 0.4})`);
+      
+      visualizerCtx.fillStyle = gradient;
+      visualizerCtx.fillRect(x, canvasHeight - barHeight, barWidth, barHeight);
+    }
+  }
+
+  function startVisualizer() {
+    if (!audio.paused && !isVisualizerActive) {
+      isVisualizerActive = true;
+      if (visualizerCanvas) {
+        visualizerCanvas.classList.add('active');
+        // Set canvas size
+        const rect = visualizerCanvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        
+        // Store CSS dimensions for drawing
+        canvasWidth = rect.width;
+        canvasHeight = rect.height;
+        
+        // Set physical size for sharp rendering
+        visualizerCanvas.width = rect.width * dpr;
+        visualizerCanvas.height = rect.height * dpr;
+        
+        // Scale context to match
+        if (visualizerCtx) {
+          visualizerCtx.scale(dpr, dpr);
+        }
+      }
+      document.body.classList.add('audio-playing');
+      drawVisualizer();
+    }
+  }
+
+  function stopVisualizer() {
+    isVisualizerActive = false;
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+    if (visualizerCanvas) {
+      visualizerCanvas.classList.remove('active');
+      if (visualizerCtx) {
+        visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+      }
+    }
+    document.body.classList.remove('audio-playing');
+  }
+
+  // ════════════════════════════════
   //  Keyboard Shortcuts
   // ════════════════════════════════
   
@@ -752,7 +832,6 @@
   }
 
   function playByIndex(idx) {
-    console.log('playByIndex called with idx:', idx, 'filteredTracks.length:', filteredTracks.length);
     if (idx < 0 || idx >= filteredTracks.length) {
       audio.pause();
       currentTrackIndex = -1;
@@ -764,7 +843,6 @@
     currentTrackIndex = idx;
     const t = filteredTracks[idx];
     currentTrackId = t.id; // Save ID — survives re-renders
-    console.log('Playing track:', t.title, 'id:', t.id);
     updatePlayer(t);
     const streamUrl = getStreamUrl(t);
     if (!streamUrl) {
@@ -772,13 +850,9 @@
       showToast('ტრეკი ვერ მოიძებნა');
       return;
     }
-    console.log('Setting audio.src to:', streamUrl);
     audio.src = streamUrl;
     // Don't call load() - let the browser handle it automatically
-    // This helps with autoplay after 'ended' event
-    audio.play().then(() => {
-      console.log('Playback started successfully');
-    }).catch(e => {
+    audio.play().catch(e => {
       console.error('Play error:', e);
       if (e.name === 'NotAllowedError') {
         if (playBtn) playBtn.textContent = '▶';
@@ -797,14 +871,12 @@
   }
 
   function playNext() {
-    console.log('playNext called. filteredTracks.length:', filteredTracks.length, 'currentTrackId:', currentTrackId, 'currentTrackIndex:', currentTrackIndex);
     if (!filteredTracks.length) return;
     
     // Find current track position - prefer ID lookup, fallback to stored index
     let idx = currentTrackIndex;
     if (currentTrackId) {
       const foundIdx = filteredTracks.findIndex(t => t.id === currentTrackId);
-      console.log('Found current track at index:', foundIdx);
       if (foundIdx >= 0) {
         idx = foundIdx;
       }
@@ -813,7 +885,6 @@
     // Move to next track (loop to start if at end)
     let n = idx + 1;
     if (n >= filteredTracks.length) n = 0;
-    console.log('Playing next track at index:', n);
     playByIndex(n);
   }
 
@@ -844,7 +915,6 @@
   });
   
   audio.addEventListener('ended', () => {
-    console.log('Track ended, calling playNext. currentTrackId:', currentTrackId, 'currentTrackIndex:', currentTrackIndex);
     stopVisualizer();
     playNext();
   });
