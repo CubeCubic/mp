@@ -752,6 +752,7 @@
   }
 
   function playByIndex(idx) {
+    console.log('playByIndex called with idx:', idx, 'filteredTracks.length:', filteredTracks.length);
     if (idx < 0 || idx >= filteredTracks.length) {
       audio.pause();
       currentTrackIndex = -1;
@@ -763,13 +764,27 @@
     currentTrackIndex = idx;
     const t = filteredTracks[idx];
     currentTrackId = t.id; // Save ID — survives re-renders
+    console.log('Playing track:', t.title, 'id:', t.id);
     updatePlayer(t);
-    audio.src = getStreamUrl(t) || '';
-    audio.load();
-    audio.play().catch(e => {
+    const streamUrl = getStreamUrl(t);
+    if (!streamUrl) {
+      console.error('No stream URL for track:', t.id);
+      showToast('ტრეკი ვერ მოიძებნა');
+      return;
+    }
+    console.log('Setting audio.src to:', streamUrl);
+    audio.src = streamUrl;
+    // Don't call load() - let the browser handle it automatically
+    // This helps with autoplay after 'ended' event
+    audio.play().then(() => {
+      console.log('Playback started successfully');
+    }).catch(e => {
+      console.error('Play error:', e);
       if (e.name === 'NotAllowedError') {
         if (playBtn) playBtn.textContent = '▶';
         showToast('დააჭირეთ ▶ დასაკრავად');
+      } else {
+        showToast('შეცდომა: ვერ დაიწყო ტრეკი');
       }
     });
     highlightCurrent();
@@ -782,17 +797,37 @@
   }
 
   function playNext() {
+    console.log('playNext called. filteredTracks.length:', filteredTracks.length, 'currentTrackId:', currentTrackId, 'currentTrackIndex:', currentTrackIndex);
     if (!filteredTracks.length) return;
-    // Always find current position by ID, not by stored index
-    const idx = currentTrackId ? filteredTracks.findIndex(t => t.id === currentTrackId) : currentTrackIndex;
+    
+    // Find current track position - prefer ID lookup, fallback to stored index
+    let idx = currentTrackIndex;
+    if (currentTrackId) {
+      const foundIdx = filteredTracks.findIndex(t => t.id === currentTrackId);
+      console.log('Found current track at index:', foundIdx);
+      if (foundIdx >= 0) {
+        idx = foundIdx;
+      }
+    }
+    
+    // Move to next track (loop to start if at end)
     let n = idx + 1;
     if (n >= filteredTracks.length) n = 0;
+    console.log('Playing next track at index:', n);
     playByIndex(n);
   }
 
   function playPrev() {
     if (!filteredTracks.length) return;
-    const idx = currentTrackId ? filteredTracks.findIndex(t => t.id === currentTrackId) : currentTrackIndex;
+    
+    let idx = currentTrackIndex;
+    if (currentTrackId) {
+      const foundIdx = filteredTracks.findIndex(t => t.id === currentTrackId);
+      if (foundIdx >= 0) {
+        idx = foundIdx;
+      }
+    }
+    
     let p = idx - 1;
     if (p < 0) p = filteredTracks.length - 1;
     playByIndex(p);
@@ -809,6 +844,7 @@
   });
   
   audio.addEventListener('ended', () => {
+    console.log('Track ended, calling playNext. currentTrackId:', currentTrackId, 'currentTrackIndex:', currentTrackIndex);
     stopVisualizer();
     playNext();
   });
