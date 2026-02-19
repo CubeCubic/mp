@@ -733,6 +733,15 @@
       "albumId": "1768902768071",
       "audioUrl": "https://archive.org/download/the-shadows_202601/Hard%20Pulse.flac",
       "coverUrl": "https://archive.org/download/the-shadows_202601/300_Hard%20Pulse.png"
+    },
+    {
+      "id": "1771505857743",
+      "title": "Run",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767101022145",
+      "audioUrl": "https://archive.org/download/the-shadows_202601/Run.flac",
+      "coverUrl": "https://archive.org/download/the-shadows_202601/300_Run.png"
     }
   ]
 }
