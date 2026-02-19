@@ -724,6 +724,15 @@
       "albumId": "1767162208459",
       "audioUrl": "https://archive.org/download/silence_202601/Morning%20with%20You.flac",
       "coverUrl": "https://archive.org/download/silence_202601/300_Morning%20with%20You.png"
+    },
+    {
+      "id": "1771503903694",
+      "title": "Hard Pulse",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1768902768071",
+      "audioUrl": "https://archive.org/download/the-shadows_202601/Hard%20Pulse.flac",
+      "coverUrl": "https://archive.org/download/the-shadows_202601/300_Hard%20Pulse.png"
     }
   ]
 }
