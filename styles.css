@@ -515,15 +515,15 @@ background: linear-gradient(135deg, rgba(43,183,164,0.28), rgba(15,179,166,0.20)
 transform: translateY(-1px);
 }
 .liked-btn {
-background: linear-gradient(135deg, rgba(255,122,102,0.18), rgba(255,140,120,0.12));
+background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
 }
 .liked-btn:hover {
-background: linear-gradient(135deg, rgba(255,122,102,0.28), rgba(255,140,120,0.20));
+background: linear-gradient(135deg, rgba(43,183,164,0.28), rgba(15,179,166,0.20));
 transform: translateY(-1px);
 }
 .liked-btn.active {
-background: linear-gradient(135deg, rgba(43,183,164,0.25), rgba(15,179,166,0.15));
-border-color: rgba(15,179,166,0.4);
+background: linear-gradient(135deg, rgba(255,122,102,0.25), rgba(255,140,120,0.15));
+border-color: rgba(255,122,102,0.3);
 }
 /* Album list - vertical buttons */
 .album-list-vertical {
