@@ -1153,3 +1153,52 @@ body.modal-open { overflow: hidden; }
     max-width: 94%;
   }
 }
+/* ─── Улучшенный виниловый вид плеера ─── */
+.player-cover-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 205px;           /* чуть больше, чтобы заполнить пространство */
+  aspect-ratio: 1 / 1;
+  margin: 12px auto 16px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, 
+              rgba(255,255,255,0.06) 0%, 
+              rgba(0,0,0,0.4) 70%, 
+              #0a1a2e 100%);
+  
+  /* Статичный внешний обод пластинки */
+  box-shadow: 
+    0 0 0 12px rgba(255,255,255,0.07),
+    0 0 0 18px #0f2b45,
+    0 0 0 22px rgba(15,179,166,0.25),
+    0 0 35px rgba(15,179,166,0.35),
+    inset 0 0 60px rgba(0,0,0,0.6);
+}
+
+/* Концентрические бороздки пластинки (статичные, не крутятся) */
+.player-cover-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle,
+    transparent 0,
+    transparent 3px,
+    rgba(255,255,255,0.07) 3px,
+    rgba(255,255,255,0.07) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Усиливаем центральный "холл" пластинки */
+.player-cover-wrapper::before {
+  width: 34px;
+  height: 34px;
+  background: radial-gradient(circle, #111 0%, #1a1a1a 70%, #0a0a0a 100%);
+  box-shadow: 
+    inset 0 0 12px rgba(0,0,0,0.9),
+    0 0 0 3px rgba(255,255,255,0.15);
+}
