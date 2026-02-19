@@ -1,6 +1,6 @@
 /* =========================================
    Deep Ocean Theme — Production CSS v3.0
-   Cube Cubic — Fully Corrected + Updates
+   Cube Cubic — Fully Corrected
    ========================================= */
 
 /* === Variables === */
@@ -124,7 +124,7 @@ header h1:active {
   box-shadow: 0 12px 34px rgba(2,8,14,0.6), 0 6px 18px rgba(15,179,166,0.06);
 }
 
-/* Contact button in header */
+/* Contact button in header (NEW) */
 #contact-btn {
   padding: 8px 16px;
   border-radius: var(--radius-md);
@@ -152,7 +152,7 @@ header h1:active {
   transform: scale(0.96);
 }
 
-/* Share button in header */
+/* Share button in header (NEW) */
 #share-btn {
   padding: 8px 16px;
   border-radius: var(--radius-md);
@@ -180,7 +180,7 @@ header h1:active {
   transform: scale(0.96);
 }
 
-/* Hidden admin link */
+/* Hidden admin link - subtle but functional */
 #hidden-admin-link {
   font-size: 10px;
   color: rgba(255,255,255,0.15);
@@ -210,58 +210,48 @@ header h1:active {
   gap: 16px;
 }
 
-/* ─── УЛУЧШЕННЫЙ ВИНИЛОВЫЙ ПЛЕЕР ─── */
+/* ─── PLAYER IN SIDEBAR ─── */
+.player-sidebar-block {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ─── PLAYER IN SIDEBAR ─── */
 .player-cover-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 205px;
-  aspect-ratio: 1 / 1;
-  margin: 12px auto 16px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, 
-              rgba(255,255,255,0.06) 0%, 
-              rgba(0,0,0,0.4) 70%, 
-              #0a1a2e 100%);
-  box-shadow: 
-    0 0 0 12px rgba(255,255,255,0.07),
-    0 0 0 18px #0f2b45,
-    0 0 0 22px rgba(15,179,166,0.25),
-    0 0 35px rgba(15,179,166,0.35),
-    inset 0 0 60px rgba(0,0,0,0.6);
+    width: 100%;
+    max-width: 180px; /* Ограничиваем ширину, чтобы она не превышала высоту */
+    aspect-ratio: 1;  /* Гарантируем квадратную пропорцию */
+    margin: 0 auto;   /* Центрируем обложку в сайдбаре */
+    border-radius: 50%; /* Делает квадрат кругом */
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(15,179,166,0.12), rgba(11,43,69,0.08));
+    box-shadow:
+        0 6px 18px rgba(2,8,14,0.5),
+        0 0 0 3px rgba(30, 30, 30, 0.8), /* Край пластинки */
+        0 0 0 4px rgba(255,255,255,0.1); /* Внешний блеск */
+    position: relative;
+    transition: transform 0.3s ease;
+    /* max-height удален, так как теперь размер контролируется через max-width + aspect-ratio */
 }
 
-/* Концентрические бороздки пластинки (статичные) */
-.player-cover-wrapper::after {
-  content: '';
-  position: absolute;
-  inset: 8px;
-  border-radius: 50%;
-  background: repeating-radial-gradient(
-    circle,
-    transparent 0,
-    transparent 3px,
-    rgba(255,255,255,0.07) 3px,
-    rgba(255,255,255,0.07) 4px
-  );
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Центральный холл пластинки */
 .player-cover-wrapper::before {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 34px;
-  height: 34px;
-  background: radial-gradient(circle, #111 0%, #1a1a1a 70%, #0a0a0a 100%);
+  width: 28px;
+  height: 28px;
+  background: radial-gradient(circle, rgba(20,20,20,0.95) 0%, rgba(40,40,40,0.9) 100%);
   border-radius: 50%;
   box-shadow: 
-    inset 0 0 12px rgba(0,0,0,0.9),
-    0 0 0 3px rgba(255,255,255,0.15);
+    inset 0 1px 3px rgba(0,0,0,0.8),
+    0 0 0 1px rgba(255,255,255,0.1);
   z-index: 10;
   pointer-events: none;
 }
@@ -270,7 +260,7 @@ header h1:active {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: none;
+  transition: none; /* Disable transition to prevent stutter during rotation */
 }
 
 /* Vinyl spinning animation */
@@ -279,11 +269,15 @@ header h1:active {
 }
 
 @keyframes vinylSpin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* ─── PLAYER INFO & CONTROLS ─── */
+
 .player-info {
   text-align: center;
 }
@@ -473,6 +467,29 @@ header h1:active {
   white-space: nowrap;
 }
 
+/* Newest Tracks button */
+.newest-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: auto;
+  transition: background var(--t-fast), transform var(--t-fast);
+}
+.newest-btn:hover {
+  background: linear-gradient(135deg, rgba(43,183,164,0.28), rgba(15,179,166,0.20));
+  transform: translateY(-1px);
+}
+.newest-btn.active {
+  background: linear-gradient(135deg, rgba(255,122,102,0.25), rgba(255,140,120,0.15));
+  border-color: rgba(255,122,102,0.3);
+}
+
 /* Filter buttons row */
 .filter-buttons-row {
   display: flex;
@@ -480,56 +497,39 @@ header h1:active {
   margin-bottom: 0;
 }
 
-/* ─── უახლესი ტრეკები ─── */
-.newest-btn {
-  flex: 1;
-  padding: 10px 8px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255,255,255,0.12);
-  background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  min-height: auto;
-  transition: all var(--t-fast);
-}
-
-.newest-btn:hover {
-  background: linear-gradient(135deg, rgba(43,183,164,0.28), rgba(15,179,166,0.20));
-  transform: translateY(-1px);
-}
-
-.newest-btn.active {
-  background: linear-gradient(135deg, rgba(255,122,102,0.35), rgba(255,140,120,0.25));
-  border-color: rgba(255,122,102,0.45);
-  transform: translateY(-1px);
-}
-
-/* ─── რა მომეწონა (полностью симметрично) ─── */
+/* Newest and Liked buttons */
+.newest-btn,
 .liked-btn {
   flex: 1;
   padding: 10px 8px;
   border-radius: var(--radius-md);
   border: 1px solid rgba(255,255,255,0.12);
-  background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
   color: #fff;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   min-height: auto;
-  transition: all var(--t-fast);
+  transition: background var(--t-fast), transform var(--t-fast);
 }
 
-.liked-btn:hover {
+.newest-btn {
+  background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
+}
+.newest-btn:hover {
   background: linear-gradient(135deg, rgba(43,183,164,0.28), rgba(15,179,166,0.20));
   transform: translateY(-1px);
 }
 
+.liked-btn {
+  background: linear-gradient(135deg, rgba(255,122,102,0.18), rgba(255,140,120,0.12));
+}
+.liked-btn:hover {
+  background: linear-gradient(135deg, rgba(255,122,102,0.28), rgba(255,140,120,0.20));
+  transform: translateY(-1px);
+}
 .liked-btn.active {
   background: linear-gradient(135deg, rgba(255,122,102,0.35), rgba(255,140,120,0.25));
-  border-color: rgba(255,122,102,0.45);
-  transform: translateY(-1px);
+  border-color: rgba(255,122,102,0.4);
 }
 
 /* Album list - vertical buttons */
@@ -580,7 +580,7 @@ header h1:active {
   transition: transform var(--t-fast);
 }
 
-/* Subalbum buttons */
+/* Subalbum buttons - accordion style (indented, compact) */
 .subalbum-button {
   padding: 6px 8px 6px 18px;
   font-size: 11.5px;
@@ -614,6 +614,7 @@ header h1:active {
   min-width: 0;
 }
 
+/* Accordion animation */
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -653,6 +654,12 @@ button:active {
 
 /* === Tracks Section === */
 .tracks-section { min-width: 0; }
+.tracks-header h2 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
 
 /* === Tracks & Cards === */
 .tracks-list-grid {
@@ -823,7 +830,11 @@ button:active {
   100% { transform: scale(1); }
 }
 
-.download-button svg,
+.download-button svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
 .share-button svg {
   width: 14px;
   height: 14px;
@@ -837,7 +848,6 @@ button:active {
   background: rgba(15,179,166,0.10) !important;
   border-color: rgba(15,179,166,0.35) !important;
 }
-
 /* === Modal === */
 body.modal-open { overflow: hidden; }
 #lyrics-modal {
@@ -894,7 +904,7 @@ body.modal-open { overflow: hidden; }
 }
 #modal-close:hover { background: rgba(0,0,0,0.13); }
 
-/* === Contact Modal === */
+/* === Contact Modal (NEW) === */
 #contact-modal {
   position: fixed;
   inset: 0;
@@ -1142,4 +1152,53 @@ body.modal-open { overflow: hidden; }
   .contact-modal-box {
     max-width: 94%;
   }
+}
+/* ─── Улучшенный виниловый вид плеера ─── */
+.player-cover-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 205px;           /* чуть больше, чтобы заполнить пространство */
+  aspect-ratio: 1 / 1;
+  margin: 12px auto 16px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, 
+              rgba(255,255,255,0.06) 0%, 
+              rgba(0,0,0,0.4) 70%, 
+              #0a1a2e 100%);
+  
+  /* Статичный внешний обод пластинки */
+  box-shadow: 
+    0 0 0 12px rgba(255,255,255,0.07),
+    0 0 0 18px #0f2b45,
+    0 0 0 22px rgba(15,179,166,0.25),
+    0 0 35px rgba(15,179,166,0.35),
+    inset 0 0 60px rgba(0,0,0,0.6);
+}
+
+/* Концентрические бороздки пластинки (статичные, не крутятся) */
+.player-cover-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle,
+    transparent 0,
+    transparent 3px,
+    rgba(255,255,255,0.07) 3px,
+    rgba(255,255,255,0.07) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Усиливаем центральный "холл" пластинки */
+.player-cover-wrapper::before {
+  width: 34px;
+  height: 34px;
+  background: radial-gradient(circle, #111 0%, #1a1a1a 70%, #0a0a0a 100%);
+  box-shadow: 
+    inset 0 0 12px rgba(0,0,0,0.9),
+    0 0 0 3px rgba(255,255,255,0.15);
 }
