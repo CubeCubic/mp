@@ -742,6 +742,15 @@
       "albumId": "1767101022145",
       "audioUrl": "https://archive.org/download/the-shadows_202601/Run.flac",
       "coverUrl": "https://archive.org/download/the-shadows_202601/300_Run.png"
+    },
+    {
+      "id": "1771583719851",
+      "title": "Blazing Leads",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767340968092",
+      "audioUrl": "https://archive.org/download/the-shadows_202601/Blazing%20Leads.flac",
+      "coverUrl": "https://archive.org/download/the-shadows_202601/300_Blazing%20Leads.png"
     }
   ]
 }
