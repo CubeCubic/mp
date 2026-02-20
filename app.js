@@ -37,7 +37,6 @@
 
   // Player cover for vinyl spinning effect
   const playerCoverWrapper = document.querySelector('.player-cover-wrapper');
-  const playerCoverBlur = document.getElementById('player-cover-blur');
 
   // Модалка
   const lyricsModal = document.getElementById('lyrics-modal');
@@ -486,32 +485,6 @@
     globalSearchInput.addEventListener('input', () => {
       renderTracks();
       renderAlbumList();
-      // Show/hide clear button
-      updateClearSearchButton();
-    });
-  }
-
-  // Clear search button
-  const clearSearchBtn = document.getElementById('clear-search');
-  
-  function updateClearSearchButton() {
-    if (!clearSearchBtn || !globalSearchInput) return;
-    if (globalSearchInput.value.trim()) {
-      clearSearchBtn.classList.add('visible');
-    } else {
-      clearSearchBtn.classList.remove('visible');
-    }
-  }
-  
-  if (clearSearchBtn) {
-    clearSearchBtn.addEventListener('click', () => {
-      if (globalSearchInput) {
-        globalSearchInput.value = '';
-        globalSearchInput.focus();
-        updateClearSearchButton();
-        renderTracks();
-        renderAlbumList();
-      }
     });
   }
 
@@ -791,15 +764,12 @@
       if (playerTitle) playerTitle.textContent = 'აირჩიეთ ტრეკი';
       if (playerArtist) playerArtist.textContent = '';
       if (playerCoverImg) playerCoverImg.src = 'images/midcube.png';
-      if (playerCoverBlur) playerCoverBlur.style.backgroundImage = 'none';
       if (playBtn) playBtn.textContent = '▶';
       return;
     }
     if (playerTitle) playerTitle.textContent = safeStr(t.title);
     if (playerArtist) playerArtist.textContent = safeStr(t.artist);
-    const coverUrl = getCoverUrl(t);
-    if (playerCoverImg) playerCoverImg.src = coverUrl;
-    if (playerCoverBlur) playerCoverBlur.style.backgroundImage = `url(${coverUrl})`;
+    if (playerCoverImg) playerCoverImg.src = getCoverUrl(t);
   }
 
   function playByIndex(idx) {
