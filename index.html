@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" type="image/png" href="images/smallcube.png">
   <style>
-    /* ═══ Track section alignment ═══ */
     .tracks-section {
       display: flex;
       flex-direction: column;
@@ -22,7 +21,6 @@
 </head>
 <body>
   <div class="site-wrapper">
-    <!-- ═══ HEADER ═══ -->
     <header>
       <div id="header-badge" aria-hidden="false">
         <img src="images/midcube.png" alt="Cube Cubic">
@@ -38,9 +36,7 @@
     </header>
 
     <main class="new-main-layout">
-      <!-- ═══ LEFT SIDEBAR: Player + Albums ═══ -->
       <aside class="albums-sidebar">
-        <!-- PLAYER SECTION -->
         <div id="player-sidebar" class="player-sidebar-block">
           <div class="player-cover-wrapper">
             <div id="player-cover-blur" class="player-cover-blur"></div>
@@ -68,7 +64,6 @@
           </div>
         </div>
 
-        <!-- CONTROLS SECTION -->
         <div class="controls">
           <input id="global-search" type="text" placeholder="მოძებნე ტრეკი, სტილი..." aria-label="Search">
           
@@ -89,7 +84,6 @@
         </div>
       </aside>
 
-      <!-- ═══ RIGHT: Track Cards ═══ -->
       <section class="tracks-section">
         <div id="tracks" class="tracks-list-grid"></div>
       </section>
@@ -98,7 +92,6 @@
 
   <audio id="audio" preload="none"></audio>
 
-  <!-- ═══ LYRICS MODAL ═══ -->
   <div id="lyrics-modal" class="hidden" aria-hidden="true">
     <div class="modal-box">
       <button id="modal-close" type="button">✕ დახურვა</button>
@@ -107,7 +100,6 @@
     </div>
   </div>
 
-  <!-- ═══ CONTACT MODAL ═══ -->
   <div id="contact-modal" class="hidden" aria-hidden="true">
     <div class="modal-box contact-modal-box">
       <button id="contact-modal-close" type="button">✕ დახურვა</button>
@@ -136,7 +128,6 @@
     </div>
   </div>
 
-  <!-- ═══ COMMENTS MODAL ═══ -->
   <div id="comments-modal" class="comments-modal hidden" aria-hidden="true">
     <div class="modal-box comment-modal-box">
       <button id="comments-modal-close" class="modal-close-btn" type="button">✕</button>
@@ -153,17 +144,15 @@
     </div>
   </div>
 
-  <!-- ═══ TOAST ═══ -->
   <div id="toast" class="hidden" role="status" aria-live="polite"></div>
 
-  <!-- ═══ SCROLL TO TOP BUTTON ═══ -->
   <button id="scroll-to-top" type="button" title="ზემოთ აწევა" aria-label="Scroll to top">
     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
       <path d="M12 4l-8 8h5v8h6v-8h5z"/>
     </svg>
   </button>
 
-  <!-- ═══ IMPORTANT: type="module" for Firebase imports ═══ -->
+  <!-- ВАЖНО: type="module" для поддержки import -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
