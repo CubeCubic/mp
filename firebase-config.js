@@ -11,9 +11,7 @@ const firebaseConfig = {
   appId: "1:201289761635:web:e07ebe9dd30edd4ba74956"
 };
 
-// Инициализация Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Экспорт функций
 export { db, collection, addDoc, getDocs, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp };
