@@ -1,16 +1,11 @@
-// ═══════════════════════════════════════════════════
-// Firebase Imports (MUST BE AT TOP LEVEL FOR MODULES)
-// ═══════════════════════════════════════════════════
-import { db, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp } from './firebase-config.js';
-
-// ═══════════════════════════════════════════════════
-// Main App Logic
-// ═══════════════════════════════════════════════════
-(function () {
-
 /* ═══════════════════════════════════════════════════
 Cube Cubic — Main App Logic v4.0 WITH FIREBASE COMMENTS
 ═══════════════════════════════════════════════════ */
+
+// ════════════════════════════════
+//  Firebase Import (MUST BE FIRST!)
+// ════════════════════════════════
+import { db, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp } from './firebase-config.js';
 
 // ─── DOM элементы ───
 const albumSelect = document.getElementById('album-select');
@@ -1048,7 +1043,7 @@ audio.addEventListener('volumechange', () => {
 });
 
 // ════════════════════════════════
-//  Кнопки плеера (ИСПРАВЛЕНО - работают с мыши!)
+//  Кнопки плеера - ИСПРАВЛЕНО для МЫШИ
 // ════════════════════════════════
 if (playBtn) {
     playBtn.addEventListener('click', (e) => {
@@ -1361,5 +1356,3 @@ document.addEventListener('DOMContentLoaded', () => {
         handleSharedTrackLink();
     });
 });
-
-})();
