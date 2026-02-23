@@ -1,5 +1,10 @@
+(function () {
 /* ═══════════════════════════════════════════════════
 Cube Cubic — Main App Logic v4.0 WITH FIREBASE COMMENTS
+Исправлено:
+- Кнопки плеера работают с МЫШИ и КЛАВИАТУРЫ всегда
+- Счётчик комментариев показывается сразу
+- Поле для имени в модальном окне комментариев
 ═══════════════════════════════════════════════════ */
 
 // ════════════════════════════════
@@ -1041,11 +1046,45 @@ audio.addEventListener('loadedmetadata', () => {
 audio.addEventListener('volumechange', () => {
     if (volumeSlider) volumeSlider.value = audio.volume;
 });
-if (playBtn) playBtn.addEventListener('click', togglePlay);
-if (prevBtn) prevBtn.addEventListener('click', playPrev);
-if (nextBtn) nextBtn.addEventListener('click', playNext);
-if (progressBar) progressBar.addEventListener('input', () => audio.currentTime = progressBar.value);
-if (volumeSlider) volumeSlider.addEventListener('input', () => audio.volume = parseFloat(volumeSlider.value));
+
+// ════════════════════════════════
+//  ИСПРАВЛЕНО: Кнопки плеера с e.preventDefault() и e.stopPropagation()
+// ════════════════════════════════
+if (playBtn) {
+    playBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        togglePlay();
+    });
+}
+
+if (prevBtn) {
+    prevBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        playPrev();
+    });
+}
+
+if (nextBtn) {
+    nextBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        playNext();
+    });
+}
+
+if (progressBar) {
+    progressBar.addEventListener('input', () => {
+        audio.currentTime = progressBar.value;
+    });
+}
+
+if (volumeSlider) {
+    volumeSlider.addEventListener('input', () => {
+        audio.volume = parseFloat(volumeSlider.value);
+    });
+}
 
 // ════════════════════════════════
 //  Data loading
@@ -1211,6 +1250,7 @@ if (contactForm) {
                     contactStatus.className = 'contact-status success';
                 }
                 showToast('შეტყობინება გაგზავნილია!');
+                
                 setTimeout(() => {
                     closeContactModal();
                 }, 2000);
@@ -1321,3 +1361,4 @@ document.addEventListener('DOMContentLoaded', () => {
         handleSharedTrackLink();
     });
 });
+})();
