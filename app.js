@@ -56,67 +56,56 @@
   let sortNewest = false; // toggle для кнопки "უახლესი ტრეკები"
 
   // ════════════════════════════════
-  //  Like System (localStorage)
+  //  Like System (Firebase global + localStorage personal)
   // ════════════════════════════════
-  
+
   const LIKES_STORAGE_KEY = 'cubeCubicLikes';
-  
-  function getLikes() {
-    try {
-      const stored = localStorage.getItem(LIKES_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : {};
-    } catch (e) {
-      console.error('Error loading likes:', e);
-      return {};
-    }
-  }
-  
-  function saveLikes(likes) {
-    try {
-      localStorage.setItem(LIKES_STORAGE_KEY, JSON.stringify(likes));
-    } catch (e) {
-      console.error('Error saving likes:', e);
-    }
-  }
-  
+  const USER_LIKES_KEY = `${LIKES_STORAGE_KEY}_user`;
+
+  // Local cache of global like counts (synced from Firebase)
+  let firebaseLikeCounts = {};
+
+  // Firebase reference
+  const dbRef = firebase.database().ref('likes');
+
+  // Listen for real-time updates from Firebase
+  dbRef.on('value', (snapshot) => {
+    firebaseLikeCounts = snapshot.val() || {};
+    renderTracks();
+  });
+
   function getLikeCount(trackId) {
-    const likes = getLikes();
-    return likes[trackId] || 0;
+    return firebaseLikeCounts[trackId] || 0;
   }
-  
+
   function isLikedByUser(trackId) {
-    const userLikesKey = `${LIKES_STORAGE_KEY}_user`;
     try {
-      const stored = localStorage.getItem(userLikesKey);
+      const stored = localStorage.getItem(USER_LIKES_KEY);
       const userLikes = stored ? JSON.parse(stored) : {};
       return userLikes[trackId] === true;
     } catch (e) {
       return false;
     }
   }
-  
+
   function toggleLike(trackId) {
-    const likes = getLikes();
-    const userLikesKey = `${LIKES_STORAGE_KEY}_user`;
-    
     try {
-      const stored = localStorage.getItem(userLikesKey);
+      const stored = localStorage.getItem(USER_LIKES_KEY);
       const userLikes = stored ? JSON.parse(stored) : {};
-      
-      if (userLikes[trackId]) {
-        // Unlike
-        userLikes[trackId] = false;
-        likes[trackId] = Math.max(0, (likes[trackId] || 0) - 1);
-      } else {
-        // Like
-        userLikes[trackId] = true;
-        likes[trackId] = (likes[trackId] || 0) + 1;
-      }
-      
-      localStorage.setItem(userLikesKey, JSON.stringify(userLikes));
-      saveLikes(likes);
-      
-      return userLikes[trackId];
+
+      const nowLiked = !userLikes[trackId];
+      userLikes[trackId] = nowLiked;
+      localStorage.setItem(USER_LIKES_KEY, JSON.stringify(userLikes));
+
+      // Update Firebase count
+      const trackRef = firebase.database().ref('likes/' + trackId);
+      trackRef.transaction((current) => {
+        const val = current || 0;
+        if (nowLiked) return val + 1;
+        return Math.max(0, val - 1);
+      });
+
+      return nowLiked;
     } catch (e) {
       console.error('Error toggling like:', e);
       return false;
@@ -126,11 +115,10 @@
   // ════════════════════════════════
   //  User Liked Tracks Helper
   // ════════════════════════════════
-  
+
   function getUserLikedTracks() {
-    const userLikesKey = `${LIKES_STORAGE_KEY}_user`;
     try {
-      const stored = localStorage.getItem(userLikesKey);
+      const stored = localStorage.getItem(USER_LIKES_KEY);
       const userLikes = stored ? JSON.parse(stored) : {};
       return Object.keys(userLikes).filter(trackId => userLikes[trackId] === true);
     } catch (e) {
@@ -897,14 +885,6 @@
   audio.addEventListener('volumechange', () => {
     if (volumeSlider) volumeSlider.value = audio.volume;
   });
-
-  const repeatBtn = document.getElementById('repeat-sidebar');
-  if (repeatBtn) {
-    repeatBtn.addEventListener('click', () => {
-      audio.loop = !audio.loop;
-      repeatBtn.classList.toggle('active', audio.loop);
-    });
-  }
 
   if (playBtn) playBtn.addEventListener('click', togglePlay);
   if (prevBtn) prevBtn.addEventListener('click', playPrev);
