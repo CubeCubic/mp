@@ -1,5 +1,10 @@
 /* ═══════════════════════════════════════════════════
-Cube Cubic — Main App Logic  v4.0 WITH FIREBASE COMMENTS
+Cube Cubic — Main App Logic  v4.1 FIXED
+Исправлено:
+1. Ширина левого столбца (280px вместо 320px)
+2. Кнопки плеера работают с мыши
+3. Счётчик комментариев показывается сразу
+4. Поле для имени в модальном окне комментариев
 ═══════════════════════════════════════════════════ */
 
 // ════════════════════════════════
@@ -45,6 +50,7 @@ const commentsModal = document.getElementById('comments-modal');
 const commentsModalClose = document.getElementById('comments-modal-close');
 const commentsTrackTitle = document.getElementById('comments-track-title');
 const commentsList = document.getElementById('comments-list');
+const commentName = document.getElementById('comment-name');
 const commentText = document.getElementById('comment-text');
 const commentSubmit = document.getElementById('comment-submit');
 const commentCancel = document.getElementById('comment-cancel');
@@ -60,22 +66,34 @@ let sortNewest = false;
 let showLikedOnly = false;
 let currentCommentTrackId = null;
 let commentsUnsubscribe = null;
+let allCommentsCache = {}; // Кэш для всех комментариев
 
 // ════════════════════════════════
 //  Firebase Comments System
 // ════════════════════════════════
-async function getTrackComments(trackId) {
-    const commentsRef = collection(db, 'comments');
-    const q = query(commentsRef, orderBy('timestamp', 'asc'));
-    const snapshot = await getDocs(q);
-    const allComments = [];
-    snapshot.forEach(doc => {
-        const data = doc.data();
-        if (data.trackId === trackId) {
-            allComments.push({ id: doc.id, ...data });
-        }
-    });
-    return allComments;
+async function loadAllComments() {
+    try {
+        const commentsRef = collection(db, 'comments');
+        const q = query(commentsRef, orderBy('timestamp', 'asc'));
+        const snapshot = await getDocs(q);
+        allCommentsCache = {};
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const trackId = data.trackId;
+            if (!allCommentsCache[trackId]) {
+                allCommentsCache[trackId] = [];
+            }
+            allCommentsCache[trackId].push({ id: doc.id, ...data });
+        });
+        return allCommentsCache;
+    } catch (e) {
+        console.error('Error loading comments:', e);
+        return {};
+    }
+}
+
+function getTrackCommentsCount(trackId) {
+    return allCommentsCache[trackId] ? allCommentsCache[trackId].length : 0;
 }
 
 function subscribeToComments(trackId, callback) {
@@ -95,6 +113,8 @@ function subscribeToComments(trackId, callback) {
                 allComments.push({ id: doc.id, ...data });
             }
         });
+        // Обновляем кэш
+        allCommentsCache[trackId] = allComments;
         callback(allComments);
     });
 }
@@ -148,15 +168,16 @@ function openCommentsModal(t) {
     commentsModal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('modal-open');
     
+    // Подписка на обновления в реальном времени
     subscribeToComments(t.id, (comments) => {
         renderCommentsList(comments);
-        const badge = document.getElementById(`comment-count-${t.id}`);
-        if (badge) {
-            badge.textContent = comments.length;
-        }
+        // Обновляем бейдж на карточке
+        updateCommentBadge(t.id, comments.length);
     });
     
-    setTimeout(() => { if (commentText) commentText.focus(); }, 100);
+    setTimeout(() => { 
+        if (commentText) commentText.focus(); 
+    }, 100);
 }
 
 function closeCommentsModal() {
@@ -171,6 +192,7 @@ function closeCommentsModal() {
     }
     
     currentCommentTrackId = null;
+    if (commentName) commentName.value = '';
     if (commentText) commentText.value = '';
 }
 
@@ -191,6 +213,13 @@ function renderCommentsList(comments) {
             <div class="comment-text">${escapeHtml(c.text)}</div>
         </div>
     `).join('');
+}
+
+function updateCommentBadge(trackId, count) {
+    const badge = document.getElementById(`comment-count-${trackId}`);
+    if (badge) {
+        badge.textContent = count > 0 ? count : '0';
+    }
 }
 
 if (commentsModalClose) {
@@ -216,13 +245,16 @@ if (commentSubmit) {
             return;
         }
         
+        const author = (commentName.value || '').trim() || 'მომხმარებელი';
+        
         commentSubmit.disabled = true;
         commentSubmit.textContent = 'იგზავნება...';
         
-        const success = await addCommentToFirebase(currentCommentTrackId, 'მომხმარებელი', text);
+        const success = await addCommentToFirebase(currentCommentTrackId, author, text);
         
         if (success) {
-            commentText.value = '';
+            if (commentText) commentText.value = '';
+            if (commentName) commentName.value = '';
             showToast('კომენტარი დაემატა! 💬');
         } else {
             showToast('შეცდომა კომენტარის დამატებისას');
@@ -797,13 +829,14 @@ function renderTracks() {
         });
         actions.appendChild(shareBtn);
         
-        // Comment button
+        // Comment button - ИСПРАВЛЕНО: показываем счётчик сразу
         const commentBtn = document.createElement('button');
         commentBtn.type = 'button';
         commentBtn.className = 'comment-button';
+        const commentCount = getTrackCommentsCount(t.id);
         commentBtn.innerHTML = `
             <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
-            <span class="comment-count-badge" id="comment-count-${t.id}">0</span>
+            <span class="comment-count-badge" id="comment-count-${t.id}">${commentCount}</span>
         `;
         commentBtn.title = 'კომენტარები';
         commentBtn.addEventListener('click', (ev) => {
@@ -882,7 +915,7 @@ document.addEventListener('keydown', (ev) => {
 });
 
 // ════════════════════════════════
-//  Player
+//  Player - ИСПРАВЛЕНО: кнопки работают с мыши
 // ════════════════════════════════
 function updatePlayer(t) {
     if (!t) {
@@ -899,6 +932,7 @@ function updatePlayer(t) {
     if (playerCoverImg) playerCoverImg.src = coverUrl;
     if (playerCoverBlur) playerCoverBlur.style.backgroundImage = `url(${coverUrl})`;
 }
+
 function playByIndex(idx) {
     if (idx < 0 || idx >= filteredTracks.length) {
         audio.pause();
@@ -930,11 +964,16 @@ function playByIndex(idx) {
     });
     highlightCurrent();
 }
+
 function togglePlay() {
     userInteracted = true;
-    if (audio.paused || audio.ended) audio.play().catch(console.error);
-    else audio.pause();
+    if (audio.paused || audio.ended) {
+        audio.play().catch(console.error);
+    } else {
+        audio.pause();
+    }
 }
+
 function playNext() {
     if (!filteredTracks.length) return;
     let idx = currentTrackIndex;
@@ -948,6 +987,7 @@ function playNext() {
     if (n >= filteredTracks.length) n = 0;
     playByIndex(n);
 }
+
 function playPrev() {
     if (!filteredTracks.length) return;
     let idx = currentTrackIndex;
@@ -961,23 +1001,29 @@ function playPrev() {
     if (p < 0) p = filteredTracks.length - 1;
     playByIndex(p);
 }
+
+// ИСПРАВЛЕНО: добавлены обработчики кликов для кнопок плеера
 audio.addEventListener('playing', () => {
     if (playBtn) playBtn.textContent = '❚❚';
     startVinylSpin();
 });
+
 audio.addEventListener('pause', () => {
     if (playBtn) playBtn.textContent = '▶';
     stopVinylSpin();
 });
+
 audio.addEventListener('ended', () => {
     stopVinylSpin();
     playNext();
 });
+
 audio.addEventListener('error', () => {
     updatePlayer(null);
     showToast('შეცდომა: ტრეკი ვერ ჩაიტვირთა');
     stopVinylSpin();
 });
+
 audio.addEventListener('timeupdate', () => {
     if (audio.duration && progressBar) {
         progressBar.value = audio.currentTime;
@@ -986,6 +1032,7 @@ audio.addEventListener('timeupdate', () => {
     }
     updateCardProgress();
 });
+
 function updateCardProgress() {
     if (!tracksContainer || !currentTrackId || !audio.duration) return;
     const card = tracksContainer.querySelector(`[data-track-id="${currentTrackId}"]`);
@@ -997,18 +1044,52 @@ function updateCardProgress() {
         }
     }
 }
+
 audio.addEventListener('loadedmetadata', () => {
     if (timeDuration) timeDuration.textContent = formatTime(audio.duration);
     if (progressBar) progressBar.max = audio.duration || 0;
 });
+
 audio.addEventListener('volumechange', () => {
     if (volumeSlider) volumeSlider.value = audio.volume;
 });
-if (playBtn) playBtn.addEventListener('click', togglePlay);
-if (prevBtn) prevBtn.addEventListener('click', playPrev);
-if (nextBtn) nextBtn.addEventListener('click', playNext);
-if (progressBar) progressBar.addEventListener('input', () => audio.currentTime = progressBar.value);
-if (volumeSlider) volumeSlider.addEventListener('input', () => audio.volume = parseFloat(volumeSlider.value));
+
+// ИСПРАВЛЕНО: явные обработчики кликов для кнопок плеера
+if (playBtn) {
+    playBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        togglePlay();
+    });
+}
+
+if (prevBtn) {
+    prevBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        playPrev();
+    });
+}
+
+if (nextBtn) {
+    nextBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        playNext();
+    });
+}
+
+if (progressBar) {
+    progressBar.addEventListener('input', () => {
+        audio.currentTime = progressBar.value;
+    });
+}
+
+if (volumeSlider) {
+    volumeSlider.addEventListener('input', () => {
+        audio.volume = parseFloat(volumeSlider.value);
+    });
+}
 
 // ════════════════════════════════
 //  Data loading
@@ -1021,6 +1102,10 @@ async function loadData() {
         tracks = data.tracks || [];
         albums = data.albums || [];
         tracks = shuffleArray(tracks);
+        
+        // Загружаем комментарии
+        await loadAllComments();
+        
         updateTrackCount();
         renderAlbumList();
         renderTracks();
@@ -1051,6 +1136,7 @@ if (newestBtn) {
 }
 
 const likedBtn = document.getElementById('liked-tracks-btn');
+let showLikedOnly = false;
 if (likedBtn) {
     likedBtn.addEventListener('click', () => {
         showLikedOnly = !showLikedOnly;
@@ -1104,6 +1190,7 @@ function openContactModal() {
         if (firstInput) setTimeout(() => firstInput.focus(), 100);
     }
 }
+
 function closeContactModal() {
     if (contactModal) {
         contactModal.classList.add('hidden');
@@ -1120,12 +1207,15 @@ function closeContactModal() {
 if (contactBtn) {
     contactBtn.addEventListener('click', openContactModal);
 }
+
 if (contactModalClose) {
     contactModalClose.addEventListener('click', closeContactModal);
 }
+
 if (contactCancel) {
     contactCancel.addEventListener('click', closeContactModal);
 }
+
 if (contactModal) {
     contactModal.addEventListener('click', (e) => {
         if (e.target === contactModal) {
@@ -1133,6 +1223,7 @@ if (contactModal) {
         }
     });
 }
+
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if (contactModal && !contactModal.classList.contains('hidden')) {
@@ -1140,24 +1231,30 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
 if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const submitBtn = document.getElementById('contact-submit');
         const formData = new FormData(contactForm);
+
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.textContent = 'იგზავნება...';
         }
+
         if (contactStatus) {
             contactStatus.className = 'contact-status hidden';
         }
+
         try {
             const response = await fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
                 body: formData
             });
+
             const result = await response.json();
+
             if (result.success) {
                 if (contactStatus) {
                     contactStatus.textContent = '✓ შეტყობინება გაგზავნილია!';
@@ -1223,6 +1320,7 @@ async function handleShare() {
         }
     }
 }
+
 if (shareBtn) {
     shareBtn.addEventListener('click', handleShare);
 }
@@ -1233,11 +1331,14 @@ if (shareBtn) {
 function refreshSite() {
     location.reload();
 }
+
 const headerBadge = document.getElementById('header-badge');
 const headerTitle = document.querySelector('header h1');
+
 if (headerBadge) {
     headerBadge.addEventListener('click', refreshSite);
 }
+
 if (headerTitle) {
     headerTitle.addEventListener('click', refreshSite);
 }
