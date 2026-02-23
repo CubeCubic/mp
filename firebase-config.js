@@ -1,6 +1,6 @@
 // firebase-config.js
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBcmZMx92y4virmuEJ7xDyFb8IMDcBpXRY",
@@ -15,5 +15,5 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Экспорт функций
-export { db, collection, addDoc, getDocs, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp };
+// Экспорт
+export { db, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp };

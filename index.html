@@ -22,21 +22,18 @@
 </head>
 <body>
   <div class="site-wrapper">
-    <!-- ═══ HEADER (logo + title + contact button) ═══ -->
+    <!-- ═══ HEADER ═══ -->
     <header>
       <div id="header-badge" aria-hidden="false">
         <img src="images/midcube.png" alt="Cube Cubic">
       </div>
       <h1>Cube Cubic</h1>
-      <!-- Contact button (NEW) -->
       <button id="contact-btn" type="button" title="კონტაქტი" aria-label="Contact">
         ✉ კონტაქტი
       </button>
-      <!-- Share button (NEW) -->
       <button id="share-btn" type="button" title="გაზიარება" aria-label="Share">
         🔗 გაზიარება
       </button>
-      <!-- Admin link (subtle) -->
       <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
     </header>
 
@@ -75,7 +72,6 @@
         <div class="controls">
           <input id="global-search" type="text" placeholder="მოძებნე ტრეკი, სტილი..." aria-label="Search">
           
-          <!-- Refresh + Track Count + Newest Button -->
           <div class="control-row">
             <button id="refresh-btn" type="button">Refresh</button>
             <div id="track-count-display" class="track-count">სულ ტრეკი: 0</div>
@@ -111,7 +107,7 @@
     </div>
   </div>
 
-  <!-- ═══ CONTACT MODAL (NEW) ═══ -->
+  <!-- ═══ CONTACT MODAL ═══ -->
   <div id="contact-modal" class="hidden" aria-hidden="true">
     <div class="modal-box contact-modal-box">
       <button id="contact-modal-close" type="button">✕ დახურვა</button>
@@ -140,14 +136,13 @@
     </div>
   </div>
 
-  <!-- ═══ COMMENTS MODAL (NEW) ═══ -->
+  <!-- ═══ COMMENTS MODAL ═══ -->
   <div id="comments-modal" class="comments-modal hidden" aria-hidden="true">
     <div class="modal-box comment-modal-box">
       <button id="comments-modal-close" class="modal-close-btn" type="button">✕</button>
       <h3 id="comments-track-title">კომენტარები</h3>
       <div id="comments-list" class="comments-list"></div>
       <div class="comment-form-wrapper">
-        <!-- ДОБАВЛЕНО: Поле для имени -->
         <input type="text" id="comment-name" placeholder="თქვენი სახელი (არასავალდებულო)">
         <textarea id="comment-text" placeholder="დაწერეთ კომენტარი..." rows="3"></textarea>
         <div class="comment-form-actions">
@@ -168,7 +163,7 @@
     </svg>
   </button>
 
-  <!-- ═══ IMPORTANT: type="module" for import support ═══ -->
+  <!-- ═══ IMPORTANT: type="module" for Firebase imports ═══ -->
   <script type="module" src="app.js"></script>
 </body>
 </html>

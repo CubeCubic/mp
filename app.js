@@ -1,11 +1,11 @@
-(function () {
 /* ═══════════════════════════════════════════════════
-Cube Cubic — Main App Logic  v3.1 FIXED
-Исправлено:
-- Удалено дублирующее объявление showLikedOnly
-- Плеер работает с мыши
-- Счётчик комментариев показывается сразу
+Cube Cubic — Main App Logic v4.0 WITH FIREBASE COMMENTS
 ═══════════════════════════════════════════════════ */
+
+// ════════════════════════════════
+//  Firebase Import (MUST BE FIRST!)
+// ════════════════════════════════
+import { db, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp } from './firebase-config.js';
 
 // ─── DOM элементы ───
 const albumSelect = document.getElementById('album-select');
@@ -65,7 +65,7 @@ let currentTrackIndex = -1;
 let currentTrackId = null;
 let userInteracted = false;
 let sortNewest = false;
-let showLikedOnly = false; // ОБЪЯВЛЕНО ТОЛЬКО ОДИН РАЗ!
+let showLikedOnly = false;
 let currentCommentTrackId = null;
 let commentsUnsubscribe = null;
 let allCommentsCache = {};
@@ -165,6 +165,7 @@ function openCommentsModal(t) {
     if (!commentsModal) return;
     currentCommentTrackId = t.id;
     commentsTrackTitle.textContent = `კომენტარები: ${safeStr(t.title)}`;
+    renderCommentsList(t.id);
     commentsModal.classList.remove('hidden');
     commentsModal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('modal-open');
@@ -196,12 +197,14 @@ function closeCommentsModal() {
 function renderCommentsList(comments) {
     if (!commentsList) return;
     
-    if (comments.length === 0) {
+    const commentsArray = Array.isArray(comments) ? comments : getTrackComments(currentCommentTrackId);
+    
+    if (!commentsArray || commentsArray.length === 0) {
         commentsList.innerHTML = '<div class="no-comments">კომენტარები ჯერ არ არის. იყავით პირველი!</div>';
         return;
     }
     
-    commentsList.innerHTML = comments.map(c => `
+    commentsList.innerHTML = commentsArray.map(c => `
         <div class="comment-item">
             <div class="comment-header">
                 <span class="comment-author">${escapeHtml(c.author)}</span>
@@ -210,6 +213,10 @@ function renderCommentsList(comments) {
             <div class="comment-text">${escapeHtml(c.text)}</div>
         </div>
     `).join('');
+}
+
+function getTrackComments(trackId) {
+    return allCommentsCache[trackId] || [];
 }
 
 function updateCommentBadge(trackId, count) {
@@ -326,7 +333,6 @@ function toggleLike(trackId) {
         return false;
     }
 }
-
 function getUserLikedTracks() {
     const userLikesKey = `${LIKES_STORAGE_KEY}_user`;
     try {
@@ -468,7 +474,6 @@ function shuffleArray(arr) {
     }
     return copy;
 }
-
 function updateTrackCount() {
     if (!trackCountDisplay) return;
     trackCountDisplay.textContent = `სულ ტრეკი: ${tracks.length}`;
@@ -844,9 +849,9 @@ function renderTracks() {
         
         card.appendChild(actions);
 
-        const progressBar = document.createElement('div');
-        progressBar.className = 'card-progress-bar';
-        card.appendChild(progressBar);
+        const progressEl = document.createElement('div');
+        progressEl.className = 'card-progress-bar';
+        card.appendChild(progressEl);
 
         card.addEventListener('click', () => {
             userInteracted = true;
@@ -1036,43 +1041,11 @@ audio.addEventListener('loadedmetadata', () => {
 audio.addEventListener('volumechange', () => {
     if (volumeSlider) volumeSlider.value = audio.volume;
 });
-
-// ИСПРАВЛЕНО: явные обработчики кликов для кнопок плеера
-if (playBtn) {
-    playBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        togglePlay();
-    });
-}
-
-if (prevBtn) {
-    prevBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        playPrev();
-    });
-}
-
-if (nextBtn) {
-    nextBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        playNext();
-    });
-}
-
-if (progressBar) {
-    progressBar.addEventListener('input', () => {
-        audio.currentTime = progressBar.value;
-    });
-}
-
-if (volumeSlider) {
-    volumeSlider.addEventListener('input', () => {
-        audio.volume = parseFloat(volumeSlider.value);
-    });
-}
+if (playBtn) playBtn.addEventListener('click', togglePlay);
+if (prevBtn) prevBtn.addEventListener('click', playPrev);
+if (nextBtn) nextBtn.addEventListener('click', playNext);
+if (progressBar) progressBar.addEventListener('input', () => audio.currentTime = progressBar.value);
+if (volumeSlider) volumeSlider.addEventListener('input', () => audio.volume = parseFloat(volumeSlider.value));
 
 // ════════════════════════════════
 //  Data loading
@@ -1086,6 +1059,7 @@ async function loadData() {
         albums = data.albums || [];
         tracks = shuffleArray(tracks);
         
+        // Load Firebase comments
         await loadAllComments();
         
         updateTrackCount();
@@ -1261,7 +1235,7 @@ if (contactForm) {
 // ════════════════════════════════
 //  Share Button
 // ════════════════════════════════
-const shareBtn = document.getElementById('share-btn');
+const shareBtnHeader = document.getElementById('share-btn');
 async function handleShare() {
     const shareData = {
         title: 'Cube Cubic',
@@ -1297,8 +1271,8 @@ async function handleShare() {
     }
 }
 
-if (shareBtn) {
-    shareBtn.addEventListener('click', handleShare);
+if (shareBtnHeader) {
+    shareBtnHeader.addEventListener('click', handleShare);
 }
 
 // ════════════════════════════════
@@ -1347,4 +1321,3 @@ document.addEventListener('DOMContentLoaded', () => {
         handleSharedTrackLink();
     });
 });
-})();
