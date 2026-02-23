@@ -46,7 +46,6 @@
         <!-- PLAYER SECTION -->
         <div id="player-sidebar" class="player-sidebar-block">
           <div class="player-cover-wrapper">
-            <div class="player-cover-blur" id="player-cover-blur"></div>
             <img id="player-cover-img" src="images/smallcube.png" alt="Cover">
           </div>
           <div class="player-info">
@@ -73,10 +72,7 @@
 
         <!-- CONTROLS SECTION -->
         <div class="controls">
-          <div class="search-wrapper">
-            <input id="global-search" type="text" placeholder="მოძებნე ტრეკი, სტილი..." aria-label="Search">
-            <button id="clear-search" type="button" class="clear-search-btn" title="გასუფთავება" aria-label="Clear search">✕</button>
-          </div>
+          <input id="global-search" type="text" placeholder="მოძებნე ტრეკი, სტილი..." aria-label="Search">
           
           <!-- Refresh + Track Count + Newest Button -->
           <div class="control-row">
@@ -140,26 +136,6 @@
         </div>
       </form>
       <div id="contact-status" class="contact-status hidden"></div>
-    </div>
-  </div>
-
-  <!-- ═══ COMMENTS MODAL ═══ -->
-  <div id="comments-modal" class="hidden" aria-hidden="true">
-    <div class="modal-box comments-modal-box">
-      <button id="comments-modal-close" type="button">✕ დახურვა</button>
-      <h3 id="comments-track-title">💬 კომენტარები</h3>
-      
-      <!-- Add comment form -->
-      <div class="add-comment-section">
-        <input type="text" id="comment-name" placeholder="თქვენი სახელი..." maxlength="50">
-        <textarea id="comment-text" placeholder="დაწერეთ კომენტარი..." rows="3" maxlength="500"></textarea>
-        <button id="add-comment-btn" type="button">📝 დამატება</button>
-      </div>
-      
-      <!-- Comments list -->
-      <div id="comments-list" class="comments-list">
-        <div class="no-comments">კომენტარები ჯერ არ არის</div>
-      </div>
     </div>
   </div>
 
