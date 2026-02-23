@@ -1,3 +1,4 @@
+(function () {
 /* ═══════════════════════════════════════════════════
 Cube Cubic — Main App Logic v4.0 WITH FIREBASE COMMENTS
 ═══════════════════════════════════════════════════ */
@@ -1043,43 +1044,13 @@ audio.addEventListener('volumechange', () => {
 });
 
 // ════════════════════════════════
-//  Кнопки плеера - ИСПРАВЛЕНО для МЫШИ
+//  Кнопки плеера - ИСПРАВЛЕНО (как в old_app.js)
 // ════════════════════════════════
-if (playBtn) {
-    playBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        togglePlay();
-    });
-}
-
-if (prevBtn) {
-    prevBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        playPrev();
-    });
-}
-
-if (nextBtn) {
-    nextBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        playNext();
-    });
-}
-
-if (progressBar) {
-    progressBar.addEventListener('input', () => {
-        audio.currentTime = progressBar.value;
-    });
-}
-
-if (volumeSlider) {
-    volumeSlider.addEventListener('input', () => {
-        audio.volume = parseFloat(volumeSlider.value);
-    });
-}
+if (playBtn) playBtn.addEventListener('click', togglePlay);
+if (prevBtn) prevBtn.addEventListener('click', playPrev);
+if (nextBtn) nextBtn.addEventListener('click', playNext);
+if (progressBar) progressBar.addEventListener('input', () => audio.currentTime = progressBar.value);
+if (volumeSlider) volumeSlider.addEventListener('input', () => audio.volume = parseFloat(volumeSlider.value));
 
 // ════════════════════════════════
 //  Data loading
@@ -1164,7 +1135,6 @@ if (scrollToTopBtn) {
 //  Contact Form Modal
 // ════════════════════════════════
 const contactBtn = document.getElementById('contact-btn');
-
 function openContactModal() {
     if (contactModal) {
         contactModal.classList.remove('hidden');
@@ -1174,7 +1144,6 @@ function openContactModal() {
         if (firstInput) setTimeout(() => firstInput.focus(), 100);
     }
 }
-
 function closeContactModal() {
     if (contactModal) {
         contactModal.classList.add('hidden');
@@ -1187,19 +1156,15 @@ function closeContactModal() {
         }
     }
 }
-
 if (contactBtn) {
     contactBtn.addEventListener('click', openContactModal);
 }
-
 if (contactModalClose) {
     contactModalClose.addEventListener('click', closeContactModal);
 }
-
 if (contactCancel) {
     contactCancel.addEventListener('click', closeContactModal);
 }
-
 if (contactModal) {
     contactModal.addEventListener('click', (e) => {
         if (e.target === contactModal) {
@@ -1207,7 +1172,6 @@ if (contactModal) {
         }
     });
 }
-
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if (contactModal && !contactModal.classList.contains('hidden')) {
@@ -1215,7 +1179,6 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
-
 if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -1305,7 +1268,6 @@ async function handleShare() {
         }
     }
 }
-
 if (shareBtnHeader) {
     shareBtnHeader.addEventListener('click', handleShare);
 }
@@ -1316,14 +1278,11 @@ if (shareBtnHeader) {
 function refreshSite() {
     location.reload();
 }
-
 const headerBadge = document.getElementById('header-badge');
 const headerTitle = document.querySelector('header h1');
-
 if (headerBadge) {
     headerBadge.addEventListener('click', refreshSite);
 }
-
 if (headerTitle) {
     headerTitle.addEventListener('click', refreshSite);
 }
@@ -1356,3 +1315,4 @@ document.addEventListener('DOMContentLoaded', () => {
         handleSharedTrackLink();
     });
 });
+})();
