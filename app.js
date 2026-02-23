@@ -37,6 +37,7 @@
 
   // Player cover for vinyl spinning effect
   const playerCoverWrapper = document.querySelector('.player-cover-wrapper');
+  const playerCoverBlur = document.getElementById('player-cover-blur');
 
   // Модалка
   const lyricsModal = document.getElementById('lyrics-modal');
@@ -139,6 +140,121 @@
   }
 
   // ════════════════════════════════
+  //  Comments System (localStorage)
+  // ════════════════════════════════
+  
+  const COMMENTS_STORAGE_KEY = 'cubeCubicComments';
+  const COMMENT_USER_KEY = 'cubeCubicCommentUser';
+  
+  function getComments() {
+    try {
+      const stored = localStorage.getItem(COMMENTS_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : {};
+    } catch (e) {
+      console.error('Error loading comments:', e);
+      return {};
+    }
+  }
+  
+  function saveComments(comments) {
+    try {
+      localStorage.setItem(COMMENTS_STORAGE_KEY, JSON.stringify(comments));
+    } catch (e) {
+      console.error('Error saving comments:', e);
+    }
+  }
+  
+  function getTrackComments(trackId) {
+    const allComments = getComments();
+    return allComments[trackId] || [];
+  }
+  
+  function getCommentCount(trackId) {
+    return getTrackComments(trackId).length;
+  }
+  
+  function addComment(trackId, name, text) {
+    if (!name || !name.trim() || !text || !text.trim()) return false;
+    
+    const allComments = getComments();
+    if (!allComments[trackId]) {
+      allComments[trackId] = [];
+    }
+    
+    const comment = {
+      id: Date.now().toString(),
+      name: name.trim(),
+      text: text.trim(),
+      timestamp: Date.now(),
+      userId: getUserId() // For deletion rights
+    };
+    
+    allComments[trackId].push(comment);
+    saveComments(allComments);
+    
+    // Save user name for future comments
+    try {
+      localStorage.setItem(COMMENT_USER_KEY, name.trim());
+    } catch (e) {
+      console.error('Error saving user name:', e);
+    }
+    
+    return true;
+  }
+  
+  function deleteComment(trackId, commentId) {
+    const allComments = getComments();
+    if (!allComments[trackId]) return false;
+    
+    const userId = getUserId();
+    const comment = allComments[trackId].find(c => c.id === commentId);
+    
+    // Only allow deletion if same user
+    if (comment && comment.userId === userId) {
+      allComments[trackId] = allComments[trackId].filter(c => c.id !== commentId);
+      saveComments(allComments);
+      return true;
+    }
+    
+    return false;
+  }
+  
+  function getUserId() {
+    // Simple user identification for comment ownership
+    let userId = localStorage.getItem('cubeCubicUserId');
+    if (!userId) {
+      userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('cubeCubicUserId', userId);
+    }
+    return userId;
+  }
+  
+  function getSavedUserName() {
+    try {
+      return localStorage.getItem(COMMENT_USER_KEY) || '';
+    } catch (e) {
+      return '';
+    }
+  }
+  
+  function formatTimestamp(timestamp) {
+    const now = Date.now();
+    const diff = now - timestamp;
+    
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    
+    if (minutes < 1) return 'ახლახან';
+    if (minutes < 60) return `${minutes} წუთის წინ`;
+    if (hours < 24) return `${hours} საათის წინ`;
+    if (days < 7) return `${days} დღის წინ`;
+    
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('ka-GE');
+  }
+
+  // ════════════════════════════════
   //  Vinyl Spinning Effect
   // ════════════════════════════════
 
@@ -166,7 +282,8 @@
     
     // Ignore if modal is open
     const isModalOpen = !lyricsModal.classList.contains('hidden') || 
-                        !document.getElementById('contact-modal').classList.contains('hidden');
+                        !document.getElementById('contact-modal').classList.contains('hidden') ||
+                        !document.getElementById('comments-modal').classList.contains('hidden');
     if (isModalOpen) return;
     
     switch(e.key) {
@@ -485,6 +602,32 @@
     globalSearchInput.addEventListener('input', () => {
       renderTracks();
       renderAlbumList();
+      // Show/hide clear button
+      updateClearSearchButton();
+    });
+  }
+
+  // Clear search button
+  const clearSearchBtn = document.getElementById('clear-search');
+  
+  function updateClearSearchButton() {
+    if (!clearSearchBtn || !globalSearchInput) return;
+    if (globalSearchInput.value.trim()) {
+      clearSearchBtn.classList.add('visible');
+    } else {
+      clearSearchBtn.classList.remove('visible');
+    }
+  }
+  
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', () => {
+      if (globalSearchInput) {
+        globalSearchInput.value = '';
+        globalSearchInput.focus();
+        updateClearSearchButton();
+        renderTracks();
+        renderAlbumList();
+      }
     });
   }
 
@@ -681,6 +824,28 @@
       });
       actions.appendChild(shareBtn);
       
+      // Comments button
+      const commentsBtn = document.createElement('button');
+      commentsBtn.type = 'button';
+      commentsBtn.className = 'card-action-button comments-button';
+      commentsBtn.innerHTML = '💬';
+      commentsBtn.title = 'კომენტარები';
+      
+      const commentCount = getCommentCount(t.id);
+      if (commentCount > 0) {
+        const countBadge = document.createElement('span');
+        countBadge.className = 'comment-count';
+        countBadge.textContent = commentCount;
+        commentsBtn.appendChild(countBadge);
+      }
+      
+      commentsBtn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        openCommentsModal(t);
+      });
+      actions.appendChild(commentsBtn);
+      
       card.appendChild(actions);
 
       // Add progress bar to card
@@ -756,6 +921,176 @@
   });
 
   // ════════════════════════════════
+  //  Comments Modal
+  // ════════════════════════════════
+
+  const commentsModal = document.getElementById('comments-modal');
+  const commentsModalClose = document.getElementById('comments-modal-close');
+  const commentsTrackTitle = document.getElementById('comments-track-title');
+  const commentsList = document.getElementById('comments-list');
+  const commentNameInput = document.getElementById('comment-name');
+  const commentTextInput = document.getElementById('comment-text');
+  const addCommentBtn = document.getElementById('add-comment-btn');
+  
+  let currentCommentTrack = null;
+
+  function openCommentsModal(track) {
+    if (!commentsModal) return;
+    
+    currentCommentTrack = track;
+    
+    // Set title
+    if (commentsTrackTitle) {
+      commentsTrackTitle.textContent = `💬 ${safeStr(track.title)}`;
+    }
+    
+    // Load saved user name
+    if (commentNameInput) {
+      commentNameInput.value = getSavedUserName();
+    }
+    
+    // Clear comment text
+    if (commentTextInput) {
+      commentTextInput.value = '';
+    }
+    
+    // Render comments
+    renderCommentsList(track.id);
+    
+    // Open modal
+    commentsModal.classList.remove('hidden');
+    commentsModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeCommentsModal() {
+    if (!commentsModal) return;
+    
+    commentsModal.classList.add('hidden');
+    commentsModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    currentCommentTrack = null;
+    
+    // Re-render tracks to update comment counts
+    renderTracks();
+  }
+
+  function renderCommentsList(trackId) {
+    if (!commentsList) return;
+    
+    const comments = getTrackComments(trackId);
+    
+    if (comments.length === 0) {
+      commentsList.innerHTML = '<div class="no-comments">კომენტარები ჯერ არ არის</div>';
+      return;
+    }
+    
+    // Sort by newest first
+    comments.sort((a, b) => b.timestamp - a.timestamp);
+    
+    commentsList.innerHTML = '';
+    
+    comments.forEach(comment => {
+      const item = document.createElement('div');
+      item.className = 'comment-item';
+      
+      const header = document.createElement('div');
+      header.className = 'comment-header';
+      
+      const author = document.createElement('span');
+      author.className = 'comment-author';
+      author.textContent = comment.name;
+      
+      const time = document.createElement('span');
+      time.className = 'comment-time';
+      time.textContent = formatTimestamp(comment.timestamp);
+      
+      header.appendChild(author);
+      
+      // Add delete button if user owns this comment
+      if (comment.userId === getUserId()) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'comment-delete';
+        deleteBtn.textContent = '✕ წაშლა';
+        deleteBtn.addEventListener('click', () => {
+          if (confirm('წაშალოთ კომენტარი?')) {
+            if (deleteComment(trackId, comment.id)) {
+              renderCommentsList(trackId);
+              showToast('კომენტარი წაშლილია');
+            }
+          }
+        });
+        header.appendChild(deleteBtn);
+      }
+      
+      header.appendChild(time);
+      
+      const text = document.createElement('div');
+      text.className = 'comment-text';
+      text.textContent = comment.text;
+      
+      item.appendChild(header);
+      item.appendChild(text);
+      
+      commentsList.appendChild(item);
+    });
+  }
+
+  // Add comment handler
+  if (addCommentBtn) {
+    addCommentBtn.addEventListener('click', () => {
+      if (!currentCommentTrack) return;
+      
+      const name = commentNameInput ? commentNameInput.value.trim() : '';
+      const text = commentTextInput ? commentTextInput.value.trim() : '';
+      
+      if (!name) {
+        showToast('შეიყვანეთ თქვენი სახელი');
+        if (commentNameInput) commentNameInput.focus();
+        return;
+      }
+      
+      if (!text) {
+        showToast('დაწერეთ კომენტარი');
+        if (commentTextInput) commentTextInput.focus();
+        return;
+      }
+      
+      if (addComment(currentCommentTrack.id, name, text)) {
+        // Clear text input
+        if (commentTextInput) commentTextInput.value = '';
+        
+        // Re-render comments
+        renderCommentsList(currentCommentTrack.id);
+        
+        showToast('კომენტარი დაემატა! ✅');
+      } else {
+        showToast('შეცდომა კომენტარის დამატებისას');
+      }
+    });
+  }
+
+  // Close modal handlers
+  if (commentsModalClose) {
+    commentsModalClose.addEventListener('click', closeCommentsModal);
+  }
+
+  if (commentsModal) {
+    commentsModal.addEventListener('click', (ev) => {
+      if (ev.target === commentsModal) {
+        closeCommentsModal();
+      }
+    });
+  }
+
+  // Escape key to close
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape' && commentsModal && !commentsModal.classList.contains('hidden')) {
+      closeCommentsModal();
+    }
+  });
+
+  // ════════════════════════════════
   //  Player
   // ════════════════════════════════
 
@@ -764,12 +1099,15 @@
       if (playerTitle) playerTitle.textContent = 'აირჩიეთ ტრეკი';
       if (playerArtist) playerArtist.textContent = '';
       if (playerCoverImg) playerCoverImg.src = 'images/midcube.png';
+      if (playerCoverBlur) playerCoverBlur.style.backgroundImage = 'none';
       if (playBtn) playBtn.textContent = '▶';
       return;
     }
     if (playerTitle) playerTitle.textContent = safeStr(t.title);
     if (playerArtist) playerArtist.textContent = safeStr(t.artist);
-    if (playerCoverImg) playerCoverImg.src = getCoverUrl(t);
+    const coverUrl = getCoverUrl(t);
+    if (playerCoverImg) playerCoverImg.src = coverUrl;
+    if (playerCoverBlur) playerCoverBlur.style.backgroundImage = `url(${coverUrl})`;
   }
 
   function playByIndex(idx) {
