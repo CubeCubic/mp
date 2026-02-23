@@ -1,7 +1,11 @@
-(function () {
 /* ═══════════════════════════════════════════════════
 Cube Cubic — Main App Logic  v4.0 WITH FIREBASE COMMENTS
 ═══════════════════════════════════════════════════ */
+
+// ════════════════════════════════
+//  Firebase Comments Import
+// ════════════════════════════════
+import { db, collection, addDoc, getDocs, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp } from './firebase-config.js';
 
 // ─── DOM элементы ───
 const albumSelect = document.getElementById('album-select');
@@ -56,11 +60,6 @@ let sortNewest = false;
 let showLikedOnly = false;
 let currentCommentTrackId = null;
 let commentsUnsubscribe = null;
-
-// ════════════════════════════════
-//  Firebase Comments Import
-// ════════════════════════════════
-import { db, collection, addDoc, getDocs, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp } from './firebase-config.js';
 
 // ════════════════════════════════
 //  Firebase Comments System
@@ -389,7 +388,7 @@ function getStreamUrl(t) {
     return t.audioUrl || t.downloadUrl || (t.filename ? 'media/' + t.filename : null);
 }
 function getCoverUrl(t) {
-    const fallback = 'images/midcube.png';
+    const fallback = 'images/smallcube.png';
     if (!t) return fallback;
     return t.coverUrl || (t.cover ? 'uploads/' + t.cover : fallback);
 }
@@ -889,7 +888,7 @@ function updatePlayer(t) {
     if (!t) {
         if (playerTitle) playerTitle.textContent = 'აირჩიეთ ტრეკი';
         if (playerArtist) playerArtist.textContent = '';
-        if (playerCoverImg) playerCoverImg.src = 'images/midcube.png';
+        if (playerCoverImg) playerCoverImg.src = 'images/smallcube.png';
         if (playerCoverBlur) playerCoverBlur.style.backgroundImage = 'none';
         if (playBtn) playBtn.textContent = '▶';
         return;
@@ -1271,4 +1270,3 @@ document.addEventListener('DOMContentLoaded', () => {
         handleSharedTrackLink();
     });
 });
-})();
