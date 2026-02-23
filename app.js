@@ -1,20 +1,16 @@
-(function () {
-/* ═══════════════════════════════════════════════════
-Cube Cubic — Main App Logic v4.0 WITH FIREBASE COMMENTS
-Исправлено:
-- Кнопки плеера работают с МЫШИ и КЛАВИАТУРЫ всегда
-- Счётчик комментариев показывается сразу
-- Поле для имени в модальном окне комментариев
-═══════════════════════════════════════════════════ */
-
-/* ═══════════════════════════════════════════════════
-Cube Cubic — Main App Logic v4.0 WITH FIREBASE COMMENTS
-═══════════════════════════════════════════════════ */
-
-// ════════════════════════════════
-//  Firebase Import (MUST BE FIRST!)
-// ════════════════════════════════
+// ═══════════════════════════════════════════════════
+// Firebase Imports (MUST BE AT TOP LEVEL FOR MODULES)
+// ═══════════════════════════════════════════════════
 import { db, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp } from './firebase-config.js';
+
+// ═══════════════════════════════════════════════════
+// Main App Logic
+// ═══════════════════════════════════════════════════
+(function () {
+
+/* ═══════════════════════════════════════════════════
+Cube Cubic — Main App Logic v4.0 WITH FIREBASE COMMENTS
+═══════════════════════════════════════════════════ */
 
 // ─── DOM элементы ───
 const albumSelect = document.getElementById('album-select');
@@ -1052,7 +1048,7 @@ audio.addEventListener('volumechange', () => {
 });
 
 // ════════════════════════════════
-//  ИСПРАВЛЕНО: Кнопки плеера с e.preventDefault() и e.stopPropagation()
+//  Кнопки плеера (ИСПРАВЛЕНО - работают с мыши!)
 // ════════════════════════════════
 if (playBtn) {
     playBtn.addEventListener('click', (e) => {
@@ -1365,4 +1361,5 @@ document.addEventListener('DOMContentLoaded', () => {
         handleSharedTrackLink();
     });
 });
+
 })();
