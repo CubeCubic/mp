@@ -330,8 +330,9 @@ transform: scale(1.08);
 }
 .player-controls button:active { transform: scale(0.95); }
 #repeat-sidebar.active {
-color: var(--accent-2);
-background: linear-gradient(180deg, rgba(15,179,166,0.18), rgba(15,179,166,0.08));
+color: var(--accent);
+background: linear-gradient(135deg, rgba(255,122,102,0.25), rgba(255,140,120,0.15));
+border-color: rgba(255,122,102,0.3);
 }
 .player-progress-wrapper {
 display: flex;
