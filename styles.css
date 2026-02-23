@@ -329,6 +329,10 @@ background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.0
 transform: scale(1.08);
 }
 .player-controls button:active { transform: scale(0.95); }
+#repeat-sidebar.active {
+color: var(--accent-2);
+background: linear-gradient(180deg, rgba(15,179,166,0.18), rgba(15,179,166,0.08));
+}
 .player-progress-wrapper {
 display: flex;
 flex-direction: column;

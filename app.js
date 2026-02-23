@@ -898,6 +898,14 @@
     if (volumeSlider) volumeSlider.value = audio.volume;
   });
 
+  const repeatBtn = document.getElementById('repeat-sidebar');
+  if (repeatBtn) {
+    repeatBtn.addEventListener('click', () => {
+      audio.loop = !audio.loop;
+      repeatBtn.classList.toggle('active', audio.loop);
+    });
+  }
+
   if (playBtn) playBtn.addEventListener('click', togglePlay);
   if (prevBtn) prevBtn.addEventListener('click', playPrev);
   if (nextBtn) nextBtn.addEventListener('click', playNext);
