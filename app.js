@@ -903,6 +903,12 @@
 
   function closeLyricsModal() {
     if (!lyricsModal) return;
+    
+    // Remove focus from any element inside modal before closing
+    if (document.activeElement && lyricsModal.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
+    
     lyricsModal.classList.add('hidden');
     lyricsModal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('modal-open');
@@ -965,6 +971,11 @@
 
   function closeCommentsModal() {
     if (!commentsModal) return;
+    
+    // Remove focus from any element inside modal before closing
+    if (document.activeElement && commentsModal.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
     
     commentsModal.classList.add('hidden');
     commentsModal.setAttribute('aria-hidden', 'true');
@@ -1361,6 +1372,11 @@
 
   function closeContactModal() {
     if (contactModal) {
+      // Remove focus from any element inside modal before closing
+      if (document.activeElement && contactModal.contains(document.activeElement)) {
+        document.activeElement.blur();
+      }
+      
       contactModal.classList.add('hidden');
       contactModal.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('modal-open');
