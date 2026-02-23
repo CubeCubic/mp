@@ -1,16 +1,11 @@
+(function () {
 /* ═══════════════════════════════════════════════════
-Cube Cubic — Main App Logic  v4.1 FIXED
+Cube Cubic — Main App Logic  v3.1 FIXED
 Исправлено:
-1. Ширина левого столбца (280px вместо 320px)
-2. Кнопки плеера работают с мыши
-3. Счётчик комментариев показывается сразу
-4. Поле для имени в модальном окне комментариев
+- Удалено дублирующее объявление showLikedOnly
+- Плеер работает с мыши
+- Счётчик комментариев показывается сразу
 ═══════════════════════════════════════════════════ */
-
-// ════════════════════════════════
-//  Firebase Comments Import
-// ════════════════════════════════
-import { db, collection, addDoc, getDocs, query, orderBy, onSnapshot, deleteDoc, doc, serverTimestamp } from './firebase-config.js';
 
 // ─── DOM элементы ───
 const albumSelect = document.getElementById('album-select');
@@ -45,6 +40,13 @@ const modalTitle = document.getElementById('modal-title');
 const modalLyrics = document.getElementById('modal-lyrics');
 const toast = document.getElementById('toast');
 
+// Contact Modal
+const contactModal = document.getElementById('contact-modal');
+const contactModalClose = document.getElementById('contact-modal-close');
+const contactCancel = document.getElementById('contact-cancel');
+const contactForm = document.getElementById('contact-form');
+const contactStatus = document.getElementById('contact-status');
+
 // Comments Modal
 const commentsModal = document.getElementById('comments-modal');
 const commentsModalClose = document.getElementById('comments-modal-close');
@@ -63,10 +65,10 @@ let currentTrackIndex = -1;
 let currentTrackId = null;
 let userInteracted = false;
 let sortNewest = false;
-let showLikedOnly = false;
+let showLikedOnly = false; // ОБЪЯВЛЕНО ТОЛЬКО ОДИН РАЗ!
 let currentCommentTrackId = null;
 let commentsUnsubscribe = null;
-let allCommentsCache = {}; // Кэш для всех комментариев
+let allCommentsCache = {};
 
 // ════════════════════════════════
 //  Firebase Comments System
@@ -113,7 +115,6 @@ function subscribeToComments(trackId, callback) {
                 allComments.push({ id: doc.id, ...data });
             }
         });
-        // Обновляем кэш
         allCommentsCache[trackId] = allComments;
         callback(allComments);
     });
@@ -168,16 +169,12 @@ function openCommentsModal(t) {
     commentsModal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('modal-open');
     
-    // Подписка на обновления в реальном времени
     subscribeToComments(t.id, (comments) => {
         renderCommentsList(comments);
-        // Обновляем бейдж на карточке
         updateCommentBadge(t.id, comments.length);
     });
     
-    setTimeout(() => { 
-        if (commentText) commentText.focus(); 
-    }, 100);
+    setTimeout(() => { if (commentText) commentText.focus(); }, 100);
 }
 
 function closeCommentsModal() {
@@ -364,7 +361,7 @@ document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     
     const isModalOpen = !lyricsModal.classList.contains('hidden') || 
-                        !document.getElementById('contact-modal').classList.contains('hidden') ||
+                        !contactModal.classList.contains('hidden') ||
                         !commentsModal.classList.contains('hidden');
     if (isModalOpen) return;
 
@@ -420,7 +417,7 @@ function getStreamUrl(t) {
     return t.audioUrl || t.downloadUrl || (t.filename ? 'media/' + t.filename : null);
 }
 function getCoverUrl(t) {
-    const fallback = 'images/smallcube.png';
+    const fallback = 'images/midcube.png';
     if (!t) return fallback;
     return t.coverUrl || (t.cover ? 'uploads/' + t.cover : fallback);
 }
@@ -829,7 +826,6 @@ function renderTracks() {
         });
         actions.appendChild(shareBtn);
         
-        // Comment button - ИСПРАВЛЕНО: показываем счётчик сразу
         const commentBtn = document.createElement('button');
         commentBtn.type = 'button';
         commentBtn.className = 'comment-button';
@@ -915,13 +911,13 @@ document.addEventListener('keydown', (ev) => {
 });
 
 // ════════════════════════════════
-//  Player - ИСПРАВЛЕНО: кнопки работают с мыши
+//  Player
 // ════════════════════════════════
 function updatePlayer(t) {
     if (!t) {
         if (playerTitle) playerTitle.textContent = 'აირჩიეთ ტრეკი';
         if (playerArtist) playerArtist.textContent = '';
-        if (playerCoverImg) playerCoverImg.src = 'images/smallcube.png';
+        if (playerCoverImg) playerCoverImg.src = 'images/midcube.png';
         if (playerCoverBlur) playerCoverBlur.style.backgroundImage = 'none';
         if (playBtn) playBtn.textContent = '▶';
         return;
@@ -932,7 +928,6 @@ function updatePlayer(t) {
     if (playerCoverImg) playerCoverImg.src = coverUrl;
     if (playerCoverBlur) playerCoverBlur.style.backgroundImage = `url(${coverUrl})`;
 }
-
 function playByIndex(idx) {
     if (idx < 0 || idx >= filteredTracks.length) {
         audio.pause();
@@ -964,7 +959,6 @@ function playByIndex(idx) {
     });
     highlightCurrent();
 }
-
 function togglePlay() {
     userInteracted = true;
     if (audio.paused || audio.ended) {
@@ -973,7 +967,6 @@ function togglePlay() {
         audio.pause();
     }
 }
-
 function playNext() {
     if (!filteredTracks.length) return;
     let idx = currentTrackIndex;
@@ -987,7 +980,6 @@ function playNext() {
     if (n >= filteredTracks.length) n = 0;
     playByIndex(n);
 }
-
 function playPrev() {
     if (!filteredTracks.length) return;
     let idx = currentTrackIndex;
@@ -1001,29 +993,23 @@ function playPrev() {
     if (p < 0) p = filteredTracks.length - 1;
     playByIndex(p);
 }
-
-// ИСПРАВЛЕНО: добавлены обработчики кликов для кнопок плеера
 audio.addEventListener('playing', () => {
     if (playBtn) playBtn.textContent = '❚❚';
     startVinylSpin();
 });
-
 audio.addEventListener('pause', () => {
     if (playBtn) playBtn.textContent = '▶';
     stopVinylSpin();
 });
-
 audio.addEventListener('ended', () => {
     stopVinylSpin();
     playNext();
 });
-
 audio.addEventListener('error', () => {
     updatePlayer(null);
     showToast('შეცდომა: ტრეკი ვერ ჩაიტვირთა');
     stopVinylSpin();
 });
-
 audio.addEventListener('timeupdate', () => {
     if (audio.duration && progressBar) {
         progressBar.value = audio.currentTime;
@@ -1032,7 +1018,6 @@ audio.addEventListener('timeupdate', () => {
     }
     updateCardProgress();
 });
-
 function updateCardProgress() {
     if (!tracksContainer || !currentTrackId || !audio.duration) return;
     const card = tracksContainer.querySelector(`[data-track-id="${currentTrackId}"]`);
@@ -1044,12 +1029,10 @@ function updateCardProgress() {
         }
     }
 }
-
 audio.addEventListener('loadedmetadata', () => {
     if (timeDuration) timeDuration.textContent = formatTime(audio.duration);
     if (progressBar) progressBar.max = audio.duration || 0;
 });
-
 audio.addEventListener('volumechange', () => {
     if (volumeSlider) volumeSlider.value = audio.volume;
 });
@@ -1103,7 +1086,6 @@ async function loadData() {
         albums = data.albums || [];
         tracks = shuffleArray(tracks);
         
-        // Загружаем комментарии
         await loadAllComments();
         
         updateTrackCount();
@@ -1136,7 +1118,6 @@ if (newestBtn) {
 }
 
 const likedBtn = document.getElementById('liked-tracks-btn');
-let showLikedOnly = false;
 if (likedBtn) {
     likedBtn.addEventListener('click', () => {
         showLikedOnly = !showLikedOnly;
@@ -1175,11 +1156,6 @@ if (scrollToTopBtn) {
 //  Contact Form Modal
 // ════════════════════════════════
 const contactBtn = document.getElementById('contact-btn');
-const contactModal = document.getElementById('contact-modal');
-const contactModalClose = document.getElementById('contact-modal-close');
-const contactCancel = document.getElementById('contact-cancel');
-const contactForm = document.getElementById('contact-form');
-const contactStatus = document.getElementById('contact-status');
 
 function openContactModal() {
     if (contactModal) {
@@ -1371,3 +1347,4 @@ document.addEventListener('DOMContentLoaded', () => {
         handleSharedTrackLink();
     });
 });
+})();
