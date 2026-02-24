@@ -74,6 +74,16 @@
       "id": "1771323664000",
       "name": "Blues",
       "parentId": "1767100972913"
+    },
+    {
+      "id": "1771936720455",
+      "name": "Chill-out",
+      "parentId": "1767100972913"
+    },
+    {
+      "id": "1771938157888",
+      "name": "Jazz Fusion",
+      "parentId": "1767100972913"
     }
   ],
   "tracks": [
@@ -778,6 +788,33 @@
       "albumId": "1771316175987",
       "audioUrl": "https://archive.org/download/the-shadows_202601/The%20Wind%20Blows%20Hair.flac",
       "coverUrl": "https://archive.org/download/the-shadows_202601/300_The%20Wind%20Blows%20Hair.png"
+    },
+    {
+      "id": "1771937440505",
+      "title": "Smile And Hug Me",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1771936720455",
+      "audioUrl": "https://archive.org/download/the-shadows_202601/Smile%20And%20Hug%20Me.flac",
+      "coverUrl": "https://archive.org/download/the-shadows_202601/300_Smile%20And%20Hug%20Me.png"
+    },
+    {
+      "id": "1771937996351",
+      "title": "A Sad Song",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767101022145",
+      "audioUrl": "https://archive.org/download/the-shadows_202601/A%20Sad%20Song.flac",
+      "coverUrl": "https://archive.org/download/the-shadows_202601/300_A%20Sad%20Song.png"
+    },
+    {
+      "id": "1771939040952",
+      "title": "Fireworks",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1771938157888",
+      "audioUrl": "https://archive.org/download/the-shadows_202601/Fireworks.flac",
+      "coverUrl": "https://archive.org/download/the-shadows_202601/300_Fireworks.png"
     }
   ]
 }
