@@ -760,6 +760,24 @@
       "albumId": "1765388179450",
       "audioUrl": "https://archive.org/download/20251212_20251212_1034/%E1%83%90%E1%83%9A%E1%83%95%E1%83%94%E1%83%91%E1%83%98%20%E1%83%97%E1%83%9D%E1%83%95%E1%83%9A%E1%83%A8%E1%83%98.flac",
       "coverUrl": "https://archive.org/download/20251212_20251212_1034/300_%E1%83%90%E1%83%9A%E1%83%95%E1%83%94%E1%83%91%E1%83%98.png"
+    },
+    {
+      "id": "1771934925352",
+      "title": "Call Me Back",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1769973332848",
+      "audioUrl": "https://archive.org/download/the-shadows_202601/Call%20Me%20Back.flac",
+      "coverUrl": "https://archive.org/download/the-shadows_202601/300_Call%20Me%20Back.png"
+    },
+    {
+      "id": "1771936150831",
+      "title": "The Wind Blows Hair",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1771316175987",
+      "audioUrl": "https://archive.org/download/the-shadows_202601/The%20Wind%20Blows%20Hair.flac",
+      "coverUrl": "https://archive.org/download/the-shadows_202601/300_The%20Wind%20Blows%20Hair.png"
     }
   ]
 }
