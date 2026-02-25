@@ -510,6 +510,8 @@
     if (showLikedOnly) {
       const likedTrackIds = getUserLikedTracks();
       toRender = toRender.filter(t => likedTrackIds.includes(t.id));
+      // Sort by Firebase like count descending
+      toRender.sort((a, b) => (firebaseLikeCounts[b.id] || 0) - (firebaseLikeCounts[a.id] || 0));
     }
 
     if (!toRender.length) {
@@ -747,17 +749,33 @@
   //  Player
   // ════════════════════════════════
 
+  function setMarqueeTitle(el, text) {
+    if (!el) return;
+    el.classList.remove('marquee');
+    el.textContent = text;
+    // Check overflow after paint
+    requestAnimationFrame(() => {
+      if (el.scrollWidth > el.clientWidth) {
+        el.classList.add('marquee');
+        // Duplicate text for seamless loop
+        el.innerHTML = `<span>${text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${text}</span>`;
+      }
+    });
+  }
+
   function updatePlayer(t) {
     if (!t) {
-      if (playerTitle) playerTitle.textContent = 'აირჩიეთ ტრეკი';
+      setMarqueeTitle(playerTitle, 'აირჩიეთ ტრეკი');
       if (playerArtist) playerArtist.textContent = '';
       if (playerCoverImg) playerCoverImg.src = 'images/midcube.png';
       if (playBtn) playBtn.textContent = '▶';
+      updateMiniPlayer(null);
       return;
     }
-    if (playerTitle) playerTitle.textContent = safeStr(t.title);
+    setMarqueeTitle(playerTitle, safeStr(t.title));
     if (playerArtist) playerArtist.textContent = safeStr(t.artist);
     if (playerCoverImg) playerCoverImg.src = getCoverUrl(t);
+    updateMiniPlayer(t);
   }
 
   function playByIndex(idx) {
@@ -885,14 +903,6 @@
   audio.addEventListener('volumechange', () => {
     if (volumeSlider) volumeSlider.value = audio.volume;
   });
-
-  const repeatBtn = document.getElementById('repeat-sidebar');
-  if (repeatBtn) {
-    repeatBtn.addEventListener('click', () => {
-      audio.loop = !audio.loop;
-      repeatBtn.classList.toggle('active', audio.loop);
-    });
-  }
 
   if (playBtn) playBtn.addEventListener('click', togglePlay);
   if (prevBtn) prevBtn.addEventListener('click', playPrev);
@@ -1213,6 +1223,54 @@
       }, 500);
     }
   }
+
+  // ════════════════════════════════
+  //  Mobile Mini Player
+  // ════════════════════════════════
+
+  const miniPlayer      = document.getElementById('mini-player');
+  const miniCover       = document.getElementById('mini-player-cover');
+  const miniTitle       = document.getElementById('mini-player-title');
+  const miniArtist      = document.getElementById('mini-player-artist');
+  const miniPlay        = document.getElementById('mini-play');
+  const miniPrev        = document.getElementById('mini-prev');
+  const miniNext        = document.getElementById('mini-next');
+  const miniProgressBar = document.getElementById('mini-player-progress-bar');
+
+  function updateMiniPlayer(t) {
+    if (!miniPlayer) return;
+    if (!t) {
+      miniPlayer.classList.remove('visible');
+      miniPlayer.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('mini-player-visible');
+      return;
+    }
+    if (miniCover)  miniCover.src        = getCoverUrl(t);
+    if (miniTitle)  miniTitle.textContent = safeStr(t.title);
+    if (miniArtist) miniArtist.textContent = safeStr(t.artist);
+    miniPlayer.classList.add('visible');
+    miniPlayer.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('mini-player-visible');
+  }
+
+  // Sync play/pause icon on mini player
+  audio.addEventListener('playing', () => {
+    if (miniPlay) miniPlay.textContent = '❚❚';
+  });
+  audio.addEventListener('pause', () => {
+    if (miniPlay) miniPlay.textContent = '▶';
+  });
+
+  // Sync progress bar on mini player
+  audio.addEventListener('timeupdate', () => {
+    if (miniProgressBar && audio.duration) {
+      miniProgressBar.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+    }
+  });
+
+  if (miniPlay) miniPlay.addEventListener('click', togglePlay);
+  if (miniPrev) miniPrev.addEventListener('click', playPrev);
+  if (miniNext) miniNext.addEventListener('click', playNext);
 
   // ─── Init ───
   document.addEventListener('DOMContentLoaded', () => {

@@ -150,6 +150,23 @@
     </svg>
   </button>
 
+  <!-- ═══ MOBILE MINI PLAYER ═══ -->
+  <div id="mini-player" aria-hidden="true">
+    <img id="mini-player-cover" src="images/smallcube.png" alt="Cover">
+    <div id="mini-player-info">
+      <div id="mini-player-title">აირჩიეთ ტრეკი</div>
+      <div id="mini-player-artist"></div>
+    </div>
+    <div class="mini-player-controls">
+      <button id="mini-prev" type="button" title="წინა">⮜</button>
+      <button id="mini-play" type="button" title="დაკვრა">▶</button>
+      <button id="mini-next" type="button" title="შემდეგი">⮞</button>
+    </div>
+    <div id="mini-player-progress">
+      <div id="mini-player-progress-bar"></div>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script>
