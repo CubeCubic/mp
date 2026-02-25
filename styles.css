@@ -341,7 +341,8 @@ background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.0
 transform: scale(1.08);
 }
 .player-controls button:active { transform: scale(0.95); }
-#repeat-sidebar.active {
+#repeat-sidebar.active,
+#shuffle-sidebar.active {
 color: var(--accent);
 background: linear-gradient(135deg, rgba(255,122,102,0.25), rgba(255,140,120,0.15));
 border-color: rgba(255,122,102,0.3);

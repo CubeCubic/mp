@@ -54,6 +54,7 @@
   let currentTrackId = null; // Always identify the playing track by ID, not index
   let userInteracted = false;
   let sortNewest = false; // toggle для кнопки "უახლესი ტრეკები"
+  let shuffleMode = false; // shuffle toggle
 
   // ════════════════════════════════
   //  Like System (Firebase global + localStorage personal)
@@ -696,7 +697,6 @@
     }
 
     highlightCurrent();
-    scrollToCurrentTrack();
   }
 
   // ════════════════════════════════
@@ -712,20 +712,6 @@
         card.classList.add('playing-track');
       }
     }
-  }
-
-  // ════════════════════════════════
-  //  Scroll to playing track
-  // ════════════════════════════════
-
-  function scrollToCurrentTrack() {
-    if (!currentTrackId || !tracksContainer) return;
-    setTimeout(() => {
-      const card = tracksContainer.querySelector(`[data-track-id="${currentTrackId}"]`);
-      if (card) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 120);
   }
 
   // ════════════════════════════════
@@ -834,16 +820,27 @@
 
   function playNext() {
     if (!filteredTracks.length) return;
-    
+
+    if (shuffleMode) {
+      // Random index excluding current
+      let n;
+      if (filteredTracks.length === 1) {
+        n = 0;
+      } else {
+        do { n = Math.floor(Math.random() * filteredTracks.length); }
+        while (n === currentTrackIndex);
+      }
+      playByIndex(n);
+      return;
+    }
+
     // Find current track position - prefer ID lookup, fallback to stored index
     let idx = currentTrackIndex;
     if (currentTrackId) {
       const foundIdx = filteredTracks.findIndex(t => t.id === currentTrackId);
-      if (foundIdx >= 0) {
-        idx = foundIdx;
-      }
+      if (foundIdx >= 0) idx = foundIdx;
     }
-    
+
     // Move to next track (loop to start if at end)
     let n = idx + 1;
     if (n >= filteredTracks.length) n = 0;
@@ -919,24 +916,20 @@
     if (volumeSlider) volumeSlider.value = audio.volume;
   });
 
+  const shuffleBtn = document.getElementById('shuffle-sidebar');
+  if (shuffleBtn) {
+    shuffleBtn.addEventListener('click', () => {
+      shuffleMode = !shuffleMode;
+      shuffleBtn.classList.toggle('active', shuffleMode);
+    });
+  }
+
   const repeatBtn = document.getElementById('repeat-sidebar');
   if (repeatBtn) {
     repeatBtn.addEventListener('click', () => {
       audio.loop = !audio.loop;
       repeatBtn.classList.toggle('active', audio.loop);
     });
-  }
-
-  // Клик на обложку или название в плеере — прокрутка к играющему треку
-  if (playerCoverWrapper) {
-    playerCoverWrapper.style.cursor = 'pointer';
-    playerCoverWrapper.title = 'გადასვლა მიმდინარე ტრეკზე';
-    playerCoverWrapper.addEventListener('click', () => scrollToCurrentTrack());
-  }
-  if (playerTitle) {
-    playerTitle.style.cursor = 'pointer';
-    playerTitle.title = 'გადასვლა მიმდინარე ტრეკზე';
-    playerTitle.addEventListener('click', () => scrollToCurrentTrack());
   }
 
   if (playBtn) playBtn.addEventListener('click', togglePlay);
