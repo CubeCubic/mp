@@ -822,6 +822,7 @@
       }
     });
     highlightCurrent();
+    scrollToCurrentTrack();
   }
 
   function togglePlay() {
