@@ -696,10 +696,8 @@
     }
 
     highlightCurrent();
+    scrollToCurrentTrack();
   }
-
-  // ════════════════════════════════
-  //  Highlight playing card
   // ════════════════════════════════
 
   function highlightCurrent() {
@@ -711,6 +709,20 @@
         card.classList.add('playing-track');
       }
     }
+  }
+
+  // ════════════════════════════════
+  //  Scroll to playing track
+  // ════════════════════════════════
+
+  function scrollToCurrentTrack() {
+    if (!currentTrackId || !tracksContainer) return;
+    setTimeout(() => {
+      const card = tracksContainer.querySelector(`[data-track-id="${currentTrackId}"]`);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 120);
   }
 
   // ════════════════════════════════
