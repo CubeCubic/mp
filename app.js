@@ -698,6 +698,9 @@
     highlightCurrent();
     scrollToCurrentTrack();
   }
+
+  // ════════════════════════════════
+  //  Highlight playing card
   // ════════════════════════════════
 
   function highlightCurrent() {
@@ -922,6 +925,18 @@
       audio.loop = !audio.loop;
       repeatBtn.classList.toggle('active', audio.loop);
     });
+  }
+
+  // Клик на обложку или название в плеере — прокрутка к играющему треку
+  if (playerCoverWrapper) {
+    playerCoverWrapper.style.cursor = 'pointer';
+    playerCoverWrapper.title = 'გადასვლა მიმდინარე ტრეკზე';
+    playerCoverWrapper.addEventListener('click', () => scrollToCurrentTrack());
+  }
+  if (playerTitle) {
+    playerTitle.style.cursor = 'pointer';
+    playerTitle.title = 'გადასვლა მიმდინარე ტრეკზე';
+    playerTitle.addEventListener('click', () => scrollToCurrentTrack());
   }
 
   if (playBtn) playBtn.addEventListener('click', togglePlay);
