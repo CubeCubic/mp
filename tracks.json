@@ -815,6 +815,15 @@
       "albumId": "1771938157888",
       "audioUrl": "https://archive.org/download/the-shadows_202601/Fireworks.flac",
       "coverUrl": "https://archive.org/download/the-shadows_202601/300_Fireworks.png"
+    },
+    {
+      "id": "1772002125958",
+      "title": "Amber Echoes",
+      "artist": "Cube Cubic",
+      "lyrics": "",
+      "albumId": "1767162208459",
+      "audioUrl": "https://archive.org/download/journey-to-a-dream/Amber%20Echoes.flac",
+      "coverUrl": "https://archive.org/download/journey-to-a-dream/300_Amber%20Echoes.png"
     }
   ]
 }
