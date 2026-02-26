@@ -9,6 +9,7 @@ Cube Cubic — Main App Logic  v3.0 FIXED
 - Random сортировка при загрузке
 - Видимый subalbum dropdown (size=4)
 - Клик на карточку продолжает играть, не убирает плеер
+- Загрузка данных из Firebase
 ═══════════════════════════════════════════════════ */
 // ─── DOM элементы ───
 const albumSelect = document.getElementById('album-select');
@@ -398,9 +399,8 @@ function renderTracks() {
 if (!tracksContainer) return;
 tracksContainer.innerHTML = '';
 let toRender = tracks.slice();
-// --- NEW: Filter out hidden tracks ---
+// Filter out hidden tracks
 toRender = toRender.filter(t => !t.hidden);
-// -------------------------------------
 const searchQ = globalSearchInput ? globalSearchInput.value.trim() : '';
 if (searchQ) toRender = toRender.filter(t => matchesQuery(t, searchQ));
 const selAlbum = albumSelect ? albumSelect.value : '';
@@ -829,6 +829,19 @@ tracksContainer.innerHTML += `<div class="skeleton-card"><div class="skeleton-co
 async function loadData() {
 showSkeleton();
 try {
+// Загрузка из Firebase (приоритет)
+const tracksSnapshot = await firebase.database().ref('tracks').once('value');
+const albumsSnapshot = await firebase.database().ref('albums').once('value');
+tracks = tracksSnapshot.val() || [];
+albums = albumsSnapshot.val() || [];
+tracks = shuffleArray(tracks);
+updateTrackCount();
+renderAlbumList();
+renderTracks();
+} catch (e) {
+console.error('Error loading from Firebase:', e);
+// Fallback на tracks.json если Firebase не доступен
+try {
 const res = await fetch('tracks.json', { cache: 'no-store' });
 if (!res.ok) throw new Error('tracks.json not found');
 const data = await res.json();
@@ -838,9 +851,10 @@ tracks = shuffleArray(tracks);
 updateTrackCount();
 renderAlbumList();
 renderTracks();
-} catch (e) {
-console.error('Error loading tracks.json:', e);
+} catch (e2) {
+console.error('Error loading tracks.json:', e2);
 if (tracksContainer) tracksContainer.innerHTML = '<div class="muted">ტრეკები ვერ ჩაიტვირთა</div>';
+}
 }
 }
 if (refreshBtn) {

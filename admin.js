@@ -1,6 +1,5 @@
 (async function() {
 if (!document.getElementById('admin-app')) return;
-// Elements
 const loginForm = document.getElementById('login-form');
 const adminPanel = document.getElementById('admin-panel');
 const loginBtn = document.getElementById('login-btn');
@@ -22,19 +21,15 @@ const modalAlbumName = document.getElementById('modal-album-name');
 const modalAlbumParent = document.getElementById('modal-album-parent');
 const modalSaveBtn = document.getElementById('modal-save');
 const modalCancelBtn = document.getElementById('modal-cancel');
-// Search elements (if present)
 const trackSearchInput = document.getElementById('track-search');
 const trackSearchClear = document.getElementById('track-search-clear');
-// Dyanmic track edit modal
 let trackEditModalBackdrop = null;
 let trackEditRefs = null;
 let trackBeingEdited = null;
-// State
 let albums = [];
 let tracks = [];
 let albumBeingEdited = null;
 let loggedIn = false;
-// Dirty flag
 let isDirty = false;
 function markDirty() {
 isDirty = true;
@@ -44,7 +39,6 @@ function clearDirty() {
 isDirty = false;
 if (loginMsg) loginMsg.textContent = '';
 }
-// Helpers
 function escapeHtml(s){ return (s||'').toString().replace(/[&<>'"]/g, c => ({'&':'&','<':'<','>':'>',"'":"'",'"':'"'})[c]); }
 function el(tag, attrs = {}, children = []) {
 const e = document.createElement(tag);
@@ -60,7 +54,6 @@ else e.appendChild(c);
 });
 return e;
 }
-// === Apply visual changes to Save button: text, aria, classes, blinking ===
 (function applySaveButtonVisuals() {
 if (!btnSaveAll) return;
 let inner = btnSaveAll.querySelector('.inner-text');
@@ -97,7 +90,17 @@ a.download = 'tracks.json';
 a.click();
 URL.revokeObjectURL(url);
 }
-// Get descendant ids for an album
+// === Save to Firebase ===
+async function saveToFirebase() {
+try {
+await firebase.database().ref('tracks').set(tracks);
+await firebase.database().ref('albums').set(albums);
+return true;
+} catch (error) {
+console.error('Firebase save error:', error);
+return false;
+}
+}
 function getDescendantIds(rootId) {
 const map = {};
 albums.forEach(a => { map[a.id] = { ...a, children: [] }; });
@@ -117,7 +120,6 @@ dfs(child);
 if (map[rootId]) dfs(map[rootId]);
 return result;
 }
-// Fill album selects
 function fillAlbumSelects() {
 if (albumParent) {
 albumParent.innerHTML = '';
@@ -135,7 +137,6 @@ trackEditRefs.album.appendChild(el('option', { value: '' }, '— ალბომ
 albums.slice().sort((x, y) => (x.name || '').localeCompare(y.name || '')).forEach(a => trackEditRefs.album.appendChild(el('option', { value: a.id }, a.name)));
 }
 }
-// Render albums list
 function renderAlbumsList() {
 if (!albumsList) return;
 albumsList.innerHTML = '';
@@ -180,7 +181,6 @@ item.appendChild(actions);
 albumsList.appendChild(item);
 });
 }
-// Modal save/cancel for album edit
 if (modalSaveBtn) {
 modalSaveBtn.addEventListener('click', () => {
 if (!albumBeingEdited) return;
@@ -230,7 +230,6 @@ albumEditModal.setAttribute('aria-hidden', 'true');
 albumBeingEdited = null;
 }});
 }
-// Ensure track edit modal exists
 function ensureTrackEditModal() {
 if (trackEditModalBackdrop) return;
 trackEditModalBackdrop = el('div', { class: 'modal-backdrop hidden', id: 'track-edit-dynamic' });
@@ -299,7 +298,6 @@ trackEditModalBackdrop.classList.add('hidden');
 trackEditModalBackdrop.setAttribute('aria-hidden', 'true');
 trackBeingEdited = null;
 }
-// Create album
 if (btnCreateAlbum) {
 btnCreateAlbum.addEventListener('click', () => {
 const name = (albumName.value || '').trim();
@@ -319,7 +317,6 @@ fillAlbumSelects();
 markDirty();
 });
 }
-// Add track
 if (addForm) {
 addForm.addEventListener('submit', (e) => {
 e.preventDefault();
@@ -337,7 +334,6 @@ renderTracks(trackSearchInput ? trackSearchInput.value : '');
 markDirty();
 });
 }
-// Render tracks (optional query param for filtering)
 function renderTracks(query = '') {
 if (!adminTracks) return;
 adminTracks.innerHTML = '';
@@ -369,7 +365,6 @@ t.hidden ? el('div', { class: 'muted', style: 'color: #ff7a66;' }, '⚠ და�
 const actions = el('div', {});
 const btnEdit = el('button', {}, 'Edit');
 const btnDelete = el('button', {}, 'Delete');
-// --- NEW: Hide/Show button ---
 const btnHide = el('button', {}, t.hidden ? 'გამოჩენა' : 'დამალე');
 btnHide.style.marginRight = '6px';
 btnHide.addEventListener('click', () => {
@@ -378,7 +373,6 @@ markDirty();
 renderTracks(trackSearchInput ? trackSearchInput.value : '');
 });
 actions.appendChild(btnHide);
-// -----------------------------
 actions.appendChild(btnEdit);
 actions.appendChild(btnDelete);
 btnEdit.addEventListener('click', () => {
@@ -395,7 +389,6 @@ item.appendChild(actions);
 adminTracks.appendChild(item);
 });
 }
-// Refresh buttons
 if (btnRefreshAlbums) {
 btnRefreshAlbums.addEventListener('click', () => {
 if (loggedIn) {
@@ -415,19 +408,27 @@ alert('Сначала войдите');
 }
 });
 }
-// Save all -> download tracks.json
 if (btnSaveAll) {
-btnSaveAll.addEventListener('click', () => {
+btnSaveAll.addEventListener('click', async () => {
 if (!isDirty) {
 alert('Нет несохранённых изменений');
 return;
 }
-downloadJson();
+const originalText = btnSaveAll.querySelector('.inner-text').textContent;
+btnSaveAll.querySelector('.inner-text').textContent = 'იხსნება...';
+btnSaveAll.disabled = true;
+const success = await saveToFirebase();
+if (success) {
 clearDirty();
-alert('Файл tracks.json скачан. Загрузите его в репозиторий, чтобы изменения стали постоянными.');
+alert('✓ ცვლილებები შენახულია!');
+downloadJson();
+} else {
+alert('✗ შეცდომა შენახვისას');
+}
+btnSaveAll.querySelector('.inner-text').textContent = originalText;
+btnSaveAll.disabled = false;
 });
 }
-// Login / logout (password 230470)
 function tryLogin() {
 const password = (passwordInput.value || '').toString();
 if (password === '230470') {
@@ -467,7 +468,6 @@ adminPanel.classList.add('hidden');
 loginForm.classList.remove('hidden');
 });
 }
-// --- Search logic (debounced) ---
 function debounce(fn, wait) {
 let t = null;
 return function(...args) {
@@ -489,7 +489,6 @@ trackSearchInput.focus();
 });
 }
 }
-// Initialization
 document.addEventListener('DOMContentLoaded', () => {
 adminPanel.classList.add('hidden');
 loginForm.classList.remove('hidden');
