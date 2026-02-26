@@ -81,7 +81,7 @@ z-index: 1001;
 }
 header h1 {
 margin: 0;
-font-size: calc(var(--header-h) * 0.36);
+font-size: calc(var(--header-h) * 0.45);
 font-weight: 800;
 color: var(--accent);
 white-space: nowrap;
