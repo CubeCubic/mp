@@ -411,6 +411,25 @@
     </div>
   </div>
 
+  <!-- ═══ FIREBASE SDK ═══ -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9KqCfSD6_DY3w-JRhPBi8O0B7jEvYM4Q",
+      authDomain: "cube-cubic.firebaseapp.com",
+      databaseURL: "https://cube-cubic-default-rtdb.firebaseio.com",
+      projectId: "cube-cubic",
+      storageBucket: "cube-cubic.firebasestorage.app",
+      messagingSenderId: "923758825907",
+      appId: "1:923758825907:web:d6aa6a083e1c46690ffbc6"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
   <script src="admin.js"></script>
 </body>
 </html>

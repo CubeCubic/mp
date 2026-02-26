@@ -1,5 +1,6 @@
 (async function() {
 if (!document.getElementById('admin-app')) return;
+// Elements
 const loginForm = document.getElementById('login-form');
 const adminPanel = document.getElementById('admin-panel');
 const loginBtn = document.getElementById('login-btn');
@@ -21,15 +22,19 @@ const modalAlbumName = document.getElementById('modal-album-name');
 const modalAlbumParent = document.getElementById('modal-album-parent');
 const modalSaveBtn = document.getElementById('modal-save');
 const modalCancelBtn = document.getElementById('modal-cancel');
+// Search elements (if present)
 const trackSearchInput = document.getElementById('track-search');
 const trackSearchClear = document.getElementById('track-search-clear');
+// Dynamic track edit modal
 let trackEditModalBackdrop = null;
 let trackEditRefs = null;
 let trackBeingEdited = null;
+// State
 let albums = [];
 let tracks = [];
 let albumBeingEdited = null;
 let loggedIn = false;
+// Dirty flag
 let isDirty = false;
 function markDirty() {
 isDirty = true;
@@ -39,6 +44,7 @@ function clearDirty() {
 isDirty = false;
 if (loginMsg) loginMsg.textContent = '';
 }
+// Helpers
 function escapeHtml(s){ return (s||'').toString().replace(/[&<>'"]/g, c => ({'&':'&','<':'<','>':'>',"'":"'",'"':'"'})[c]); }
 function el(tag, attrs = {}, children = []) {
 const e = document.createElement(tag);
@@ -54,6 +60,7 @@ else e.appendChild(c);
 });
 return e;
 }
+// === Apply visual changes to Save button ===
 (function applySaveButtonVisuals() {
 if (!btnSaveAll) return;
 let inner = btnSaveAll.querySelector('.inner-text');
@@ -365,6 +372,7 @@ t.hidden ? el('div', { class: 'muted', style: 'color: #ff7a66;' }, '⚠ და�
 const actions = el('div', {});
 const btnEdit = el('button', {}, 'Edit');
 const btnDelete = el('button', {}, 'Delete');
+// --- Hide/Show button ---
 const btnHide = el('button', {}, t.hidden ? 'გამოჩენა' : 'დამალე');
 btnHide.style.marginRight = '6px';
 btnHide.addEventListener('click', () => {
@@ -373,6 +381,7 @@ markDirty();
 renderTracks(trackSearchInput ? trackSearchInput.value : '');
 });
 actions.appendChild(btnHide);
+// ------------------------
 actions.appendChild(btnEdit);
 actions.appendChild(btnDelete);
 btnEdit.addEventListener('click', () => {
