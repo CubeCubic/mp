@@ -79,23 +79,18 @@ btnSaveAll.classList.remove('blinking');
 setTimeout(() => btnSaveAll.classList.add('blinking'), 700);
 });
 })();
-async function fetchTracksJson() {
-const res = await fetch('tracks.json');
-if (!res.ok) throw new Error('Не удалось загрузить tracks.json');
-const data = await res.json();
-tracks = data.tracks || [];
-albums = data.albums || [];
-return data;
+// === Load from Firebase (instead of tracks.json) ===
+async function loadFromFirebase() {
+try {
+const tracksSnapshot = await firebase.database().ref('tracks').once('value');
+const albumsSnapshot = await firebase.database().ref('albums').once('value');
+tracks = tracksSnapshot.val() || [];
+albums = albumsSnapshot.val() || [];
+return true;
+} catch (error) {
+console.error('Firebase load error:', error);
+return false;
 }
-function downloadJson() {
-const data = { albums, tracks };
-const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = 'tracks.json';
-a.click();
-URL.revokeObjectURL(url);
 }
 // === Save to Firebase ===
 async function saveToFirebase() {
@@ -107,6 +102,16 @@ return true;
 console.error('Firebase save error:', error);
 return false;
 }
+}
+function downloadJson() {
+const data = { albums, tracks };
+const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'tracks.json';
+a.click();
+URL.revokeObjectURL(url);
 }
 function getDescendantIds(rootId) {
 const map = {};
@@ -445,14 +450,15 @@ loggedIn = true;
 loginForm.classList.add('hidden');
 adminPanel.classList.remove('hidden');
 passwordInput.value = '';
-fetchTracksJson().then(() => {
+// Load from Firebase instead of tracks.json
+loadFromFirebase().then(() => {
 renderAlbumsList();
 renderTracks(trackSearchInput ? trackSearchInput.value : '');
 fillAlbumSelects();
 clearDirty();
 }).catch(err => {
 console.error(err);
-alert('Не удалось загрузить tracks.json');
+alert('Не удалось загрузить данные из Firebase');
 });
 } else {
 loginMsg.textContent = 'პაროლი არასწორია';
