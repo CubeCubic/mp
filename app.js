@@ -2,14 +2,13 @@
 /* ═══════════════════════════════════════════════════
 Cube Cubic — Main App Logic  v3.0 FIXED
 Исправлено:
-- Убраны лишние пробелы в коде (синтаксические ошибки)
-- Исправлен класс эквалайзера 'equalizer'
-- Плеер в SIDEBAR
+- Плеер в SIDEBAR (не в header)
 - Refresh работает
 - Показывает счётчик треков "სულ ტრეკი: N"
-- Кнопка "უახლესი ტრეკები"
+- Кнопка "უახლესი ტრეკები" (сортировка newest first toggle)
 - Random сортировка при загрузке
-- Видимый subalbum dropdown
+- Видимый subalbum dropdown (size=4)
+- Клик на карточку продолжает играть, не убирает плеер
 ═══════════════════════════════════════════════════ */
 // ─── DOM элементы ───
 const albumSelect = document.getElementById('album-select');
@@ -136,7 +135,6 @@ if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 const isModalOpen = !lyricsModal.classList.contains('hidden') || 
                     !document.getElementById('contact-modal').classList.contains('hidden');
 if (isModalOpen) return;
-
 switch(e.key) {
   case ' ':
     e.preventDefault();
@@ -266,24 +264,19 @@ const mains = albums
     if (orderA !== orderB) return orderA - orderB;
     return (a.name || '').localeCompare(b.name || '');
   });
-
 const currentAlbumId = albumSelect ? albumSelect.value : '';
 const currentSubalbumId = subalbumSelect ? subalbumSelect.value : '';
-
 mains.forEach(album => {
   const albumId = String(album.id || '');
   const subalbums = albums
     .filter(s => String(s.parentId || '') === albumId)
     .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-  
   const hasSubalbums = subalbums.length > 0;
   const isSelected = currentAlbumId === albumId;
-
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'album-list-button';
   btn.setAttribute('data-album-id', albumId);
-
   const nameSpan = document.createElement('span');
   if (hasSubalbums) {
     const arrow = document.createElement('span');
@@ -294,22 +287,18 @@ mains.forEach(album => {
   const nameText = document.createTextNode(album.name || 'Unnamed');
   nameSpan.appendChild(nameText);
   btn.appendChild(nameSpan);
-
   const subIds = subalbums.map(s => s.id);
   const count = tracks.filter(t => {
     const tid = String(t.albumId || '');
     return tid === albumId || subIds.includes(tid);
   }).length;
-
   const countSpan = document.createElement('span');
   countSpan.className = 'track-count';
   countSpan.textContent = `(${count})`;
   btn.appendChild(countSpan);
-
   if (isSelected && !currentSubalbumId) {
     btn.classList.add('selected');
   }
-
   btn.addEventListener('click', (ev) => {
     ev.preventDefault();
     if (hasSubalbums) {
@@ -327,28 +316,22 @@ mains.forEach(album => {
     renderAlbumList();
     renderTracks();
   });
-
   albumListContainer.appendChild(btn);
-
   if (isSelected && hasSubalbums) {
     const allSubBtn = document.createElement('button');
     allSubBtn.type = 'button';
     allSubBtn.className = 'album-list-button subalbum-button';
     allSubBtn.setAttribute('data-subalbum-id', '');
-    
     const allNameSpan = document.createElement('span');
     allNameSpan.textContent = '— ყველა ქვეალბომები —';
     allSubBtn.appendChild(allNameSpan);
-
     const allCountSpan = document.createElement('span');
     allCountSpan.className = 'track-count';
     allCountSpan.textContent = `(${count})`;
     allSubBtn.appendChild(allCountSpan);
-
     if (!currentSubalbumId) {
       allSubBtn.classList.add('selected');
     }
-
     allSubBtn.addEventListener('click', (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -356,29 +339,23 @@ mains.forEach(album => {
       renderAlbumList();
       renderTracks();
     });
-
     albumListContainer.appendChild(allSubBtn);
-
     subalbums.forEach(sub => {
       const subBtn = document.createElement('button');
       subBtn.type = 'button';
       subBtn.className = 'album-list-button subalbum-button';
       subBtn.setAttribute('data-subalbum-id', sub.id || '');
-
       const subNameSpan = document.createElement('span');
       subNameSpan.textContent = sub.name || 'Unnamed';
       subBtn.appendChild(subNameSpan);
-
       const subCount = tracks.filter(t => String(t.albumId || '') === String(sub.id)).length;
       const subCountSpan = document.createElement('span');
       subCountSpan.className = 'track-count';
       subCountSpan.textContent = `(${subCount})`;
       subBtn.appendChild(subCountSpan);
-
       if (currentSubalbumId === String(sub.id || '')) {
         subBtn.classList.add('selected');
       }
-
       subBtn.addEventListener('click', (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
@@ -386,7 +363,6 @@ mains.forEach(album => {
         renderAlbumList();
         renderTracks();
       });
-
       albumListContainer.appendChild(subBtn);
     });
   }
@@ -422,13 +398,10 @@ function renderTracks() {
 if (!tracksContainer) return;
 tracksContainer.innerHTML = '';
 let toRender = tracks.slice();
-
 const searchQ = globalSearchInput ? globalSearchInput.value.trim() : '';
 if (searchQ) toRender = toRender.filter(t => matchesQuery(t, searchQ));
-
 const selAlbum = albumSelect ? albumSelect.value : '';
 const selSubalbum = subalbumSelect ? subalbumSelect.value : '';
-
 if (selSubalbum) {
   toRender = toRender.filter(t => String(t.albumId || '') === selSubalbum);
 } else if (selAlbum) {
@@ -440,78 +413,59 @@ if (selSubalbum) {
     return tid === selAlbum || subIds.includes(tid);
   });
 }
-
 if (showLikedOnly) {
   const likedTrackIds = getUserLikedTracks();
   toRender = toRender.filter(t => likedTrackIds.includes(t.id));
   toRender.sort((a, b) => (firebaseLikeCounts[b.id] || 0) - (firebaseLikeCounts[a.id] || 0));
 }
-
 if (!toRender.length) {
   tracksContainer.innerHTML = '<div class="muted">ტრეკები არ მოიძებნა</div>';
   filteredTracks = [];
   return;
 }
-
 if (sortNewest) {
   toRender.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
 }
-
 toRender.forEach(t => {
   const card = document.createElement('div');
   card.className = 'card';
   card.setAttribute('data-track-id', t.id || '');
-
   const img = document.createElement('img');
   img.className = 'track-cover';
   img.src = getCoverUrl(t);
   img.alt = safeStr(t.title);
   card.appendChild(img);
-
   const info = document.createElement('div');
   info.className = 'track-info';
-
   const titleRow = document.createElement('div');
   titleRow.style.cssText = 'display:flex;align-items:center;gap:6px;';
-
   const h4 = document.createElement('h4');
   h4.textContent = safeStr(t.title);
   h4.style.flex = '1';
   h4.style.minWidth = '0';
   titleRow.appendChild(h4);
-
-  // --- FIX: Equalizer Class Name ---
   const eq = document.createElement('div');
-  eq.className = 'equalizer'; // Исправлено: было 'equaliz er'
+  eq.className = 'equalizer';
   eq.innerHTML = '<span></span><span></span><span></span>';
   eq.style.display = 'none';
   titleRow.appendChild(eq);
-  // -------------------------------
-
   info.appendChild(titleRow);
-
   const albumDiv = document.createElement('div');
   albumDiv.style.cssText = 'display:flex;align-items:center;gap:8px;';
-
   const albumName = document.createElement('span');
   albumName.textContent = getAlbumName(t);
   albumName.style.flex = '1';
   albumDiv.appendChild(albumName);
-
   const playCountEl = document.createElement('div');
   playCountEl.className = 'play-count';
   const pc = getPlayCount(t.id);
   playCountEl.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span>${pc > 0 ? pc : ''}</span>`;
   playCountEl.style.display = pc > 0 ? 'flex' : 'none';
   albumDiv.appendChild(playCountEl);
-
   info.appendChild(albumDiv);
-
   card.appendChild(info);
-
   const actions = document.createElement('div');
   actions.className = 'track-actions';
-
   if (t.lyrics && t.lyrics.trim()) {
     const lyrBtn = document.createElement('button');
     lyrBtn.type = 'button';
@@ -523,28 +477,23 @@ toRender.forEach(t => {
     });
     actions.appendChild(lyrBtn);
   }
-
   const likeBtn = document.createElement('button');
   likeBtn.type = 'button';
   likeBtn.className = 'like-button';
-  
   const likeCount = getLikeCount(t.id);
   const isLiked = isLikedByUser(t.id);
-  
   likeBtn.innerHTML = `
      <svg viewBox="0 0 24 24" class="heart-icon ${isLiked ? 'liked' : ''}">
        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
      </svg>
      <span class="like-count">${likeCount > 0 ? likeCount : ''}</span>
   `;
-  
   likeBtn.addEventListener('click', (ev) => {
     ev.stopPropagation();
     const nowLiked = toggleLike(t.id);
     const heartIcon = likeBtn.querySelector('.heart-icon');
     const countSpan = likeBtn.querySelector('.like-count');
     const newCount = getLikeCount(t.id);
-    
     if (nowLiked) {
       heartIcon.classList.add('liked');
       likeBtn.classList.add('liked-animation');
@@ -552,17 +501,13 @@ toRender.forEach(t => {
     } else {
       heartIcon.classList.remove('liked');
     }
-    
     countSpan.textContent = newCount > 0 ? newCount : '';
   });
-  
   actions.appendChild(likeBtn);
-
   const dlBtn = document.createElement('button');
   dlBtn.type = 'button';
   dlBtn.className = 'download-button';
   dlBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
-
   const streamUrl = getStreamUrl(t);
   if (streamUrl && streamUrl.trim()) {
     dlBtn.addEventListener('click', async (ev) => {
@@ -573,10 +518,8 @@ toRender.forEach(t => {
       dlBtn.textContent = '0s…';
       dlBtn.disabled = true;
       const timer = setInterval(() => { sec++; dlBtn.textContent = `${sec}s…`; }, 1000);
-
       let fname = 'track.mp3';
       try { fname = decodeURIComponent(new URL(streamUrl).pathname.split('/').pop()) || fname; } catch (e) {}
-
       await triggerDownload(streamUrl, fname);
       clearInterval(timer);
       dlBtn.innerHTML = origHTML;
@@ -587,7 +530,6 @@ toRender.forEach(t => {
     dlBtn.style.opacity = '.4';
   }
   actions.appendChild(dlBtn);
-  
   const shareBtn = document.createElement('button');
   shareBtn.type = 'button';
   shareBtn.className = 'share-button';
@@ -622,29 +564,22 @@ toRender.forEach(t => {
     }
   });
   actions.appendChild(shareBtn);
-  
   card.appendChild(actions);
-
   const progressBarEl = document.createElement('div');
   progressBarEl.className = 'card-progress-bar';
   card.appendChild(progressBarEl);
-
   card.addEventListener('click', () => {
     userInteracted = true;
     const idx = toRender.indexOf(t);
     playByIndex(idx);
   });
-
   tracksContainer.appendChild(card);
 });
-
 filteredTracks = toRender;
-
 if (currentTrackId) {
   const newIdx = filteredTracks.findIndex(t => t.id === currentTrackId);
   currentTrackIndex = newIdx;
 }
-
 highlightCurrent();
 scrollToCurrentTrack();
 }
@@ -1005,41 +940,41 @@ closeContactModal();
 if (contactForm) {
 contactForm.addEventListener('submit', async (e) => {
 e.preventDefault();
-const submitBtn = document.getElementById('contact-submit');
-const formData = new FormData(contactForm);
-if (submitBtn) {
-submitBtn.disabled = true;
-submitBtn.textContent = 'იგზავნება...';
-}
-if (contactStatus) contactStatus.className = 'contact-status hidden';
-try {
-const response = await fetch('https://api.web3forms.com/submit', {
-method: 'POST',
-body: formData
-});
-const result = await response.json();
-if (result.success) {
-if (contactStatus) {
-contactStatus.textContent = '✓ შეტყობინება გაგზავნილია!';
-contactStatus.className = 'contact-status success';
-}
-showToast('შეტყობინება გაგზავნილია!');
-setTimeout(() => closeContactModal(), 2000);
-} else {
-throw new Error('Form submission failed');
-}
-} catch (error) {
-console.error('Contact form error:', error);
-if (contactStatus) {
-contactStatus.textContent = '✗ შეცდომა. გთხოვთ სცადოთ თავიდან.';
-contactStatus.className = 'contact-status error';
-}
-} finally {
-if (submitBtn) {
-submitBtn.disabled = false;
-submitBtn.textContent = 'გაგზავნა';
-}
-}
+  const submitBtn = document.getElementById('contact-submit');
+  const formData = new FormData(contactForm);
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'იგზავნება...';
+  }
+  if (contactStatus) contactStatus.className = 'contact-status hidden';
+  try {
+    const response = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      body: formData
+    });
+    const result = await response.json();
+    if (result.success) {
+      if (contactStatus) {
+        contactStatus.textContent = '✓ შეტყობინება გაგზავნილია!';
+        contactStatus.className = 'contact-status success';
+      }
+      showToast('შეტყობინება გაგზავნილია!');
+      setTimeout(() => closeContactModal(), 2000);
+    } else {
+      throw new Error('Form submission failed');
+    }
+  } catch (error) {
+    console.error('Contact form error:', error);
+    if (contactStatus) {
+      contactStatus.textContent = '✗ შეცდომა. გთხოვთ სცადოთ თავიდან.';
+      contactStatus.className = 'contact-status error';
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'გაგზავნა';
+    }
+  }
 });
 }
 // ════════════════════════════════
@@ -1053,31 +988,31 @@ text: 'შეამოწმე ეს მუსიკალური საი�
 url: window.location.href.split('#')[0]
 };
 try {
-if (navigator.share) {
-await navigator.share(shareData);
-showToast('გაზიარება წარმატებული იყო!');
-} else {
-await navigator.clipboard.writeText(shareData.url);
-showToast('ბმული დაკოპირდა! 🔗');
-}
+  if (navigator.share) {
+    await navigator.share(shareData);
+    showToast('გაზიარება წარმატებული იყო!');
+  } else {
+    await navigator.clipboard.writeText(shareData.url);
+    showToast('ბმული დაკოპირდა! 🔗');
+  }
 } catch (error) {
-if (error.name !== 'AbortError') {
-console.error('Share error:', error);
-try {
-const textArea = document.createElement('textarea');
-textArea.value = shareData.url;
-textArea.style.position = 'fixed';
-textArea.style.opacity = '0';
-document.body.appendChild(textArea);
-textArea.select();
-document.execCommand('copy');
-document.body.removeChild(textArea);
-showToast('ბმული დაკოპირდა! 🔗');
-} catch (fallbackError) {
-console.error('Fallback share error:', fallbackError);
-showToast('გაზიარება ვერ მოხერხდა');
-}
-}
+  if (error.name !== 'AbortError') {
+    console.error('Share error:', error);
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = shareData.url;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('ბმული დაკოპირდა! 🔗');
+    } catch (fallbackError) {
+      console.error('Fallback share error:', fallbackError);
+      showToast('გაზიარება ვერ მოხერხდა');
+    }
+  }
 }
 }
 if (shareBtnHeader) shareBtnHeader.addEventListener('click', handleShare);

@@ -723,48 +723,42 @@ animation: deepOceanPulseBright 1.8s ease-in-out infinite;
 }
 /* === Equalizer === */
 .equalizer {
-  display: none;
-  align-items: flex-end;
-  gap: 2px;
-  height: 16px;
-  margin-left: 6px;
+display: none;
+align-items: flex-end;
+gap: 2px;
+height: 16px;
+margin-left: 6px;
 }
-
 .card.playing-track .equalizer {
-  display: flex;
+display: flex;
 }
-
 .equalizer span {
-  width: 3px;
-  background: var(--color-coral);
-  border-radius: 2px;
-  animation: equalizerBounce 0.6s ease-in-out infinite;
+width: 3px;
+background: var(--color-coral);
+border-radius: 2px;
+animation: equalizerBounce 0.6s ease-in-out infinite;
 }
-
 .equalizer span:nth-child(1) {
-  height: 6px;
-  animation-delay: 0s;
+height: 6px;
+animation-delay: 0s;
 }
-
 .equalizer span:nth-child(2) {
-  height: 10px;
-  animation-delay: 0.2s;
+height: 10px;
+animation-delay: 0.2s;
 }
-
 .equalizer span:nth-child(3) {
-  height: 8px;
-  animation-delay: 0.4s;
+height: 8px;
+animation-delay: 0.4s;
 }
-
 @keyframes equalizerBounce {
-  0%, 100% {
-    transform: scaleY(0.5);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scaleY(1.2);
-    opacity: 1;
-  }
+0%, 100% {
+transform: scaleY(0.5);
+opacity: 0.6;
+}
+50% {
+transform: scaleY(1.2);
+opacity: 1;
+}
 }
 /* Card internals */
 .track-cover {
@@ -788,7 +782,7 @@ white-space: nowrap;
 overflow: hidden;
 text-overflow: ellipsis;
 }
-.track-info> div {
+.track-info > div {
 font-size: 12px;
 color: rgba(255,255,255,0.45);
 white-space: nowrap;
@@ -1221,12 +1215,10 @@ display: none;
     background: linear-gradient(90deg, var(--accent-2), var(--color-sea));
     transition: width 0.1s linear;
   }
-  /* Push page content above mini-player when visible */
   body.mini-player-visible .site-wrapper {
     padding-bottom: 72px;
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
 *, *::before, *::after {
 animation: none !important;
