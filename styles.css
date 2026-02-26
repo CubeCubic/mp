@@ -721,6 +721,51 @@ animation: deepOceanPulseBright 1.8s ease-in-out infinite;
 0%,100% { transform: translateY(-6px) scale(1.03); }
 50% { transform: translateY(-8px) scale(1.04); }
 }
+/* === Equalizer === */
+.equalizer {
+  display: none;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+  margin-left: 6px;
+}
+
+.card.playing-track .equalizer {
+  display: flex;
+}
+
+.equalizer span {
+  width: 3px;
+  background: var(--color-coral);
+  border-radius: 2px;
+  animation: equalizerBounce 0.6s ease-in-out infinite;
+}
+
+.equalizer span:nth-child(1) {
+  height: 6px;
+  animation-delay: 0s;
+}
+
+.equalizer span:nth-child(2) {
+  height: 10px;
+  animation-delay: 0.2s;
+}
+
+.equalizer span:nth-child(3) {
+  height: 8px;
+  animation-delay: 0.4s;
+}
+
+@keyframes equalizerBounce {
+  0%, 100% {
+    transform: scaleY(0.5);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scaleY(1.2);
+    opacity: 1;
+  }
+}
 /* Card internals */
 .track-cover {
 width: 100%;
