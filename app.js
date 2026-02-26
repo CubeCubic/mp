@@ -53,10 +53,8 @@
   let currentTrackIndex = -1;
   let currentTrackId = null; // Always identify the playing track by ID, not index
   let userInteracted = false;
-  let sortNewest = false;
-  let shuffleMode = false;
-  let sortMode = ''; // 'az', 'likes', 'plays', 'top'
-  let playCounts = {}; // local play counts synced from Firebase
+  let sortNewest = false; // toggle для кнопки "უახლესი ტრეკები"
+  let shuffleMode = false; // shuffle toggle
 
   // ════════════════════════════════
   //  Like System (Firebase global + localStorage personal)
@@ -76,21 +74,6 @@
     firebaseLikeCounts = snapshot.val() || {};
     renderTracks();
   });
-
-  // Firebase play counts
-  const playsRef = firebase.database().ref('plays');
-  playsRef.on('value', (snapshot) => {
-    playCounts = snapshot.val() || {};
-    renderTracks();
-  });
-
-  function incrementPlayCount(trackId) {
-    firebase.database().ref('plays/' + trackId).transaction(val => (val || 0) + 1);
-  }
-
-  function getPlayCount(trackId) {
-    return playCounts[trackId] || 0;
-  }
 
   function getLikeCount(trackId) {
     return firebaseLikeCounts[trackId] || 0;
@@ -541,19 +524,8 @@
     // Сортировка
     if (sortNewest) {
       toRender.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
-    } else if (sortMode === 'az') {
-      toRender.sort((a, b) => safeStr(a.title).localeCompare(safeStr(b.title)));
-    } else if (sortMode === 'likes') {
-      toRender.sort((a, b) => (firebaseLikeCounts[b.id] || 0) - (firebaseLikeCounts[a.id] || 0));
-    } else if (sortMode === 'plays') {
-      toRender.sort((a, b) => (playCounts[b.id] || 0) - (playCounts[a.id] || 0));
-    } else if (sortMode === 'top') {
-      toRender.sort((a, b) => {
-        const scoreB = (firebaseLikeCounts[b.id] || 0) * 2 + (playCounts[b.id] || 0);
-        const scoreA = (firebaseLikeCounts[a.id] || 0) * 2 + (playCounts[a.id] || 0);
-        return scoreB - scoreA;
-      });
     }
+    // Иначе порядок как есть (random при загрузке)
 
     toRender.forEach(t => {
       const card = document.createElement('div');
@@ -569,40 +541,12 @@
       const info = document.createElement('div');
       info.className = 'track-info';
 
-      const titleRow = document.createElement('div');
-      titleRow.style.cssText = 'display:flex;align-items:center;gap:6px;';
-
       const h4 = document.createElement('h4');
       h4.textContent = safeStr(t.title);
-      h4.style.flex = '1';
-      h4.style.minWidth = '0';
-      titleRow.appendChild(h4);
-
-      // Equalizer (only when playing)
-      const eq = document.createElement('div');
-      eq.className = 'equalizer';
-      eq.innerHTML = '<span></span><span></span><span></span>';
-      eq.style.display = 'none';
-      titleRow.appendChild(eq);
-
-      info.appendChild(titleRow);
+      info.appendChild(h4);
 
       const albumDiv = document.createElement('div');
-      albumDiv.style.cssText = 'display:flex;align-items:center;gap:8px;';
-
-      const albumName = document.createElement('span');
-      albumName.textContent = getAlbumName(t);
-      albumName.style.flex = '1';
-      albumDiv.appendChild(albumName);
-
-      // Play count
-      const playCountEl = document.createElement('div');
-      playCountEl.className = 'play-count';
-      const pc = getPlayCount(t.id);
-      playCountEl.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span>${pc > 0 ? pc : ''}</span>`;
-      playCountEl.style.display = pc > 0 ? 'flex' : 'none';
-      albumDiv.appendChild(playCountEl);
-
+      albumDiv.textContent = getAlbumName(t);
       info.appendChild(albumDiv);
 
       card.appendChild(info);
@@ -762,17 +706,11 @@
 
   function highlightCurrent() {
     if (!tracksContainer) return;
-    tracksContainer.querySelectorAll('.card').forEach(c => {
-      c.classList.remove('playing-track');
-      const eq = c.querySelector('.equalizer');
-      if (eq) eq.style.display = 'none';
-    });
+    tracksContainer.querySelectorAll('.card').forEach(c => c.classList.remove('playing-track'));
     if (currentTrackId) {
       const card = tracksContainer.querySelector(`[data-track-id="${currentTrackId}"]`);
       if (card) {
         card.classList.add('playing-track');
-        const eq = card.querySelector('.equalizer');
-        if (eq) eq.style.display = 'flex';
       }
     }
   }
@@ -865,7 +803,6 @@
     currentTrackIndex = idx;
     const t = filteredTracks[idx];
     currentTrackId = t.id; // Save ID — survives re-renders
-    incrementPlayCount(t.id);
     updatePlayer(t);
     const streamUrl = getStreamUrl(t);
     if (!streamUrl) {
@@ -885,6 +822,7 @@
       }
     });
     highlightCurrent();
+    scrollToCurrentTrack();
   }
 
   function togglePlay() {
@@ -1029,23 +967,7 @@
   //  Data loading
   // ════════════════════════════════
 
-  function showSkeleton() {
-    if (!tracksContainer) return;
-    tracksContainer.innerHTML = '';
-    for (let i = 0; i < 8; i++) {
-      tracksContainer.innerHTML += `
-        <div class="skeleton-card">
-          <div class="skeleton-cover"></div>
-          <div class="skeleton-info">
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line short"></div>
-          </div>
-        </div>`;
-    }
-  }
-
   async function loadData() {
-    showSkeleton();
     try {
       const res = await fetch('tracks.json', { cache: 'no-store' });
       if (!res.ok) throw new Error('tracks.json not found');
@@ -1112,39 +1034,7 @@
   }
 
   // ════════════════════════════════
-  //  Sort buttons
-  // ════════════════════════════════
-
-  const sortBtns = {
-    az:    document.getElementById('sort-az-btn'),
-    likes: document.getElementById('sort-likes-btn'),
-    plays: document.getElementById('sort-plays-btn'),
-    top:   document.getElementById('top-tracks-btn'),
-  };
-
-  function clearSortBtns() {
-    Object.values(sortBtns).forEach(b => { if (b) b.classList.remove('active'); });
-    sortNewest = false;
-    if (newestBtn) newestBtn.classList.remove('active');
-    showLikedOnly = false;
-    if (likedBtn) likedBtn.classList.remove('active');
-  }
-
-  Object.entries(sortBtns).forEach(([mode, btn]) => {
-    if (!btn) return;
-    btn.addEventListener('click', () => {
-      if (sortMode === mode) {
-        // Toggle off
-        sortMode = '';
-        btn.classList.remove('active');
-      } else {
-        clearSortBtns();
-        sortMode = mode;
-        btn.classList.add('active');
-      }
-      renderTracks();
-    });
-  });
+  //  Scroll to Top Button
   // ════════════════════════════════
 
   const scrollToTopBtn = document.getElementById('scroll-to-top');
