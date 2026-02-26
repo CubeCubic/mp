@@ -398,6 +398,9 @@ function renderTracks() {
 if (!tracksContainer) return;
 tracksContainer.innerHTML = '';
 let toRender = tracks.slice();
+// --- NEW: Filter out hidden tracks ---
+toRender = toRender.filter(t => !t.hidden);
+// -------------------------------------
 const searchQ = globalSearchInput ? globalSearchInput.value.trim() : '';
 if (searchQ) toRender = toRender.filter(t => matchesQuery(t, searchQ));
 const selAlbum = albumSelect ? albumSelect.value : '';
