@@ -53,8 +53,9 @@
   let currentTrackIndex = -1;
   let currentTrackId = null; // Always identify the playing track by ID, not index
   let userInteracted = false;
-  let sortNewest = false; // toggle для кнопки "უახლესი ტრეკები"
-  let shuffleMode = false; // shuffle toggle
+  let sortNewest = false;
+  let shuffleMode = false;
+  let playCounts = {};
 
   // ════════════════════════════════
   //  Like System (Firebase global + localStorage personal)
@@ -74,6 +75,21 @@
     firebaseLikeCounts = snapshot.val() || {};
     renderTracks();
   });
+
+  // Firebase play counts
+  const playsRef = firebase.database().ref('plays');
+  playsRef.on('value', (snapshot) => {
+    playCounts = snapshot.val() || {};
+    renderTracks();
+  });
+
+  function incrementPlayCount(trackId) {
+    firebase.database().ref('plays/' + trackId).transaction(val => (val || 0) + 1);
+  }
+
+  function getPlayCount(trackId) {
+    return playCounts[trackId] || 0;
+  }
 
   function getLikeCount(trackId) {
     return firebaseLikeCounts[trackId] || 0;
@@ -541,12 +557,38 @@
       const info = document.createElement('div');
       info.className = 'track-info';
 
+      const titleRow = document.createElement('div');
+      titleRow.style.cssText = 'display:flex;align-items:center;gap:6px;';
+
       const h4 = document.createElement('h4');
       h4.textContent = safeStr(t.title);
-      info.appendChild(h4);
+      h4.style.flex = '1';
+      h4.style.minWidth = '0';
+      titleRow.appendChild(h4);
+
+      const eq = document.createElement('div');
+      eq.className = 'equalizer';
+      eq.innerHTML = '<span></span><span></span><span></span>';
+      eq.style.display = 'none';
+      titleRow.appendChild(eq);
+
+      info.appendChild(titleRow);
 
       const albumDiv = document.createElement('div');
-      albumDiv.textContent = getAlbumName(t);
+      albumDiv.style.cssText = 'display:flex;align-items:center;gap:8px;';
+
+      const albumName = document.createElement('span');
+      albumName.textContent = getAlbumName(t);
+      albumName.style.flex = '1';
+      albumDiv.appendChild(albumName);
+
+      const playCountEl = document.createElement('div');
+      playCountEl.className = 'play-count';
+      const pc = getPlayCount(t.id);
+      playCountEl.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span>${pc > 0 ? pc : ''}</span>`;
+      playCountEl.style.display = pc > 0 ? 'flex' : 'none';
+      albumDiv.appendChild(playCountEl);
+
       info.appendChild(albumDiv);
 
       card.appendChild(info);
@@ -706,11 +748,17 @@
 
   function highlightCurrent() {
     if (!tracksContainer) return;
-    tracksContainer.querySelectorAll('.card').forEach(c => c.classList.remove('playing-track'));
+    tracksContainer.querySelectorAll('.card').forEach(c => {
+      c.classList.remove('playing-track');
+      const eq = c.querySelector('.equalizer');
+      if (eq) eq.style.display = 'none';
+    });
     if (currentTrackId) {
       const card = tracksContainer.querySelector(`[data-track-id="${currentTrackId}"]`);
       if (card) {
         card.classList.add('playing-track');
+        const eq = card.querySelector('.equalizer');
+        if (eq) eq.style.display = 'flex';
       }
     }
   }
@@ -803,6 +851,7 @@
     currentTrackIndex = idx;
     const t = filteredTracks[idx];
     currentTrackId = t.id; // Save ID — survives re-renders
+    incrementPlayCount(t.id);
     updatePlayer(t);
     const streamUrl = getStreamUrl(t);
     if (!streamUrl) {
@@ -967,7 +1016,23 @@
   //  Data loading
   // ════════════════════════════════
 
+  function showSkeleton() {
+    if (!tracksContainer) return;
+    tracksContainer.innerHTML = '';
+    for (let i = 0; i < 8; i++) {
+      tracksContainer.innerHTML += `
+        <div class="skeleton-card">
+          <div class="skeleton-cover"></div>
+          <div class="skeleton-info">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+          </div>
+        </div>`;
+    }
+  }
+
   async function loadData() {
+    showSkeleton();
     try {
       const res = await fetch('tracks.json', { cache: 'no-store' });
       if (!res.ok) throw new Error('tracks.json not found');
