@@ -1,0 +1,22 @@
+{
+  "name": "C u b i c",
+  "short_name": "Cubic",
+  "description": "C u b i c — მუსიკალური პლატფორმა",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0b2b45",
+  "theme_color": "#0b2b45",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "images/smallcube.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/midcube.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
