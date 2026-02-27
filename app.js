@@ -469,15 +469,18 @@ toRender.forEach(t => {
   durationEl.textContent = '';
   durationEl.style.cssText = 'font-size:11px;color:rgba(255,255,255,0.4);flex-shrink:0;';
   albumDiv.appendChild(durationEl);
-  // Load duration lazily
+  // Duration — загружаем с задержкой чтобы не создавать десятки запросов одновременно
   if (t.audioUrl || t.streamUrl) {
-    const tmpAudio = new Audio();
-    tmpAudio.preload = 'metadata';
-    tmpAudio.src = t.audioUrl || t.streamUrl;
-    tmpAudio.addEventListener('loadedmetadata', () => {
-      durationEl.textContent = formatTime(tmpAudio.duration);
-      tmpAudio.src = '';
-    }, { once: true });
+    const idx = toRender.indexOf(t);
+    setTimeout(() => {
+      const tmpAudio = new Audio();
+      tmpAudio.preload = 'metadata';
+      tmpAudio.src = t.audioUrl || t.streamUrl;
+      tmpAudio.addEventListener('loadedmetadata', () => {
+        durationEl.textContent = formatTime(tmpAudio.duration);
+        tmpAudio.src = '';
+      }, { once: true });
+    }, idx * 120); // задержка 120мс между каждым треком
   }
 
   const playCountEl = document.createElement('div');
