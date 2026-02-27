@@ -233,7 +233,7 @@ white-space: nowrap;
 }
 /* === ИЗМЕНЕНИЕ: Укорочен Progress Bar === */
 .header-player-progress-row #progress-sidebar {
-flex: 0 0 120px;
+flex: 0 0 220px;
 max-width: 120px;
 height: 3px;
 border-radius: 2px;
