@@ -177,6 +177,11 @@ switch(e.key) {
     if (volumeSlider) volumeSlider.style.opacity = audio.muted ? '0.4' : '1';
     break;
 }
+// Handle M key by physical position (works with any keyboard language)
+if (e.code === 'KeyM' && e.key !== 'm' && e.key !== 'M') {
+  audio.muted = !audio.muted;
+  if (volumeSlider) volumeSlider.style.opacity = audio.muted ? '0.4' : '1';
+}
 });
 // ════════════════════════════════
 function formatTime(sec) {
