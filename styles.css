@@ -1419,26 +1419,3 @@ gap: 12px;
 max-width: 94%;
 }
 }
-/* === Укороченный header player === */
-#header-player {
-  gap: 6px !important;
-}
-
-#header-player .player-cover-wrapper {
-  width: 36px !important;
-  height: 36px !important;
-  max-width: 36px !important;
-}
-
-.header-player-controls button {
-  width: 26px !important;
-  height: 26px !important;
-}
-
-.header-player-volume {
-  display: none !important;
-}
-
-.header-player-progress-row span {
-  display: none !important;
-}
