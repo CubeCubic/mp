@@ -1418,4 +1418,13 @@ gap: 12px;
 .contact-modal-box {
 max-width: 94%;
 }
+/* === Укоротить progress bar в шапке === */
+.header-player-progress-row #progress-sidebar {
+  flex: 0 0 120px !important;
+  max-width: 120px !important;
+}
+
+/* Опционально: скрыть время трека для ещё большей экономии места */
+.header-player-progress-row span {
+  display: none !important;
 }
