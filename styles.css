@@ -68,7 +68,7 @@ left: 0;
 right: 0;
 height: var(--header-h);
 display: grid;
-grid-template-columns: auto auto 1fr auto auto auto;
+grid-template-columns: auto 1fr auto auto auto;
 align-items: center;
 gap: 12px;
 padding: 6px 16px;
@@ -231,8 +231,10 @@ color: rgba(255,255,255,0.45);
 flex-shrink: 0;
 white-space: nowrap;
 }
+/* === ИЗМЕНЕНИЕ: Укорочен Progress Bar === */
 .header-player-progress-row #progress-sidebar {
-flex: 1;
+flex: 0 0 120px;
+max-width: 120px;
 height: 3px;
 border-radius: 2px;
 background: rgba(255,255,255,0.1);
@@ -241,6 +243,7 @@ outline: none;
 appearance: none;
 cursor: pointer;
 }
+/* ================================================== */
 .header-player-progress-row #progress-sidebar::-webkit-slider-thumb {
 -webkit-appearance: none;
 width: 10px;
@@ -1377,12 +1380,9 @@ gap: 18px;
 @media (max-width: 680px) {
 :root { --header-h: 56px; }
 header {
-grid-template-columns: auto auto 1fr auto auto auto;
+grid-template-columns: auto 1fr auto auto auto;
 padding: 6px 12px;
 gap: 8px;
-}
-#header-player {
-display: none;
 }
 #contact-btn {
 font-size: 0;
@@ -1418,13 +1418,4 @@ gap: 12px;
 .contact-modal-box {
 max-width: 94%;
 }
-/* === Укоротить progress bar в шапке === */
-.header-player-progress-row #progress-sidebar {
-  flex: 0 0 120px !important;
-  max-width: 120px !important;
-}
-
-/* Опционально: скрыть время трека для ещё большей экономии места */
-.header-player-progress-row span {
-  display: none !important;
 }
