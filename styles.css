@@ -68,7 +68,7 @@ left: 0;
 right: 0;
 height: var(--header-h);
 display: grid;
-grid-template-columns: auto 1fr auto;
+grid-template-columns: auto auto 1fr auto auto auto;
 align-items: center;
 gap: 12px;
 padding: 6px 16px;
@@ -136,6 +136,7 @@ align-items: center;
 gap: 6px;
 transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
 white-space: nowrap;
+justify-self: end;
 }
 #contact-btn:hover {
 background: linear-gradient(135deg, rgba(255,122,102,0.28), rgba(15,179,166,0.20));
@@ -162,6 +163,7 @@ align-items: center;
 gap: 6px;
 transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
 white-space: nowrap;
+justify-self: end;
 }
 #share-btn:hover {
 background: linear-gradient(135deg, rgba(15,179,166,0.28), rgba(43,183,164,0.20));
@@ -181,7 +183,7 @@ transition: color 0.2s;
 #hidden-admin-link:hover {
 color: rgba(255,255,255,0.5);
 }
-/* === Header Player (CENTERED) === */
+/* === Header Player === */
 #header-player {
 display: flex;
 align-items: center;
@@ -189,8 +191,6 @@ gap: 10px;
 min-width: 0;
 overflow: hidden;
 padding: 0 8px;
-justify-content: center;
-margin: 0 auto;
 }
 #header-player .player-cover-wrapper {
 width: 44px;
@@ -232,8 +232,7 @@ flex-shrink: 0;
 white-space: nowrap;
 }
 .header-player-progress-row #progress-sidebar {
-flex: 0 0 220px;
-max-width: 220px;
+flex: 1;
 height: 3px;
 border-radius: 2px;
 background: rgba(255,255,255,0.1);
@@ -1378,7 +1377,7 @@ gap: 18px;
 @media (max-width: 680px) {
 :root { --header-h: 56px; }
 header {
-grid-template-columns: auto 1fr auto;
+grid-template-columns: auto auto 1fr auto auto auto;
 padding: 6px 12px;
 gap: 8px;
 }
