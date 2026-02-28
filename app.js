@@ -251,7 +251,8 @@ return copy;
 // ════════════════════════════════
 function updateTrackCount() {
 if (!trackCountDisplay) return;
-trackCountDisplay.textContent = `სულ ტრეკი: ${tracks.length}`;
+const visibleCount = tracks.filter(t => !t.hidden).length;
+trackCountDisplay.textContent = `სულ ტრეკი: ${visibleCount}`;
 }
 // ════════════════════════════════
 //  Album sidebar rendering
