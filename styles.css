@@ -188,9 +188,9 @@ color: rgba(255,255,255,0.5);
 display: flex;
 align-items: center;
 gap: 10px;
-min-width: 0;
 overflow: hidden;
 padding: 0 8px;
+justify-self: center;
 }
 #header-player .player-cover-wrapper {
 width: 44px;
@@ -202,7 +202,6 @@ flex-shrink: 0;
 display: flex;
 flex-direction: column;
 gap: 2px;
-flex: 1;
 min-width: 0;
 }
 .header-player-info .player-title {
@@ -212,6 +211,7 @@ color: #fff;
 white-space: nowrap;
 overflow: hidden;
 text-overflow: ellipsis;
+max-width: 240px;
 }
 .header-player-info .player-artist {
 font-size: 10px;
@@ -219,6 +219,7 @@ color: rgba(255,255,255,0.5);
 white-space: nowrap;
 overflow: hidden;
 text-overflow: ellipsis;
+max-width: 240px;
 }
 .header-player-progress-row {
 display: flex;
@@ -232,7 +233,8 @@ flex-shrink: 0;
 white-space: nowrap;
 }
 .header-player-progress-row #progress-sidebar {
-flex: 1;
+width: 240px;
+flex: none;
 height: 3px;
 border-radius: 2px;
 background: rgba(255,255,255,0.1);
