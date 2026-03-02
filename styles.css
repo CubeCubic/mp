@@ -35,7 +35,7 @@ background-color: var(--color-deep);
 -moz-osx-font-smoothing: grayscale;
 }
 body::before {
-content: "";
+content: " ";
 position: fixed;
 inset: 0;
 z-index: -3;
@@ -44,7 +44,7 @@ background-attachment: fixed;
 filter: saturate(1.06) contrast(1.04) brightness(0.96);
 }
 body::after {
-content: "";
+content: " ";
 position: fixed;
 inset: 0;
 z-index: -2;
@@ -68,7 +68,7 @@ left: 0;
 right: 0;
 height: var(--header-h);
 display: grid;
-grid-template-columns: auto auto 1fr auto auto auto;
+grid-template-columns: auto 1fr auto;
 align-items: center;
 gap: 12px;
 padding: 6px 16px;
@@ -136,7 +136,6 @@ align-items: center;
 gap: 6px;
 transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
 white-space: nowrap;
-justify-self: end;
 }
 #contact-btn:hover {
 background: linear-gradient(135deg, rgba(255,122,102,0.28), rgba(15,179,166,0.20));
@@ -163,7 +162,6 @@ align-items: center;
 gap: 6px;
 transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
 white-space: nowrap;
-justify-self: end;
 }
 #share-btn:hover {
 background: linear-gradient(135deg, rgba(15,179,166,0.28), rgba(43,183,164,0.20));
@@ -191,6 +189,8 @@ gap: 10px;
 min-width: 0;
 overflow: hidden;
 padding: 0 8px;
+justify-content: center;
+margin: 0 auto;
 }
 #header-player .player-cover-wrapper {
 width: 44px;
@@ -231,8 +231,10 @@ color: rgba(255,255,255,0.45);
 flex-shrink: 0;
 white-space: nowrap;
 }
+/* === ИЗМЕНЕНИЕ: Progress Bar 250px === */
 .header-player-progress-row #progress-sidebar {
-flex: 1;
+flex: 0 0 250px;
+max-width: 250px;
 height: 3px;
 border-radius: 2px;
 background: rgba(255,255,255,0.1);
@@ -1377,7 +1379,7 @@ gap: 18px;
 @media (max-width: 680px) {
 :root { --header-h: 56px; }
 header {
-grid-template-columns: auto auto 1fr auto auto auto;
+grid-template-columns: auto 1fr auto;
 padding: 6px 12px;
 gap: 8px;
 }
