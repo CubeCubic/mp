@@ -37,7 +37,6 @@
         <div class="header-player-info">
           <div id="player-title-sidebar" class="player-title">აირჩიეთ ტრეკი</div>
           <div id="player-artist-sidebar" class="player-artist"></div>
-          <span id="header-player-likes" style="display:none;font-size:10px;color:#ff7a66;font-weight:700;"></span>
           <div class="header-player-progress-row">
             <span id="time-current-sidebar">0:00</span>
             <input type="range" id="progress-sidebar" min="0" max="100" value="0" step="0.1">
@@ -67,19 +66,6 @@
       </button>
       <!-- Admin link (subtle) -->
       <a href="admin.html" id="hidden-admin-link" aria-label="Admin">Admin</a>
-      <!-- Hotkeys help button -->
-      <div id="hotkeys-wrap">
-        <button id="hotkeys-btn" type="button" title="კლავიატურის მალსახმობები">?</button>
-        <div id="hotkeys-popup">
-          <div class="hotkey-row"><kbd>Space</kbd><span>დაკვრა / პაუზა</span></div>
-          <div class="hotkey-row"><kbd>←</kbd><span>წინა ტრეკი</span></div>
-          <div class="hotkey-row"><kbd>→</kbd><span>შემდეგი ტრეკი</span></div>
-          <div class="hotkey-row"><kbd>↑</kbd><span>ხმა +</span></div>
-          <div class="hotkey-row"><kbd>↓</kbd><span>ხმა −</span></div>
-          <div class="hotkey-row"><kbd>L</kbd><span>ლაიქი</span></div>
-          <div class="hotkey-row"><kbd>M</kbd><span>მიუთი</span></div>
-        </div>
-      </div>
     </header>
 
     <main class="new-main-layout">
@@ -87,10 +73,7 @@
       <aside class="albums-sidebar">
         <!-- CONTROLS SECTION -->
         <div class="controls">
-          <div class="search-wrap">
-            <input id="global-search" type="text" placeholder="მოძებნე ტრეკი, სტილი..." aria-label="Search">
-            <button id="search-clear-btn" type="button" title="გასუფთავება" style="display:none;">✕</button>
-          </div>
+          <input id="global-search" type="text" placeholder="მოძებნე ტრეკი, სტილი..." aria-label="Search">
           
           <!-- Refresh + Track Count + Newest Button -->
           <div class="control-row">

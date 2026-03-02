@@ -61,14 +61,6 @@ const dbRef = firebase.database().ref('likes');
 dbRef.on('value', (snapshot) => {
 firebaseLikeCounts = snapshot.val() || {};
 renderTracks();
-if (currentTrackId) {
-  const headerLikes = document.getElementById('header-player-likes');
-  if (headerLikes) {
-    const lc = getLikeCount(currentTrackId);
-    headerLikes.textContent = `❤ ${lc}`;
-    headerLikes.style.display = lc > 0 ? 'inline' : 'none';
-  }
-}
 });
 const playsRef = firebase.database().ref('plays');
 playsRef.on('value', (snapshot) => {
@@ -307,7 +299,7 @@ mains.forEach(album => {
   const subIds = subalbums.map(s => s.id);
   const count = tracks.filter(t => {
     const tid = String(t.albumId || '');
-    return (tid === albumId || subIds.includes(tid)) && !t.hidden;
+    return tid === albumId || subIds.includes(tid);
   }).length;
   const countSpan = document.createElement('span');
   countSpan.className = 'track-count';
@@ -365,7 +357,7 @@ mains.forEach(album => {
       const subNameSpan = document.createElement('span');
       subNameSpan.textContent = sub.name || 'Unnamed';
       subBtn.appendChild(subNameSpan);
-      const subCount = tracks.filter(t => String(t.albumId || '') === String(sub.id) && !t.hidden).length;
+      const subCount = tracks.filter(t => String(t.albumId || '') === String(sub.id)).length;
       const subCountSpan = document.createElement('span');
       subCountSpan.className = 'track-count';
       subCountSpan.textContent = `(${subCount})`;
@@ -406,18 +398,6 @@ if (globalSearchInput) {
 globalSearchInput.addEventListener('input', () => {
 renderTracks();
 renderAlbumList();
-const clearBtn = document.getElementById('search-clear-btn');
-if (clearBtn) clearBtn.style.display = globalSearchInput.value ? 'flex' : 'none';
-});
-}
-const searchClearBtn = document.getElementById('search-clear-btn');
-if (searchClearBtn) {
-searchClearBtn.addEventListener('click', () => {
-  if (globalSearchInput) {
-    globalSearchInput.value = '';
-    globalSearchInput.dispatchEvent(new Event('input'));
-    globalSearchInput.focus();
-  }
 });
 }
 // ════════════════════════════════
@@ -720,13 +700,6 @@ if (playerArtist) playerArtist.textContent = safeStr(t.artist);
 if (playerCoverImg) playerCoverImg.src = getCoverUrl(t);
 playerCoverImg.style.opacity = '0';
 setTimeout(() => { playerCoverImg.style.opacity = '1'; }, 50);
-// Like counter in header
-const headerLikes = document.getElementById('header-player-likes');
-if (headerLikes) {
-  const lc = getLikeCount(t.id);
-  headerLikes.textContent = `❤ ${lc}`;
-  headerLikes.style.display = lc > 0 ? 'inline' : 'none';
-}
 updateMiniPlayer(t);
 }
 function playByIndex(idx) {
@@ -1174,20 +1147,6 @@ if (miniPlayer) {
       else playPrev();
     }
   }, { passive: true });
-}
-// ─── Hotkeys popup ───
-const hotkeysBtn = document.getElementById('hotkeys-btn');
-const hotkeysPopup = document.getElementById('hotkeys-popup');
-if (hotkeysBtn && hotkeysPopup) {
-  hotkeysBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    hotkeysPopup.classList.toggle('visible');
-  });
-  document.addEventListener('click', (e) => {
-    if (!hotkeysBtn.contains(e.target) && !hotkeysPopup.contains(e.target)) {
-      hotkeysPopup.classList.remove('visible');
-    }
-  });
 }
 // ─── Init ───
 document.addEventListener('DOMContentLoaded', () => {
