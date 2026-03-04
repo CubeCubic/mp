@@ -771,6 +771,7 @@ navigator.mediaSession.setPositionState({
   position: audio.currentTime
 });
 });
+function playByIndex(idx) {
 if (idx < 0 || idx >= filteredTracks.length) {
 audio.pause();
 currentTrackIndex = -1;
