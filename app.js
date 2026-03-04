@@ -736,8 +736,41 @@ if (headerLikes) {
   headerLikes.style.display = lc > 0 ? 'inline' : 'none';
 }
 updateMiniPlayer(t);
+updateMediaSession(t);
 }
-function playByIndex(idx) {
+// ════════════════════════════════
+//  Media Session API (Bluetooth / car audio)
+// ════════════════════════════════
+function updateMediaSession(t) {
+if (!('mediaSession' in navigator)) return;
+if (!t) {
+  navigator.mediaSession.metadata = null;
+  return;
+}
+navigator.mediaSession.metadata = new MediaMetadata({
+  title: safeStr(t.title),
+  artist: safeStr(t.artist),
+  album: getAlbumName(t),
+  artwork: [{ src: getCoverUrl(t), sizes: '512x512', type: 'image/jpeg' }]
+});
+navigator.mediaSession.setActionHandler('play',     () => { audio.play().catch(console.error); });
+navigator.mediaSession.setActionHandler('pause',    () => { audio.pause(); });
+navigator.mediaSession.setActionHandler('nexttrack',() => { playNext(); });
+navigator.mediaSession.setActionHandler('previoustrack', () => { playPrev(); });
+navigator.mediaSession.setActionHandler('seekto', (d) => {
+  if (d.seekTime !== undefined) audio.currentTime = d.seekTime;
+});
+}
+audio.addEventListener('play',  () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; });
+audio.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
+audio.addEventListener('timeupdate', () => {
+if (!('mediaSession' in navigator) || !audio.duration) return;
+navigator.mediaSession.setPositionState({
+  duration: audio.duration,
+  playbackRate: audio.playbackRate,
+  position: audio.currentTime
+});
+});
 if (idx < 0 || idx >= filteredTracks.length) {
 audio.pause();
 currentTrackIndex = -1;
