@@ -190,6 +190,14 @@ if (e.code === 'KeyM' && e.key !== 'm' && e.key !== 'M') {
   audio.muted = !audio.muted;
   if (volumeSlider) volumeSlider.style.opacity = audio.muted ? '0.4' : '1';
 }
+// Handle L key by physical position (works with any keyboard language)
+if (e.code === 'KeyL' && e.key !== 'l' && e.key !== 'L') {
+  if (currentTrackId) {
+    toggleLike(currentTrackId);
+    renderTracks();
+    showToast(isLikedByUser(currentTrackId) ? 'ლაიქი დაემატა ❤️' : 'ლაიქი წაიშალა');
+  }
+}
 });
 // ════════════════════════════════
 function formatTime(sec) {
