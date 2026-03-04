@@ -1154,17 +1154,23 @@ if (headerTitle) headerTitle.addEventListener('click', refreshSite);
 // ════════════════════════════════
 function handleSharedTrackLink() {
 const hash = window.location.hash;
-if (hash && hash.startsWith('#track-')) {
+if (!hash || !hash.startsWith('#track-')) return;
 const trackId = hash.replace('#track-', '');
 setTimeout(() => {
-const card = tracksContainer?.querySelector(`[data-track-id="${trackId}"]`);
-if (card) {
-card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-card.style.boxShadow = '0 0 0 3px rgba(15,179,166,0.5)';
-setTimeout(() => { card.style.boxShadow = ''; }, 3000);
-}
-}, 500);
-}
+  const idx = filteredTracks.findIndex(t => String(t.id) === String(trackId));
+  if (idx >= 0) {
+    userInteracted = true;
+    playByIndex(idx);
+    scrollToCurrentTrack();
+  } else {
+    const card = tracksContainer?.querySelector(`[data-track-id="${trackId}"]`);
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.style.boxShadow = '0 0 0 3px rgba(15,179,166,0.5)';
+      setTimeout(() => { card.style.boxShadow = ''; }, 3000);
+    }
+  }
+}, 600);
 }
 // ════════════════════════════════
 //  Mobile Mini Player
