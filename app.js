@@ -1175,20 +1175,6 @@ if (miniPlayer) {
     }
   }, { passive: true });
 }
-// ─── Hotkeys popup ───
-const hotkeysBtn = document.getElementById('hotkeys-btn');
-const hotkeysPopup = document.getElementById('hotkeys-popup');
-if (hotkeysBtn && hotkeysPopup) {
-  hotkeysBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    hotkeysPopup.classList.toggle('visible');
-  });
-  document.addEventListener('click', (e) => {
-    if (!hotkeysBtn.contains(e.target) && !hotkeysPopup.contains(e.target)) {
-      hotkeysPopup.classList.remove('visible');
-    }
-  });
-}
 // ─── Init ───
 document.addEventListener('DOMContentLoaded', () => {
 updatePlayer(null);

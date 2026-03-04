@@ -68,7 +68,7 @@ left: 0;
 right: 0;
 height: var(--header-h);
 display: grid;
-grid-template-columns: auto auto 1fr auto auto auto auto;
+grid-template-columns: auto auto 1fr auto auto auto;
 align-items: center;
 gap: 12px;
 padding: 6px 16px;
