@@ -765,11 +765,13 @@ audio.addEventListener('play',  () => { if ('mediaSession' in navigator) navigat
 audio.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
 audio.addEventListener('timeupdate', () => {
 if (!('mediaSession' in navigator) || !audio.duration) return;
+try {
 navigator.mediaSession.setPositionState({
   duration: audio.duration,
   playbackRate: audio.playbackRate,
   position: audio.currentTime
 });
+} catch (e) {}
 });
 function playByIndex(idx) {
 if (idx < 0 || idx >= filteredTracks.length) {
@@ -1163,7 +1165,7 @@ setTimeout(() => {
     playByIndex(idx);
     scrollToCurrentTrack();
   } else {
-    const card = tracksContainer?.querySelector(`[data-track-id="${trackId}"]`);
+    const card = tracksContainer ? tracksContainer.querySelector('[data-track-id="' + trackId + '"]') : null;
     if (card) {
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
       card.style.boxShadow = '0 0 0 3px rgba(15,179,166,0.5)';
