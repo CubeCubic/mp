@@ -267,7 +267,8 @@ return copy;
 // ════════════════════════════════
 function updateTrackCount() {
 if (!trackCountDisplay) return;
-trackCountDisplay.textContent = `სულ ტრეკი: ${tracks.length}`;
+const visibleCount = tracks.filter(function(t) { return !t.hidden; }).length;
+trackCountDisplay.textContent = 'სულ ტრეკი: ' + visibleCount;
 }
 // ════════════════════════════════
 //  Album sidebar rendering
@@ -720,6 +721,7 @@ setMarqueeTitle(playerTitle, 'აირჩიეთ ტრეკი');
 if (playerArtist) playerArtist.textContent = '';
 if (playerCoverImg) playerCoverImg.src = 'images/midcube.png';
 if (playBtn) playBtn.textContent = '▶';
+document.title = 'Cubic';
 updateMiniPlayer(null);
 return;
 }
@@ -728,11 +730,29 @@ if (playerArtist) playerArtist.textContent = safeStr(t.artist);
 if (playerCoverImg) playerCoverImg.src = getCoverUrl(t);
 playerCoverImg.style.opacity = '0';
 setTimeout(() => { playerCoverImg.style.opacity = '1'; }, 50);
+document.title = 'Cubic — ' + safeStr(t.title) + (t.artist ? ' — ' + safeStr(t.artist) : '');
+// Update Open Graph meta tags
+var ogTitle = document.querySelector('meta[property="og:title"]');
+var ogDesc = document.querySelector('meta[property="og:description"]');
+var ogImage = document.querySelector('meta[property="og:image"]');
+var ogUrl = document.querySelector('meta[property="og:url"]');
+var twTitle = document.querySelector('meta[name="twitter:title"]');
+var twDesc = document.querySelector('meta[name="twitter:description"]');
+var twImage = document.querySelector('meta[name="twitter:image"]');
+var trackTitle = safeStr(t.title) + (t.artist ? ' — ' + safeStr(t.artist) : '');
+var trackUrl = window.location.origin + window.location.pathname + '#track-' + t.id;
+if (ogTitle) ogTitle.setAttribute('content', 'Cubic — ' + trackTitle);
+if (ogDesc) ogDesc.setAttribute('content', trackTitle + (getAlbumName(t) ? ' | ' + getAlbumName(t) : ''));
+if (ogImage) ogImage.setAttribute('content', getCoverUrl(t));
+if (ogUrl) ogUrl.setAttribute('content', trackUrl);
+if (twTitle) twTitle.setAttribute('content', 'Cubic — ' + trackTitle);
+if (twDesc) twDesc.setAttribute('content', trackTitle + (getAlbumName(t) ? ' | ' + getAlbumName(t) : ''));
+if (twImage) twImage.setAttribute('content', getCoverUrl(t));
 // Like counter in header
 const headerLikes = document.getElementById('header-player-likes');
 if (headerLikes) {
   const lc = getLikeCount(t.id);
-  headerLikes.textContent = `❤ ${lc}`;
+  headerLikes.textContent = '❤ ' + lc;
   headerLikes.style.display = lc > 0 ? 'inline' : 'none';
 }
 updateMiniPlayer(t);
@@ -765,13 +785,11 @@ audio.addEventListener('play',  () => { if ('mediaSession' in navigator) navigat
 audio.addEventListener('pause', () => { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; });
 audio.addEventListener('timeupdate', () => {
 if (!('mediaSession' in navigator) || !audio.duration) return;
-try {
 navigator.mediaSession.setPositionState({
   duration: audio.duration,
   playbackRate: audio.playbackRate,
   position: audio.currentTime
 });
-} catch (e) {}
 });
 function playByIndex(idx) {
 if (idx < 0 || idx >= filteredTracks.length) {
@@ -1165,7 +1183,7 @@ setTimeout(() => {
     playByIndex(idx);
     scrollToCurrentTrack();
   } else {
-    const card = tracksContainer ? tracksContainer.querySelector('[data-track-id="' + trackId + '"]') : null;
+    const card = tracksContainer?.querySelector(`[data-track-id="${trackId}"]`);
     if (card) {
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
       card.style.boxShadow = '0 0 0 3px rgba(15,179,166,0.5)';
@@ -1225,10 +1243,63 @@ if (miniPlayer) {
     }
   }, { passive: true });
 }
-// ─── Init ───
+// ════════════════════════════════
+//  State persistence (localStorage)
+// ════════════════════════════════
+const STATE_KEY = 'cubicPlayerState';
+function saveState() {
+try {
+  const state = {
+    trackId: currentTrackId,
+    position: (audio && audio.currentTime) ? Math.floor(audio.currentTime) : 0,
+    volume: audio ? audio.volume : 1,
+    albumId: albumSelect ? albumSelect.value : '',
+    subalbumId: subalbumSelect ? subalbumSelect.value : ''
+  };
+  localStorage.setItem(STATE_KEY, JSON.stringify(state));
+} catch (e) {}
+}
+function restoreState() {
+try {
+  const raw = localStorage.getItem(STATE_KEY);
+  if (!raw) return;
+  const state = JSON.parse(raw);
+  if (state.volume !== undefined && audio) audio.volume = state.volume;
+  if (state.volume !== undefined && volumeSlider) volumeSlider.value = state.volume;
+  if (state.albumId && albumSelect) albumSelect.value = state.albumId;
+  if (state.subalbumId && subalbumSelect) subalbumSelect.value = state.subalbumId;
+  if (state.trackId) {
+    const idx = filteredTracks.findIndex(function(t) { return String(t.id) === String(state.trackId); });
+    if (idx >= 0) {
+      playByIndex(idx);
+      if (state.position > 3) {
+        audio.addEventListener('loadedmetadata', function() {
+          audio.currentTime = state.position;
+          audio.pause();
+          if (playBtn) playBtn.textContent = '▶';
+        }, { once: true });
+      }
+    }
+  }
+} catch (e) {}
+}
+// Save position every 5 seconds while playing
+setInterval(function() {
+  if (currentTrackId && !audio.paused) saveState();
+}, 5000);
+// Save when track changes or volume changes
+audio.addEventListener('volumechange', saveState);
+audio.addEventListener('pause', saveState);
 document.addEventListener('DOMContentLoaded', () => {
 updatePlayer(null);
 if (audio && volumeSlider) audio.volume = parseFloat(volumeSlider.value || 1);
-loadData().then(() => { handleSharedTrackLink(); });
+loadData().then(() => {
+  if (window.location.hash && window.location.hash.startsWith('#track-')) {
+    handleSharedTrackLink();
+  } else {
+    restoreState();
+  }
+  renderAlbumList();
+});
 });
 })();
