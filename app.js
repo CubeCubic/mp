@@ -1146,38 +1146,6 @@ const headerBadge = document.getElementById('header-badge');
 const headerTitle = document.querySelector('header h1');
 if (headerTitle) headerTitle.addEventListener('click', () => { location.reload(); });
 // ════════════════════════════════
-//  About Modal
-// ════════════════════════════════
-const aboutModal = document.getElementById('about-modal');
-const aboutModalClose = document.getElementById('about-modal-close');
-function openAboutModal() {
-if (!aboutModal) return;
-aboutModal.classList.remove('hidden');
-aboutModal.setAttribute('aria-hidden', 'false');
-document.body.classList.add('modal-open');
-}
-function closeAboutModal() {
-if (!aboutModal) return;
-aboutModal.classList.add('hidden');
-aboutModal.setAttribute('aria-hidden', 'true');
-document.body.classList.remove('modal-open');
-}
-if (headerBadge) {
-headerBadge.style.cursor = 'pointer';
-headerBadge.addEventListener('click', openAboutModal);
-}
-if (aboutModalClose) aboutModalClose.addEventListener('click', closeAboutModal);
-if (aboutModal) {
-aboutModal.addEventListener('click', function(e) {
-  if (e.target === aboutModal) closeAboutModal();
-});
-}
-document.addEventListener('keydown', function(e) {
-if (e.key === 'Escape' && aboutModal && !aboutModal.classList.contains('hidden')) {
-  closeAboutModal();
-}
-});
-// ════════════════════════════════
 //  Handle shared track links (#track-id)
 // ════════════════════════════════
 function handleSharedTrackLink() {
