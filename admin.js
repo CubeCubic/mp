@@ -558,52 +558,56 @@ async function renderStatsList() {
       const names = Object.values(userMap).map(v => v.name || 'უცნობი');
 
       const row = document.createElement('div');
-      row.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);';
+      row.style.cssText = 'padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);';
 
-      // Rank number
-      const rank = document.createElement('div');
-      rank.style.cssText = 'min-width:24px;color:rgba(255,255,255,.3);font-size:12px;padding-top:2px;text-align:right;';
+      // Top line: rank + title + likes count
+      const topLine = document.createElement('div');
+      topLine.style.cssText = 'display:flex;align-items:center;gap:8px;';
+
+      const rank = document.createElement('span');
+      rank.style.cssText = 'min-width:22px;color:rgba(255,255,255,.3);font-size:12px;text-align:right;flex-shrink:0;';
       rank.textContent = (idx + 1) + '.';
 
-      // Info
-      const info = document.createElement('div');
-      info.style.cssText = 'flex:1;min-width:0;';
-
-      const title = document.createElement('div');
-      title.style.cssText = 'font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+      const title = document.createElement('span');
+      title.style.cssText = 'flex:1;font-weight:700;font-size:14px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
       title.textContent = t.title || 'Untitled';
 
-      const artist = document.createElement('div');
-      artist.style.cssText = 'font-size:11px;color:rgba(255,255,255,.4);margin-top:1px;';
-      artist.textContent = t.artist || '';
-
-      // Names of who liked
-      const namesDiv = document.createElement('div');
-      namesDiv.style.cssText = 'font-size:11px;color:#ff9a88;margin-top:3px;';
-      namesDiv.textContent = names.length ? '❤ ' + names.join(', ') : '';
-
-      info.appendChild(title);
-      info.appendChild(artist);
-      if (names.length) info.appendChild(namesDiv);
-
-      // Stats badges
-      const badges = document.createElement('div');
-      badges.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;gap:3px;white-space:nowrap;';
-
-      const likesBadge = document.createElement('div');
-      likesBadge.style.cssText = 'font-size:12px;color:#ff9a88;';
+      const likesBadge = document.createElement('span');
+      likesBadge.style.cssText = 'font-size:15px;font-weight:700;color:#ff7a66;flex-shrink:0;';
       likesBadge.textContent = '❤ ' + likes;
 
-      const playsBadge = document.createElement('div');
-      playsBadge.style.cssText = 'font-size:11px;color:rgba(255,255,255,.35);';
+      topLine.appendChild(rank);
+      topLine.appendChild(title);
+      topLine.appendChild(likesBadge);
+
+      // Bottom line: artist + plays + names
+      const bottomLine = document.createElement('div');
+      bottomLine.style.cssText = 'display:flex;align-items:flex-start;gap:8px;margin-top:4px;padding-left:30px;';
+
+      const artist = document.createElement('span');
+      artist.style.cssText = 'font-size:11px;color:rgba(255,255,255,.4);flex-shrink:0;';
+      artist.textContent = t.artist || '';
+
+      const playsBadge = document.createElement('span');
+      playsBadge.style.cssText = 'font-size:11px;color:rgba(255,255,255,.35);flex-shrink:0;margin-left:6px;';
       playsBadge.textContent = '▶ ' + plays;
 
-      badges.appendChild(likesBadge);
-      badges.appendChild(playsBadge);
+      bottomLine.appendChild(artist);
+      bottomLine.appendChild(playsBadge);
 
-      row.appendChild(rank);
-      row.appendChild(info);
-      row.appendChild(badges);
+      // Names line
+      if (names.length) {
+        const namesLine = document.createElement('div');
+        namesLine.style.cssText = 'margin-top:5px;padding-left:30px;padding:4px 8px 4px 30px;background:rgba(255,122,102,.08);border-left:3px solid #ff7a66;border-radius:0 4px 4px 0;font-size:12px;color:#ffb3a7;line-height:1.5;';
+        namesLine.textContent = '❤ ' + names.join('  •  ');
+        row.appendChild(topLine);
+        row.appendChild(bottomLine);
+        row.appendChild(namesLine);
+      } else {
+        row.appendChild(topLine);
+        row.appendChild(bottomLine);
+      }
+
       statsListEl.appendChild(row);
     });
   } catch(e) {
