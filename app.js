@@ -18,7 +18,6 @@ const tracksContainer = document.getElementById('tracks');
 const globalSearchInput = document.getElementById('global-search');
 const albumListContainer = document.getElementById('album-list');
 const refreshBtn = document.getElementById('refresh-btn');
-const newestBtn = document.getElementById('newest-tracks-btn');
 const trackCountDisplay = document.getElementById('track-count-display');
 const audio = document.getElementById('audio');
 // Плеер (SIDEBAR)
@@ -48,7 +47,7 @@ let filteredTracks = [];
 let currentTrackIndex = -1;
 let currentTrackId = null;
 let userInteracted = false;
-let sortNewest = false;
+let sortMode = '';
 let shuffleMode = false;
 let playCounts = {};
 // ════════════════════════════════
@@ -462,8 +461,18 @@ if (!toRender.length) {
   filteredTracks = [];
   return;
 }
-if (sortNewest) {
+if (sortMode === 'newest') {
   toRender.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+} else if (sortMode === 'oldest') {
+  toRender.sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
+} else if (sortMode === 'most-played') {
+  toRender.sort((a, b) => (playCounts[b.id] || 0) - (playCounts[a.id] || 0));
+} else if (sortMode === 'least-played') {
+  toRender.sort((a, b) => (playCounts[a.id] || 0) - (playCounts[b.id] || 0));
+} else if (sortMode === 'most-liked') {
+  toRender.sort((a, b) => (firebaseLikeCounts[b.id] || 0) - (firebaseLikeCounts[a.id] || 0));
+} else if (sortMode === 'least-liked') {
+  toRender.sort((a, b) => (firebaseLikeCounts[a.id] || 0) - (firebaseLikeCounts[b.id] || 0));
 }
 toRender.forEach(t => {
   const card = document.createElement('div');
@@ -970,15 +979,11 @@ if (subalbumSelect) subalbumSelect.value = '';
 loadData();
 });
 }
-if (newestBtn) {
-newestBtn.addEventListener('click', () => {
-sortNewest = !sortNewest;
-if (sortNewest) {
-newestBtn.classList.add('active');
-} else {
-newestBtn.classList.remove('active');
-}
-renderTracks();
+const sortSelect = document.getElementById('sort-select');
+if (sortSelect) {
+sortSelect.addEventListener('change', () => {
+  sortMode = sortSelect.value;
+  renderTracks();
 });
 }
 // ════════════════════════════════
@@ -991,8 +996,8 @@ likedBtn.addEventListener('click', () => {
 showLikedOnly = !showLikedOnly;
 if (showLikedOnly) {
 likedBtn.classList.add('active');
-sortNewest = false;
-if (newestBtn) newestBtn.classList.remove('active');
+sortMode = '';
+if (sortSelect) sortSelect.value = '';
 } else {
 likedBtn.classList.remove('active');
 }
