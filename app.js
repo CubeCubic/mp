@@ -18,6 +18,7 @@ const tracksContainer = document.getElementById('tracks');
 const globalSearchInput = document.getElementById('global-search');
 const albumListContainer = document.getElementById('album-list');
 const refreshBtn = document.getElementById('refresh-btn');
+const newestBtn = document.getElementById('newest-tracks-btn');
 const trackCountDisplay = document.getElementById('track-count-display');
 const audio = document.getElementById('audio');
 // Плеер (SIDEBAR)
@@ -47,7 +48,7 @@ let filteredTracks = [];
 let currentTrackIndex = -1;
 let currentTrackId = null;
 let userInteracted = false;
-let sortMode = '';
+let sortNewest = false;
 let shuffleMode = false;
 let playCounts = {};
 // ════════════════════════════════
@@ -55,7 +56,61 @@ let playCounts = {};
 // ════════════════════════════════
 const LIKES_STORAGE_KEY = 'cubeCubicLikes';
 const USER_LIKES_KEY = `${LIKES_STORAGE_KEY}_user`;
+const USER_ID_KEY = 'cubeCubicUserId';
+const USER_NAME_KEY = 'cubeCubicUserName';
 let firebaseLikeCounts = {};
+
+// Get or create persistent user ID
+function getUserId() {
+try {
+  let uid = localStorage.getItem(USER_ID_KEY);
+  if (!uid) {
+    uid = 'u_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+    localStorage.setItem(USER_ID_KEY, uid);
+  }
+  return uid;
+} catch (e) { return 'u_unknown'; }
+}
+
+// Get saved user name
+function getUserName() {
+try { return localStorage.getItem(USER_NAME_KEY) || ''; } catch (e) { return ''; }
+}
+
+// Save user name
+function saveUserName(name) {
+try { localStorage.setItem(USER_NAME_KEY, name.trim()); } catch (e) {}
+}
+
+// Show name prompt modal, resolve with name
+function promptUserName() {
+return new Promise((resolve) => {
+  const existing = getUserName();
+  if (existing) { resolve(existing); return; }
+  const backdrop = document.createElement('div');
+  backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center;';
+  const box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:12px;padding:24px;width:320px;max-width:92%;box-shadow:0 12px 40px rgba(0,0,0,.4);font-family:Arial,sans-serif;';
+  box.innerHTML = '<h3 style="margin:0 0 8px;font-size:16px;color:#111;">❤ ლაიქის დასადასტურებლად</h3><p style="margin:0 0 16px;font-size:13px;color:#555;">შეიყვანეთ თქვენი სახელი ან მეტსახელი</p><input id="like-name-input" type="text" placeholder="სახელი..." maxlength="40" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;box-sizing:border-box;outline:none;"><div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end;"><button id="like-name-cancel" style="padding:8px 16px;border-radius:8px;border:1px solid #ddd;background:#f5f5f5;color:#555;cursor:pointer;font-size:13px;">გაუქმება</button><button id="like-name-ok" style="padding:8px 16px;border-radius:8px;border:none;background:#0fb3a6;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">დადასტურება</button></div>';
+  backdrop.appendChild(box);
+  document.body.appendChild(backdrop);
+  const input = box.querySelector('#like-name-input');
+  const okBtn = box.querySelector('#like-name-ok');
+  const cancelBtn = box.querySelector('#like-name-cancel');
+  input.focus();
+  const submit = () => {
+    const name = input.value.trim();
+    if (!name) { input.style.borderColor = '#ff4444'; input.focus(); return; }
+    saveUserName(name);
+    document.body.removeChild(backdrop);
+    resolve(name);
+  };
+  const cancel = () => { document.body.removeChild(backdrop); resolve(null); };
+  okBtn.addEventListener('click', submit);
+  cancelBtn.addEventListener('click', cancel);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') cancel(); });
+});
+}
 const dbRef = firebase.database().ref('likes');
 dbRef.on('value', (snapshot) => {
 firebaseLikeCounts = snapshot.val() || {};
@@ -105,6 +160,15 @@ const val = current || 0;
 if (nowLiked) return val + 1;
 return Math.max(0, val - 1);
 });
+// Write to likes_users
+const uid = getUserId();
+const userName = getUserName();
+const userTrackRef = firebase.database().ref('likes_users/' + trackId + '/' + uid);
+if (nowLiked) {
+  userTrackRef.set({ name: userName || 'უცნობი', time: Date.now() });
+} else {
+  userTrackRef.remove();
+}
 return nowLiked;
 } catch (e) {
 console.error('Error toggling like:', e);
@@ -173,9 +237,15 @@ switch(e.key) {
   case 'l':
   case 'L':
     if (currentTrackId) {
-      toggleLike(currentTrackId);
-      renderTracks();
-      showToast(isLikedByUser(currentTrackId) ? 'ლაიქი დაემატა ❤️' : 'ლაიქი წაიშალა');
+      (async () => {
+        if (!isLikedByUser(currentTrackId)) {
+          const name = await promptUserName();
+          if (!name) return;
+        }
+        toggleLike(currentTrackId);
+        renderTracks();
+        showToast(isLikedByUser(currentTrackId) ? 'ლაიქი დაემატა ❤️' : 'ლაიქი წაიშალა');
+      })();
     }
     break;
   case 'm':
@@ -192,9 +262,15 @@ if (e.code === 'KeyM' && e.key !== 'm' && e.key !== 'M') {
 // Handle L key by physical position (works with any keyboard language)
 if (e.code === 'KeyL' && e.key !== 'l' && e.key !== 'L') {
   if (currentTrackId) {
-    toggleLike(currentTrackId);
-    renderTracks();
-    showToast(isLikedByUser(currentTrackId) ? 'ლაიქი დაემატა ❤️' : 'ლაიქი წაიშალა');
+    (async () => {
+      if (!isLikedByUser(currentTrackId)) {
+        const name = await promptUserName();
+        if (!name) return;
+      }
+      toggleLike(currentTrackId);
+      renderTracks();
+      showToast(isLikedByUser(currentTrackId) ? 'ლაიქი დაემატა ❤️' : 'ლაიქი წაიშალა');
+    })();
   }
 }
 });
@@ -461,18 +537,8 @@ if (!toRender.length) {
   filteredTracks = [];
   return;
 }
-if (sortMode === 'newest') {
+if (sortNewest) {
   toRender.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
-} else if (sortMode === 'oldest') {
-  toRender.sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
-} else if (sortMode === 'most-played') {
-  toRender.sort((a, b) => (playCounts[b.id] || 0) - (playCounts[a.id] || 0));
-} else if (sortMode === 'least-played') {
-  toRender.sort((a, b) => (playCounts[a.id] || 0) - (playCounts[b.id] || 0));
-} else if (sortMode === 'most-liked') {
-  toRender.sort((a, b) => (firebaseLikeCounts[b.id] || 0) - (firebaseLikeCounts[a.id] || 0));
-} else if (sortMode === 'least-liked') {
-  toRender.sort((a, b) => (firebaseLikeCounts[a.id] || 0) - (firebaseLikeCounts[b.id] || 0));
 }
 toRender.forEach(t => {
   const card = document.createElement('div');
@@ -557,8 +623,13 @@ toRender.forEach(t => {
      </svg>
      <span class="like-count">${likeCount > 0 ? likeCount : ''}</span>
   `;
-  likeBtn.addEventListener('click', (ev) => {
+  likeBtn.addEventListener('click', async (ev) => {
     ev.stopPropagation();
+    const alreadyLiked = isLikedByUser(t.id);
+    if (!alreadyLiked) {
+      const name = await promptUserName();
+      if (!name) return; // user cancelled
+    }
     const nowLiked = toggleLike(t.id);
     const heartIcon = likeBtn.querySelector('.heart-icon');
     const countSpan = likeBtn.querySelector('.like-count');
@@ -976,16 +1047,18 @@ if (refreshBtn) {
 refreshBtn.addEventListener('click', () => {
 if (albumSelect) albumSelect.value = '';
 if (subalbumSelect) subalbumSelect.value = '';
-sortMode = '';
-if (sortSelect) sortSelect.value = '';
 loadData();
 });
 }
-const sortSelect = document.getElementById('sort-select');
-if (sortSelect) {
-sortSelect.addEventListener('change', () => {
-  sortMode = sortSelect.value;
-  renderTracks();
+if (newestBtn) {
+newestBtn.addEventListener('click', () => {
+sortNewest = !sortNewest;
+if (sortNewest) {
+newestBtn.classList.add('active');
+} else {
+newestBtn.classList.remove('active');
+}
+renderTracks();
 });
 }
 // ════════════════════════════════
@@ -998,8 +1071,8 @@ likedBtn.addEventListener('click', () => {
 showLikedOnly = !showLikedOnly;
 if (showLikedOnly) {
 likedBtn.classList.add('active');
-sortMode = '';
-if (sortSelect) sortSelect.value = '';
+sortNewest = false;
+if (newestBtn) newestBtn.classList.remove('active');
 } else {
 likedBtn.classList.remove('active');
 }

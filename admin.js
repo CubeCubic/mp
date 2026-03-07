@@ -374,6 +374,15 @@ el('div', { class: 'muted' }, escapeHtml(t.artist || '')),
 el('div', { class: 'muted' }, `album: ${escapeHtml(albumNameForTrack)}`),
 t.hidden ? el('div', { class: 'muted', style: 'color: #ff7a66;' }, '⚠ დამალულია') : null
 ]);
+// Load and show who liked this track
+const likesDiv = el('div', { class: 'muted', style: 'margin-top:4px;font-size:11px;' }, '❤ ...');
+meta.appendChild(likesDiv);
+firebase.database().ref('likes_users/' + t.id).once('value').then(snap => {
+  const data = snap.val();
+  if (!data) { likesDiv.textContent = ''; return; }
+  const names = Object.values(data).map(v => v.name || 'უცნობი');
+  likesDiv.textContent = '❤ ' + names.join(', ');
+}).catch(() => { likesDiv.textContent = ''; });
 const actions = el('div', {});
 const btnEdit = el('button', {}, 'Edit');
 const btnDelete = el('button', {}, 'Delete');
