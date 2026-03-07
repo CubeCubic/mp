@@ -374,20 +374,6 @@ el('div', { class: 'muted' }, escapeHtml(t.artist || '')),
 el('div', { class: 'muted' }, `album: ${escapeHtml(albumNameForTrack)}`),
 t.hidden ? el('div', { class: 'muted', style: 'color: #ff7a66;' }, '⚠ დამალულია') : null
 ]);
-// Load and show likes count + who liked this track
-const likesDiv = el('div', { class: 'muted', style: 'margin-top:4px;font-size:11px;color:#ff9a88;' });
-meta.appendChild(likesDiv);
-firebase.database().ref('likes/' + t.id).once('value').then(countSnap => {
-  const count = countSnap.val() || 0;
-  if (count === 0) { likesDiv.textContent = ''; return; }
-  likesDiv.textContent = '❤ ' + count;
-  firebase.database().ref('likes_users/' + t.id).once('value').then(snap => {
-    const data = snap.val();
-    if (!data) return;
-    const names = Object.values(data).map(v => v.name || 'უცნობი');
-    likesDiv.textContent = '❤ ' + count + ' — ' + names.join(', ');
-  });
-}).catch(() => {});
 const actions = el('div', {});
 const btnEdit = el('button', {}, 'Edit');
 const btnDelete = el('button', {}, 'Delete');
@@ -517,113 +503,6 @@ renderTracks('');
 trackSearchInput.focus();
 });
 }
-}
-// ════════════════════════════════
-//  Stats Panel
-// ════════════════════════════════
-const statsSortSelect = document.getElementById('stats-sort-select');
-const statsListEl = document.getElementById('admin-stats-list');
-const btnRefreshStats = document.getElementById('btn-refresh-stats');
-
-async function renderStatsList() {
-  if (!statsListEl) return;
-  statsListEl.innerHTML = '<div class="muted">იტვირთება...</div>';
-  try {
-    const [likesSnap, playsSnap, likesUsersSnap] = await Promise.all([
-      firebase.database().ref('likes').once('value'),
-      firebase.database().ref('plays').once('value'),
-      firebase.database().ref('likes_users').once('value'),
-    ]);
-    const likeCounts = likesSnap.val() || {};
-    const playCounts = playsSnap.val() || {};
-    const likesUsers = likesUsersSnap.val() || {};
-
-    const visibleTracks = tracks.filter(t => !t.hidden);
-    if (!visibleTracks.length) { statsListEl.innerHTML = '<div class="muted">ტრეკები არ არის</div>'; return; }
-
-    const mode = statsSortSelect ? statsSortSelect.value : 'most-liked';
-    const sorted = [...visibleTracks];
-    if (mode === 'most-liked')   sorted.sort((a,b) => (likeCounts[b.id]||0) - (likeCounts[a.id]||0));
-    else if (mode === 'least-liked')  sorted.sort((a,b) => (likeCounts[a.id]||0) - (likeCounts[b.id]||0));
-    else if (mode === 'most-played')  sorted.sort((a,b) => (playCounts[b.id]||0) - (playCounts[a.id]||0));
-    else if (mode === 'least-played') sorted.sort((a,b) => (playCounts[a.id]||0) - (playCounts[b.id]||0));
-    else if (mode === 'newest')  sorted.sort((a,b) => (Number(b.id)||0) - (Number(a.id)||0));
-    else if (mode === 'oldest')  sorted.sort((a,b) => (Number(a.id)||0) - (Number(b.id)||0));
-
-    statsListEl.innerHTML = '';
-    sorted.forEach((t, idx) => {
-      const likes = likeCounts[t.id] || 0;
-      const plays = playCounts[t.id] || 0;
-      const userMap = likesUsers[t.id] || {};
-      const names = Object.values(userMap).map(v => v.name || 'უცნობი');
-
-      const row = document.createElement('div');
-      row.style.cssText = 'padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);';
-
-      // Top line: rank + title + likes count
-      const topLine = document.createElement('div');
-      topLine.style.cssText = 'display:flex;align-items:center;gap:8px;';
-
-      const rank = document.createElement('span');
-      rank.style.cssText = 'min-width:22px;color:rgba(255,255,255,.3);font-size:12px;text-align:right;flex-shrink:0;';
-      rank.textContent = (idx + 1) + '.';
-
-      const title = document.createElement('span');
-      title.style.cssText = 'flex:1;font-weight:700;font-size:14px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
-      title.textContent = t.title || 'Untitled';
-
-      const likesBadge = document.createElement('span');
-      likesBadge.style.cssText = 'font-size:15px;font-weight:700;color:#ff7a66;flex-shrink:0;';
-      likesBadge.textContent = '❤ ' + likes;
-
-      topLine.appendChild(rank);
-      topLine.appendChild(title);
-      topLine.appendChild(likesBadge);
-
-      // Bottom line: artist + plays + names
-      const bottomLine = document.createElement('div');
-      bottomLine.style.cssText = 'display:flex;align-items:flex-start;gap:8px;margin-top:4px;padding-left:30px;';
-
-      const artist = document.createElement('span');
-      artist.style.cssText = 'font-size:11px;color:rgba(255,255,255,.4);flex-shrink:0;';
-      artist.textContent = t.artist || '';
-
-      const playsBadge = document.createElement('span');
-      playsBadge.style.cssText = 'font-size:11px;color:rgba(255,255,255,.35);flex-shrink:0;margin-left:6px;';
-      playsBadge.textContent = '▶ ' + plays;
-
-      bottomLine.appendChild(artist);
-      bottomLine.appendChild(playsBadge);
-
-      // Names line
-      if (names.length) {
-        const namesLine = document.createElement('div');
-        namesLine.style.cssText = 'margin-top:5px;padding-left:30px;padding:4px 8px 4px 30px;background:rgba(255,122,102,.08);border-left:3px solid #ff7a66;border-radius:0 4px 4px 0;font-size:12px;color:#ffb3a7;line-height:1.5;';
-        namesLine.textContent = '❤ ' + names.join('  •  ');
-        row.appendChild(topLine);
-        row.appendChild(bottomLine);
-        row.appendChild(namesLine);
-      } else {
-        row.appendChild(topLine);
-        row.appendChild(bottomLine);
-      }
-
-      statsListEl.appendChild(row);
-    });
-  } catch(e) {
-    statsListEl.innerHTML = '<div class="muted">შეცდომა: ' + e.message + '</div>';
-  }
-}
-
-if (statsSortSelect) statsSortSelect.addEventListener('change', renderStatsList);
-if (btnRefreshStats) btnRefreshStats.addEventListener('click', renderStatsList);
-
-// Auto-render when admin panel becomes visible
-const origLogin = document.getElementById('login-btn');
-if (origLogin) {
-  origLogin.addEventListener('click', () => {
-    setTimeout(() => { if (!document.getElementById('admin-panel').classList.contains('hidden')) renderStatsList(); }, 500);
-  });
 }
 document.addEventListener('DOMContentLoaded', () => {
 adminPanel.classList.add('hidden');

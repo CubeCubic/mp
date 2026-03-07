@@ -654,36 +654,6 @@ color: var(--text-muted);
 text-align: right;
 white-space: nowrap;
 }
-/* Sort dropdown */
-.sort-select {
-flex: 1;
-padding: 10px 8px;
-border-radius: var(--radius-md);
-border: 1px solid rgba(255,255,255,0.12);
-background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
-color: #fff;
-font-size: 12px;
-font-weight: 600;
-cursor: pointer;
-min-height: auto;
-transition: background var(--t-fast);
-appearance: none;
--webkit-appearance: none;
-background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23fff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-background-repeat: no-repeat;
-background-position: right 10px center;
-background-size: 12px;
-padding-right: 28px;
-}
-.sort-select:focus {
-outline: none;
-border-color: #0fb3a6;
-background-color: rgba(15,179,166,0.2);
-}
-.sort-select option {
-background: #0f2b45;
-color: #fff;
-}
 /* Newest Tracks button */
 .newest-btn {
 width: 100%;
@@ -713,7 +683,7 @@ gap: 8px;
 margin-bottom: 0;
 }
 /* Newest and Liked buttons */
-.sort-select,
+.newest-btn,
 .liked-btn {
 flex: 1;
 padding: 10px 8px;
@@ -726,11 +696,12 @@ cursor: pointer;
 min-height: auto;
 transition: background var(--t-fast), transform var(--t-fast);
 }
-.sort-select {
+.newest-btn {
 background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
 }
-.sort-select:hover {
+.newest-btn:hover {
 background: linear-gradient(135deg, rgba(43,183,164,0.28), rgba(15,179,166,0.20));
+transform: translateY(-1px);
 }
 .liked-btn {
 background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
