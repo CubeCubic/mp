@@ -390,6 +390,23 @@
         <div id="admin-tracks" class="list"></div>
       </div>
 
+      <!-- Stats / Likes section -->
+      <div class="panel">
+        <h2>📊 სტატისტიკა</h2>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+          <select id="stats-sort-select" style="flex:1; min-width:180px;">
+            <option value="most-liked">❤ მეტი მოწონება</option>
+            <option value="least-liked">❤ ნაკლები მოწონება</option>
+            <option value="most-played">▶ მეტი მოსმენა</option>
+            <option value="least-played">▶ ნაკლები მოსმენა</option>
+            <option value="newest">🆕 უახლესი ტრეკები</option>
+            <option value="oldest">🕰 უძველესი ტრეკები</option>
+          </select>
+          <button id="btn-refresh-stats" type="button">განახლება</button>
+        </div>
+        <div id="admin-stats-list" class="list"></div>
+      </div>
+
       <!-- Logout -->
       <div style="display:flex; justify-content:flex-end;">
         <button id="logout-btn" type="button">გასვლა</button>

@@ -518,6 +518,109 @@ trackSearchInput.focus();
 });
 }
 }
+// ════════════════════════════════
+//  Stats Panel
+// ════════════════════════════════
+const statsSortSelect = document.getElementById('stats-sort-select');
+const statsListEl = document.getElementById('admin-stats-list');
+const btnRefreshStats = document.getElementById('btn-refresh-stats');
+
+async function renderStatsList() {
+  if (!statsListEl) return;
+  statsListEl.innerHTML = '<div class="muted">იტვირთება...</div>';
+  try {
+    const [likesSnap, playsSnap, likesUsersSnap] = await Promise.all([
+      firebase.database().ref('likes').once('value'),
+      firebase.database().ref('plays').once('value'),
+      firebase.database().ref('likes_users').once('value'),
+    ]);
+    const likeCounts = likesSnap.val() || {};
+    const playCounts = playsSnap.val() || {};
+    const likesUsers = likesUsersSnap.val() || {};
+
+    const visibleTracks = tracks.filter(t => !t.hidden);
+    if (!visibleTracks.length) { statsListEl.innerHTML = '<div class="muted">ტრეკები არ არის</div>'; return; }
+
+    const mode = statsSortSelect ? statsSortSelect.value : 'most-liked';
+    const sorted = [...visibleTracks];
+    if (mode === 'most-liked')   sorted.sort((a,b) => (likeCounts[b.id]||0) - (likeCounts[a.id]||0));
+    else if (mode === 'least-liked')  sorted.sort((a,b) => (likeCounts[a.id]||0) - (likeCounts[b.id]||0));
+    else if (mode === 'most-played')  sorted.sort((a,b) => (playCounts[b.id]||0) - (playCounts[a.id]||0));
+    else if (mode === 'least-played') sorted.sort((a,b) => (playCounts[a.id]||0) - (playCounts[b.id]||0));
+    else if (mode === 'newest')  sorted.sort((a,b) => (Number(b.id)||0) - (Number(a.id)||0));
+    else if (mode === 'oldest')  sorted.sort((a,b) => (Number(a.id)||0) - (Number(b.id)||0));
+
+    statsListEl.innerHTML = '';
+    sorted.forEach((t, idx) => {
+      const likes = likeCounts[t.id] || 0;
+      const plays = playCounts[t.id] || 0;
+      const userMap = likesUsers[t.id] || {};
+      const names = Object.values(userMap).map(v => v.name || 'უცნობი');
+
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);';
+
+      // Rank number
+      const rank = document.createElement('div');
+      rank.style.cssText = 'min-width:24px;color:rgba(255,255,255,.3);font-size:12px;padding-top:2px;text-align:right;';
+      rank.textContent = (idx + 1) + '.';
+
+      // Info
+      const info = document.createElement('div');
+      info.style.cssText = 'flex:1;min-width:0;';
+
+      const title = document.createElement('div');
+      title.style.cssText = 'font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+      title.textContent = t.title || 'Untitled';
+
+      const artist = document.createElement('div');
+      artist.style.cssText = 'font-size:11px;color:rgba(255,255,255,.4);margin-top:1px;';
+      artist.textContent = t.artist || '';
+
+      // Names of who liked
+      const namesDiv = document.createElement('div');
+      namesDiv.style.cssText = 'font-size:11px;color:#ff9a88;margin-top:3px;';
+      namesDiv.textContent = names.length ? '❤ ' + names.join(', ') : '';
+
+      info.appendChild(title);
+      info.appendChild(artist);
+      if (names.length) info.appendChild(namesDiv);
+
+      // Stats badges
+      const badges = document.createElement('div');
+      badges.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;gap:3px;white-space:nowrap;';
+
+      const likesBadge = document.createElement('div');
+      likesBadge.style.cssText = 'font-size:12px;color:#ff9a88;';
+      likesBadge.textContent = '❤ ' + likes;
+
+      const playsBadge = document.createElement('div');
+      playsBadge.style.cssText = 'font-size:11px;color:rgba(255,255,255,.35);';
+      playsBadge.textContent = '▶ ' + plays;
+
+      badges.appendChild(likesBadge);
+      badges.appendChild(playsBadge);
+
+      row.appendChild(rank);
+      row.appendChild(info);
+      row.appendChild(badges);
+      statsListEl.appendChild(row);
+    });
+  } catch(e) {
+    statsListEl.innerHTML = '<div class="muted">შეცდომა: ' + e.message + '</div>';
+  }
+}
+
+if (statsSortSelect) statsSortSelect.addEventListener('change', renderStatsList);
+if (btnRefreshStats) btnRefreshStats.addEventListener('click', renderStatsList);
+
+// Auto-render when admin panel becomes visible
+const origLogin = document.getElementById('login-btn');
+if (origLogin) {
+  origLogin.addEventListener('click', () => {
+    setTimeout(() => { if (!document.getElementById('admin-panel').classList.contains('hidden')) renderStatsList(); }, 500);
+  });
+}
 document.addEventListener('DOMContentLoaded', () => {
 adminPanel.classList.add('hidden');
 loginForm.classList.remove('hidden');
