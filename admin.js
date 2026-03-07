@@ -374,15 +374,20 @@ el('div', { class: 'muted' }, escapeHtml(t.artist || '')),
 el('div', { class: 'muted' }, `album: ${escapeHtml(albumNameForTrack)}`),
 t.hidden ? el('div', { class: 'muted', style: 'color: #ff7a66;' }, '⚠ დამალულია') : null
 ]);
-// Load and show who liked this track
-const likesDiv = el('div', { class: 'muted', style: 'margin-top:4px;font-size:11px;' }, '❤ ...');
+// Load and show likes count + who liked this track
+const likesDiv = el('div', { class: 'muted', style: 'margin-top:4px;font-size:11px;color:#ff9a88;' });
 meta.appendChild(likesDiv);
-firebase.database().ref('likes_users/' + t.id).once('value').then(snap => {
-  const data = snap.val();
-  if (!data) { likesDiv.textContent = ''; return; }
-  const names = Object.values(data).map(v => v.name || 'უცნობი');
-  likesDiv.textContent = '❤ ' + names.join(', ');
-}).catch(() => { likesDiv.textContent = ''; });
+firebase.database().ref('likes/' + t.id).once('value').then(countSnap => {
+  const count = countSnap.val() || 0;
+  if (count === 0) { likesDiv.textContent = ''; return; }
+  likesDiv.textContent = '❤ ' + count;
+  firebase.database().ref('likes_users/' + t.id).once('value').then(snap => {
+    const data = snap.val();
+    if (!data) return;
+    const names = Object.values(data).map(v => v.name || 'უცნობი');
+    likesDiv.textContent = '❤ ' + count + ' — ' + names.join(', ');
+  });
+}).catch(() => {});
 const actions = el('div', {});
 const btnEdit = el('button', {}, 'Edit');
 const btnDelete = el('button', {}, 'Delete');
