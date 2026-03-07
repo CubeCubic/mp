@@ -976,6 +976,8 @@ if (refreshBtn) {
 refreshBtn.addEventListener('click', () => {
 if (albumSelect) albumSelect.value = '';
 if (subalbumSelect) subalbumSelect.value = '';
+sortMode = '';
+if (sortSelect) sortSelect.value = '';
 loadData();
 });
 }
