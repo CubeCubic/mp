@@ -502,18 +502,51 @@ toRender.forEach(t => {
   durationEl.textContent = '';
   durationEl.style.cssText = 'font-size:11px;color:rgba(255,255,255,0.4);flex-shrink:0;';
   albumDiv.appendChild(durationEl);
-  // Duration — загружаем с задержкой чтобы не создавать десятки запросов одновременно
+  // Duration — кэшируем в localStorage, не запрашиваем повторно
   if (t.audioUrl || t.streamUrl) {
-    const idx = toRender.indexOf(t);
-    setTimeout(() => {
-      const tmpAudio = new Audio();
-      tmpAudio.preload = 'metadata';
-      tmpAudio.src = t.audioUrl || t.streamUrl;
-      tmpAudio.addEventListener('loadedmetadata', () => {
-        durationEl.textContent = formatTime(tmpAudio.duration);
-        tmpAudio.src = '';
-      }, { once: true });
-    }, idx * 120); // задержка 120мс между каждым треком
+    const DURATION_CACHE_KEY = 'cubicDurations';
+    let durationCache = {};
+    try { durationCache = JSON.parse(localStorage.getItem(DURATION_CACHE_KEY) || '{}'); } catch(e) {}
+    if (durationCache[t.id]) {
+      durationEl.textContent = formatTime(durationCache[t.id]);
+    } else {
+      const idx = toRender.indexOf(t);
+      setTimeout(() => {
+        // Не загружаем метаданные пока играет трек — не мешаем воспроизведению
+        if (!audio.paused) {
+          // Попробуем позже
+          setTimeout(() => {
+            const tmpAudio = new Audio();
+            tmpAudio.preload = 'metadata';
+            tmpAudio.src = t.audioUrl || t.streamUrl;
+            tmpAudio.addEventListener('loadedmetadata', () => {
+              const dur = tmpAudio.duration;
+              durationEl.textContent = formatTime(dur);
+              try {
+                const cache = JSON.parse(localStorage.getItem(DURATION_CACHE_KEY) || '{}');
+                cache[t.id] = dur;
+                localStorage.setItem(DURATION_CACHE_KEY, JSON.stringify(cache));
+              } catch(e) {}
+              tmpAudio.src = '';
+            }, { once: true });
+          }, 8000);
+          return;
+        }
+        const tmpAudio = new Audio();
+        tmpAudio.preload = 'metadata';
+        tmpAudio.src = t.audioUrl || t.streamUrl;
+        tmpAudio.addEventListener('loadedmetadata', () => {
+          const dur = tmpAudio.duration;
+          durationEl.textContent = formatTime(dur);
+          try {
+            const cache = JSON.parse(localStorage.getItem(DURATION_CACHE_KEY) || '{}');
+            cache[t.id] = dur;
+            localStorage.setItem(DURATION_CACHE_KEY, JSON.stringify(cache));
+          } catch(e) {}
+          tmpAudio.src = '';
+        }, { once: true });
+      }, idx * 200);
+    }
   }
 
   const playCountEl = document.createElement('div');
@@ -866,6 +899,48 @@ audio.addEventListener('error', () => {
 updatePlayer(null);
 showToast('შეცდომა: ტრეკი ვერ ჩაიტვირთა');
 stopVinylSpin();
+});
+// ── Stall / waiting recovery ──
+let stallTimer = null;
+function clearStallTimer() {
+  if (stallTimer) { clearTimeout(stallTimer); stallTimer = null; }
+}
+audio.addEventListener('waiting', () => {
+  if (playBtn) playBtn.textContent = '⏳';
+  clearStallTimer();
+  stallTimer = setTimeout(() => {
+    if (!audio.paused && audio.readyState < 3) {
+      const pos = audio.currentTime;
+      const src = audio.src;
+      if (src) {
+        audio.src = '';
+        audio.src = src;
+        audio.currentTime = pos;
+        audio.play().catch(console.error);
+        showToast('ტვირთვა განახლდა...');
+      }
+    }
+  }, 8000);
+});
+audio.addEventListener('stalled', () => {
+  if (playBtn) playBtn.textContent = '⏳';
+  clearStallTimer();
+  stallTimer = setTimeout(() => {
+    if (!audio.paused) {
+      const pos = audio.currentTime;
+      const src = audio.src;
+      if (src) {
+        audio.src = '';
+        audio.src = src;
+        audio.currentTime = pos;
+        audio.play().catch(console.error);
+        showToast('კავშირი განახლდა...');
+      }
+    }
+  }, 8000);
+});
+audio.addEventListener('playing', () => {
+  clearStallTimer();
 });
 audio.addEventListener('timeupdate', () => {
 if (audio.duration && progressBar) {
