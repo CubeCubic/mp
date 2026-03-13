@@ -11,6 +11,27 @@ Cube Cubic — Main App Logic  v3.0 FIXED
 - Клик на карточку продолжает играть, не убирает плеер
 - Загрузка данных из Firebase
 ═══════════════════════════════════════════════════ */
+// ════════════════════════════════
+//  DOWNLOAD ACCESS — IP WHITELIST
+//  Добавьте сюда IP-адреса которым разрешено скачивание
+// ════════════════════════════════
+const ALLOWED_DOWNLOAD_IPS = [
+  // '123.456.789.000',  // пример: добавьте нужные IP сюда
+];
+let downloadAllowed = false;
+(async function checkDownloadAccess() {
+  if (!ALLOWED_DOWNLOAD_IPS.length) return;
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    const userIp = data.ip || '';
+    if (ALLOWED_DOWNLOAD_IPS.includes(userIp)) {
+      downloadAllowed = true;
+    }
+  } catch (e) {
+    // Не удалось определить IP — скачивание остаётся заблокированным
+  }
+})();
 // ─── DOM элементы ───
 const albumSelect = document.getElementById('album-select');
 const subalbumSelect = document.getElementById('subalbum-select');
@@ -227,9 +248,12 @@ setTimeout(() => toast.classList.add('hidden'), 350);
 }, 3000);
 }
 async function triggerDownload(url, filename) {
-// DOWNLOAD DISABLED
+// DOWNLOAD DISABLED — проверка IP
+if (!downloadAllowed) {
 showToast('ჩამოტვირთვა შეზღუდულია');
+openContactModal();
 return;
+}
 if (!url || !url.trim()) {
 showToast('ფაილი არ არის ხელმისაწვდომი');
 return;
@@ -604,30 +628,39 @@ toRender.forEach(t => {
   dlBtn.type = 'button';
   dlBtn.className = 'download-button';
   dlBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
-  // DOWNLOAD DISABLED
-  dlBtn.disabled = true;
-  dlBtn.style.opacity = '.4';
-  dlBtn.title = 'ჩამოტვირთვა შეზღუდულია';
+  // DOWNLOAD DISABLED — управляется через downloadAllowed (IP whitelist)
   const streamUrl = getStreamUrl(t);
-  if (streamUrl && streamUrl.trim()) {
-    dlBtn.addEventListener('click', async (ev) => {
+  if (downloadAllowed) {
+    // ── Полный доступ: оригинальное поведение ──
+    if (streamUrl && streamUrl.trim()) {
+      dlBtn.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const origHTML = dlBtn.innerHTML;
+        let sec = 0;
+        dlBtn.textContent = '0s…';
+        dlBtn.disabled = true;
+        const timer = setInterval(() => { sec++; dlBtn.textContent = `${sec}s…`; }, 1000);
+        let fname = 'track.mp3';
+        try { fname = decodeURIComponent(new URL(streamUrl).pathname.split('/').pop()) || fname; } catch (e) {}
+        await triggerDownload(streamUrl, fname);
+        clearInterval(timer);
+        dlBtn.innerHTML = origHTML;
+        dlBtn.disabled = false;
+      });
+    } else {
+      dlBtn.disabled = true;
+      dlBtn.style.opacity = '.4';
+    }
+  } else {
+    // ── Доступ закрыт: кнопка видима, при клике открывается контакт ──
+    dlBtn.style.opacity = '.4';
+    dlBtn.title = 'ჩამოტვირთვა შეზღუდულია';
+    dlBtn.addEventListener('click', (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
-      const origHTML = dlBtn.innerHTML;
-      let sec = 0;
-      dlBtn.textContent = '0s…';
-      dlBtn.disabled = true;
-      const timer = setInterval(() => { sec++; dlBtn.textContent = `${sec}s…`; }, 1000);
-      let fname = 'track.mp3';
-      try { fname = decodeURIComponent(new URL(streamUrl).pathname.split('/').pop()) || fname; } catch (e) {}
-      await triggerDownload(streamUrl, fname);
-      clearInterval(timer);
-      dlBtn.innerHTML = origHTML;
-      dlBtn.disabled = false;
+      openContactModal();
     });
-  } else {
-    dlBtn.disabled = true;
-    dlBtn.style.opacity = '.4';
   }
   actions.appendChild(dlBtn);
   const shareBtn = document.createElement('button');
