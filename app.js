@@ -227,6 +227,9 @@ setTimeout(() => toast.classList.add('hidden'), 350);
 }, 3000);
 }
 async function triggerDownload(url, filename) {
+// DOWNLOAD DISABLED
+showToast('ჩამოტვირთვა შეზღუდულია');
+return;
 if (!url || !url.trim()) {
 showToast('ფაილი არ არის ხელმისაწვდომი');
 return;
@@ -601,6 +604,10 @@ toRender.forEach(t => {
   dlBtn.type = 'button';
   dlBtn.className = 'download-button';
   dlBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 20h14a1 1 0 0 0 0-2H5a1 1 0 0 0 0 2zM12 3a1 1 0 0 0-1 1v8.59L8.7 10.3a1 1 0 0 0-1.4 1.4l4 4a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 12.59V4a1 1 0 0 0-1-1z"/></svg>';
+  // DOWNLOAD DISABLED
+  dlBtn.disabled = true;
+  dlBtn.style.opacity = '.4';
+  dlBtn.title = 'ჩამოტვირთვა შეზღუდულია';
   const streamUrl = getStreamUrl(t);
   if (streamUrl && streamUrl.trim()) {
     dlBtn.addEventListener('click', async (ev) => {
