@@ -39,7 +39,7 @@ const tracksContainer = document.getElementById('tracks');
 const globalSearchInput = document.getElementById('global-search');
 const albumListContainer = document.getElementById('album-list');
 const refreshBtn = document.getElementById('refresh-btn');
-const newestBtn = document.getElementById('newest-tracks-btn');
+const sortSelect = document.getElementById('sort-select');
 const trackCountDisplay = document.getElementById('track-count-display');
 const audio = document.getElementById('audio');
 // Плеер (SIDEBAR)
@@ -69,7 +69,7 @@ let filteredTracks = [];
 let currentTrackIndex = -1;
 let currentTrackId = null;
 let userInteracted = false;
-let sortNewest = false;
+let sortMode = '';
 let shuffleMode = false;
 let playCounts = {};
 // ════════════════════════════════
@@ -479,18 +479,23 @@ if (selSubalbum) {
     return tid === selAlbum || subIds.includes(tid);
   });
 }
-if (showLikedOnly) {
+if (sortMode === 'liked') {
   const likedTrackIds = getUserLikedTracks();
   toRender = toRender.filter(t => likedTrackIds.includes(t.id));
-  toRender.sort((a, b) => (firebaseLikeCounts[b.id] || 0) - (firebaseLikeCounts[a.id] || 0));
 }
 if (!toRender.length) {
   tracksContainer.innerHTML = '<div class="muted">ტრეკები არ მოიძებნა</div>';
   filteredTracks = [];
   return;
 }
-if (sortNewest) {
+if (sortMode === 'newest') {
   toRender.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+} else if (sortMode === 'oldest') {
+  toRender.sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
+} else if (sortMode === 'most-liked') {
+  toRender.sort((a, b) => (firebaseLikeCounts[b.id] || 0) - (firebaseLikeCounts[a.id] || 0));
+} else if (sortMode === 'most-played') {
+  toRender.sort((a, b) => (playCounts[b.id] || 0) - (playCounts[a.id] || 0));
 }
 toRender.forEach(t => {
   const card = document.createElement('div');
@@ -1082,35 +1087,13 @@ if (refreshBtn) {
 refreshBtn.addEventListener('click', () => {
 if (albumSelect) albumSelect.value = '';
 if (subalbumSelect) subalbumSelect.value = '';
+if (sortSelect) { sortSelect.value = ''; sortMode = ''; }
 loadData();
 });
 }
-if (newestBtn) {
-newestBtn.addEventListener('click', () => {
-sortNewest = !sortNewest;
-if (sortNewest) {
-newestBtn.classList.add('active');
-} else {
-newestBtn.classList.remove('active');
-}
-renderTracks();
-});
-}
-// ════════════════════════════════
-//  Liked Tracks Button
-// ════════════════════════════════
-const likedBtn = document.getElementById('liked-tracks-btn');
-let showLikedOnly = false;
-if (likedBtn) {
-likedBtn.addEventListener('click', () => {
-showLikedOnly = !showLikedOnly;
-if (showLikedOnly) {
-likedBtn.classList.add('active');
-sortNewest = false;
-if (newestBtn) newestBtn.classList.remove('active');
-} else {
-likedBtn.classList.remove('active');
-}
+if (sortSelect) {
+sortSelect.addEventListener('change', () => {
+sortMode = sortSelect.value;
 renderTracks();
 });
 }

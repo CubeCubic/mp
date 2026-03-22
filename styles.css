@@ -654,10 +654,10 @@ color: var(--text-muted);
 text-align: right;
 white-space: nowrap;
 }
-/* Newest Tracks button */
-.newest-btn {
+/* Sort select dropdown */
+.sort-select {
 width: 100%;
-padding: 10px 14px;
+padding: 10px 12px;
 border-radius: var(--radius-md);
 border: 1px solid rgba(255,255,255,0.12);
 background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
@@ -665,54 +665,28 @@ color: #fff;
 font-size: 13px;
 font-weight: 600;
 cursor: pointer;
-min-height: auto;
-transition: background var(--t-fast), transform var(--t-fast);
+box-sizing: border-box;
+transition: background var(--t-fast), border-color var(--t-fast);
+-webkit-appearance: none;
+appearance: none;
 }
-.newest-btn:hover {
+.sort-select:hover {
 background: linear-gradient(135deg, rgba(43,183,164,0.28), rgba(15,179,166,0.20));
-transform: translateY(-1px);
 }
-.newest-btn.active {
-background: linear-gradient(135deg, rgba(255,122,102,0.25), rgba(255,140,120,0.15));
-border-color: rgba(255,122,102,0.3);
+.sort-select:focus {
+outline: none;
+border-color: var(--accent-2);
+}
+.sort-select option {
+background: #0f2b45;
+color: #fff;
+font-weight: 500;
 }
 /* Filter buttons row */
 .filter-buttons-row {
 display: flex;
 gap: 8px;
 margin-bottom: 0;
-}
-/* Newest and Liked buttons */
-.newest-btn,
-.liked-btn {
-flex: 1;
-padding: 10px 8px;
-border-radius: var(--radius-md);
-border: 1px solid rgba(255,255,255,0.12);
-color: #fff;
-font-size: 12px;
-font-weight: 600;
-cursor: pointer;
-min-height: auto;
-transition: background var(--t-fast), transform var(--t-fast);
-}
-.newest-btn {
-background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
-}
-.newest-btn:hover {
-background: linear-gradient(135deg, rgba(43,183,164,0.28), rgba(15,179,166,0.20));
-transform: translateY(-1px);
-}
-.liked-btn {
-background: linear-gradient(135deg, rgba(43,183,164,0.18), rgba(15,179,166,0.12));
-}
-.liked-btn:hover {
-background: linear-gradient(135deg, rgba(43,183,164,0.28), rgba(15,179,166,0.20));
-transform: translateY(-1px);
-}
-.liked-btn.active {
-background: linear-gradient(135deg, rgba(255,122,102,0.25), rgba(255,140,120,0.15));
-border-color: rgba(255,122,102,0.3);
 }
 /* Album list - vertical buttons */
 .album-list-vertical {

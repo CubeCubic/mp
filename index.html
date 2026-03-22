@@ -98,8 +98,14 @@
           </div>
           
           <div class="filter-buttons-row">
-            <button id="newest-tracks-btn" type="button" class="newest-btn">უახლესი ტრეკები</button>
-            <button id="liked-tracks-btn" type="button" class="liked-btn">რა მომეწონა</button>
+            <select id="sort-select" class="sort-select">
+              <option value="">— სორტირება —</option>
+              <option value="newest">ახალი ტრეკები</option>
+              <option value="oldest">ძველი ტრეკები</option>
+              <option value="most-liked">მეტი მოწონება</option>
+              <option value="liked">რა მომეწონა</option>
+              <option value="most-played">მეტი მოსმენა</option>
+            </select>
           </div>
 
           <label for="album-list">ალბამები</label>
