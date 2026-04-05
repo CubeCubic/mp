@@ -295,7 +295,8 @@ return copy;
 // ════════════════════════════════
 function updateTrackCount() {
 if (!trackCountDisplay) return;
-trackCountDisplay.textContent = `სულ ტრეკი: ${tracks.length}`;
+const visibleCount = tracks.filter(t => !t.hidden).length;
+trackCountDisplay.textContent = `სულ ტრეკი: ${visibleCount}`;
 }
 // ════════════════════════════════
 //  Album sidebar rendering
@@ -937,7 +938,11 @@ stopVinylSpin();
 const eq = tracksContainer && currentTrackId ? tracksContainer.querySelector(`[data-track-id="${currentTrackId}"] .equalizer`) : null;
 if (eq) eq.style.animationPlayState = 'paused';
 });
+// ── Надёжный переход к следующему треку ──
+// На iOS ended иногда не срабатывает — добавляем fallback через timeupdate
+let _autoNextPending = false;
 audio.addEventListener('ended', () => {
+_autoNextPending = false;
 stopVinylSpin();
 playNext();
 });
@@ -995,6 +1000,22 @@ progressBar.max = audio.duration;
 if (timeCurrent) timeCurrent.textContent = formatTime(audio.currentTime);
 }
 updateCardProgress();
+// ── iOS fallback: ended event sometimes doesn't fire on mobile ──
+if (audio.duration && !audio.loop && !audio.paused) {
+const remaining = audio.duration - audio.currentTime;
+if (remaining > 0 && remaining < 0.4 && !_autoNextPending) {
+  _autoNextPending = true;
+  setTimeout(() => {
+    if (_autoNextPending) {
+      _autoNextPending = false;
+      stopVinylSpin();
+      playNext();
+    }
+  }, 500);
+} else if (remaining > 1) {
+  _autoNextPending = false;
+}
+}
 });
 function updateCardProgress() {
 if (!tracksContainer || !currentTrackId || !audio.duration) return;
@@ -1019,6 +1040,7 @@ if (shuffleBtn) {
 shuffleBtn.addEventListener('click', () => {
 shuffleMode = !shuffleMode;
 shuffleBtn.classList.toggle('active', shuffleMode);
+if (miniShuffle) miniShuffle.classList.toggle('active', shuffleMode);
 });
 }
 const repeatBtn = document.getElementById('repeat-sidebar');
@@ -1026,6 +1048,7 @@ if (repeatBtn) {
 repeatBtn.addEventListener('click', () => {
 audio.loop = !audio.loop;
 repeatBtn.classList.toggle('active', audio.loop);
+if (miniRepeat) miniRepeat.classList.toggle('active', audio.loop);
 });
 }
 if (playerCoverWrapper) {
@@ -1278,6 +1301,11 @@ const miniPlay = document.getElementById('mini-play');
 const miniPrev = document.getElementById('mini-prev');
 const miniNext = document.getElementById('mini-next');
 const miniProgressBar = document.getElementById('mini-player-progress-bar');
+const miniShuffle = document.getElementById('mini-shuffle');
+const miniRepeat = document.getElementById('mini-repeat');
+const miniSeek = document.getElementById('mini-seek');
+const miniTimeCurrent = document.getElementById('mini-time-current');
+const miniTimeDuration = document.getElementById('mini-time-duration');
 function updateMiniPlayer(t) {
 if (!miniPlayer) return;
 if (!t) {
@@ -1299,10 +1327,39 @@ audio.addEventListener('timeupdate', () => {
 if (miniProgressBar && audio.duration) {
 miniProgressBar.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
 }
+// mini seek bar sync
+if (miniSeek && audio.duration) {
+miniSeek.max = audio.duration;
+miniSeek.value = audio.currentTime;
+}
+if (miniTimeCurrent) miniTimeCurrent.textContent = formatTime(audio.currentTime);
+});
+audio.addEventListener('loadedmetadata', () => {
+if (miniTimeDuration) miniTimeDuration.textContent = formatTime(audio.duration);
+if (miniSeek) miniSeek.max = audio.duration || 100;
 });
 if (miniPlay) miniPlay.addEventListener('click', togglePlay);
 if (miniPrev) miniPrev.addEventListener('click', playPrev);
 if (miniNext) miniNext.addEventListener('click', playNext);
+if (miniSeek) miniSeek.addEventListener('input', () => { audio.currentTime = parseFloat(miniSeek.value); });
+if (miniShuffle) {
+miniShuffle.addEventListener('click', () => {
+  shuffleMode = !shuffleMode;
+  miniShuffle.classList.toggle('active', shuffleMode);
+  // sync desktop shuffle button
+  const desktopShuffle = document.getElementById('shuffle-sidebar');
+  if (desktopShuffle) desktopShuffle.classList.toggle('active', shuffleMode);
+});
+}
+if (miniRepeat) {
+miniRepeat.addEventListener('click', () => {
+  audio.loop = !audio.loop;
+  miniRepeat.classList.toggle('active', audio.loop);
+  // sync desktop repeat button
+  const desktopRepeat = document.getElementById('repeat-sidebar');
+  if (desktopRepeat) desktopRepeat.classList.toggle('active', audio.loop);
+});
+}
 
 // Swipe on mini-player
 if (miniPlayer) {
