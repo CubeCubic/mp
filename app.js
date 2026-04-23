@@ -881,6 +881,7 @@ showToast('დააჭირეთ ▶ დასაკრავად');
 showToast('შეცდომა: ვერ დაიწყო ტრეკი');
 }
 });
+_startHeartbeat();
 highlightCurrent();
 scrollToCurrentTrack();
 }
@@ -938,18 +939,98 @@ stopVinylSpin();
 const eq = tracksContainer && currentTrackId ? tracksContainer.querySelector(`[data-track-id="${currentTrackId}"] .equalizer`) : null;
 if (eq) eq.style.animationPlayState = 'paused';
 });
-// ── Надёжный переход к следующему треку ──
-// На iOS ended иногда не срабатывает — добавляем fallback через timeupdate
+// ════════════════════════════════
+//  MOBILE BACKGROUND PLAYBACK FIX
+//  iOS/Android freeze JS events when screen is off.
+//  Three independent layers ensure auto-next always works.
+// ════════════════════════════════
 let _autoNextPending = false;
-audio.addEventListener('ended', () => {
-_autoNextPending = false;
-stopVinylSpin();
-playNext();
+
+// ── Layer 1: standard ended event ──
+function _onEnded() {
+  _autoNextPending = false;
+  _stopHeartbeat();
+  stopVinylSpin();
+  playNext();
+}
+audio.addEventListener('ended', _onEnded);
+// Also assign directly — belt-and-suspenders for some iOS versions
+audio.onended = _onEnded;
+
+// ── Layer 2: setInterval heartbeat ──
+// Runs every 2s. iOS throttles intervals in background but doesn't stop them.
+// This catches 'ended' when the event was frozen.
+let _heartbeatTimer = null;
+function _startHeartbeat() {
+  _stopHeartbeat();
+  _heartbeatTimer = setInterval(() => {
+    if (!currentTrackId) { _stopHeartbeat(); return; }
+    if (audio.paused && !audio.ended) return; // paused intentionally — do nothing
+    if (audio.ended) {
+      _stopHeartbeat();
+      _autoNextPending = false;
+      stopVinylSpin();
+      playNext();
+      return;
+    }
+    if (audio.duration > 0) {
+      const remaining = audio.duration - audio.currentTime;
+      if (remaining >= 0 && remaining < 0.8 && !audio.paused) {
+        _stopHeartbeat();
+        _autoNextPending = false;
+        stopVinylSpin();
+        playNext();
+      }
+    }
+  }, 2000);
+}
+function _stopHeartbeat() {
+  if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
+}
+// Start/stop heartbeat with playback
+audio.addEventListener('playing', _startHeartbeat);
+audio.addEventListener('pause',   _stopHeartbeat);
+
+// ── Layer 3: visibilitychange ──
+// Fires the instant user turns screen back on.
+// If audio ended while screen was off — advance immediately.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (!currentTrackId) return;
+  // audio.ended = true means it stopped and hasn't moved on
+  if (audio.ended) {
+    _stopHeartbeat();
+    _autoNextPending = false;
+    stopVinylSpin();
+    playNext();
+    return;
+  }
+  // Stuck near end (currentTime == duration but ended didn't fire)
+  if (audio.duration > 0 && !audio.paused) {
+    const remaining = audio.duration - audio.currentTime;
+    if (remaining >= 0 && remaining < 1.5) {
+      _stopHeartbeat();
+      _autoNextPending = false;
+      stopVinylSpin();
+      playNext();
+    }
+  }
+  // Audio is paused but we expected it to be playing (screen-off stall)
+  // Re-attempt play so user doesn't need to tap Play manually
+  if (audio.paused && !audio.ended && currentTrackId && audio.src) {
+    const pos = audio.currentTime;
+    const dur = audio.duration;
+    if (dur > 0 && pos > 0 && pos < dur - 1) {
+      audio.play().catch(() => {});
+    }
+  }
 });
+
 audio.addEventListener('error', () => {
-updatePlayer(null);
-showToast('შეცდომა: ტრეკი ვერ ჩაიტვირთა');
-stopVinylSpin();
+  _stopHeartbeat();
+  updatePlayer(null);
+  showToast('შეცდომა: ტრეკი ვერ ჩაიტვირთა');
+  stopVinylSpin();
 });
 // ── Stall / waiting recovery ──
 let stallTimer = null;
@@ -1000,22 +1081,7 @@ progressBar.max = audio.duration;
 if (timeCurrent) timeCurrent.textContent = formatTime(audio.currentTime);
 }
 updateCardProgress();
-// ── iOS fallback: ended event sometimes doesn't fire on mobile ──
-if (audio.duration && !audio.loop && !audio.paused) {
-const remaining = audio.duration - audio.currentTime;
-if (remaining > 0 && remaining < 0.4 && !_autoNextPending) {
-  _autoNextPending = true;
-  setTimeout(() => {
-    if (_autoNextPending) {
-      _autoNextPending = false;
-      stopVinylSpin();
-      playNext();
-    }
-  }, 500);
-} else if (remaining > 1) {
-  _autoNextPending = false;
-}
-}
+// (auto-next fallback handled by heartbeat + visibilitychange above)
 });
 function updateCardProgress() {
 if (!tracksContainer || !currentTrackId || !audio.duration) return;
