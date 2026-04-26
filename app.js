@@ -1447,4 +1447,58 @@ updatePlayer(null);
 if (audio && volumeSlider) audio.volume = parseFloat(volumeSlider.value || 1);
 loadData().then(() => { handleSharedTrackLink(); });
 });
+
+// ══════════════════════════════════
+//  PWA — Service Worker Registration
+// ══════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/mp/service-worker.js')
+      .then(reg => {
+        console.log('[PWA] Service Worker registered:', reg.scope);
+        
+        // Проверяем обновления каждые 10 минут
+        setInterval(() => { reg.update(); }, 10 * 60 * 1000);
+        
+        // Показываем Install prompt на Android
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          
+          // Можно показать свою кнопку "Установить приложение"
+          // или сделать toast с предложением
+          const installBtn = document.createElement('button');
+          installBtn.textContent = '📱 დააყენეთ აპლიკაცია';
+          installBtn.style.cssText = `
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, #0fb3a6, #0d9a8e);
+            color: #fff; border: none; padding: 12px 24px;
+            border-radius: 99px; font-size: 14px; font-weight: 700;
+            box-shadow: 0 4px 20px rgba(15,179,166,.4);
+            cursor: pointer; z-index: 9999; animation: pulse 2s infinite;
+          `;
+          installBtn.onclick = async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('[PWA] Install outcome:', outcome);
+            deferredPrompt = null;
+            installBtn.remove();
+          };
+          document.body.appendChild(installBtn);
+          
+          // Убираем кнопку через 15 секунд если не нажали
+          setTimeout(() => installBtn.remove(), 15000);
+        });
+        
+        window.addEventListener('appinstalled', () => {
+          console.log('[PWA] App installed!');
+          showToast('✓ აპლიკაცია დაყენებულია');
+          deferredPrompt = null;
+        });
+      })
+      .catch(err => console.error('[PWA] Service Worker registration failed:', err));
+  });
+}
 })();
