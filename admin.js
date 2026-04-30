@@ -113,6 +113,23 @@ a.download = 'tracks.json';
 a.click();
 URL.revokeObjectURL(url);
 }
+// Fetch audio duration from URL (returns seconds or null on failure/timeout)
+function fetchAudioDuration(url) {
+return new Promise((resolve) => {
+  if (!url || !url.trim()) { resolve(null); return; }
+  const tmp = new Audio();
+  tmp.preload = 'metadata';
+  const timeout = setTimeout(() => { tmp.src = ''; resolve(null); }, 10000);
+  tmp.addEventListener('loadedmetadata', () => {
+    clearTimeout(timeout);
+    const dur = isFinite(tmp.duration) && tmp.duration > 0 ? Math.round(tmp.duration * 10) / 10 : null;
+    tmp.src = '';
+    resolve(dur);
+  }, { once: true });
+  tmp.addEventListener('error', () => { clearTimeout(timeout); tmp.src = ''; resolve(null); }, { once: true });
+  tmp.src = url;
+});
+}
 function getDescendantIds(rootId) {
 const map = {};
 albums.forEach(a => { map[a.id] = { ...a, children: [] }; });
@@ -275,15 +292,26 @@ closeTrackEditModal();
 }
 });
 trackEditRefs.cancelBtn.addEventListener('click', closeTrackEditModal);
-trackEditRefs.saveBtn.addEventListener('click', () => {
+trackEditRefs.saveBtn.addEventListener('click', async () => {
 if (!trackBeingEdited) return;
 const newTitle = (trackEditRefs.title.value || '').trim();
 if (!newTitle) return alert('Введите Title');
+const newAudioUrl = (trackEditRefs.audioUrl.value || '').trim();
+// Re-fetch duration only if audioUrl actually changed
+if (newAudioUrl !== (trackBeingEdited.audioUrl || '')) {
+  trackEditRefs.saveBtn.disabled = true;
+  trackEditRefs.saveBtn.textContent = '⏳ ხანგრძლივობა...';
+  const dur = await fetchAudioDuration(newAudioUrl);
+  if (dur) trackBeingEdited.duration = dur;
+  else delete trackBeingEdited.duration;
+  trackEditRefs.saveBtn.disabled = false;
+  trackEditRefs.saveBtn.textContent = 'Save';
+}
 trackBeingEdited.title = newTitle;
 trackBeingEdited.artist = (trackEditRefs.artist.value || '').trim();
 trackBeingEdited.lyrics = (trackEditRefs.lyrics.value || '').toString();
 trackBeingEdited.albumId = trackEditRefs.album.value || '';
-trackBeingEdited.audioUrl = (trackEditRefs.audioUrl.value || '').trim();
+trackBeingEdited.audioUrl = newAudioUrl;
 trackBeingEdited.coverUrl = (trackEditRefs.coverUrl.value || '').trim();
 markDirty();
 renderTracks(trackSearchInput ? trackSearchInput.value : '');
@@ -330,7 +358,7 @@ markDirty();
 });
 }
 if (addForm) {
-addForm.addEventListener('submit', (e) => {
+addForm.addEventListener('submit', async (e) => {
 e.preventDefault();
 const form = e.currentTarget;
 const title = form.elements['title'].value || 'Untitled';
@@ -340,7 +368,17 @@ const albumId = form.elements['album'] ? form.elements['album'].value : '';
 const audioUrl = form.elements['audioUrl'] ? form.elements['audioUrl'].value.trim() : '';
 const coverUrl = form.elements['coverUrl'] ? form.elements['coverUrl'].value.trim() : '';
 const id = Date.now().toString();
-tracks.push({ id, title, artist, lyrics, albumId, audioUrl, coverUrl, hidden: false });
+const submitBtn = form.querySelector('[type="submit"]');
+// Auto-fetch duration if audioUrl provided
+let duration = null;
+if (audioUrl) {
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ ხანგრძლივობა...'; }
+  duration = await fetchAudioDuration(audioUrl);
+  if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '+ ტრეკის დამატება'; }
+}
+const track = { id, title, artist, lyrics, albumId, audioUrl, coverUrl, hidden: false };
+if (duration) track.duration = duration;
+tracks.push(track);
 form.reset();
 renderTracks(trackSearchInput ? trackSearchInput.value : '');
 markDirty();
