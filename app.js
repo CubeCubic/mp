@@ -852,6 +852,7 @@ navigator.mediaSession.setPositionState({
 });
 });
 function playByIndex(idx) {
+_trackEndHandled = false; // reset guard for the new track
 if (idx < 0 || idx >= filteredTracks.length) {
 audio.pause();
 currentTrackIndex = -1;
@@ -945,17 +946,19 @@ if (eq) eq.style.animationPlayState = 'paused';
 //  Three independent layers ensure auto-next always works.
 // ════════════════════════════════
 let _autoNextPending = false;
+let _trackEndHandled = false; // guard: prevents double-fire from onended + addEventListener
 
 // ── Layer 1: standard ended event ──
 function _onEnded() {
+  if (_trackEndHandled) return;
+  _trackEndHandled = true;
   _autoNextPending = false;
   _stopHeartbeat();
   stopVinylSpin();
   playNext();
 }
+// Only one listener — assigning both addEventListener AND onended fires the handler TWICE
 audio.addEventListener('ended', _onEnded);
-// Also assign directly — belt-and-suspenders for some iOS versions
-audio.onended = _onEnded;
 
 // ── Layer 2: setInterval heartbeat ──
 // Runs every 2s. iOS throttles intervals in background but doesn't stop them.
@@ -967,6 +970,8 @@ function _startHeartbeat() {
     if (!currentTrackId) { _stopHeartbeat(); return; }
     if (audio.paused && !audio.ended) return; // paused intentionally — do nothing
     if (audio.ended) {
+      if (_trackEndHandled) { _stopHeartbeat(); return; }
+      _trackEndHandled = true;
       _stopHeartbeat();
       _autoNextPending = false;
       stopVinylSpin();
@@ -976,6 +981,8 @@ function _startHeartbeat() {
     if (audio.duration > 0) {
       const remaining = audio.duration - audio.currentTime;
       if (remaining >= 0 && remaining < 0.8 && !audio.paused) {
+        if (_trackEndHandled) { _stopHeartbeat(); return; }
+        _trackEndHandled = true;
         _stopHeartbeat();
         _autoNextPending = false;
         stopVinylSpin();
@@ -999,6 +1006,8 @@ document.addEventListener('visibilitychange', () => {
   if (!currentTrackId) return;
   // audio.ended = true means it stopped and hasn't moved on
   if (audio.ended) {
+    if (_trackEndHandled) return;
+    _trackEndHandled = true;
     _stopHeartbeat();
     _autoNextPending = false;
     stopVinylSpin();
@@ -1009,6 +1018,8 @@ document.addEventListener('visibilitychange', () => {
   if (audio.duration > 0 && !audio.paused) {
     const remaining = audio.duration - audio.currentTime;
     if (remaining >= 0 && remaining < 1.5) {
+      if (_trackEndHandled) return;
+      _trackEndHandled = true;
       _stopHeartbeat();
       _autoNextPending = false;
       stopVinylSpin();
