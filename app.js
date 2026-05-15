@@ -294,34 +294,28 @@ toast.classList.remove('visible');
 setTimeout(() => toast.classList.add('hidden'), 350);
 }, 3000);
 }
+// ════════════════════════════════
+//  ИСПРАВЛЕНО: triggerDownload без fetch (CORS fix)
+// ════════════════════════════════
 async function triggerDownload(url, filename) {
-// DOWNLOAD DISABLED — проверка IP
-if (!downloadAllowed) {
-showToast('ჩამოტვირთვა შეზღუდულია');
-openContactModal();
-return;
-}
-if (!url || !url.trim()) {
-showToast('ფაილი არ არის ხელმისაწვდომი');
-return;
-}
-try {
-const res = await fetch(url);
-if (!res.ok) throw new Error('fetch failed');
-const blob = await res.blob();
-const objUrl = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = objUrl;
-a.download = filename || 'track.mp3';
-a.style.display = 'none';
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-setTimeout(() => URL.revokeObjectURL(objUrl), 12000);
-} catch (e) {
-console.error('Download error:', e);
-showToast('შეცდომა ჩამოტვირთვისას');
-}
+  if (!downloadAllowed) {
+    showToast('ჩამოტვირთვა შეზღუდულია');
+    openContactModal();
+    return;
+  }
+  if (!url || !url.trim()) {
+    showToast('ფაილი არ არის ხელმისაწვდომი');
+    return;
+  }
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename || 'track.mp3';
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 function getAlbumName(t) {
 if (!t || !t.albumId) return '';
