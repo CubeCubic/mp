@@ -16,7 +16,8 @@ Cube Cubic — Main App Logic  v3.0 FIXED
 //  Добавьте сюда IP-адреса которым разрешено скачивание
 // ════════════════════════════════
 const ALLOWED_DOWNLOAD_IPS = [
- '194.60.250.61'
+ // '194.60.250.61',  // пример: добавьте нужные IP сюда
+ '188.169.181.187'
 ];
 let downloadAllowed = false;
 (async function checkDownloadAccess() {
@@ -78,41 +79,10 @@ let playCounts = {};
 const LIKES_STORAGE_KEY = 'cubeCubicLikes';
 const USER_LIKES_KEY = `${LIKES_STORAGE_KEY}_user`;
 let firebaseLikeCounts = {};
-// ─── Partial card update helpers (avoid full re-render on every like/play change) ───
-function updateCardLikes(trackId) {
-if (!tracksContainer) return;
-const card = tracksContainer.querySelector(`[data-track-id="${trackId}"]`);
-if (!card) return;
-const likeCount = getLikeCount(trackId);
-const isLiked = isLikedByUser(trackId);
-const heartIcon = card.querySelector('.heart-icon');
-const likeCountEl = card.querySelector('.like-count');
-if (heartIcon) heartIcon.classList.toggle('liked', isLiked);
-if (likeCountEl) likeCountEl.textContent = likeCount > 0 ? likeCount : '';
-}
-function updateCardPlays(trackId) {
-if (!tracksContainer) return;
-const card = tracksContainer.querySelector(`[data-track-id="${trackId}"]`);
-if (!card) return;
-const pc = getPlayCount(trackId);
-const playCountEl = card.querySelector('.play-count');
-if (!playCountEl) return;
-playCountEl.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span>${pc > 0 ? pc : ''}</span>`;
-playCountEl.style.display = pc > 0 ? 'flex' : 'none';
-}
 const dbRef = firebase.database().ref('likes');
 dbRef.on('value', (snapshot) => {
-const newLikeCounts = snapshot.val() || {};
-if (sortMode === 'most-liked') {
-  // Sort order may change — need full re-render
-  firebaseLikeCounts = newLikeCounts;
-  renderTracks();
-} else {
-  // Only update changed cards
-  const allIds = new Set([...Object.keys(firebaseLikeCounts), ...Object.keys(newLikeCounts)]);
-  firebaseLikeCounts = newLikeCounts;
-  allIds.forEach(id => updateCardLikes(id));
-}
+firebaseLikeCounts = snapshot.val() || {};
+renderTracks();
 if (currentTrackId) {
   const headerLikes = document.getElementById('header-player-likes');
   if (headerLikes) {
@@ -124,17 +94,8 @@ if (currentTrackId) {
 });
 const playsRef = firebase.database().ref('plays');
 playsRef.on('value', (snapshot) => {
-const newPlayCounts = snapshot.val() || {};
-if (sortMode === 'most-played') {
-  // Sort order may change — need full re-render
-  playCounts = newPlayCounts;
-  renderTracks();
-} else {
-  // Only update changed cards
-  const allIds = new Set([...Object.keys(playCounts), ...Object.keys(newPlayCounts)]);
-  playCounts = newPlayCounts;
-  allIds.forEach(id => updateCardPlays(id));
-}
+playCounts = snapshot.val() || {};
+renderTracks();
 });
 function incrementPlayCount(trackId) {
 firebase.database().ref('plays/' + trackId).transaction(val => (val || 0) + 1);
@@ -261,13 +222,6 @@ if (e.code === 'KeyL' && e.key !== 'l' && e.key !== 'L') {
 }
 });
 // ════════════════════════════════
-function debounce(fn, wait) {
-let t = null;
-return function(...args) {
-clearTimeout(t);
-t = setTimeout(() => fn.apply(this, args), wait);
-};
-}
 function formatTime(sec) {
 if (!isFinite(sec)) return '0:00';
 const m = Math.floor(sec / 60);
@@ -294,28 +248,34 @@ toast.classList.remove('visible');
 setTimeout(() => toast.classList.add('hidden'), 350);
 }, 3000);
 }
-// ════════════════════════════════
-//  ИСПРАВЛЕНО: triggerDownload без fetch (CORS fix)
-// ════════════════════════════════
 async function triggerDownload(url, filename) {
-  if (!downloadAllowed) {
-    showToast('ჩამოტვირთვა შეზღუდულია');
-    openContactModal();
-    return;
-  }
-  if (!url || !url.trim()) {
-    showToast('ფაილი არ არის ხელმისაწვდომი');
-    return;
-  }
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename || 'track.mp3';
-  a.target = '_blank';
-  a.rel = 'noopener noreferrer';
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+// DOWNLOAD DISABLED — проверка IP
+if (!downloadAllowed) {
+showToast('ჩამოტვირთვა შეზღუდულია');
+openContactModal();
+return;
+}
+if (!url || !url.trim()) {
+showToast('ფაილი არ არის ხელმისაწვდომი');
+return;
+}
+try {
+const res = await fetch(url);
+if (!res.ok) throw new Error('fetch failed');
+const blob = await res.blob();
+const objUrl = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = objUrl;
+a.download = filename || 'track.mp3';
+a.style.display = 'none';
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+setTimeout(() => URL.revokeObjectURL(objUrl), 12000);
+} catch (e) {
+console.error('Download error:', e);
+showToast('შეცდომა ჩამოტვირთვისას');
+}
 }
 function getAlbumName(t) {
 if (!t || !t.albumId) return '';
@@ -480,14 +440,11 @@ getAlbumName(track).toLowerCase().includes(low)
 );
 }
 if (globalSearchInput) {
-const debouncedSearch = debounce(() => {
-  renderTracks();
-  renderAlbumList();
-}, 250);
 globalSearchInput.addEventListener('input', () => {
+renderTracks();
+renderAlbumList();
 const clearBtn = document.getElementById('search-clear-btn');
 if (clearBtn) clearBtn.style.display = globalSearchInput.value ? 'flex' : 'none';
-debouncedSearch();
 });
 }
 const searchClearBtn = document.getElementById('search-clear-btn');
@@ -579,37 +536,50 @@ toRender.forEach(t => {
   durationEl.textContent = '';
   durationEl.style.cssText = 'font-size:11px;color:rgba(255,255,255,0.4);flex-shrink:0;';
   albumDiv.appendChild(durationEl);
-  // Duration — priority: stored in Firebase > localStorage cache > Audio metadata fetch
-  if (t.duration) {
-    durationEl.textContent = formatTime(t.duration);
-  } else if (t.audioUrl || t.streamUrl) {
+  // Duration — кэшируем в localStorage, не запрашиваем повторно
+  if (t.audioUrl || t.streamUrl) {
     const DURATION_CACHE_KEY = 'cubicDurations';
     let durationCache = {};
     try { durationCache = JSON.parse(localStorage.getItem(DURATION_CACHE_KEY) || '{}'); } catch(e) {}
     if (durationCache[t.id]) {
       durationEl.textContent = formatTime(durationCache[t.id]);
     } else {
-      // Last resort: fetch via Audio — stagger requests to avoid parallel flood
       const idx = toRender.indexOf(t);
       setTimeout(() => {
-        if (!audio.paused) return; // don't load metadata while track is playing
+        // Не загружаем метаданные пока играет трек — не мешаем воспроизведению
+        if (!audio.paused) {
+          // Попробуем позже
+          setTimeout(() => {
+            const tmpAudio = new Audio();
+            tmpAudio.preload = 'metadata';
+            tmpAudio.src = t.audioUrl || t.streamUrl;
+            tmpAudio.addEventListener('loadedmetadata', () => {
+              const dur = tmpAudio.duration;
+              durationEl.textContent = formatTime(dur);
+              try {
+                const cache = JSON.parse(localStorage.getItem(DURATION_CACHE_KEY) || '{}');
+                cache[t.id] = dur;
+                localStorage.setItem(DURATION_CACHE_KEY, JSON.stringify(cache));
+              } catch(e) {}
+              tmpAudio.src = '';
+            }, { once: true });
+          }, 8000);
+          return;
+        }
         const tmpAudio = new Audio();
         tmpAudio.preload = 'metadata';
         tmpAudio.src = t.audioUrl || t.streamUrl;
         tmpAudio.addEventListener('loadedmetadata', () => {
           const dur = tmpAudio.duration;
-          if (isFinite(dur) && dur > 0) {
-            durationEl.textContent = formatTime(dur);
-            try {
-              const cache = JSON.parse(localStorage.getItem(DURATION_CACHE_KEY) || '{}');
-              cache[t.id] = dur;
-              localStorage.setItem(DURATION_CACHE_KEY, JSON.stringify(cache));
-            } catch(e) {}
-          }
+          durationEl.textContent = formatTime(dur);
+          try {
+            const cache = JSON.parse(localStorage.getItem(DURATION_CACHE_KEY) || '{}');
+            cache[t.id] = dur;
+            localStorage.setItem(DURATION_CACHE_KEY, JSON.stringify(cache));
+          } catch(e) {}
           tmpAudio.src = '';
         }, { once: true });
-        tmpAudio.addEventListener('error', () => { tmpAudio.src = ''; }, { once: true });
-      }, idx * 300);
+      }, idx * 200);
     }
   }
 
@@ -882,7 +852,6 @@ navigator.mediaSession.setPositionState({
 });
 });
 function playByIndex(idx) {
-_trackEndHandled = false; // reset guard for the new track
 if (idx < 0 || idx >= filteredTracks.length) {
 audio.pause();
 currentTrackIndex = -1;
@@ -975,18 +944,18 @@ if (eq) eq.style.animationPlayState = 'paused';
 //  iOS/Android freeze JS events when screen is off.
 //  Three independent layers ensure auto-next always works.
 // ════════════════════════════════
-let _trackEndHandled = false; // guard: prevents double-fire from onended + addEventListener
+let _autoNextPending = false;
 
 // ── Layer 1: standard ended event ──
 function _onEnded() {
-  if (_trackEndHandled) return;
-  _trackEndHandled = true;
+  _autoNextPending = false;
   _stopHeartbeat();
   stopVinylSpin();
   playNext();
 }
-// Only one listener — assigning both addEventListener AND onended fires the handler TWICE
 audio.addEventListener('ended', _onEnded);
+// Also assign directly — belt-and-suspenders for some iOS versions
+audio.onended = _onEnded;
 
 // ── Layer 2: setInterval heartbeat ──
 // Runs every 2s. iOS throttles intervals in background but doesn't stop them.
@@ -998,9 +967,8 @@ function _startHeartbeat() {
     if (!currentTrackId) { _stopHeartbeat(); return; }
     if (audio.paused && !audio.ended) return; // paused intentionally — do nothing
     if (audio.ended) {
-      if (_trackEndHandled) { _stopHeartbeat(); return; }
-      _trackEndHandled = true;
       _stopHeartbeat();
+      _autoNextPending = false;
       stopVinylSpin();
       playNext();
       return;
@@ -1008,9 +976,8 @@ function _startHeartbeat() {
     if (audio.duration > 0) {
       const remaining = audio.duration - audio.currentTime;
       if (remaining >= 0 && remaining < 0.8 && !audio.paused) {
-        if (_trackEndHandled) { _stopHeartbeat(); return; }
-        _trackEndHandled = true;
         _stopHeartbeat();
+        _autoNextPending = false;
         stopVinylSpin();
         playNext();
       }
@@ -1032,9 +999,8 @@ document.addEventListener('visibilitychange', () => {
   if (!currentTrackId) return;
   // audio.ended = true means it stopped and hasn't moved on
   if (audio.ended) {
-    if (_trackEndHandled) return;
-    _trackEndHandled = true;
     _stopHeartbeat();
+    _autoNextPending = false;
     stopVinylSpin();
     playNext();
     return;
@@ -1043,9 +1009,8 @@ document.addEventListener('visibilitychange', () => {
   if (audio.duration > 0 && !audio.paused) {
     const remaining = audio.duration - audio.currentTime;
     if (remaining >= 0 && remaining < 1.5) {
-      if (_trackEndHandled) return;
-      _trackEndHandled = true;
       _stopHeartbeat();
+      _autoNextPending = false;
       stopVinylSpin();
       playNext();
     }
