@@ -16,7 +16,7 @@ Cube Cubic — Main App Logic  v3.0 FIXED
 //  Добавьте сюда IP-адреса которым разрешено скачивание
 // ════════════════════════════════
 const ALLOWED_DOWNLOAD_IPS = [
- '172.16.52.6'
+ '194.60.250.61'
 ];
 let downloadAllowed = false;
 (async function checkDownloadAccess() {
