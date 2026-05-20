@@ -1,4 +1,4 @@
-(function () {
+n(function () {
 /* ═══════════════════════════════════════════════════
 Cube Cubic — Main App Logic  v3.0 FIXED
 Исправлено:
@@ -18,7 +18,8 @@ Cube Cubic — Main App Logic  v3.0 FIXED
 const ALLOWED_DOWNLOAD_IPS = [
  // '194.60.250.61',  // пример: добавьте нужные IP сюда
  '188.169.181.187',
- '194.60.250.61'
+ '194.60.250.61',
+ '91.184.112.14'
 ];
 let downloadAllowed = false;
 (async function checkDownloadAccess() {
