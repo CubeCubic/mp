@@ -1,17 +1,17 @@
-// firebase-config.js
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+// firebase-config.js — единая точка инициализации Firebase для всего сайта
+// Подключается в index.html и admin.html ПОСЛЕ firebase-app-compat.js и firebase-database-compat.js
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBcmZMx92y4virmuEJ7xDyFb8IMDcBpXRY",
-  authDomain: "cube-cubic-comments.firebaseapp.com",
-  projectId: "cube-cubic-comments",
-  storageBucket: "cube-cubic-comments.firebasestorage.app",
-  messagingSenderId: "201289761635",
-  appId: "1:201289761635:web:e07ebe9dd30edd4ba74956"
-};
+(function () {
+  // Не инициализировать повторно если уже запущено
+  if (firebase.apps.length) return;
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-export { db, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp };
+  firebase.initializeApp({
+    apiKey:            "AIzaSyA9KqCfSD6_DY3w-JRhPBi8O0B7jEvYM4Q",
+    authDomain:        "cube-cubic.firebaseapp.com",
+    databaseURL:       "https://cube-cubic-default-rtdb.firebaseio.com",
+    projectId:         "cube-cubic",
+    storageBucket:     "cube-cubic.firebasestorage.app",
+    messagingSenderId: "923758825907",
+    appId:             "1:923758825907:web:d6aa6a083e1c46690ffbc6"
+  });
+})();

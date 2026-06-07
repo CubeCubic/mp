@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark">
   <title>Cubic</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" type="image/png" href="images/smallcube.png">
@@ -198,14 +199,23 @@
     </div>
   </div>
 
+  <!-- ═══ COMMENTS MODAL ═══ -->
+  <div id="comments-modal" class="hidden" aria-hidden="true">
+    <div class="modal-box comments-modal-box">
+      <button id="comments-modal-close" type="button">✕ დახურვა</button>
+      <h3 id="comments-modal-title">კომენტარები</h3>
+      <div id="comments-list" class="comments-list"></div>
+      <form id="comments-form" class="comments-form" novalidate>
+        <input id="comment-author" type="text" placeholder="თქვენი სახელი…" maxlength="60" autocomplete="off">
+        <textarea id="comment-text" placeholder="კომენტარი…" maxlength="500" rows="3"></textarea>
+        <button type="submit" id="comment-submit">გაგზავნა</button>
+      </form>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script>
-    firebase.initializeApp({
-      apiKey: "AIzaSyA9KqCfSD6_DY3w-JRhPBi8O0B7jEvYM4Q",
-      databaseURL: "https://cube-cubic-default-rtdb.firebaseio.com"
-    });
-  </script>
+  <script src="firebase-config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

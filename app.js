@@ -590,7 +590,7 @@ toRender.forEach(t => {
   // Duration — priority: stored in Firebase > localStorage cache > Audio metadata fetch
   if (t.duration) {
     durationEl.textContent = formatTime(t.duration);
-  } else if (t.audioUrl || t.streamUrl) {
+  } else if (t.audioUrl) {
     const DURATION_CACHE_KEY = 'cubicDurations';
     let durationCache = {};
     try { durationCache = JSON.parse(localStorage.getItem(DURATION_CACHE_KEY) || '{}'); } catch(e) {}
@@ -603,7 +603,7 @@ toRender.forEach(t => {
         if (!audio.paused) return; // don't load metadata while track is playing
         const tmpAudio = new Audio();
         tmpAudio.preload = 'metadata';
-        tmpAudio.src = t.audioUrl || t.streamUrl;
+        tmpAudio.src = t.audioUrl;
         tmpAudio.addEventListener('loadedmetadata', () => {
           const dur = tmpAudio.duration;
           if (isFinite(dur) && dur > 0) {
@@ -631,6 +631,17 @@ toRender.forEach(t => {
   card.appendChild(info);
   const actions = document.createElement('div');
   actions.className = 'track-actions';
+  // Comments button
+  const commBtn = document.createElement('button');
+  commBtn.type = 'button';
+  commBtn.className = 'comments-button';
+  commBtn.title = 'კომენტარები';
+  commBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>';
+  commBtn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    openCommentsModal(t);
+  });
+  actions.appendChild(commBtn);
   if (t.lyrics && t.lyrics.trim()) {
     const lyrBtn = document.createElement('button');
     lyrBtn.type = 'button';
@@ -1525,6 +1536,119 @@ if (miniPlayer) {
     }
   }, { passive: true });
 }
+
+// ════════════════════════════════
+//  Comments System (Firebase RTDB /comments)
+// ════════════════════════════════
+const commentsModal       = document.getElementById('comments-modal');
+const commentsModalClose  = document.getElementById('comments-modal-close');
+const commentsModalTitle  = document.getElementById('comments-modal-title');
+const commentsList        = document.getElementById('comments-list');
+const commentsForm        = document.getElementById('comments-form');
+const commentAuthorInput  = document.getElementById('comment-author');
+const commentTextInput    = document.getElementById('comment-text');
+const commentSubmitBtn    = document.getElementById('comment-submit');
+
+let commentsCurrentTrackId  = null;
+let commentsUnsubscribe     = null; // Firebase off() handle
+
+function openCommentsModal(t) {
+  if (!commentsModal) return;
+  commentsCurrentTrackId = t.id;
+  commentsModalTitle.textContent = safeStr(t.title);
+  commentsModal.classList.remove('hidden');
+  commentsModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  loadComments(t.id);
+}
+
+function closeCommentsModal() {
+  if (!commentsModal) return;
+  commentsModal.classList.add('hidden');
+  commentsModal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+  if (commentsUnsubscribe) {
+    commentsUnsubscribe();
+    commentsUnsubscribe = null;
+  }
+  commentsCurrentTrackId = null;
+  if (commentsList) commentsList.innerHTML = '';
+  if (commentsForm) commentsForm.reset();
+}
+
+function loadComments(trackId) {
+  if (!commentsList) return;
+  commentsList.innerHTML = '<div class="comments-loading">იტვირთება…</div>';
+  // Unsubscribe from previous listener
+  if (commentsUnsubscribe) { commentsUnsubscribe(); commentsUnsubscribe = null; }
+  const ref = firebase.database().ref('comments/' + trackId).orderByChild('ts');
+  const handler = ref.on('value', (snap) => {
+    commentsList.innerHTML = '';
+    const val = snap.val();
+    if (!val) {
+      commentsList.innerHTML = '<div class="comments-empty">კომენტარები არ არის. იყავი პირველი!</div>';
+      return;
+    }
+    const items = Object.entries(val)
+      .map(([k, v]) => ({ key: k, ...v }))
+      .sort((a, b) => (a.ts || 0) - (b.ts || 0));
+    items.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'comment-item';
+      const date = item.ts ? new Date(item.ts).toLocaleDateString('ka-GE', { day:'numeric', month:'short', year:'numeric' }) : '';
+      div.innerHTML = `
+        <div class="comment-header">
+          <span class="comment-author">${safeStr(item.author) || 'ანონიმი'}</span>
+          <span class="comment-date">${date}</span>
+        </div>
+        <div class="comment-text">${safeStr(item.text).replace(/\n/g, '<br>')}</div>
+      `;
+      commentsList.appendChild(div);
+    });
+    // Scroll to bottom on new comment
+    commentsList.scrollTop = commentsList.scrollHeight;
+  });
+  // Store off() function for cleanup
+  commentsUnsubscribe = () => ref.off('value', handler);
+}
+
+if (commentsModalClose) commentsModalClose.addEventListener('click', closeCommentsModal);
+if (commentsModal) {
+  commentsModal.addEventListener('click', (e) => {
+    if (e.target === commentsModal) closeCommentsModal();
+  });
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && commentsModal && !commentsModal.classList.contains('hidden')) {
+    closeCommentsModal();
+  }
+});
+
+if (commentsForm) {
+  commentsForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!commentsCurrentTrackId) return;
+    const author = (commentAuthorInput ? commentAuthorInput.value.trim() : '') || 'ანონიმი';
+    const text   = (commentTextInput  ? commentTextInput.value.trim()  : '');
+    if (!text) { showToast('კომენტარი ცარიელია'); return; }
+    if (commentSubmitBtn) { commentSubmitBtn.disabled = true; commentSubmitBtn.textContent = '…'; }
+    try {
+      await firebase.database().ref('comments/' + commentsCurrentTrackId).push({
+        author: author.slice(0, 60),
+        text:   text.slice(0, 500),
+        ts:     Date.now()
+      });
+      commentsForm.reset();
+      showToast('კომენტარი დაემატა!');
+    } catch (err) {
+      console.error('Comment submit error:', err);
+      showToast('შეცდომა. სცადეთ თავიდან.');
+    } finally {
+      if (commentSubmitBtn) { commentSubmitBtn.disabled = false; commentSubmitBtn.textContent = 'გაგზავნა'; }
+    }
+  });
+}
+
 // ─── Init ───
 document.addEventListener('DOMContentLoaded', () => {
 updatePlayer(null);
