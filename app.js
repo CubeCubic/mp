@@ -999,41 +999,44 @@ if (eq) eq.style.animationPlayState = 'paused';
 let _trackEndHandled = false;
 
 // ── Web Audio keepalive ──
-// A ScriptProcessorNode playing silence prevents iOS from suspending
-// the audio session, which is what causes 'ended' to not fire in background.
+// Держим AudioContext живым через тихий oscillator.
+// НЕ используем createMediaElementSource — это перехватывает аудио поток
+// и при suspended контексте полностью убивает звук.
 let _audioCtx = null;
-let _keepaliveSource = null;
-let _keepaliveGain = null;
+let _keepaliveOsc = null;
 
 function _initAudioContext() {
   if (_audioCtx) return;
   try {
     _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    // Connect the <audio> element into the Web Audio graph
-    const sourceNode = _audioCtx.createMediaElementSource(audio);
-    _keepaliveGain = _audioCtx.createGain();
-    _keepaliveGain.gain.value = 1;
-    sourceNode.connect(_keepaliveGain);
-    _keepaliveGain.connect(_audioCtx.destination);
   } catch (e) {
-    // Web Audio not available — fall back gracefully
     _audioCtx = null;
   }
 }
 
 function _startKeepalive() {
   if (!_audioCtx) return;
-  // Resume AudioContext if suspended (required after user gesture on iOS)
-  if (_audioCtx.state === 'suspended') {
+  if (_audioCtx.state === "suspended") {
     _audioCtx.resume().catch(() => {});
+  }
+  // Тихий oscillator — не даёт iOS «заморозить» аудио сессию
+  if (!_keepaliveOsc) {
+    try {
+      const gain = _audioCtx.createGain();
+      gain.gain.value = 0.001; // практически беззвучно
+      gain.connect(_audioCtx.destination);
+      _keepaliveOsc = _audioCtx.createOscillator();
+      _keepaliveOsc.connect(gain);
+      _keepaliveOsc.start();
+    } catch(e) {}
   }
 }
 
 function _stopKeepalive() {
-  // Don't close context — just let it idle; re-resuming is cheaper
+  // Оставляем контекст живым — повторный resume дешевле пересоздания
 }
 
-// Init AudioContext on first user interaction (iOS requirement)
+// Init AudioContext строго внутри user gesture (требование iOS)
 function _ensureAudioCtx() {
   if (!_audioCtx) _initAudioContext();
   _startKeepalive();
