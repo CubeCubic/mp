@@ -1217,8 +1217,17 @@ for (let i = 0; i < 8; i++) {
 tracksContainer.innerHTML += `<div class="skeleton-card"><div class="skeleton-cover"></div><div class="skeleton-info"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>`;
 }
 }
+function showAlbumSkeleton() {
+if (!albumListContainer) return;
+albumListContainer.innerHTML = '';
+const widths = ['85%', '70%', '90%', '65%', '78%'];
+widths.forEach(w => {
+albumListContainer.innerHTML += `<div class="skeleton-album-btn"><div class="skeleton-album-label" style="width:${w}"></div><div class="skeleton-album-count"></div></div>`;
+});
+}
 async function loadData() {
 showSkeleton();
+showAlbumSkeleton();
 try {
 // Загрузка из Firebase (приоритет)
 const tracksSnapshot = await firebase.database().ref('tracks').once('value');

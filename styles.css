@@ -1483,3 +1483,87 @@ gap: 12px;
 max-width: 94%;
 }
 }
+
+/* === Skeleton Loading === */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+/* ── Track card skeleton ── */
+.skeleton-card {
+  --sk-base:  rgba(255,255,255,0.05);
+  --sk-shine: rgba(255,255,255,0.11);
+  background-color: rgba(255,255,255,0.04);
+  background-image: linear-gradient(90deg, var(--sk-base) 0%, var(--sk-shine) 40%, var(--sk-base) 80%);
+  background-size: 600px 100%;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+.skeleton-cover {
+  width: 100%;
+  aspect-ratio: 1;
+  background: rgba(255,255,255,0.06);
+}
+.skeleton-info {
+  padding: 10px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.08);
+  width: 80%;
+}
+.skeleton-line.short {
+  width: 50%;
+  height: 10px;
+  background: rgba(255,255,255,0.05);
+}
+
+/* ── Album list skeleton ── */
+.skeleton-album-btn {
+  --sk-base:  rgba(255,255,255,0.04);
+  --sk-shine: rgba(255,255,255,0.09);
+  background-color: rgba(255,255,255,0.03);
+  background-image: linear-gradient(90deg, var(--sk-base) 0%, var(--sk-shine) 40%, var(--sk-base) 80%);
+  background-size: 600px 100%;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--radius-md);
+  height: 40px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-sizing: border-box;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+.skeleton-album-btn:nth-child(2) { animation-delay: 0.1s; }
+.skeleton-album-btn:nth-child(3) { animation-delay: 0.2s; }
+.skeleton-album-btn:nth-child(4) { animation-delay: 0.3s; }
+.skeleton-album-btn:nth-child(5) { animation-delay: 0.4s; }
+.skeleton-album-label {
+  height: 11px;
+  border-radius: 5px;
+  background: rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.skeleton-album-count {
+  width: 26px;
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(255,255,255,0.05);
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-card,
+  .skeleton-album-btn { animation: none; }
+}
