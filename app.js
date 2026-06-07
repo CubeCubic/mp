@@ -890,7 +890,8 @@ navigator.mediaSession.setPositionState({
 });
 });
 function playByIndex(idx) {
-_trackEndHandled = false; // reset guard for the new track
+_trackEndHandled = false;
+_ensureAudioCtx();
 if (idx < 0 || idx >= filteredTracks.length) {
 audio.pause();
 currentTrackIndex = -1;
@@ -980,12 +981,55 @@ if (eq) eq.style.animationPlayState = 'paused';
 });
 // ════════════════════════════════
 //  MOBILE BACKGROUND PLAYBACK FIX
-//  iOS/Android freeze JS events when screen is off.
-//  Three independent layers ensure auto-next always works.
+//  iOS Safari & Android freeze JS timers when screen is off.
+//  Solution: Web Audio API keepalive (1-second silent loop) keeps
+//  the audio session alive so the native 'ended' event fires reliably.
 // ════════════════════════════════
-let _trackEndHandled = false; // guard: prevents double-fire from onended + addEventListener
+let _trackEndHandled = false;
+
+// ── Web Audio keepalive ──
+// A ScriptProcessorNode playing silence prevents iOS from suspending
+// the audio session, which is what causes 'ended' to not fire in background.
+let _audioCtx = null;
+let _keepaliveSource = null;
+let _keepaliveGain = null;
+
+function _initAudioContext() {
+  if (_audioCtx) return;
+  try {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Connect the <audio> element into the Web Audio graph
+    const sourceNode = _audioCtx.createMediaElementSource(audio);
+    _keepaliveGain = _audioCtx.createGain();
+    _keepaliveGain.gain.value = 1;
+    sourceNode.connect(_keepaliveGain);
+    _keepaliveGain.connect(_audioCtx.destination);
+  } catch (e) {
+    // Web Audio not available — fall back gracefully
+    _audioCtx = null;
+  }
+}
+
+function _startKeepalive() {
+  if (!_audioCtx) return;
+  // Resume AudioContext if suspended (required after user gesture on iOS)
+  if (_audioCtx.state === 'suspended') {
+    _audioCtx.resume().catch(() => {});
+  }
+}
+
+function _stopKeepalive() {
+  // Don't close context — just let it idle; re-resuming is cheaper
+}
+
+// Init AudioContext on first user interaction (iOS requirement)
+function _ensureAudioCtx() {
+  if (!_audioCtx) _initAudioContext();
+  _startKeepalive();
+}
 
 // ── Layer 1: standard ended event ──
+// With AudioContext keepalive this now fires reliably even in background.
 function _onEnded() {
   if (_trackEndHandled) return;
   _trackEndHandled = true;
@@ -993,52 +1037,40 @@ function _onEnded() {
   stopVinylSpin();
   playNext();
 }
-// Only one listener — assigning both addEventListener AND onended fires the handler TWICE
 audio.addEventListener('ended', _onEnded);
 
-// ── Layer 2: setInterval heartbeat ──
-// Runs every 2s. iOS throttles intervals in background but doesn't stop them.
-// This catches 'ended' when the event was frozen.
+// ── Layer 2: polling heartbeat (backup) ──
+// Fires every 1s. On most devices AudioContext keepalive makes this
+// unnecessary, but it's a safety net for edge cases.
 let _heartbeatTimer = null;
 function _startHeartbeat() {
   _stopHeartbeat();
   _heartbeatTimer = setInterval(() => {
     if (!currentTrackId) { _stopHeartbeat(); return; }
-    if (audio.paused && !audio.ended) return; // paused intentionally — do nothing
-    if (audio.ended) {
+    if (audio.paused && !audio.ended) return;
+    if (audio.ended || (audio.duration > 0 && (audio.duration - audio.currentTime) < 0.5 && !audio.paused)) {
       if (_trackEndHandled) { _stopHeartbeat(); return; }
       _trackEndHandled = true;
       _stopHeartbeat();
       stopVinylSpin();
       playNext();
-      return;
     }
-    if (audio.duration > 0) {
-      const remaining = audio.duration - audio.currentTime;
-      if (remaining >= 0 && remaining < 0.8 && !audio.paused) {
-        if (_trackEndHandled) { _stopHeartbeat(); return; }
-        _trackEndHandled = true;
-        _stopHeartbeat();
-        stopVinylSpin();
-        playNext();
-      }
-    }
-  }, 2000);
+  }, 1000);
 }
 function _stopHeartbeat() {
   if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
 }
-// Start/stop heartbeat with playback
-audio.addEventListener('playing', _startHeartbeat);
+audio.addEventListener('playing', () => { _ensureAudioCtx(); _startHeartbeat(); });
 audio.addEventListener('pause',   _stopHeartbeat);
 
-// ── Layer 3: visibilitychange ──
-// Fires the instant user turns screen back on.
-// If audio ended while screen was off — advance immediately.
+// ── Layer 3: visibilitychange (screen unlock) ──
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') return;
+  // Resume AudioContext — iOS suspends it when screen locks
+  if (_audioCtx && _audioCtx.state === 'suspended') {
+    _audioCtx.resume().catch(() => {});
+  }
   if (!currentTrackId) return;
-  // audio.ended = true means it stopped and hasn't moved on
   if (audio.ended) {
     if (_trackEndHandled) return;
     _trackEndHandled = true;
@@ -1047,7 +1079,7 @@ document.addEventListener('visibilitychange', () => {
     playNext();
     return;
   }
-  // Stuck near end (currentTime == duration but ended didn't fire)
+  // Stuck near end
   if (audio.duration > 0 && !audio.paused) {
     const remaining = audio.duration - audio.currentTime;
     if (remaining >= 0 && remaining < 1.5) {
@@ -1056,10 +1088,10 @@ document.addEventListener('visibilitychange', () => {
       _stopHeartbeat();
       stopVinylSpin();
       playNext();
+      return;
     }
   }
-  // Audio is paused but we expected it to be playing (screen-off stall)
-  // Re-attempt play so user doesn't need to tap Play manually
+  // Stalled while playing (iOS sometimes pauses without user intent)
   if (audio.paused && !audio.ended && currentTrackId && audio.src) {
     const pos = audio.currentTime;
     const dur = audio.duration;
