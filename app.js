@@ -74,6 +74,10 @@ let userInteracted = false;
 let sortMode = '';
 let shuffleMode = false;
 let playCounts = {};
+// ── Special filter modes ──
+let allSongsMode = false;   // кнопка "All Songs" — Georgian + English
+let playlistMode = false;   // кнопка "My Playlist"
+const PLAYLIST_KEY = 'cubicMyPlaylist';
 // ════════════════════════════════
 //  Like System (Firebase global + localStorage personal)
 // ════════════════════════════════
@@ -349,18 +353,81 @@ trackCountDisplay.textContent = `სულ ტრეკი: ${visibleCount}`;
 // ════════════════════════════════
 //  Album sidebar rendering
 // ════════════════════════════════
+// ════════════════════════════════
+//  My Playlist (localStorage)
+// ════════════════════════════════
+function getPlaylistIds() {
+  try {
+    const raw = localStorage.getItem(PLAYLIST_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+function isInPlaylist(trackId) {
+  return getPlaylistIds().includes(trackId);
+}
+function togglePlaylist(trackId) {
+  const ids = getPlaylistIds();
+  const idx = ids.indexOf(trackId);
+  if (idx >= 0) ids.splice(idx, 1);
+  else ids.push(trackId);
+  localStorage.setItem(PLAYLIST_KEY, JSON.stringify(ids));
+  return idx < 0; // true = added
+}
+
 function renderAlbumList() {
 if (!albumListContainer) return;
 albumListContainer.innerHTML = '';
-if (!albums.length) return;
+
+// ── All Songs button ──
+const allSongsBtn = document.createElement('button');
+allSongsBtn.type = 'button';
+allSongsBtn.className = 'album-list-button' + (allSongsMode ? ' selected' : '');
+allSongsBtn.setAttribute('data-special', 'all-songs');
+const allSongsLabel = document.createElement('span');
+allSongsLabel.textContent = 'All Songs';
+allSongsBtn.appendChild(allSongsLabel);
+const georgianAlbum = albums.find(a => !a.parentId && a.name === 'Songs in Georgian');
+const englishAlbum  = albums.find(a => !a.parentId && a.name === 'Songs in English');
+const allSongsIds = [];
+if (georgianAlbum) {
+  allSongsIds.push(String(georgianAlbum.id));
+  albums.filter(a => String(a.parentId||'') === String(georgianAlbum.id)).forEach(s => allSongsIds.push(String(s.id)));
+}
+if (englishAlbum) {
+  allSongsIds.push(String(englishAlbum.id));
+  albums.filter(a => String(a.parentId||'') === String(englishAlbum.id)).forEach(s => allSongsIds.push(String(s.id)));
+}
+const allSongsCount = tracks.filter(t => allSongsIds.includes(String(t.albumId||'')) && !t.hidden).length;
+const allSongsCountSpan = document.createElement('span');
+allSongsCountSpan.className = 'track-count';
+allSongsCountSpan.textContent = '(' + allSongsCount + ')';
+allSongsBtn.appendChild(allSongsCountSpan);
+
+// ── My Playlist button ──
+const myPlaylistBtn = document.createElement('button');
+myPlaylistBtn.type = 'button';
+const plIds = getPlaylistIds();
+myPlaylistBtn.className = 'album-list-button album-list-button--playlist' + (playlistMode ? ' selected' : '');
+myPlaylistBtn.setAttribute('data-special', 'playlist');
+const plLabel = document.createElement('span');
+plLabel.className = 'playlist-btn-label';
+plLabel.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" style="fill:currentColor;flex-shrink:0"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18A2.99 2.99 0 0016 14c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg> My Playlist';
+myPlaylistBtn.appendChild(plLabel);
+const plCountSpan = document.createElement('span');
+plCountSpan.className = 'track-count';
+plCountSpan.textContent = '(' + plIds.length + ')';
+myPlaylistBtn.appendChild(plCountSpan);
+
+if (!albums.length) {
+  albumListContainer.appendChild(allSongsBtn);
+  albumListContainer.appendChild(myPlaylistBtn);
+  return;
+}
+
 const mains = albums
   .filter(a => !a.parentId)
   .sort((a, b) => {
-    const order = {
-      'Songs in Georgian': 1,
-      'Songs in English': 2,
-      'Instrumental Music': 3
-    };
+    const order = { 'Songs in Georgian': 1, 'Songs in English': 2, 'Instrumental Music': 3 };
     const orderA = order[a.name] || 999;
     const orderB = order[b.name] || 999;
     if (orderA !== orderB) return orderA - orderB;
@@ -368,17 +435,24 @@ const mains = albums
   });
 const currentAlbumId = albumSelect ? albumSelect.value : '';
 const currentSubalbumId = subalbumSelect ? subalbumSelect.value : '';
+
+// Songs in Georgian и Songs in English — вставим All Songs после них
+let allSongsInserted = false;
+
 mains.forEach(album => {
   const albumId = String(album.id || '');
-  const subalbums = albums
+  const isInstrumental = album.name === 'Instrumental Music';
+  const subalbums = isInstrumental ? [] : albums
     .filter(s => String(s.parentId || '') === albumId)
     .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   const hasSubalbums = subalbums.length > 0;
-  const isSelected = currentAlbumId === albumId;
+  const isSelected = !allSongsMode && !playlistMode && currentAlbumId === albumId;
+
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'album-list-button';
   btn.setAttribute('data-album-id', albumId);
+
   const nameSpan = document.createElement('span');
   if (hasSubalbums) {
     const arrow = document.createElement('span');
@@ -386,25 +460,27 @@ mains.forEach(album => {
     arrow.textContent = isSelected ? '▼ ' : '▶ ';
     nameSpan.appendChild(arrow);
   }
-  const nameText = document.createTextNode(album.name || 'Unnamed');
-  nameSpan.appendChild(nameText);
+  nameSpan.appendChild(document.createTextNode(album.name || 'Unnamed'));
   btn.appendChild(nameSpan);
-  const subIds = subalbums.map(s => s.id);
+
+  const subIds = isInstrumental ? [] : subalbums.map(s => s.id);
   const count = tracks.filter(t => {
     const tid = String(t.albumId || '');
     return (tid === albumId || subIds.includes(tid)) && !t.hidden;
   }).length;
   const countSpan = document.createElement('span');
   countSpan.className = 'track-count';
-  countSpan.textContent = `(${count})`;
+  countSpan.textContent = '(' + count + ')';
   btn.appendChild(countSpan);
-  if (isSelected && !currentSubalbumId) {
-    btn.classList.add('selected');
-  }
+
+  if (isSelected && !currentSubalbumId) btn.classList.add('selected');
+
   btn.addEventListener('click', (ev) => {
     ev.preventDefault();
+    allSongsMode = false;
+    playlistMode = false;
     if (hasSubalbums) {
-      if (currentAlbumId === albumId) {
+      if (!allSongsMode && !playlistMode && currentAlbumId === albumId) {
         if (albumSelect) albumSelect.value = '';
         if (subalbumSelect) subalbumSelect.value = '';
       } else {
@@ -419,6 +495,22 @@ mains.forEach(album => {
     renderTracks();
   });
   albumListContainer.appendChild(btn);
+
+  // После Songs in English вставляем All Songs
+  if (album.name === 'Songs in English' && !allSongsInserted) {
+    allSongsInserted = true;
+    allSongsBtn.addEventListener('click', () => {
+      allSongsMode = true;
+      playlistMode = false;
+      if (albumSelect) albumSelect.value = '';
+      if (subalbumSelect) subalbumSelect.value = '';
+      renderAlbumList();
+      renderTracks();
+    });
+    albumListContainer.appendChild(allSongsBtn);
+  }
+
+  // Subalbums accordion (только не для Instrumental)
   if (isSelected && hasSubalbums) {
     const allSubBtn = document.createElement('button');
     allSubBtn.type = 'button';
@@ -429,11 +521,9 @@ mains.forEach(album => {
     allSubBtn.appendChild(allNameSpan);
     const allCountSpan = document.createElement('span');
     allCountSpan.className = 'track-count';
-    allCountSpan.textContent = `(${count})`;
+    allCountSpan.textContent = '(' + count + ')';
     allSubBtn.appendChild(allCountSpan);
-    if (!currentSubalbumId) {
-      allSubBtn.classList.add('selected');
-    }
+    if (!currentSubalbumId) allSubBtn.classList.add('selected');
     allSubBtn.addEventListener('click', (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -453,14 +543,14 @@ mains.forEach(album => {
       const subCount = tracks.filter(t => String(t.albumId || '') === String(sub.id) && !t.hidden).length;
       const subCountSpan = document.createElement('span');
       subCountSpan.className = 'track-count';
-      subCountSpan.textContent = `(${subCount})`;
+      subCountSpan.textContent = '(' + subCount + ')';
       subBtn.appendChild(subCountSpan);
-      if (currentSubalbumId === String(sub.id || '')) {
-        subBtn.classList.add('selected');
-      }
+      if (currentSubalbumId === String(sub.id || '')) subBtn.classList.add('selected');
       subBtn.addEventListener('click', (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
+        allSongsMode = false;
+        playlistMode = false;
         if (subalbumSelect) subalbumSelect.value = String(sub.id || '');
         renderAlbumList();
         renderTracks();
@@ -469,6 +559,30 @@ mains.forEach(album => {
     });
   }
 });
+
+// Если All Songs не был вставлен (альбомов Georgian/English нет) — добавить в конец
+if (!allSongsInserted) {
+  allSongsBtn.addEventListener('click', () => {
+    allSongsMode = true;
+    playlistMode = false;
+    if (albumSelect) albumSelect.value = '';
+    if (subalbumSelect) subalbumSelect.value = '';
+    renderAlbumList();
+    renderTracks();
+  });
+  albumListContainer.appendChild(allSongsBtn);
+}
+
+// My Playlist — всегда последний
+myPlaylistBtn.addEventListener('click', () => {
+  playlistMode = true;
+  allSongsMode = false;
+  if (albumSelect) albumSelect.value = '';
+  if (subalbumSelect) subalbumSelect.value = '';
+  renderAlbumList();
+  renderTracks();
+});
+albumListContainer.appendChild(myPlaylistBtn);
 }
 function onAlbumChange() {
 renderAlbumList();
@@ -521,7 +635,20 @@ const searchQ = globalSearchInput ? globalSearchInput.value.trim() : '';
 if (searchQ) toRender = toRender.filter(t => matchesQuery(t, searchQ));
 const selAlbum = albumSelect ? albumSelect.value : '';
 const selSubalbum = subalbumSelect ? subalbumSelect.value : '';
-if (selSubalbum) {
+if (playlistMode) {
+  const plIds = getPlaylistIds();
+  toRender = toRender.filter(t => plIds.includes(t.id));
+} else if (allSongsMode) {
+  const geoAlbum = albums.find(a => !a.parentId && a.name === 'Songs in Georgian');
+  const engAlbum = albums.find(a => !a.parentId && a.name === 'Songs in English');
+  const validIds = [];
+  [geoAlbum, engAlbum].forEach(a => {
+    if (!a) return;
+    validIds.push(String(a.id));
+    albums.filter(s => String(s.parentId||'') === String(a.id)).forEach(s => validIds.push(String(s.id)));
+  });
+  toRender = toRender.filter(t => validIds.includes(String(t.albumId||'')));
+} else if (selSubalbum) {
   toRender = toRender.filter(t => String(t.albumId || '') === selSubalbum);
 } else if (selAlbum) {
   const subIds = albums
@@ -631,6 +758,22 @@ toRender.forEach(t => {
   card.appendChild(info);
   const actions = document.createElement('div');
   actions.className = 'track-actions';
+  // Playlist button
+  const plBtn = document.createElement('button');
+  plBtn.type = 'button';
+  plBtn.className = 'playlist-track-btn' + (isInPlaylist(t.id) ? ' in-playlist' : '');
+  plBtn.title = isInPlaylist(t.id) ? 'პლეილისტიდან წაშლა' : 'პლეილისტში დამატება';
+  plBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zM2 16h8v-2H2v2zm19.5-4.5L23 13l-6.99 7-4.51-4.5L13 14l3.01 3 5.49-5.5z"/></svg>';
+  plBtn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    const added = togglePlaylist(t.id);
+    plBtn.classList.toggle('in-playlist', added);
+    plBtn.title = added ? 'პლეილისტიდან წაშლა' : 'პლეილისტში დამატება';
+    showToast(added ? 'პლეილისტში დაემატა ✓' : 'პლეილისტიდან წაიშალა');
+    if (playlistMode) renderTracks();
+    else renderAlbumList(); // update playlist count
+  });
+  actions.appendChild(plBtn);
   // Comments button
   const commBtn = document.createElement('button');
   commBtn.type = 'button';

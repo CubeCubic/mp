@@ -1736,3 +1736,47 @@ max-width: 94%;
     max-height: 220px;
   }
 }
+
+/* === My Playlist sidebar button === */
+.album-list-button--playlist {
+  border-color: rgba(255, 122, 102, 0.25) !important;
+  background: rgba(255, 122, 102, 0.06) !important;
+}
+.album-list-button--playlist:hover {
+  background: rgba(255, 122, 102, 0.14) !important;
+  border-color: rgba(255, 122, 102, 0.4) !important;
+}
+.album-list-button--playlist.selected {
+  background: linear-gradient(135deg, rgba(255,122,102,0.22), rgba(255,140,120,0.14)) !important;
+  border-color: rgba(255,122,102,0.5) !important;
+  color: #ffb3a7;
+}
+.playlist-btn-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* === Playlist button on track card === */
+.playlist-track-btn {
+  color: rgba(255,255,255,0.45) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+.playlist-track-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+.playlist-track-btn:hover {
+  color: var(--accent) !important;
+  border-color: rgba(255,122,102,0.35) !important;
+  background: rgba(255,122,102,0.08) !important;
+}
+.playlist-track-btn.in-playlist {
+  color: var(--accent) !important;
+  border-color: rgba(255,122,102,0.4) !important;
+  background: rgba(255,122,102,0.12) !important;
+}
+.playlist-track-btn.in-playlist:hover {
+  background: rgba(255,122,102,0.2) !important;
+}
