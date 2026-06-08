@@ -463,7 +463,9 @@ mains.forEach(album => {
   nameSpan.appendChild(document.createTextNode(album.name || 'Unnamed'));
   btn.appendChild(nameSpan);
 
-  const subIds = isInstrumental ? [] : subalbums.map(s => s.id);
+  const subIds = isInstrumental
+    ? albums.filter(s => String(s.parentId || '') === albumId).map(s => s.id)
+    : subalbums.map(s => s.id);
   const count = tracks.filter(t => {
     const tid = String(t.albumId || '');
     return (tid === albumId || subIds.includes(tid)) && !t.hidden;
