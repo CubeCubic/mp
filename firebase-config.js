@@ -1,5 +1,5 @@
 // firebase-config.js — единая точка инициализации Firebase для всего сайта
-// Подключается в index.html и admin.html ПОСЛЕ firebase-app-compat.js и firebase-database-compat.js
+// Подключается в index.html и admin.html ПОСЛЕ firebase SDKs
 
 (function () {
   // Не инициализировать повторно если уже запущено

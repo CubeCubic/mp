@@ -2,7 +2,6 @@
 <html lang="ka">
 <head>
   <meta charset="utf-8">
-  <meta name="color-scheme" content="dark">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>ადმინი — Cube Cubic</title>
   <link rel="stylesheet" href="styles.css">
@@ -315,8 +314,10 @@
     <!-- ═══ LOGIN ═══ -->
     <div id="login-form" class="panel">
       <h2>შესვლი</h2>
+      <label for="admin-email">ელ-ფოსტა</label>
+      <input id="admin-email" type="email" placeholder="admin@example.com" autocomplete="email">
       <label for="admin-password">პაროლი</label>
-      <input id="admin-password" type="password" placeholder="შეიყვანეთ პაროლი…" autocomplete="off">
+      <input id="admin-password" type="password" placeholder="პაროლი…" autocomplete="current-password">
       <div style="margin-top:10px; display:flex; align-items:center;">
         <button id="login-btn" type="button">შესვლა</button>
         <span id="login-msg"></span>
@@ -415,6 +416,7 @@
   <!-- ═══ FIREBASE SDK ═══ -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="firebase-config.js"></script>
 
   <script src="admin.js"></script>

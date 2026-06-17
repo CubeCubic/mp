@@ -5,6 +5,7 @@ const loginForm = document.getElementById('login-form');
 const adminPanel = document.getElementById('admin-panel');
 const loginBtn = document.getElementById('login-btn');
 const loginMsg = document.getElementById('login-msg');
+const emailInput = document.getElementById('admin-email');
 const passwordInput = document.getElementById('admin-password');
 const albumName = document.getElementById('album-name');
 const albumParent = document.getElementById('album-parent');
@@ -481,30 +482,47 @@ btnSaveAll.querySelector('.inner-text').textContent = originalText;
 btnSaveAll.disabled = false;
 });
 }
-function tryLogin() {
+async function tryLogin() {
+const email = (emailInput.value || '').toString().trim();
 const password = (passwordInput.value || '').toString();
-if (password === '230470') {
+if (!email || !password) {
+loginMsg.textContent = 'შეიყვანეთ ელ-ფოსტა და პაროლი';
+return;
+}
+loginBtn.disabled = true;
+loginMsg.textContent = 'იტვირთება...';
+try {
+const userCred = await firebase.auth().signInWithEmailAndPassword(email, password);
 loggedIn = true;
 loginForm.classList.add('hidden');
 adminPanel.classList.remove('hidden');
+emailInput.value = '';
 passwordInput.value = '';
-// Load from Firebase instead of tracks.json
-loadFromFirebase().then(() => {
+loginMsg.textContent = '';
+// Load from Firebase
+await loadFromFirebase();
 renderAlbumsList();
 renderTracks(trackSearchInput ? trackSearchInput.value : '');
 fillAlbumSelects();
 clearDirty();
-}).catch(err => {
-console.error(err);
-alert('Не удалось загрузить данные из Firebase');
-});
-} else {
-loginMsg.textContent = 'პაროლი არასწორია';
-setTimeout(() => { loginMsg.textContent = ''; }, 3000);
+} catch (err) {
+console.error('Login error:', err);
+loginMsg.textContent = 'შეცდომა: ' + (err.message || 'პაროლი არასწორია');
+setTimeout(() => { loginMsg.textContent = ''; }, 4000);
+} finally {
+loginBtn.disabled = false;
 }
 }
 if (loginBtn) {
 loginBtn.addEventListener('click', tryLogin);
+}
+if (emailInput) {
+emailInput.addEventListener('keydown', (e) => {
+if (e.key === 'Enter') {
+e.preventDefault();
+tryLogin();
+}
+});
 }
 if (passwordInput) {
 passwordInput.addEventListener('keydown', (e) => {
@@ -515,12 +533,38 @@ tryLogin();
 });
 }
 if (logoutBtn) {
-logoutBtn.addEventListener('click', () => {
+logoutBtn.addEventListener('click', async () => {
+try {
+await firebase.auth().signOut();
 loggedIn = false;
 adminPanel.classList.add('hidden');
 loginForm.classList.remove('hidden');
+emailInput.value = '';
+passwordInput.value = '';
+} catch (err) {
+console.error('Logout error:', err);
+}
 });
 }
+// Auto-login if already authenticated
+firebase.auth().onAuthStateChanged((user) => {
+if (user) {
+loggedIn = true;
+loginForm.classList.add('hidden');
+adminPanel.classList.remove('hidden');
+loginMsg.textContent = '';
+loadFromFirebase().then(() => {
+renderAlbumsList();
+renderTracks(trackSearchInput ? trackSearchInput.value : '');
+fillAlbumSelects();
+clearDirty();
+}).catch(err => console.error('Load error:', err));
+} else {
+loggedIn = false;
+adminPanel.classList.add('hidden');
+loginForm.classList.remove('hidden');
+}
+});
 function debounce(fn, wait) {
 let t = null;
 return function(...args) {
