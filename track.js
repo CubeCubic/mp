@@ -40,6 +40,7 @@
         container.innerHTML = '<div class="track-page-not-found">ტრეკი ვერ მოიძებნა</div>';
         return;
       }
+      document.title = safeStr(track.title) + ' — Cubic';
 
       const streamUrl = getStreamUrl(track);
       const coverUrl = getCoverUrl(track);
