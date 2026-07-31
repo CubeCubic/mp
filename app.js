@@ -384,7 +384,7 @@ allSongsBtn.type = 'button';
 allSongsBtn.className = 'album-list-button' + (allSongsMode ? ' selected' : '');
 allSongsBtn.setAttribute('data-special', 'all-songs');
 const allSongsLabel = document.createElement('span');
-allSongsLabel.textContent = 'All Tracks';
+allSongsLabel.textContent = 'All Songs';
 allSongsBtn.appendChild(allSongsLabel);
 const georgianAlbum = albums.find(a => !a.parentId && a.name === 'Songs in Georgian');
 const englishAlbum  = albums.find(a => !a.parentId && a.name === 'Songs in English');
