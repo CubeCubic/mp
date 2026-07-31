@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ka">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ტრეკი — Cubic</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .track-page-wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: calc(var(--header-h) + 24px) 20px 40px;
+    }
+    .track-page-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      text-align: center;
+    }
+    .track-page-cover {
+      width: 240px;
+      height: 240px;
+      object-fit: cover;
+      border-radius: var(--radius-lg);
+      margin: 0 auto 20px;
+      display: block;
+      box-shadow: var(--shadow-soft);
+    }
+    .track-page-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      margin: 0 0 8px;
+    }
+    .track-page-artist {
+      font-size: 16px;
+      color: rgba(255,255,255,0.6);
+      margin: 0 0 4px;
+    }
+    .track-page-album {
+      font-size: 13px;
+      color: var(--accent-2);
+      margin: 0 0 20px;
+    }
+    .track-page-audio {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .track-page-lyrics-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      text-align: left;
+    }
+    .track-page-lyrics {
+      text-align: left;
+      background: rgba(0,0,0,0.2);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.85);
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .track-page-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 20px;
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background var(--t-fast);
+    }
+    .track-page-back:hover {
+      background: rgba(255,255,255,0.12);
+    }
+    .track-page-not-found {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255,255,255,0.5);
+    }
+  </style>
+</head>
+<body>
+  <header style="grid-template-columns: auto auto 1fr;">
+    <div id="header-badge"><a href="index.html"><img src="images/midcube.png" alt="Cube Cubic"></a></div>
+    <h1><a href="index.html" style="color:inherit;text-decoration:none;">Cubic</a></h1>
+  </header>
+
+  <div class="site-wrapper">
+    <div class="track-page-wrapper" id="track-page">
+      <div class="track-page-not-found">იტვირთება…</div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="track.js"></script>
+</body>
+</html>
