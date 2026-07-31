@@ -384,7 +384,7 @@ allSongsBtn.type = 'button';
 allSongsBtn.className = 'album-list-button' + (allSongsMode ? ' selected' : '');
 allSongsBtn.setAttribute('data-special', 'all-songs');
 const allSongsLabel = document.createElement('span');
-allSongsLabel.textContent = 'All Songs';
+allSongsLabel.textContent = 'All Tracks';
 allSongsBtn.appendChild(allSongsLabel);
 const georgianAlbum = albums.find(a => !a.parentId && a.name === 'Songs in Georgian');
 const englishAlbum  = albums.find(a => !a.parentId && a.name === 'Songs in English');
@@ -497,20 +497,6 @@ mains.forEach(album => {
     renderTracks();
   });
   albumListContainer.appendChild(btn);
-
-  // После Songs in English вставляем All Songs
-  if (album.name === 'Songs in English' && !allSongsInserted) {
-    allSongsInserted = true;
-    allSongsBtn.addEventListener('click', () => {
-      allSongsMode = true;
-      playlistMode = false;
-      if (albumSelect) albumSelect.value = '';
-      if (subalbumSelect) subalbumSelect.value = '';
-      renderAlbumList();
-      renderTracks();
-    });
-    albumListContainer.appendChild(allSongsBtn);
-  }
 
   // Subalbums accordion (только не для Instrumental)
   if (isSelected && hasSubalbums) {
