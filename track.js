@@ -321,6 +321,9 @@
 
       container.innerHTML = html;
 
+      // Comments
+      loadComments(track.id);
+
       // Playlist button
       const plBtn = document.getElementById('track-pl-btn');
       if (plBtn) {
@@ -454,6 +457,86 @@
       }
     });
   })();
+
+  // ════════════════════════════════
+  //  Comments
+  // ════════════════════════════════
+  let commentsUnsubscribe = null;
+
+  function renderCommentsList(trackId, val) {
+    const list = document.getElementById('comments-list');
+    if (!list) return;
+    list.innerHTML = '';
+    if (!val) {
+      list.innerHTML = '<div style="color:rgba(255,255,255,0.35);font-size:13px;text-align:center;padding:20px 0;">კომენტარები არ არის. იყავი პირველი!</div>';
+      return;
+    }
+    const items = Object.entries(val)
+      .map(([k, v]) => ({ key: k, ...v }))
+      .sort((a, b) => (a.ts || 0) - (b.ts || 0));
+    items.forEach(item => {
+      const div = document.createElement('div');
+      div.style.cssText = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.5;';
+      const date = item.ts ? new Date(item.ts).toLocaleDateString('ka-GE', { day:'numeric', month:'short', year:'numeric' }) : '';
+      div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px;">' +
+        '<span style="font-weight:700;color:#fff;font-size:12px;">' + safeStr(item.author || 'ანონიმი') + '</span>' +
+        '<span style="font-size:11px;color:rgba(255,255,255,0.3);flex-shrink:0;">' + date + '</span>' +
+        '</div>' +
+        '<div style="color:rgba(255,255,255,0.75);word-break:break-word;">' + safeStr(item.text).replace(/\n/g, '<br>') + '</div>';
+      list.appendChild(div);
+    });
+    list.scrollTop = list.scrollHeight;
+  }
+
+  function loadComments(trackId) {
+    const wrapper = document.getElementById('comments-wrapper');
+    if (!wrapper) return;
+    wrapper.innerHTML = '<h3 style="font-size:16px;font-weight:700;color:#fff;margin:0 0 14px;">კომენტარები</h3>' +
+      '<div id="comments-list" style="max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:14px;"></div>' +
+      '<form id="comments-form" novalidate style="display:flex;flex-direction:column;gap:8px;border-top:1px solid rgba(255,255,255,0.08);padding-top:14px;">' +
+      '<input id="comment-author" type="text" placeholder="თქვენი სახელი…" maxlength="60" autocomplete="off" style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;box-sizing:border-box;">' +
+      '<textarea id="comment-text" placeholder="კომენტარი…" maxlength="500" rows="3" style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;box-sizing:border-box;resize:vertical;"></textarea>' +
+      '<button type="submit" id="comment-submit" style="align-self:flex-end;padding:9px 20px;border-radius:6px;border:none;background:linear-gradient(135deg,#0fb3a6,#2bb7a4);color:#fff;font-size:13px;font-weight:700;cursor:pointer;min-height:auto;">გაგზავნა</button>' +
+      '</form>';
+
+    const list = document.getElementById('comments-list');
+    if (list) list.innerHTML = '<div style="color:rgba(255,255,255,0.35);font-size:13px;text-align:center;padding:20px 0;">იტვირთება…</div>';
+
+    if (commentsUnsubscribe) { commentsUnsubscribe(); commentsUnsubscribe = null; }
+    const ref = firebase.database().ref('comments/' + trackId).orderByChild('ts');
+    const handler = ref.on('value', (snap) => {
+      renderCommentsList(trackId, snap.val());
+    });
+    commentsUnsubscribe = () => ref.off('value', handler);
+
+    const form = document.getElementById('comments-form');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const authorInput = document.getElementById('comment-author');
+        const textInput = document.getElementById('comment-text');
+        const submitBtn = document.getElementById('comment-submit');
+        const author = (authorInput ? authorInput.value.trim() : '') || 'ანონიმი';
+        const text = (textInput ? textInput.value.trim() : '');
+        if (!text) { showToast('კომენტარი ცარიელია'); return; }
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '…'; }
+        try {
+          await firebase.database().ref('comments/' + trackId).push({
+            author: author.slice(0, 60),
+            text: text.slice(0, 500),
+            ts: Date.now()
+          });
+          form.reset();
+          showToast('კომენტარი დაემატა!');
+        } catch (err) {
+          console.error('Comment submit error:', err);
+          showToast('შეცდომა. სცადეთ თავიდან.');
+        } finally {
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'გაგზავნა'; }
+        }
+      });
+    }
+  }
 
   // Init
   checkDownloadAccess();
