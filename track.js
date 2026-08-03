@@ -404,7 +404,9 @@
     const contactCancel = document.getElementById('contact-cancel');
     const contactModal = document.getElementById('contact-modal');
     const contactForm = document.getElementById('contact-form');
+    const contactBtn = document.getElementById('contact-btn');
 
+    if (contactBtn) contactBtn.addEventListener('click', openContactModal);
     if (contactModalClose) contactModalClose.addEventListener('click', closeContactModal);
     if (contactCancel) contactCancel.addEventListener('click', closeContactModal);
     if (contactModal) {
