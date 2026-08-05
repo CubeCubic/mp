@@ -270,6 +270,8 @@
 
       const streamUrl = getStreamUrl(track);
       const coverUrl = getCoverUrl(track);
+      const faviconLink = document.getElementById('dynamic-favicon');
+      if (faviconLink) faviconLink.href = coverUrl;
       const albumName = getAlbumName(albums, track.albumId);
       const isLiked = isLikedByUser(track.id);
       const likeCount = getLikeCount(track.id);
