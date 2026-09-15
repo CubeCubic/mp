@@ -39,6 +39,12 @@
     const a = albums.find(x => String(x.id) === String(albumId));
     return a ? (a.name || '') : '';
   }
+  function formatTime(sec) {
+    if (!isFinite(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return m + ':' + s.toString().padStart(2, '0');
+  }
 
   // ════════════════════════════════
   //  Like System
@@ -213,6 +219,181 @@
   }
 
   // ════════════════════════════════
+  //  Player (header + mobile mini-player — same as main page)
+  //  Single track only: no next/prev/shuffle (hidden by design)
+  // ════════════════════════════════
+  const audio = document.getElementById('audio');
+  const playerCoverImg = document.getElementById('player-cover-img');
+  const playerTitle = document.getElementById('player-title-sidebar');
+  const playerArtist = document.getElementById('player-artist-sidebar');
+  const headerPlayerLikes = document.getElementById('header-player-likes');
+  const playBtn = document.getElementById('play-sidebar');
+  const repeatBtn = document.getElementById('repeat-sidebar');
+  const progressBar = document.getElementById('progress-sidebar');
+  const timeCurrentEl = document.getElementById('time-current-sidebar');
+  const timeDurationEl = document.getElementById('time-duration-sidebar');
+  const volumeSlider = document.getElementById('volume-sidebar');
+  const playerCoverWrapper = document.querySelector('.player-cover-wrapper');
+
+  const miniPlayer = document.getElementById('mini-player');
+  const miniCover = document.getElementById('mini-player-cover');
+  const miniTitle = document.getElementById('mini-player-title');
+  const miniArtist = document.getElementById('mini-player-artist');
+  const miniPlay = document.getElementById('mini-play');
+  const miniRepeat = document.getElementById('mini-repeat');
+  const miniProgressBar = document.getElementById('mini-player-progress-bar');
+  const miniSeek = document.getElementById('mini-seek');
+  const miniTimeCurrent = document.getElementById('mini-time-current');
+  const miniTimeDuration = document.getElementById('mini-time-duration');
+
+  function setMarqueeTitle(el, text) {
+    if (!el) return;
+    el.classList.remove('marquee');
+    el.textContent = text;
+    requestAnimationFrame(() => {
+      if (el.scrollWidth > el.clientWidth) {
+        el.classList.add('marquee');
+        el.innerHTML = '<span>' + text + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + text + '</span>';
+      }
+    });
+  }
+  function startVinylSpin() {
+    if (playerCoverWrapper && audio && !audio.paused) {
+      playerCoverWrapper.classList.add('spinning');
+      document.body.classList.add('audio-playing');
+    }
+  }
+  function stopVinylSpin() {
+    if (playerCoverWrapper) {
+      playerCoverWrapper.classList.remove('spinning');
+      document.body.classList.remove('audio-playing');
+    }
+  }
+  function updateMiniPlayer(t) {
+    if (!miniPlayer) return;
+    if (!t) {
+      miniPlayer.classList.remove('visible');
+      miniPlayer.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('mini-player-visible');
+      return;
+    }
+    if (miniCover) miniCover.src = getCoverUrl(t);
+    if (miniTitle) miniTitle.textContent = safeStr(t.title);
+    if (miniArtist) miniArtist.textContent = safeStr(t.artist);
+    miniPlayer.classList.add('visible');
+    miniPlayer.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('mini-player-visible');
+  }
+  function updateMediaSession(t) {
+    if (!('mediaSession' in navigator) || !t) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: safeStr(t.title),
+      artist: safeStr(t.artist),
+      artwork: [{ src: getCoverUrl(t), sizes: '512x512', type: 'image/jpeg' }]
+    });
+    navigator.mediaSession.setActionHandler('play',  () => { audio.play().catch(() => {}); });
+    navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); });
+    navigator.mediaSession.setActionHandler('seekto', (d) => {
+      if (d.seekTime !== undefined) audio.currentTime = d.seekTime;
+    });
+  }
+  function updatePlayer(t) {
+    if (!t) return;
+    setMarqueeTitle(playerTitle, safeStr(t.title));
+    if (playerArtist) playerArtist.textContent = safeStr(t.artist);
+    if (playerCoverImg) {
+      playerCoverImg.style.opacity = '0';
+      playerCoverImg.src = getCoverUrl(t);
+      setTimeout(() => { playerCoverImg.style.opacity = '1'; }, 50);
+    }
+    updateMiniPlayer(t);
+    updateMediaSession(t);
+  }
+  function togglePlay() {
+    if (!audio || !audio.src) return;
+    if (audio.paused || audio.ended) audio.play().catch(() => {});
+    else audio.pause();
+  }
+  if (audio) {
+    audio.addEventListener('playing', () => {
+      if (playBtn) playBtn.textContent = '❚❚';
+      if (miniPlay) miniPlay.textContent = '❚❚';
+      startVinylSpin();
+    });
+    audio.addEventListener('pause', () => {
+      if (playBtn) playBtn.textContent = '▶';
+      if (miniPlay) miniPlay.textContent = '▶';
+      stopVinylSpin();
+    });
+    audio.addEventListener('timeupdate', () => {
+      if (audio.duration) {
+        if (progressBar) { progressBar.value = audio.currentTime; progressBar.max = audio.duration; }
+        if (timeCurrentEl) timeCurrentEl.textContent = formatTime(audio.currentTime);
+        if (miniProgressBar) miniProgressBar.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
+        if (miniSeek) { miniSeek.max = audio.duration; miniSeek.value = audio.currentTime; }
+        if (miniTimeCurrent) miniTimeCurrent.textContent = formatTime(audio.currentTime);
+      }
+    });
+    audio.addEventListener('loadedmetadata', () => {
+      if (timeDurationEl) timeDurationEl.textContent = formatTime(audio.duration);
+      if (progressBar) progressBar.max = audio.duration || 0;
+      if (miniTimeDuration) miniTimeDuration.textContent = formatTime(audio.duration);
+      if (miniSeek) miniSeek.max = audio.duration || 100;
+    });
+    audio.addEventListener('volumechange', () => {
+      if (volumeSlider) volumeSlider.value = audio.volume;
+    });
+    audio.addEventListener('error', () => {
+      stopVinylSpin();
+      showToast('შეცდომა: ტრეკი ვერ ჩაიტვირთა');
+    });
+    let stallTimer = null;
+    function clearStallTimer() { if (stallTimer) { clearTimeout(stallTimer); stallTimer = null; } }
+    audio.addEventListener('waiting', () => {
+      if (playBtn) playBtn.textContent = '⏳';
+      clearStallTimer();
+      stallTimer = setTimeout(() => {
+        if (!audio.paused && audio.readyState < 3) {
+          const pos = audio.currentTime;
+          const src = audio.src;
+          if (src) { audio.src = ''; audio.src = src; audio.currentTime = pos; audio.play().catch(() => {}); showToast('ტვირთვა განახლდა...'); }
+        }
+      }, 8000);
+    });
+    audio.addEventListener('stalled', () => {
+      if (playBtn) playBtn.textContent = '⏳';
+      clearStallTimer();
+      stallTimer = setTimeout(() => {
+        if (!audio.paused) {
+          const pos = audio.currentTime;
+          const src = audio.src;
+          if (src) { audio.src = ''; audio.src = src; audio.currentTime = pos; audio.play().catch(() => {}); showToast('კავშირი განახლდა...'); }
+        }
+      }, 8000);
+    });
+    audio.addEventListener('playing', clearStallTimer);
+  }
+  if (playBtn) playBtn.addEventListener('click', togglePlay);
+  if (miniPlay) miniPlay.addEventListener('click', togglePlay);
+  if (progressBar) progressBar.addEventListener('input', () => { audio.currentTime = progressBar.value; });
+  if (miniSeek) miniSeek.addEventListener('input', () => { audio.currentTime = parseFloat(miniSeek.value); });
+  if (volumeSlider) volumeSlider.addEventListener('input', () => { audio.volume = parseFloat(volumeSlider.value); });
+  if (repeatBtn) {
+    repeatBtn.addEventListener('click', () => {
+      audio.loop = !audio.loop;
+      repeatBtn.classList.toggle('active', audio.loop);
+      if (miniRepeat) miniRepeat.classList.toggle('active', audio.loop);
+    });
+  }
+  if (miniRepeat) {
+    miniRepeat.addEventListener('click', () => {
+      audio.loop = !audio.loop;
+      miniRepeat.classList.toggle('active', audio.loop);
+      if (repeatBtn) repeatBtn.classList.toggle('active', audio.loop);
+    });
+  }
+
+  // ════════════════════════════════
   //  Update UI
   // ════════════════════════════════
   function updateStats() {
@@ -228,14 +409,19 @@
     const playEl = document.getElementById('track-play-count');
     if (playEl) {
       const pc = getPlayCount(id);
-      playEl.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M8 5v14l11-7z"/></svg><span>' + (pc > 0 ? pc : '') + '</span>';
-      playEl.style.display = pc > 0 ? 'flex' : 'none';
+      playEl.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span>' + (pc > 0 ? pc : '') + '</span>';
+      playEl.style.display = pc > 0 ? 'inline-flex' : 'none';
     }
     const likeCountEl = document.getElementById('track-like-count');
     if (likeCountEl) {
       const lc = getLikeCount(id);
       likeCountEl.textContent = '❤ ' + lc;
       likeCountEl.style.display = lc > 0 ? 'inline' : 'none';
+    }
+    if (headerPlayerLikes) {
+      const lc2 = getLikeCount(id);
+      headerPlayerLikes.textContent = '❤ ' + lc2;
+      headerPlayerLikes.style.display = lc2 > 0 ? 'inline' : 'none';
     }
   }
 
@@ -278,24 +464,31 @@
       const inPlaylist = isInPlaylist(track.id);
       const pc = getPlayCount(track.id);
 
-      let html = '<div class="track-page-card">' +
-        '<img class="track-page-cover" src="' + coverUrl + '" alt="' + safeStr(track.title) + '">' +
-        '<div class="track-page-title">' + safeStr(track.title) + '</div>';
-      if (track.artist) html += '<div class="track-page-artist">' + safeStr(track.artist) + '</div>';
-      if (albumName)    html += '<div class="track-page-album">' + safeStr(albumName) + '</div>';
-
-      html += '<div class="track-page-stats" style="display:flex;gap:10px;justify-content:center;margin:8px 0 12px;font-size:12px;color:rgba(255,255,255,0.5);">' +
-        '<span id="track-play-count" style="display:' + (pc > 0 ? 'flex' : 'none') + ';align-items:center;gap:4px;">' +
-          '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M8 5v14l11-7z"/></svg><span>' + (pc > 0 ? pc : '') + '</span>' +
-        '</span>' +
-        '<span id="track-like-count" style="display:' + (likeCount > 0 ? 'inline' : 'none') + ';">❤ ' + likeCount + '</span>' +
-      '</div>';
-
+      // ── Header / mini player (same as main page) ──
+      updatePlayer(track);
       if (streamUrl) {
-        html += '<audio class="track-page-audio" controls preload="metadata" src="' + streamUrl + '"></audio>';
+        audio.src = streamUrl;
+        if (playBtn) playBtn.disabled = false;
+        if (miniPlay) miniPlay.disabled = false;
+      } else {
+        if (playBtn) playBtn.disabled = true;
+        if (miniPlay) miniPlay.disabled = true;
       }
 
-      html += '<div class="track-actions" style="justify-content:center;margin:12px 0;">' +
+      let html = '<div class="track-page-card">' +
+        '<div class="track-page-top">' +
+          '<img class="track-page-cover" src="' + coverUrl + '" alt="' + safeStr(track.title) + '">' +
+          '<div class="track-page-info">' +
+            '<div class="track-page-title">' + safeStr(track.title) + '</div>' +
+            (track.artist ? '<div class="track-page-artist">' + safeStr(track.artist) + '</div>' : '') +
+            (albumName ? '<div class="track-page-album">' + safeStr(albumName) + '</div>' : '') +
+            '<span id="track-play-count" class="track-page-playcount" style="display:' + (pc > 0 ? 'inline-flex' : 'none') + ';">' +
+              '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span>' + (pc > 0 ? pc : '') + '</span>' +
+            '</span>' +
+          '</div>' +
+        '</div>';
+
+      html += '<div class="track-actions" style="justify-content:center;margin:20px 0 12px;">' +
         '<button id="track-pl-btn" class="playlist-track-btn ' + (inPlaylist ? 'in-playlist' : '') + '" ' +
           'title="' + (inPlaylist ? 'პლეილისტიდან წაშლა' : 'პლეილისტში დამატება') + '">' +
           '<svg viewBox="0 0 24 24"><path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zM2 16h8v-2H2v2zm19.5-4.5L23 13l-6.99 7-4.51-4.5L13 14l3.01 3 5.49-5.5z"/></svg>' +
