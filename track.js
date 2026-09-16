@@ -516,6 +516,16 @@
 
       container.innerHTML = html;
 
+      // Click on the card starts playback (same as track cards on the main page)
+      const cardTop = container.querySelector('.track-page-top');
+      if (cardTop) {
+        cardTop.style.cursor = 'pointer';
+        cardTop.addEventListener('click', (ev) => {
+          if (ev.target.closest('.track-actions')) return;
+          togglePlay();
+        });
+      }
+
       // Comments
       loadComments(track.id);
 
