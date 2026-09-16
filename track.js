@@ -475,20 +475,7 @@
         if (miniPlay) miniPlay.disabled = true;
       }
 
-      let html = '<div class="track-page-card">' +
-        '<div class="track-page-top">' +
-          '<img class="track-page-cover" src="' + coverUrl + '" alt="' + safeStr(track.title) + '">' +
-          '<div class="track-page-info">' +
-            '<div class="track-page-title">' + safeStr(track.title) + '</div>' +
-            (track.artist ? '<div class="track-page-artist">' + safeStr(track.artist) + '</div>' : '') +
-            (albumName ? '<div class="track-page-album">' + safeStr(albumName) + '</div>' : '') +
-            '<span id="track-play-count" class="track-page-playcount" style="display:' + (pc > 0 ? 'inline-flex' : 'none') + ';">' +
-              '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span>' + (pc > 0 ? pc : '') + '</span>' +
-            '</span>' +
-          '</div>' +
-        '</div>';
-
-      html += '<div class="track-actions" style="justify-content:center;margin:20px 0 12px;">' +
+      const actionsHtml = '<div class="track-actions" style="justify-content:flex-start;padding:0;margin:16px 0 0;">' +
         '<button id="track-pl-btn" class="playlist-track-btn ' + (inPlaylist ? 'in-playlist' : '') + '" ' +
           'title="' + (inPlaylist ? 'პლეილისტიდან წაშლა' : 'პლეილისტში დამატება') + '">' +
           '<svg viewBox="0 0 24 24"><path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zM2 16h8v-2H2v2zm19.5-4.5L23 13l-6.99 7-4.51-4.5L13 14l3.01 3 5.49-5.5z"/></svg>' +
@@ -508,9 +495,22 @@
         '</button>' +
       '</div>';
 
+      let html = '<div class="track-page-card">' +
+        '<div class="track-page-top">' +
+          '<img class="track-page-cover" src="' + coverUrl + '" alt="' + safeStr(track.title) + '">' +
+          '<div class="track-page-info">' +
+            '<div class="track-page-title">' + safeStr(track.title) + '</div>' +
+            (track.artist ? '<div class="track-page-artist">' + safeStr(track.artist) + '</div>' : '') +
+            (albumName ? '<div class="track-page-album">' + safeStr(albumName) + '</div>' : '') +
+            '<span id="track-play-count" class="track-page-playcount" style="display:' + (pc > 0 ? 'inline-flex' : 'none') + ';">' +
+              '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span>' + (pc > 0 ? pc : '') + '</span>' +
+            '</span>' +
+            actionsHtml +
+          '</div>' +
+        '</div>';
+
       if (track.lyrics && track.lyrics.trim()) {
-        html += '<div class="track-page-lyrics-label">ტექსტი</div>' +
-                '<pre class="track-page-lyrics">' + safeStr(track.lyrics) + '</pre>';
+        html += '<pre class="track-page-lyrics">' + safeStr(track.lyrics) + '</pre>';
       }
       html += '<a href="index.html" class="track-page-back">← მთავარზე დაბრუნება</a></div>';
 
