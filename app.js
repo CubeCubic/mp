@@ -1017,8 +1017,8 @@ navigator.mediaSession.metadata = new MediaMetadata({
   album: getAlbumName(t),
   artwork: [{ src: getCoverUrl(t), sizes: '512x512', type: 'image/jpeg' }]
 });
-navigator.mediaSession.setActionHandler('play',     () => { audio.play().catch(console.error); });
-navigator.mediaSession.setActionHandler('pause',    () => { audio.pause(); });
+navigator.mediaSession.setActionHandler('play',     () => { _shouldBePlaying = true; audio.play().catch(console.error); });
+navigator.mediaSession.setActionHandler('pause',    () => { _shouldBePlaying = false; audio.pause(); });
 navigator.mediaSession.setActionHandler('nexttrack',() => { playNext(); });
 navigator.mediaSession.setActionHandler('previoustrack', () => { playPrev(); });
 navigator.mediaSession.setActionHandler('seekto', (d) => {
@@ -1039,6 +1039,7 @@ function playByIndex(idx) {
 _trackEndHandled = false;
 _ensureAudioCtx();
 if (idx < 0 || idx >= filteredTracks.length) {
+_shouldBePlaying = false;
 audio.pause();
 currentTrackIndex = -1;
 currentTrackId = null;
@@ -1058,8 +1059,14 @@ showToast('ტრეკი ვერ მოიძებნა');
 return;
 }
 audio.src = streamUrl;
+_shouldBePlaying = true;
 audio.play().catch(e => {
 console.error('Play error:', e);
+// Keep visual state honest: don't let the card/cover look like it's
+// playing when playback actually failed to start.
+stopVinylSpin();
+const eq = tracksContainer && currentTrackId ? tracksContainer.querySelector(`[data-track-id="${currentTrackId}"] .equalizer`) : null;
+if (eq) eq.style.animationPlayState = 'paused';
 if (e.name === 'NotAllowedError') {
 if (playBtn) playBtn.textContent = '▶';
 showToast('დააჭირეთ ▶ დასაკრავად');
@@ -1073,8 +1080,8 @@ scrollToCurrentTrack();
 }
 function togglePlay() {
 userInteracted = true;
-if (audio.paused || audio.ended) audio.play().catch(console.error);
-else audio.pause();
+if (audio.paused || audio.ended) { _shouldBePlaying = true; audio.play().catch(console.error); }
+else { _shouldBePlaying = false; audio.pause(); }
 }
 function playNext() {
 if (!filteredTracks.length) return;
@@ -1132,6 +1139,10 @@ if (eq) eq.style.animationPlayState = 'paused';
 //  the audio session alive so the native 'ended' event fires reliably.
 // ════════════════════════════════
 let _trackEndHandled = false;
+// True whenever playback is *supposed* to be active (a track was started/
+// resumed and not explicitly paused). Used by the recovery layers below to
+// tell "should be playing but isn't" apart from "user paused on purpose".
+let _shouldBePlaying = false;
 
 // ── Web Audio keepalive ──
 // Держим AudioContext живым через тихий oscillator.
@@ -1212,6 +1223,20 @@ function _stopHeartbeat() {
 audio.addEventListener('playing', () => { _ensureAudioCtx(); _startHeartbeat(); });
 audio.addEventListener('pause',   _stopHeartbeat);
 
+// ── Layer 2b: timeupdate near-end watch (backup for Layer 2) ──
+// 'timeupdate' is driven by the media pipeline itself, not a JS timer, so
+// it can still fire on some devices even when setInterval gets throttled
+// in the background.
+audio.addEventListener('timeupdate', () => {
+  if (!currentTrackId || _trackEndHandled) return;
+  if (!audio.paused && audio.duration > 0 && (audio.duration - audio.currentTime) < 0.4) {
+    _trackEndHandled = true;
+    _stopHeartbeat();
+    stopVinylSpin();
+    playNext();
+  }
+});
+
 // ── Layer 3: visibilitychange (screen unlock) ──
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') return;
@@ -1240,17 +1265,16 @@ document.addEventListener('visibilitychange', () => {
       return;
     }
   }
-  // Stalled while playing (iOS sometimes pauses without user intent)
-  if (audio.paused && !audio.ended && currentTrackId && audio.src) {
-    const pos = audio.currentTime;
-    const dur = audio.duration;
-    if (dur > 0 && pos > 0 && pos < dur - 1) {
-      audio.play().catch(() => {});
-    }
+  // Should be playing but isn't — covers both "stalled mid-track" and
+  // "auto-advance to the next track failed to start while backgrounded"
+  // (in the latter case currentTime is still 0, which the old check missed).
+  if (_shouldBePlaying && audio.paused && !audio.ended && currentTrackId && audio.src) {
+    audio.play().catch(() => {});
   }
 });
 
 audio.addEventListener('error', () => {
+  _shouldBePlaying = false;
   _stopHeartbeat();
   updatePlayer(null);
   showToast('შეცდომა: ტრეკი ვერ ჩაიტვირთა');
