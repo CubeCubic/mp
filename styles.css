@@ -68,7 +68,7 @@ left: 0;
 right: 0;
 height: var(--header-h);
 display: grid;
-grid-template-columns: auto auto auto 1fr auto auto auto;
+grid-template-columns: auto auto 1fr auto auto auto auto;
 align-items: center;
 gap: 12px;
 padding: 6px 16px;
@@ -185,29 +185,38 @@ color: rgba(255,255,255,0.5);
 }
 
 /* === Header Equalizer (between title and player, visible only while playing) === */
+/* ВАЖНО: скрытие через visibility, а НЕ display — чтобы плеер никогда не менял позицию */
 .header-equalizer {
-display: none;
+display: flex;
 align-items: flex-end;
-gap: 3px;
-height: 24px;
-justify-self: start;
+justify-content: center;
+gap: 4px;
+height: 28px;
+justify-self: center;
 flex-shrink: 0;
-margin: 0 2px;
+visibility: hidden;
 }
 .header-equalizer.visible {
-display: flex;
+visibility: visible;
 }
 .header-equalizer span {
-width: 3px;
+width: 4px;
 background: linear-gradient(180deg, var(--accent), var(--accent-2));
 border-radius: 2px;
 transform-origin: bottom;
 animation: headerEqBounce 0.9s ease-in-out infinite;
+animation-play-state: paused;
 }
-.header-equalizer span:nth-child(1) { height: 9px;  animation-delay: 0s;    }
-.header-equalizer span:nth-child(2) { height: 18px; animation-delay: 0.15s; }
-.header-equalizer span:nth-child(3) { height: 13px; animation-delay: 0.3s;  }
-.header-equalizer span:nth-child(4) { height: 21px; animation-delay: 0.45s; }
+.header-equalizer.visible span {
+animation-play-state: running;
+}
+.header-equalizer span:nth-child(1) { height: 11px; animation-delay: 0s;    }
+.header-equalizer span:nth-child(2) { height: 22px; animation-delay: 0.12s; }
+.header-equalizer span:nth-child(3) { height: 15px; animation-delay: 0.24s; }
+.header-equalizer span:nth-child(4) { height: 26px; animation-delay: 0.36s; }
+.header-equalizer span:nth-child(5) { height: 17px; animation-delay: 0.48s; }
+.header-equalizer span:nth-child(6) { height: 23px; animation-delay: 0.6s;  }
+.header-equalizer span:nth-child(7) { height: 13px; animation-delay: 0.72s; }
 @keyframes headerEqBounce {
 0%, 100% { transform: scaleY(0.35); opacity: 0.55; }
 50%      { transform: scaleY(1.15); opacity: 1;    }
@@ -216,8 +225,8 @@ animation: headerEqBounce 0.9s ease-in-out infinite;
 .header-equalizer span { animation: none; }
 }
 @media (max-width: 680px) {
-.header-equalizer { height: 18px; gap: 2px; }
-.header-equalizer span { width: 2px; }
+.header-equalizer { height: 20px; gap: 3px; }
+.header-equalizer span { width: 3px; }
 }
 /* === Header Player === */
 #header-player {
@@ -1477,7 +1486,7 @@ gap: 18px;
 @media (max-width: 680px) {
 :root { --header-h: 56px; }
 header {
-grid-template-columns: auto auto auto 1fr auto auto auto;
+grid-template-columns: auto auto 1fr auto auto auto auto;
 padding: 6px 12px;
 gap: 8px;
 }
