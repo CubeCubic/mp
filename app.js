@@ -204,20 +204,6 @@ document.body.classList.remove('audio-playing');
 }
 }
 // ════════════════════════════════
-//  Header Equalizer (between title and player — visible only while playing)
-// ════════════════════════════════
-const headerEqualizer = document.getElementById('header-equalizer');
-function showHeaderEqualizer() {
-if (headerEqualizer) headerEqualizer.classList.add('visible');
-}
-function hideHeaderEqualizer() {
-if (headerEqualizer) headerEqualizer.classList.remove('visible');
-}
-audio.addEventListener('playing', showHeaderEqualizer);
-audio.addEventListener('pause',   hideHeaderEqualizer);
-audio.addEventListener('ended',   hideHeaderEqualizer);
-audio.addEventListener('error',   hideHeaderEqualizer);
-// ════════════════════════════════
 //  Keyboard Shortcuts
 // ════════════════════════════════
 document.addEventListener('keydown', (e) => {
