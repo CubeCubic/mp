@@ -315,15 +315,25 @@
     else audio.pause();
   }
   if (audio) {
+    // Header equalizer: shows only while playing
+    const headerEqualizer = document.getElementById('header-equalizer');
     audio.addEventListener('playing', () => {
       if (playBtn) playBtn.textContent = '❚❚';
       if (miniPlay) miniPlay.textContent = '❚❚';
       startVinylSpin();
+      if (headerEqualizer) headerEqualizer.classList.add('visible');
     });
     audio.addEventListener('pause', () => {
       if (playBtn) playBtn.textContent = '▶';
       if (miniPlay) miniPlay.textContent = '▶';
       stopVinylSpin();
+      if (headerEqualizer) headerEqualizer.classList.remove('visible');
+    });
+    audio.addEventListener('ended', () => {
+      if (headerEqualizer) headerEqualizer.classList.remove('visible');
+    });
+    audio.addEventListener('error', () => {
+      if (headerEqualizer) headerEqualizer.classList.remove('visible');
     });
     audio.addEventListener('timeupdate', () => {
       if (audio.duration) {

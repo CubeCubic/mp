@@ -68,7 +68,7 @@ left: 0;
 right: 0;
 height: var(--header-h);
 display: grid;
-grid-template-columns: auto auto 1fr auto auto auto;
+grid-template-columns: auto auto auto 1fr auto auto auto;
 align-items: center;
 gap: 12px;
 padding: 6px 16px;
@@ -182,6 +182,42 @@ transition: color 0.2s;
 }
 #hidden-admin-link:hover {
 color: rgba(255,255,255,0.5);
+}
+
+/* === Header Equalizer (between title and player, visible only while playing) === */
+.header-equalizer {
+display: none;
+align-items: flex-end;
+gap: 3px;
+height: 24px;
+justify-self: start;
+flex-shrink: 0;
+margin: 0 2px;
+}
+.header-equalizer.visible {
+display: flex;
+}
+.header-equalizer span {
+width: 3px;
+background: linear-gradient(180deg, var(--accent), var(--accent-2));
+border-radius: 2px;
+transform-origin: bottom;
+animation: headerEqBounce 0.9s ease-in-out infinite;
+}
+.header-equalizer span:nth-child(1) { height: 9px;  animation-delay: 0s;    }
+.header-equalizer span:nth-child(2) { height: 18px; animation-delay: 0.15s; }
+.header-equalizer span:nth-child(3) { height: 13px; animation-delay: 0.3s;  }
+.header-equalizer span:nth-child(4) { height: 21px; animation-delay: 0.45s; }
+@keyframes headerEqBounce {
+0%, 100% { transform: scaleY(0.35); opacity: 0.55; }
+50%      { transform: scaleY(1.15); opacity: 1;    }
+}
+@media (prefers-reduced-motion: reduce) {
+.header-equalizer span { animation: none; }
+}
+@media (max-width: 680px) {
+.header-equalizer { height: 18px; gap: 2px; }
+.header-equalizer span { width: 2px; }
 }
 /* === Header Player === */
 #header-player {
@@ -1441,7 +1477,7 @@ gap: 18px;
 @media (max-width: 680px) {
 :root { --header-h: 56px; }
 header {
-grid-template-columns: auto auto 1fr auto auto auto;
+grid-template-columns: auto auto auto 1fr auto auto auto;
 padding: 6px 12px;
 gap: 8px;
 }
