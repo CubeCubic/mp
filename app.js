@@ -58,6 +58,7 @@ const timeDuration = document.getElementById('time-duration-sidebar');
 const volumeSlider = document.getElementById('volume-sidebar');
 // Player cover for vinyl spinning effect
 const playerCoverWrapper = document.querySelector('.player-cover-wrapper');
+const headerEqualizer = document.getElementById('header-equalizer');
 // Модалка
 const lyricsModal = document.getElementById('lyrics-modal');
 const modalClose = document.getElementById('modal-close');
@@ -196,11 +197,17 @@ if (playerCoverWrapper && audio && !audio.paused) {
 playerCoverWrapper.classList.add('spinning');
 document.body.classList.add('audio-playing');
 }
+if (headerEqualizer && audio && !audio.paused) {
+headerEqualizer.classList.add('playing');
+}
 }
 function stopVinylSpin() {
 if (playerCoverWrapper) {
 playerCoverWrapper.classList.remove('spinning');
 document.body.classList.remove('audio-playing');
+}
+if (headerEqualizer) {
+headerEqualizer.classList.remove('playing');
 }
 }
 // ════════════════════════════════

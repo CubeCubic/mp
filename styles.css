@@ -183,6 +183,41 @@ transition: color 0.2s;
 #hidden-admin-link:hover {
 color: rgba(255,255,255,0.5);
 }
+/* === Header Equalizer (playback indicator, between title and player) === */
+#header-equalizer {
+grid-column: 3;
+position: absolute;
+left: 0;
+top: 50%;
+transform: translateY(-50%);
+display: flex;
+align-items: flex-end;
+gap: 4px;
+height: 26px;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.35s ease;
+}
+#header-equalizer.playing {
+opacity: 1;
+}
+#header-equalizer span {
+width: 4px;
+border-radius: 3px;
+background: linear-gradient(180deg, var(--color-sea), var(--color-teal) 55%, var(--color-coral));
+box-shadow: 0 0 6px rgba(15,179,166,0.55);
+transform-origin: bottom center;
+animation: headerEqBounce 1s ease-in-out infinite;
+}
+#header-equalizer span:nth-child(1) { height: 40%; animation-duration: 0.9s;  animation-delay: 0s;    }
+#header-equalizer span:nth-child(2) { height: 70%; animation-duration: 1.1s;  animation-delay: 0.15s; }
+#header-equalizer span:nth-child(3) { height: 100%; animation-duration: 0.8s; animation-delay: 0.3s;  }
+#header-equalizer span:nth-child(4) { height: 65%; animation-duration: 1.2s;  animation-delay: 0.1s;  }
+#header-equalizer span:nth-child(5) { height: 45%; animation-duration: 1s;    animation-delay: 0.25s; }
+@keyframes headerEqBounce {
+0%, 100% { transform: scaleY(0.35); opacity: 0.75; }
+50%      { transform: scaleY(1);    opacity: 1; }
+}
 /* === Header Player === */
 #header-player {
 display: flex;
@@ -1446,6 +1481,9 @@ padding: 6px 12px;
 gap: 8px;
 }
 #header-player {
+display: none;
+}
+#header-equalizer {
 display: none;
 }
 #contact-btn {
