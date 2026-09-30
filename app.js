@@ -287,7 +287,6 @@ const m = Math.floor(sec / 60);
 const s = Math.floor(sec % 60);
 return `${m}:${s.toString().padStart(2, '0')}`;
 }
-const SITE_BASE_URL = 'https://cubecubic.github.io/mp/';
 function getStreamUrl(t) {
 if (!t) return null;
 return t.audioUrl || t.downloadUrl || (t.filename ? 'media/' + t.filename : null);
@@ -870,7 +869,7 @@ toRender.forEach(t => {
   shareBtn.addEventListener('click', async (ev) => {
     ev.preventDefault();
     ev.stopPropagation();
-    const trackUrl = `${SITE_BASE_URL}t/${t.id}.html`;
+    const trackUrl = `${window.location.origin}${window.location.pathname}#track-${t.id}`;
     const shareData = {
        title: safeStr(t.title),
       text: `${safeStr(t.title)}${t.artist ? ` - ${safeStr(t.artist)}` : ''}`,
@@ -1558,12 +1557,7 @@ e.preventDefault();
 // ════════════════════════════════
 const shareBtnHeader = document.getElementById('share-btn');
 async function handleShare() {
-const playingTrack = (currentTrackId && !audio.paused) ? tracks.find(x => String(x.id) === String(currentTrackId)) : null;
-const shareData = playingTrack ? {
-title: safeStr(playingTrack.title),
-text: `${safeStr(playingTrack.title)}${playingTrack.artist ? ` - ${safeStr(playingTrack.artist)}` : ''}`,
-url: `${SITE_BASE_URL}t/${playingTrack.id}.html`
-} : {
+const shareData = {
 title: 'Cube Cubic',
 text: 'შეამოწმე ეს მუსიკალური საიტი! 🎵',
 url: window.location.href.split('#')[0]

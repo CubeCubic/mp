@@ -6,7 +6,6 @@
     '188.169.181.187',
     '194.60.250.61'
   ];
-  const SITE_BASE_URL = 'https://cubecubic.github.io/mp/';
   const LIKES_STORAGE_KEY = 'cubeCubicLikes';
   const USER_LIKES_KEY = LIKES_STORAGE_KEY + '_user';
   const PLAYLIST_KEY = 'cubicMyPlaylist';
@@ -193,7 +192,7 @@
   //  Share
   // ════════════════════════════════
   async function handleShare(t) {
-    const trackUrl = `${SITE_BASE_URL}t/${t.id}.html`;
+    const trackUrl = window.location.href;
     const shareData = {
       title: safeStr(t.title),
       text: safeStr(t.title) + (t.artist ? ' - ' + safeStr(t.artist) : ''),
