@@ -895,6 +895,17 @@ toRender.forEach(t => {
     }
   });
   actions.appendChild(shareBtn);
+  const commentsBtn = document.createElement('button');
+  commentsBtn.type = 'button';
+  commentsBtn.className = 'comments-button';
+  commentsBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>';
+  commentsBtn.title = 'კომენტარები';
+  commentsBtn.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    openCommentsModal(t);
+  });
+  actions.appendChild(commentsBtn);
   card.appendChild(actions);
   const progressBarEl = document.createElement('div');
   progressBarEl.className = 'card-progress-bar';
@@ -1215,7 +1226,7 @@ function _startHeartbeat() {
   _heartbeatTimer = setInterval(() => {
     if (!currentTrackId) { _stopHeartbeat(); return; }
     if (audio.paused && !audio.ended) return;
-    if (audio.ended || (audio.duration > 0 && (audio.duration - audio.currentTime) < 0.5 && !audio.paused)) {
+    if (audio.ended || (!audio.loop && audio.duration > 0 && (audio.duration - audio.currentTime) < 0.5 && !audio.paused)) {
       if (_trackEndHandled) { _stopHeartbeat(); return; }
       _trackEndHandled = true;
       _stopHeartbeat();
@@ -1236,7 +1247,7 @@ audio.addEventListener('pause',   _stopHeartbeat);
 // in the background.
 audio.addEventListener('timeupdate', () => {
   if (!currentTrackId || _trackEndHandled) return;
-  if (!audio.paused && audio.duration > 0 && (audio.duration - audio.currentTime) < 0.4) {
+  if (!audio.loop && !audio.paused && audio.duration > 0 && (audio.duration - audio.currentTime) < 0.4) {
     _trackEndHandled = true;
     _stopHeartbeat();
     stopVinylSpin();
@@ -1263,7 +1274,7 @@ document.addEventListener('visibilitychange', () => {
   // Stuck near end
   if (audio.duration > 0 && !audio.paused) {
     const remaining = audio.duration - audio.currentTime;
-    if (remaining >= 0 && remaining < 1.5) {
+    if (!audio.loop && remaining >= 0 && remaining < 1.5) {
       if (_trackEndHandled) return;
       _trackEndHandled = true;
       _stopHeartbeat();

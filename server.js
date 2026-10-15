@@ -17,7 +17,23 @@ const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, '.');
 
 // Security and performance middlewares
-app.use(helmet());
+// helmet's default CSP blocks Firebase SDK (gstatic), Firebase RTDB/Auth,
+// web3forms, ipify and external audio/cover URLs — so we extend it explicitly.
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      'default-src': ["'self'"],
+      'script-src': ["'self'", 'https://www.gstatic.com', 'https://apis.google.com'],
+      'style-src': ["'self'", "'unsafe-inline'"],
+      'img-src': ["'self'", 'data:', 'blob:', 'https:'],
+      'media-src': ["'self'", 'blob:', 'data:', 'https:'],
+      'connect-src': ["'self'", 'https:', 'wss:'],
+      'frame-src': ["'self'", 'https://*.firebaseapp.com', 'https://accounts.google.com'],
+      'font-src': ["'self'", 'data:', 'https:']
+    }
+  }
+}));
 app.use(compression());
 
 // Simple request logger
