@@ -1818,3 +1818,33 @@ max-width: 94%;
 .playlist-track-btn.in-playlist:hover {
   background: rgba(255,122,102,0.2) !important;
 }
+
+/* ═══ AD BANNER — lives in the empty right gutter, outside the layout flow ═══
+   Hidden on screens too narrow to have a free gutter, so site geometry is never affected. */
+#ad-banner {
+  display: none;
+}
+@media (min-width: 1760px) {
+  #ad-banner {
+    display: block;
+    position: fixed;
+    top: calc(var(--header-h) + 24px);
+    left: calc(50% + 720px + 12px);
+    width: min(200px, calc(50vw - 750px));
+    z-index: 10;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+    opacity: .92;
+    transition: opacity .18s, transform .18s;
+  }
+  #ad-banner:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+  #ad-banner img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
