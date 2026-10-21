@@ -448,7 +448,7 @@ let allSongsInserted = false;
 
 mains.forEach(album => {
   const albumId = String(album.id || '');
-  const isInstrumental = album.name === 'Instrumental Music';
+  const isInstrumental = album.name === 'Instrumental Music' || album.name === 'Songs in Georgian';
   const subalbums = isInstrumental ? [] : albums
     .filter(s => String(s.parentId || '') === albumId)
     .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
@@ -505,7 +505,7 @@ mains.forEach(album => {
   });
   albumListContainer.appendChild(btn);
 
-  // Subalbums accordion (только не для Instrumental)
+  // Subalbums accordion (не для Instrumental Music и Songs in Georgian)
   if (isSelected && hasSubalbums) {
     const allSubBtn = document.createElement('button');
     allSubBtn.type = 'button';
